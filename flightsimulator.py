@@ -1,4 +1,5 @@
 #! python
+
 from os import path
 import inspect
 from argparse import ArgumentParser
@@ -102,12 +103,31 @@ def main():
 
     fdmexec.set_dt(dt)
 
-    fdmexec.load_script("scripts/start_on_air.xml")
+    fdmexec.load_model("c172p")
+
+    fdmexec.load_ic("reset01")
+
+    fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
+    fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)
+    fdmexec.set_property_value("propulsion/magneto_cmd", 3.0)
+    fdmexec.set_property_value("propulsion/starter_cmd", 1.0)
 
     initial_condition_result = fdmexec.run_ic()
 
     if not initial_condition_result:
         print("Failed to run initial condition")
+        exit(-1)
+
+    running = fdmexec.run()
+    while running and fdmexec.get_sim_time() < 0.1:
+        fdmexec.process_message()
+        fdmexec.check_incremental_hold()
+
+        running = fdmexec.run()
+        
+    result = fdmexec.trim()    
+    if not result:
+        print("Failed to trim the aircraft")
         exit(-1)
 
     if args.properties:
