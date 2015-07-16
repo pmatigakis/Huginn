@@ -1,5 +1,6 @@
 #! python
 
+from argparse import ArgumentParser
 from os import path
 import inspect
 from argparse import ArgumentParser
@@ -38,9 +39,9 @@ class FlightSimulatorRPC(XMLRPC):
         return self.fdmexec.run_ic()
 
 class FlightSimulatorProtocol(DatagramProtocol):
-    def __init__(self, fdmexec, simulation_settings):
+    def __init__(self, fdmexec, args):
         self.fdmexec = fdmexec
-        self.simulation_settings = simulation_settings
+        self.args = args
         
     def datagramReceived(self, data, (host, port)):
         controls_data = data.strip().split(",")
@@ -60,8 +61,7 @@ class FlightSimulatorProtocol(DatagramProtocol):
                     
             packet = ",".join(output_data) + "\r\n"
 
-            for host, port in self.simulation_settings["output"]["addresses"]:
-                self.transport.write(packet, (host, port))
+            self.transport.write(packet, (self.args.fdm_address, self.args.fdm_port))
         else:
             reactor.callFromThread(reactor.stop)
         
@@ -75,19 +75,19 @@ def get_arguments():
     parser = ArgumentParser(description="Flight Simulator")
 
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-    parser.add_argument("simulation_file", help="Simulation definition file")
+    #parser.add_argument("simulation_file", help="Simulation definition file")
+    parser.add_argument("--rpc", action="store", default=10500, help="The XMLRPC port")
+    parser.add_argument("--controls", action="store", default=10501, help="The controls port")
+    parser.add_argument("--fdm_address", action="store", default="127.0.0.1", help="The FDM data remote address")
+    parser.add_argument("--fdm_port", action="store", default=10502, help="The FDM data port")
+    parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
 
     return parser.parse_args()
 
 def main():
     args = get_arguments()
 
-    simulation_file = args.simulation_file
-
-    with open(simulation_file) as f:
-        simulation_settings = json.load(f)
-
-    dt = simulation_settings["dt"]
+    dt = args.dt
 
     print("Using dt: %f" % dt)
 
@@ -134,14 +134,14 @@ def main():
         fdmexec.print_property_catalog()
         exit()
 
-    protocol = FlightSimulatorProtocol(fdmexec, simulation_settings)
+    protocol = FlightSimulatorProtocol(fdmexec, args)
 
     rpc = FlightSimulatorRPC(fdmexec)
 
-    rpc_port = simulation_settings["rpc"]["port"]
+    rpc_port = args.rpc
     reactor.listenTCP(rpc_port, server.Site(rpc))
 
-    input_port = simulation_settings["input"]["port"]
+    input_port = args.controls
 
     reactor.listenUDP(input_port, protocol)
 
