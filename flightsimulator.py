@@ -15,7 +15,10 @@ from flightsim.rpc import FlightSimulatorRPC
         
 def update_fdm(protocol):
     protocol.update_fdm()
-    
+
+def transmit_fdm_data(protocol):
+    protocol.transmit_fdm_data()
+
 def shutdown():
     reactor.callFromThread(reactor.stop)
 
@@ -29,6 +32,7 @@ def get_arguments():
     parser.add_argument("--fdm_address", action="store", default="127.0.0.1", help="The FDM data remote address")
     parser.add_argument("--fdm_port", action="store", default=10502, help="The FDM data port")
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
+    parser.add_argument("--fdm_data_rate", action="store", default=0.1, help="The fdm data transmit rate")
 
     return parser.parse_args()
 
@@ -36,6 +40,7 @@ def main():
     args = get_arguments()
 
     dt = args.dt
+    fdm_data_rate = args.fdm_data_rate
 
     print("Using dt: %f" % dt)
 
@@ -95,6 +100,9 @@ def main():
 
     fdm_updater = task.LoopingCall(update_fdm, protocol)
     fdm_updater.start(dt)
+
+    fdm_updater = task.LoopingCall(transmit_fdm_data, protocol)
+    fdm_updater.start(fdm_data_rate)
 
     signal.signal(signal.SIGTERM, shutdown)
 

@@ -7,6 +7,7 @@ class FlightSimulatorProtocol(DatagramProtocol):
     def __init__(self, fdmexec, args):
         self.fdmexec = fdmexec
         self.args = args
+        self.running = False
         
     def datagramReceived(self, data, (host, port)):
         controls_data = data.strip().split(",")
@@ -16,9 +17,10 @@ class FlightSimulatorProtocol(DatagramProtocol):
             self.fdmexec.set_property_value(property_name, controls_data[i])
 
     def update_fdm(self):
-        running = self.fdmexec.run()
+        self.running = self.fdmexec.run()
 
-        if running:
+    def transmit_fdm_data(self):
+        if self.running:
             output_data = [self.fdmexec.get_property_value(str(property_name))
                            for property_name in fdm_properties]
 
