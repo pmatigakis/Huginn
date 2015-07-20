@@ -7,11 +7,13 @@ import signal
 
 from twisted.internet import reactor, task
 from twisted.web import server
+from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
 import flightsim
 from flightsim.protocols import FlightSimulatorProtocol
 from flightsim.rpc import FlightSimulatorRPC
+from flightsim.web import Index, FDMData
         
 def update_fdm(protocol):
     protocol.update_fdm()
@@ -33,6 +35,7 @@ def get_arguments():
     parser.add_argument("--fdm_port", action="store", default=10502, help="The FDM data port")
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
     parser.add_argument("--fdm_data_rate", action="store", default=0.1, help="The fdm data transmit rate")
+    parser.add_argument("--http", action="store", default=8080, help="The web server port")
 
     return parser.parse_args()
 
@@ -41,6 +44,7 @@ def main():
 
     dt = args.dt
     fdm_data_rate = args.fdm_data_rate
+    http_port = args.http
 
     print("Using dt: %f" % dt)
 
@@ -93,6 +97,13 @@ def main():
 
     rpc_port = args.rpc
     reactor.listenTCP(rpc_port, server.Site(rpc))
+
+    index_page = Index(fdmexec)
+    index_page.putChild("fdmdata", FDMData(fdmexec))
+    index_page.putChild("static", File(path.join(package_path, "static")))
+    
+    frontend = server.Site(index_page)
+    reactor.listenTCP(http_port, frontend)
 
     input_port = args.controls
 

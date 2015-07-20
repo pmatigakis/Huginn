@@ -10,4 +10,7 @@ setup(name="flightsim",
       packages=["flightsim"],
       package_data={'flightsim': ['data/aircraft/c172p/*.xml',
                                   'data/engine/*.xml',
-                                  'data/scripts/*.xml']})
+                                  'data/scripts/*.xml',
+                                  'templates/*.html',
+                                  'static/css/*.css',
+                                  'static/js/*.js']})
