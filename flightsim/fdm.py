@@ -43,4 +43,9 @@ fdm_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-controls_properties = []
+controls_properties = [
+    "fcs/elevator-cmd-norm",
+    "fcs/aileron-cmd-norm",
+    "fcs/rudder-cmd-norm",
+    "fcs/throttle-cmd-norm"
+]

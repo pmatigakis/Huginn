@@ -7,7 +7,7 @@ var map = new ol.Map({
 	target: 'map',
 	layers: [
 	         new ol.layer.Tile({
-	        	 source: new ol.source.MapQuest({layer: 'sat'})
+	        	 source: new ol.source.MapQuest({layer: 'osm'})
 	         })
 	         ],
 	view: view
@@ -19,7 +19,7 @@ setInterval(function(){
 	$("#location .latitude").text(data.fdm_data["position/lat-gc-deg"]);
 	$("#location .altitude").text(data.fdm_data["position/h-sl-ft"]);
     $("#location .airspeed").text(data.fdm_data["velocities/vtrue-kts"]);
-    $("#location .heading").text(data.fdm_data["attitude/heading-true-rad"]);
+    $("#location .heading").text(data.fdm_data["attitude/heading-true-rad"] / 0.0174532925);
       
     view.setCenter(ol.proj.transform([data.fdm_data["position/long-gc-deg"], data.fdm_data["position/lat-gc-deg"]], 'EPSG:4326', 'EPSG:3857'));});
 }, 1000);
