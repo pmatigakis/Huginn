@@ -40,3 +40,26 @@ class FDMData(Resource):
         fdm_data = dict(fdm_data)
         
         return json.dumps({"fdm_data": fdm_data})
+    
+class Controls(Resource):
+    ifLeaf = True
+    
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        
+    def render_POST(self, request):
+        request.responseHeaders.addRawHeader("content-type", "application/json")
+        
+        data = request.content.read()
+        
+        try:
+            controls_data = json.loads(data)
+        except:
+            return json.dumps({"response": "error"})
+        
+        self.fdmexec.set_property_value("fcs/elevator-cmd-norm", controls_data["fcs/elevator-cmd-norm"])
+        self.fdmexec.set_property_value("fcs/aileron-cmd-norm", controls_data["fcs/aileron-cmd-norm"])
+        self.fdmexec.set_property_value("fcs/rudder-cmd-norm", controls_data["fcs/rudder-cmd-norm"])
+        self.fdmexec.set_property_value("fcs/throttle-cmd-norm", controls_data["fcs/throttle-cmd-norm"])
+        
+        return json.dumps({"response": "ok"})

@@ -13,7 +13,7 @@ from flightsimlib import FGFDMExec
 import flightsim
 from flightsim.protocols import FlightSimulatorProtocol
 from flightsim.rpc import FlightSimulatorRPC
-from flightsim.web import Index, FDMData
+from flightsim.web import Index, FDMData, Controls
         
 def update_fdm(protocol):
     protocol.update_fdm()
@@ -100,6 +100,7 @@ def main():
 
     index_page = Index(fdmexec)
     index_page.putChild("fdmdata", FDMData(fdmexec))
+    index_page.putChild("controls", Controls(fdmexec))
     index_page.putChild("static", File(path.join(package_path, "static")))
     
     frontend = server.Site(index_page)
