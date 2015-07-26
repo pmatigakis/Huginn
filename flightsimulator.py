@@ -14,14 +14,26 @@ import flightsim
 from flightsim.protocols import FlightSimulatorProtocol
 from flightsim.rpc import FlightSimulatorRPC
 from flightsim.web import Index, FDMData, Controls
+from flightsim.configuration import InterfacesCatalog
 
-network_addresses = {
+DEFAULT_INTERFACES = {
     "rpc": {"port": 10500},
     "controls": {"port": 10501},
     "fdm_data": {"host": "127.0.0.1", "port": 10502},
     "http": {"port": 8080}
 }
+
+def init_interface_catalog(default_interfaces):
+    interface_catalog = InterfacesCatalog()
+    
+    for interface in default_interfaces:
+        address = default_interfaces[interface].get("host", "127.0.0.1")
+        port = default_interfaces[interface]["port"]
         
+        interface_catalog.add(interface, address, port)
+        
+    return interface_catalog
+
 def update_fdm(protocol):
     protocol.update_fdm()
 
@@ -31,29 +43,29 @@ def transmit_fdm_data(protocol):
 def shutdown():
     reactor.callFromThread(reactor.stop)
 
-def get_arguments():
+def get_arguments(interface_catalog):
     parser = ArgumentParser(description="Flight Simulator")
 
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
     #parser.add_argument("simulation_file", help="Simulation definition file")
-    parser.add_argument("--rpc", action="store", default=network_addresses["rpc"]["port"], help="The XMLRPC port")
-    parser.add_argument("--controls", action="store", default=network_addresses["controls"]["port"], help="The controls port")
-    parser.add_argument("--fdm_address", action="store", default=network_addresses["fdm_data"]["host"], help="The FDM data remote address")
-    parser.add_argument("--fdm_port", action="store", default=network_addresses["fdm_data"]["port"], help="The FDM data port")
+    parser.add_argument("--rpc", action="store", default=interface_catalog.get_interface_port("rpc"), help="The XMLRPC port")
+    parser.add_argument("--controls", action="store", default=interface_catalog.get_interface_port("controls"), help="The controls port")
+    parser.add_argument("--fdm_address", action="store", default=interface_catalog.get_interface_host("fdm_data"), help="The FDM data remote address")
+    parser.add_argument("--fdm_port", action="store", default=interface_catalog.get_interface_port("fdm_data"), help="The FDM data port")
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
     parser.add_argument("--fdm_data_rate", action="store", default=0.1, help="The fdm data transmit rate")
-    parser.add_argument("--http", action="store", default=network_addresses["http"]["port"], help="The web server port")
+    parser.add_argument("--http", action="store", default=interface_catalog.get_interface_port("http"), help="The web server port")
 
     return parser.parse_args()
 
 def main():
-    args = get_arguments()
+    interface_catalog = init_interface_catalog(DEFAULT_INTERFACES)
+    
+    args = get_arguments(interface_catalog)
 
     dt = args.dt
     fdm_data_rate = args.fdm_data_rate
     http_port = args.http
-
-    print("Using dt: %f" % dt)
 
     fdmexec = FGFDMExec()
 
