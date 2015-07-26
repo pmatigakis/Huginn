@@ -1,0 +1,61 @@
+{   
+    "output": {
+        "dt": 0.1,
+        "host": "127.0.0.1",
+        "port": 10602,
+        "properties": [
+            "simulation/sim-time-sec",
+            "simulation/dt",
+            "position/lat-gc-deg",
+            "position/long-gc-deg",
+            "position/h-sl-ft",
+            "velocities/vtrue-kts",
+            "velocities/v-north-fps",
+            "velocities/v-east-fps",
+            "velocities/v-down-fps",
+            "velocities/u-fps",
+            "velocities/v-fps",
+            "velocities/w-fps",
+            "velocities/p-rad_sec",
+            "velocities/q-rad_sec",
+            "velocities/r-rad_sec",
+            "velocities/mach",
+            "accelerations/a-pilot-x-ft_sec2",
+            "accelerations/a-pilot-y-ft_sec2",
+            "accelerations/a-pilot-z-ft_sec2",
+            "accelerations/pdot-rad_sec2",
+            "accelerations/qdot-rad_sec2",
+            "accelerations/rdot-rad_sec2",
+            "accelerations/udot-ft_sec2",
+            "accelerations/vdot-ft_sec2",
+            "accelerations/wdot-ft_sec2",
+            "attitude/phi-rad",
+            "attitude/theta-rad",
+            "attitude/psi-rad",
+            "attitude/roll-rad",
+            "attitude/pitch-rad",
+            "attitude/heading-true-rad",
+            "propulsion/engine/engine-rpm",
+            "propulsion/engine/thrust-lbs",
+            "propulsion/engine/power-hp",
+            "atmosphere/T-R",
+            "atmosphere/T-sl-R",
+            "atmosphere/P-psf",
+            "atmosphere/P-sl-psf",
+            "fcs/elevator-cmd-norm",
+            "fcs/aileron-cmd-norm",
+            "fcs/rudder-cmd-norm",
+            "fcs/throttle-cmd-norm"
+        ]
+    },
+    
+    "input": {
+        "port": 10601,
+        "properties": [
+            "fcs/elevator-cmd-norm",
+            "fcs/aileron-cmd-norm",
+            "fcs/rudder-cmd-norm",
+            "fcs/throttle-cmd-norm"
+        ]
+    }
+}

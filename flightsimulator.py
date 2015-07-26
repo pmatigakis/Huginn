@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from os import path
 import inspect
 import signal
+import json
 
 from twisted.internet import reactor, task
 from twisted.web import server
@@ -11,15 +12,13 @@ from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
 import flightsim
-from flightsim.protocols import FlightSimulatorProtocol
+from flightsim.protocols import InterfaceInputProtocol, InterfaceOutputProtocol
 from flightsim.rpc import FlightSimulatorRPC
 from flightsim.web import Index, FDMData, Controls
 from flightsim.configuration import InterfacesCatalog
 
 DEFAULT_INTERFACES = {
     "rpc": {"port": 10500},
-    "controls": {"port": 10501},
-    "fdm_data": {"host": "127.0.0.1", "port": 10502},
     "http": {"port": 8080}
 }
 
@@ -34,11 +33,11 @@ def init_interface_catalog(default_interfaces):
         
     return interface_catalog
 
-def update_fdm(protocol):
-    protocol.update_fdm()
+def update_fdm(fdmexec):
+    fdmexec.run()
 
-def transmit_fdm_data(protocol):
-    protocol.transmit_fdm_data()
+def transmit_interface_data(protocol):
+    protocol.transmit_interface_data()
 
 def shutdown():
     reactor.callFromThread(reactor.stop)
@@ -47,14 +46,10 @@ def get_arguments(interface_catalog):
     parser = ArgumentParser(description="Flight Simulator")
 
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-    #parser.add_argument("simulation_file", help="Simulation definition file")
     parser.add_argument("--rpc", action="store", default=interface_catalog.get_interface_port("rpc"), help="The XMLRPC port")
-    parser.add_argument("--controls", action="store", default=interface_catalog.get_interface_port("controls"), help="The controls port")
-    parser.add_argument("--fdm_address", action="store", default=interface_catalog.get_interface_host("fdm_data"), help="The FDM data remote address")
-    parser.add_argument("--fdm_port", action="store", default=interface_catalog.get_interface_port("fdm_data"), help="The FDM data port")
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
-    parser.add_argument("--fdm_data_rate", action="store", default=0.1, help="The fdm data transmit rate")
     parser.add_argument("--http", action="store", default=interface_catalog.get_interface_port("http"), help="The web server port")
+    parser.add_argument("--interface", action="append", help="The path to and interface file")
 
     return parser.parse_args()
 
@@ -64,7 +59,6 @@ def main():
     args = get_arguments(interface_catalog)
 
     dt = args.dt
-    fdm_data_rate = args.fdm_data_rate
     http_port = args.http
 
     fdmexec = FGFDMExec()
@@ -110,8 +104,6 @@ def main():
         fdmexec.print_property_catalog()
         exit()
 
-    protocol = FlightSimulatorProtocol(fdmexec, args)
-
     rpc = FlightSimulatorRPC(fdmexec)
 
     rpc_port = args.rpc
@@ -125,15 +117,34 @@ def main():
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
 
-    input_port = args.controls
+    for interface in args.interface:
+        with open(interface) as f:
+            interface_data = json.load(f)
+            if interface_data.has_key("input"):
+                properties = interface_data["input"]["properties"]
+                input_port = interface_data["input"]["port"]
+                if not interface_catalog.is_address_available("127.0.0.1", input_port):
+                    print("Port %d is already in use" % input_port)
+                    exit(-1)
+                protocol = InterfaceInputProtocol(fdmexec, properties)
+                reactor.listenUDP(input_port, protocol)
+                interface_catalog.add("input:%s" % interface, "127.0.0.1", input_port)
+            if interface_data.has_key("output"):
+                data_rate = interface_data["output"]["dt"]
+                properties = interface_data["output"]["properties"]
+                output_address = interface_data["output"]["host"]
+                output_port = interface_data["output"]["port"]
+                if not interface_catalog.is_address_available(output_address, output_port):
+                    print("Address %s:%d is already in use by another interface" % (output_address, output_port))
+                    exit(-1)
+                protocol = InterfaceOutputProtocol(fdmexec, output_address, output_port, properties)
+                reactor.listenUDP(0, protocol)
+                interface_catalog.add("output:%s" % interface, output_address, output_port)
+                fdm_updater = task.LoopingCall(transmit_interface_data, protocol)
+                fdm_updater.start(data_rate)
 
-    reactor.listenUDP(input_port, protocol)
-
-    fdm_updater = task.LoopingCall(update_fdm, protocol)
+    fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
-
-    fdm_updater = task.LoopingCall(transmit_fdm_data, protocol)
-    fdm_updater.start(fdm_data_rate)
 
     signal.signal(signal.SIGTERM, shutdown)
 
