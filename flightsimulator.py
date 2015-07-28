@@ -18,15 +18,15 @@ from flightsim.web import Index, FDMData, Controls
 from flightsim.configuration import InterfacesCatalog
 
 DEFAULT_INTERFACES = {
-    "rpc": {"port": 10500},
-    "http": {"port": 8080}
+    "rpc": {"host": "127.0.0.1", "port": 10500},
+    "http": {"host": "127.0.0.1", "port": 8080}
 }
 
 def init_interface_catalog(default_interfaces):
     interface_catalog = InterfacesCatalog()
     
     for interface in default_interfaces:
-        address = default_interfaces[interface].get("host", "127.0.0.1")
+        address = default_interfaces[interface]["host"]
         port = default_interfaces[interface]["port"]
         
         interface_catalog.add(interface, address, port)
