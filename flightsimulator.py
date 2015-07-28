@@ -53,18 +53,8 @@ def get_arguments(interface_catalog):
 
     return parser.parse_args()
 
-def main():
-    interface_catalog = init_interface_catalog(DEFAULT_INTERFACES)
-    
-    args = get_arguments(interface_catalog)
-
-    dt = args.dt
-    http_port = args.http
-
+def init_fdm(dt, package_path):
     fdmexec = FGFDMExec()
-
-    package_filename = inspect.getfile(flightsim)
-    package_path = path.dirname(package_filename)
     
     fdmexec.set_root_dir(package_path + "/data/")
     fdmexec.set_aircraft_path("aircraft")
@@ -99,24 +89,26 @@ def main():
     if not result:
         print("Failed to trim the aircraft")
         exit(-1)
+        
+    return fdmexec
 
-    if args.properties:
-        fdmexec.print_property_catalog()
-        exit()
-
+def init_rpc_server(args, fdmexec):
     rpc = FlightSimulatorRPC(fdmexec)
 
     rpc_port = args.rpc
     reactor.listenTCP(rpc_port, server.Site(rpc))
 
+def init_web_server(args, fdmexec, package_path):
     index_page = Index(fdmexec)
     index_page.putChild("fdmdata", FDMData(fdmexec))
     index_page.putChild("controls", Controls(fdmexec))
     index_page.putChild("static", File(path.join(package_path, "static")))
     
+    http_port = args.http
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
 
+def load_interfaces(args, fdmexec, interface_catalog):
     for interface in args.interface:
         with open(interface) as f:
             interface_data = json.load(f)
@@ -142,6 +134,28 @@ def main():
                 interface_catalog.add("output:%s" % interface, output_address, output_port)
                 fdm_updater = task.LoopingCall(transmit_interface_data, protocol)
                 fdm_updater.start(data_rate)
+
+def main():
+    interface_catalog = init_interface_catalog(DEFAULT_INTERFACES)
+    
+    args = get_arguments(interface_catalog)
+
+    package_filename = inspect.getfile(flightsim)
+    package_path = path.dirname(package_filename)
+
+    dt = args.dt
+
+    fdmexec = init_fdm(dt, package_path)
+
+    if args.properties:
+        fdmexec.print_property_catalog()
+        exit()
+
+    init_rpc_server(args, fdmexec)
+    
+    init_web_server(args, fdmexec, package_path)
+
+    load_interfaces(args, fdmexec, interface_catalog)
 
     fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
