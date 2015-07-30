@@ -109,6 +109,9 @@ def init_web_server(args, fdmexec, package_path):
     reactor.listenTCP(http_port, frontend)
 
 def load_interfaces(args, fdmexec, interface_catalog):
+    if not args.interface:
+        return
+    
     for interface in args.interface:
         with open(interface) as f:
             interface_data = json.load(f)
