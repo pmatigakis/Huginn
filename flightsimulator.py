@@ -12,14 +12,16 @@ from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
 import flightsim
-from flightsim.protocols import InterfaceInputProtocol, InterfaceOutputProtocol
+from flightsim.protocols import InterfaceInputProtocol, InterfaceOutputProtocol, FDMDataProtocol, ControlsProtocol
 from flightsim.rpc import FlightSimulatorRPC
 from flightsim.web import Index, FDMData, Controls
 from flightsim.configuration import InterfacesCatalog
 
 DEFAULT_INTERFACES = {
     "rpc": {"host": "127.0.0.1", "port": 10500},
-    "http": {"host": "127.0.0.1", "port": 8080}
+    "http": {"host": "127.0.0.1", "port": 8080},
+    "fdm": {"host": "127.0.0.1", "port": 10300},
+    "controls": {"host": "127.0.0.1", "port": 10301}
 }
 
 def init_interface_catalog(default_interfaces):
@@ -50,6 +52,8 @@ def get_arguments(interface_catalog):
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
     parser.add_argument("--http", action="store", default=interface_catalog.get_interface_port("http"), help="The web server port")
     parser.add_argument("--interface", action="append", help="The path to and interface file")
+    parser.add_argument("--fdm", action="store", default=interface_catalog.get_interface_port("fdm"), help="The fdm data port")
+    parser.add_argument("--controls", action="store", default=interface_catalog.get_interface_port("controls"), help="The controls port")
 
     return parser.parse_args()
 
@@ -108,6 +112,15 @@ def init_web_server(args, fdmexec, package_path):
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
 
+def init_fdm_server(args, fdmexec):
+    fdm_protocol = FDMDataProtocol(fdmexec)
+    fdm_port = args.fdm
+    reactor.listenUDP(fdm_port, fdm_protocol)
+
+    controls_protocol = ControlsProtocol(fdmexec) 
+    controls_port = args.controls
+    reactor.listenUDP(controls_port, controls_protocol)
+
 def load_interfaces(args, fdmexec, interface_catalog):
     if not args.interface:
         return
@@ -157,6 +170,8 @@ def main():
     init_rpc_server(args, fdmexec)
     
     init_web_server(args, fdmexec, package_path)
+
+    init_fdm_server(args, fdmexec)
 
     load_interfaces(args, fdmexec, interface_catalog)
 
