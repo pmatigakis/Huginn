@@ -37,6 +37,7 @@ fdm_properties = [
     "atmosphere/T-sl-R",
     "atmosphere/P-psf",
     "atmosphere/P-sl-psf",
+    "aero/qbar-psf",
     "fcs/elevator-cmd-norm",
     "fcs/aileron-cmd-norm",
     "fcs/rudder-cmd-norm",
