@@ -38,9 +38,6 @@ def init_interface_catalog(default_interfaces):
 def update_fdm(fdmexec):
     fdmexec.run()
 
-def transmit_interface_data(protocol):
-    protocol.transmit_interface_data()
-
 def shutdown():
     reactor.callFromThread(reactor.stop)
 
@@ -51,7 +48,6 @@ def get_arguments(interface_catalog):
     parser.add_argument("--rpc", action="store", default=interface_catalog.get_interface_port("rpc"), help="The XMLRPC port")
     parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
     parser.add_argument("--http", action="store", default=interface_catalog.get_interface_port("http"), help="The web server port")
-    parser.add_argument("--interface", action="append", help="The path to and interface file")
     parser.add_argument("--fdm", action="store", default=interface_catalog.get_interface_port("fdm"), help="The fdm data port")
     parser.add_argument("--controls", action="store", default=interface_catalog.get_interface_port("controls"), help="The controls port")
 
@@ -121,36 +117,6 @@ def init_fdm_server(args, fdmexec):
     controls_port = args.controls
     reactor.listenUDP(controls_port, controls_protocol)
 
-def load_interfaces(args, fdmexec, interface_catalog):
-    if not args.interface:
-        return
-    
-    for interface in args.interface:
-        with open(interface) as f:
-            interface_data = json.load(f)
-            if interface_data.has_key("input"):
-                properties = interface_data["input"]["properties"]
-                input_port = interface_data["input"]["port"]
-                if not interface_catalog.is_address_available("127.0.0.1", input_port):
-                    print("Port %d is already in use" % input_port)
-                    exit(-1)
-                protocol = InterfaceInputProtocol(fdmexec, properties)
-                reactor.listenUDP(input_port, protocol)
-                interface_catalog.add("input:%s" % interface, "127.0.0.1", input_port)
-            if interface_data.has_key("output"):
-                data_rate = interface_data["output"]["dt"]
-                properties = interface_data["output"]["properties"]
-                output_address = interface_data["output"]["host"]
-                output_port = interface_data["output"]["port"]
-                if not interface_catalog.is_address_available(output_address, output_port):
-                    print("Address %s:%d is already in use by another interface" % (output_address, output_port))
-                    exit(-1)
-                protocol = InterfaceOutputProtocol(fdmexec, output_address, output_port, properties)
-                reactor.listenUDP(0, protocol)
-                interface_catalog.add("output:%s" % interface, output_address, output_port)
-                fdm_updater = task.LoopingCall(transmit_interface_data, protocol)
-                fdm_updater.start(data_rate)
-
 def main():
     interface_catalog = init_interface_catalog(DEFAULT_INTERFACES)
     
@@ -172,8 +138,6 @@ def main():
     init_web_server(args, fdmexec, package_path)
 
     init_fdm_server(args, fdmexec)
-
-    load_interfaces(args, fdmexec, interface_catalog)
 
     fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
