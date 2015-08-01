@@ -12,7 +12,7 @@ from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
 import flightsim
-from flightsim.protocols import InterfaceInputProtocol, InterfaceOutputProtocol, FDMDataProtocol, ControlsProtocol
+from flightsim.protocols import FDMDataProtocol, ControlsProtocol
 from flightsim.rpc import FlightSimulatorRPC
 from flightsim.web import Index, FDMData, Controls
 from flightsim.configuration import InterfacesCatalog
