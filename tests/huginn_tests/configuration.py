@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from flightsim.configuration import InterfacesCatalog
+from huginn.configuration import InterfacesCatalog
 
 class InterfacesCatalogTests(TestCase):
     def test_return_true_when_address_is_available(self):

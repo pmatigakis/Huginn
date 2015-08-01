@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 
-from flightsim.protocols import fdm_data_properties
+from huginn.protocols import fdm_data_properties
 
 class FDMDataClientProtocol(DatagramProtocol):
     def __init__(self, host, port):

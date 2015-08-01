@@ -4,18 +4,17 @@ from argparse import ArgumentParser
 from os import path
 import inspect
 import signal
-import json
 
 from twisted.internet import reactor, task
 from twisted.web import server
 from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
-import flightsim
-from flightsim.protocols import FDMDataProtocol, ControlsProtocol
-from flightsim.rpc import FlightSimulatorRPC
-from flightsim.web import Index, FDMData, Controls
-from flightsim.configuration import InterfacesCatalog
+import huginn
+from huginn.protocols import FDMDataProtocol, ControlsProtocol
+from huginn.rpc import FlightSimulatorRPC
+from huginn.web import Index, FDMData, Controls
+from huginn.configuration import InterfacesCatalog
 
 DEFAULT_INTERFACES = {
     "rpc": {"host": "127.0.0.1", "port": 10500},
@@ -122,7 +121,7 @@ def main():
     
     args = get_arguments(interface_catalog)
 
-    package_filename = inspect.getfile(flightsim)
+    package_filename = inspect.getfile(huginn)
     package_path = path.dirname(package_filename)
 
     dt = args.dt

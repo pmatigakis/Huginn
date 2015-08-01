@@ -3,7 +3,7 @@ import json
 from twisted.web.resource import Resource
 from jinja2 import Environment, PackageLoader
 
-from flightsim.fdm import fdm_properties
+from huginn.fdm import fdm_properties
 
 class Index(Resource):
     isLeaf = False
@@ -19,7 +19,7 @@ class Index(Resource):
         return Resource.getChild(self, name, request)
     
     def render_GET(self, request):
-        env  = Environment(loader=PackageLoader("flightsim", "templates"))
+        env  = Environment(loader=PackageLoader("huginn", "templates"))
         
         template = env.get_template("index.html")
         
