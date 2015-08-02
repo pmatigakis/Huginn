@@ -1,62 +1,71 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="static/css/ol.css" type="text/css">
-<link rel="stylesheet" href="static/css/normalize.css">
-<link rel="stylesheet" href="static/css/skeleton.css">
-<link rel="stylesheet" href="static/css/style.css">
-<script src="static/js/ol.js" type="text/javascript"></script>
-<script src="static/js/jquery-1.11.3.js" type="text/javascript"></script>
-<title>Flight simulator data viewer</title>
-</head>
-<body>
-  <div class="container">
-    <div class="row">
-      <div class="twelve columns">
-        <h1>Flight simulator data viewer</h1>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/ol.css">
+    <link rel="stylesheet" href="static/css/bootstrap.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <title>Flight simulator data viewer</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1>Flight simulator data viewer</h1>
+        </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="six columns">
-        <table id="location">
-          <tbody>
-            <tr>
-              <td>Longitude</td>
-              <td class="longitude">0.0</td>
-              <td>Degrees</td>
-            </tr>
-            <tr>
-              <td>Latitude</td>
-              <td class="latitude">0.0</td>
-              <td>Degrees</td>
-            </tr>
-            <tr>
-              <td>Altitude</td>
-              <td class="altitude">0.0</td>
-              <td>Feet</td>
-            </tr>
-            <tr>
-              <td>Airspeed</td>
-              <td class="airspeed">0.0</td>
-              <td>Feet/Sec</td>
-            </tr>
-            <tr>
-              <td>Heading</td>
-              <td class="heading">0.0</td>
-              <td>Degrees</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <table id="location" class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Value</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Longitude</td>
+                <td class="longitude">0.0</td>
+                <td>Degrees</td>
+              </tr>
+              <tr>
+                <td>Latitude</td>
+                <td class="latitude">0.0</td>
+                <td>Degrees</td>
+              </tr>
+              <tr>
+                <td>Altitude</td>
+                <td class="altitude">0.0</td>
+                <td>Feet</td>
+              </tr>
+              <tr>
+                <td>Airspeed</td>
+                <td class="airspeed">0.0</td>
+                <td>Feet/Sec</td>
+              </tr>
+              <tr>
+                <td>Heading</td>
+                <td class="heading">0.0</td>
+                <td>Degrees</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
   
-      <div class="six columns">
-        <div id="map" class="map"></div>
+        <div class="col-lg-6">
+          <div id="map" class="map"></div>
+        </div>
       </div>
     </div>
-  </div>
   
-  <script type="text/javascript" src="static/js/app.js"></script>
-</body>
+    <script src="static/js/ol.js" type="text/javascript"></script>
+    <script src="static/js/jquery-1.11.3.js" type="text/javascript"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/app.js"></script>
+  </body>
 </html>

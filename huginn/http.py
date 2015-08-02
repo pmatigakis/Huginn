@@ -18,12 +18,8 @@ class Index(Resource):
             return self
         return Resource.getChild(self, name, request)
     
-    def render_GET(self, request):
-        env  = Environment(loader=PackageLoader("huginn", "templates"))
-        
-        template = env.get_template("index.html")
-        
-        return str(template.render())
+    def render_GET(self, request):        
+        return "Huginn is running"
 
 class FDMData(Resource):
     isLeaf = True
@@ -39,7 +35,7 @@ class FDMData(Resource):
         
         fdm_data = dict(fdm_data)
         
-        return json.dumps({"fdm_data": fdm_data})
+        return json.dumps({"result": "ok", "fdm_data": fdm_data})
     
 class Controls(Resource):
     ifLeaf = True

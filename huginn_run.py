@@ -7,18 +7,17 @@ import signal
 
 from twisted.internet import reactor, task
 from twisted.web import server
-from twisted.web.static import File
 from flightsimlib import FGFDMExec
 
 import huginn
 from huginn.protocols import FDMDataProtocol, ControlsProtocol
 from huginn.rpc import FlightSimulatorRPC
-from huginn.web import Index, FDMData, Controls
+from huginn.http import Index, FDMData, Controls
 from huginn.configuration import InterfacesCatalog
 
 DEFAULT_INTERFACES = {
     "rpc": {"host": "127.0.0.1", "port": 10500},
-    "http": {"host": "127.0.0.1", "port": 8080},
+    "http": {"host": "127.0.0.1", "port": 8090},
     "fdm": {"host": "127.0.0.1", "port": 10300},
     "controls": {"host": "127.0.0.1", "port": 10301}
 }
@@ -101,7 +100,6 @@ def init_web_server(args, fdmexec, package_path):
     index_page = Index(fdmexec)
     index_page.putChild("fdmdata", FDMData(fdmexec))
     index_page.putChild("controls", Controls(fdmexec))
-    index_page.putChild("static", File(path.join(package_path, "static")))
     
     http_port = args.http
     frontend = server.Site(index_page)
