@@ -6,7 +6,7 @@ Download and install flightsimlib from the following link.
 
 https://github.com/pmatigakis/flightsimlib
 
-Download flightsim and install flightsim by running the following
+Download Huginn and install it by running the following
 command on the console.
 
 python setup.py install
