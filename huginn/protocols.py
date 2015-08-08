@@ -1,6 +1,7 @@
 import struct
 
 from twisted.internet.protocol import DatagramProtocol
+from twisted.internet import reactor
 
 fdm_data_properties = ["accelerations/a-pilot-x-ft_sec2",
                        "accelerations/a-pilot-y-ft_sec2",
@@ -48,3 +49,36 @@ class ControlsProtocol(DatagramProtocol):
                 self.fdmexec.set_property_value(control_property, controls_data[index])
         except struct.error:
             print("Failed to parse control data")
+
+class FDMDataClientProtocol(DatagramProtocol):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+    
+    def startProtocol(self):
+        self.transport.write("\n", (self.host, self.port))
+    
+    def datagramReceived(self, datagram, addr):
+        try:
+            fdm_data = struct.unpack("!" + "f" * len(fdm_data_properties), datagram)
+            for index, fdm_property in enumerate(fdm_data_properties):
+                print("%s\t%f" % (fdm_property, fdm_data[index]))
+        except struct.error:
+            print("Failed to parse received data")
+        finally:
+            reactor.callFromThread(reactor.stop)
+            
+class FDMControlsProtocol(DatagramProtocol):
+    def __init__(self, host, port, aileron, elevator, rudder, throttle):
+        self.host = host
+        self.port = port
+        self.aileron = aileron
+        self.elevator = elevator
+        self.rudder = rudder
+        self.throttle = throttle
+    
+    def startProtocol(self):
+        controls_data = struct.pack("!ffff", self.elevator, self.aileron, self.rudder, self.throttle)
+        self.transport.write(controls_data, (self.host, self.port))
+        
+        reactor.callFromThread(reactor.stop)
