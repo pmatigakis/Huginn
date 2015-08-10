@@ -25,17 +25,34 @@ fdm_control_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
+def encode_fdm_data(fdm_data):
+    property_values = [fdm_data[fdm_property] for fdm_property in fdm_data_properties]
+     
+    fdm_data_string = struct.pack("!" + "f" * len(property_values), *property_values)
+     
+    return fdm_data_string
+
+def decode_fdm_data(datagram):
+    try:
+        fdm_properties = struct.unpack("!" + "f" * len(fdm_data_properties), datagram)
+        fdm_data = [(fdm_property, fdm_properties[index]) for index, fdm_property in enumerate(fdm_data_properties)]
+        return dict(fdm_data)
+    except struct.error:
+        raise ValueError("Invalid fdm datagram data")
+
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         
     def datagramReceived(self, datagram, (host, port)):
-        fdm_data = [self.fdmexec.get_property_value(fdm_property)
+        fdm_data = [(fdm_property, self.fdmexec.get_property_value(fdm_property))
                     for fdm_property in fdm_data_properties]
         
-        fdm_data_string = struct.pack("!" + "f" * len(fdm_data_properties), *fdm_data)
+        fdm_data = dict(fdm_data)
         
-        self.transport.write(fdm_data_string, (host, port))
+        encoded_fdm_data = encode_fdm_data(fdm_data)
+        
+        self.transport.write(encoded_fdm_data, (host, port))
     
 class ControlsProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
@@ -60,10 +77,10 @@ class FDMDataClientProtocol(DatagramProtocol):
     
     def datagramReceived(self, datagram, addr):
         try:
-            fdm_data = struct.unpack("!" + "f" * len(fdm_data_properties), datagram)
-            for index, fdm_property in enumerate(fdm_data_properties):
-                print("%s\t%f" % (fdm_property, fdm_data[index]))
-        except struct.error:
+            decoded_fdm_data = decode_fdm_data(datagram)
+            for fdm_property in decoded_fdm_data:
+                print("%s\t%f" % (fdm_property, decoded_fdm_data[fdm_property]))
+        except ValueError:
             print("Failed to parse received data")
         finally:
             reactor.callFromThread(reactor.stop)
