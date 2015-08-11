@@ -2,3 +2,5 @@ build
 .pydevproject
 .project
 *.pyc
+temp
+huginn.egg-info

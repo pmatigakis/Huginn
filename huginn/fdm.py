@@ -44,6 +44,23 @@ fdm_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
+fdm_data_properties = [
+   "accelerations/a-pilot-x-ft_sec2",
+   "accelerations/a-pilot-y-ft_sec2",
+   "accelerations/a-pilot-z-ft_sec2",
+   "velocities/p-rad_sec",
+   "velocities/q-rad_sec",
+   "velocities/r-rad_sec",
+   "atmosphere/P-psf",
+   "aero/qbar-psf",
+   "atmosphere/T-R",
+   "position/lat-gc-deg",
+   "position/long-gc-deg",
+   "position/h-sl-ft",
+   "velocities/vtrue-kts",
+   "attitude/heading-true-rad"
+]
+
 controls_properties = [
     "fcs/elevator-cmd-norm",
     "fcs/aileron-cmd-norm",
