@@ -1,9 +1,23 @@
 import json
 
 from twisted.web.resource import Resource
-from jinja2 import Environment, PackageLoader
 
 from huginn.fdm import fdm_properties
+
+class JSONFDMDataEncoder(object):
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        
+    def encode_fdm_data(self, fdm_properties):
+        try:
+            fdm_data = [(fdm_property, self.fdmexec.get_property_value(fdm_property))
+                        for fdm_property in fdm_properties]
+        
+            fdm_data = dict(fdm_data)
+        
+            return json.dumps({"result": "ok", "fdm_data": fdm_data})
+        except:
+            return None
 
 class Index(Resource):
     isLeaf = False
@@ -26,16 +40,16 @@ class FDMData(Resource):
     
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.fdm_data_encoder = JSONFDMDataEncoder(fdmexec)
     
     def render_GET(self, request):
         request.responseHeaders.addRawHeader("content-type", "application/json")
         
-        fdm_data = [(fdm_property, self.fdmexec.get_property_value(fdm_property))
-                    for fdm_property in fdm_properties]
-        
-        fdm_data = dict(fdm_data)
-        
-        return json.dumps({"result": "ok", "fdm_data": fdm_data})
+        encoded_fdm_data = self.fdm_data_encoder.encode_fdm_data(fdm_properties)
+        if encoded_fdm_data:
+            return encoded_fdm_data
+        else:
+            return json.dumps({"result": "error"})
     
 class Controls(Resource):
     ifLeaf = True
