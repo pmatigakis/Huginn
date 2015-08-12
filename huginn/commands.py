@@ -153,11 +153,14 @@ class StartSimulator(Command):
         reactor.run()
         
 class PrintFDMData(Command):
+    FDM_HOST = "127.0.0.1"
+    FDM_PORT = 10300
+    
     command_name = "data"
     
     def register_arguments(self, parser):
-        parser.add_argument("host", help="the simulator ip address")
-        parser.add_argument("port", type=int, help="the simulator port")
+        parser.add_argument("--host", action="store", default=self.FDM_HOST, help="the simulator ip address")
+        parser.add_argument("--port", action="store", default=self.FDM_PORT, type=int, help="the simulator port")
         
     def execute(self, args):
         protocol = FDMDataClientProtocol(args.host, args.port)
@@ -165,6 +168,9 @@ class PrintFDMData(Command):
         reactor.run()
         
 class SimulatorControl(Command):
+    RPC_HOST = "127.0.0.1"
+    RPC_PORT = 10500
+    
     command_name = "control"
 
     def reset_command(self, proxy):
@@ -177,8 +183,8 @@ class SimulatorControl(Command):
         return proxy.unpause()
 
     def register_arguments(self, parser):
-        parser.add_argument("host", help="The simulator host address")
-        parser.add_argument("port", type=int, help="The simulator port")
+        parser.add_argument("--host", action="store", default=self.RPC_HOST, help="The simulator host address")
+        parser.add_argument("--port", action="store", default=self.RPC_PORT, type=int, help="The simulator port")
         
         subparsers = parser.add_subparsers()
         
@@ -218,11 +224,14 @@ class StartWebServer(Command):
         app.run(host=args.host, port=args.port, debug=args.debug)
 
 class SetControls(Command):
+    FDM_HOST = "127.0.0.1"
+    CONTROLS_PORT = 10301
+    
     command_name = "controls"
     
     def register_arguments(self, parser):
-        parser.add_argument("host", help="the simulator ip address")
-        parser.add_argument("port", type=int, help="the simulator port")
+        parser.add_argument("--host", default=self.FDM_HOST, help="the simulator ip address")
+        parser.add_argument("--port", default=self.CONTROLS_PORT, type=int, help="the simulator port")
     
         parser.add_argument("aileron", type=float, help="aileron value")
         parser.add_argument("elevator", type=float, help="elevator value")

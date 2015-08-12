@@ -22,7 +22,7 @@ class FDMDataDecoder(object):
             decoded_fdm_properties = struct.unpack("!" + "f" * len(fdm_properties), datagram)
             fdm_data = [(fdm_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
             return dict(fdm_data)
-        except struct.error:
+        except struct.error as e:
             raise ValueError("Invalid fdm datagram data")
 
 class FDMDataProtocol(DatagramProtocol):
@@ -60,8 +60,8 @@ class FDMDataClientProtocol(DatagramProtocol):
     
     def datagramReceived(self, datagram, addr):
         try:
-            decoded_fdm_data = self.fdm_data_decoder.decode_fdm_data(datagram, controls_properties)
-            for fdm_property in controls_properties:
+            decoded_fdm_data = self.fdm_data_decoder.decode_fdm_data(datagram, fdm_data_properties)
+            for fdm_property in fdm_data_properties:
                 print("%s\t%f" % (fdm_property, decoded_fdm_data[fdm_property]))
         except ValueError:
             print("Failed to parse received data")
