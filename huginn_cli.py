@@ -14,7 +14,7 @@ def parse_arguments(commands):
     
     return parser.parse_args()
 
-def main():
+def main():    
     commands = [StartSimulator,
                 PrintFDMData,
                 SimulatorControl,

@@ -5,6 +5,7 @@ from os import path
 import inspect
 import signal
 from xmlrpclib import ServerProxy
+import logging
 
 from huginn.web import app
 from twisted.internet import reactor, task
@@ -48,10 +49,22 @@ class StartSimulator(Command):
 
     command_name = "start"
     
+    def init_logging(self):
+        logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
+                            filename="huginn.log", 
+                            filemode="a", 
+                            level=logging.DEBUG)
+    
     def init_fdm(self, dt, package_path):
+        logging.debug("Initializing the flight dynamics model")
+        
         fdmexec = FGFDMExec()
         
-        fdmexec.set_root_dir(package_path + "/data/")
+        jsbsim_data_path = path.join(package_path, "data/")
+        
+        logging.debug("Using jsbsim data at %s", jsbsim_data_path)
+        
+        fdmexec.set_root_dir(jsbsim_data_path)
         fdmexec.set_aircraft_path("aircraft")
         fdmexec.set_engine_path("engine")
         fdmexec.set_systems_path("systems")
@@ -70,10 +83,17 @@ class StartSimulator(Command):
         initial_condition_result = fdmexec.run_ic()
     
         if not initial_condition_result:
-            print("Failed to run initial condition")
+            logging.error("Failed to set the flight dynamics model's initial condition")
+            print("Failed to set the flight dynamics model's initial condition")
             exit(-1)
     
         running = fdmexec.run()
+        
+        if not running:
+            logging.error("Failed to make initial flight dynamics model run")
+            print("Failed to make initial flight dynamics model run")
+            exit(-1)
+        
         while running and fdmexec.get_sim_time() < 0.1:
             fdmexec.process_message()
             fdmexec.check_incremental_hold()
@@ -82,15 +102,19 @@ class StartSimulator(Command):
             
         result = fdmexec.trim()    
         if not result:
+            logging.error("Failed to trim the aircraft")
             print("Failed to trim the aircraft")
             exit(-1)
             
         return fdmexec
 
-    def init_rpc_server(self, args, fdmexec):
+    def init_rpc_server(self, args, fdmexec):        
         rpc = FlightSimulatorRPC(fdmexec)
     
         rpc_port = args.rpc
+        
+        logging.debug("Starting the RPC server at port %d", rpc_port)
+        
         reactor.listenTCP(rpc_port, server.Site(rpc))
     
     def init_web_server(self, args, fdmexec, package_path):
@@ -99,22 +123,40 @@ class StartSimulator(Command):
         index_page.putChild("controls", Controls(fdmexec))
         
         http_port = args.http
+        
+        logging.debug("Starting the web server at port %d", http_port)
+        
         frontend = server.Site(index_page)
         reactor.listenTCP(http_port, frontend)
     
     def init_fdm_server(self, args, fdmexec):
         fdm_protocol = FDMDataProtocol(fdmexec)
         fdm_port = args.fdm
+        
+        logging.debug("Starting the flight dynamics model server at port %d", fdm_port)
+        
         reactor.listenUDP(fdm_port, fdm_protocol)
     
         controls_protocol = ControlsProtocol(fdmexec) 
         controls_port = args.controls
+        
+        logging.debug("Starting the aircraft controls server at port %d", controls_port)
+        
         reactor.listenUDP(controls_port, controls_protocol)
 
     def update_fdm(self, fdmexec):
-        fdmexec.run()
-
+        fdmexec.process_message()
+        fdmexec.check_incremental_hold()
+        running = fdmexec.run()
+        
+        if not running:
+            logging.error("Failed to update the flight dynamics model")
+            print("Failed to update the flight dynamics model")
+            reactor.callFromThread(reactor.stop)
+            
     def shutdown(self):
+        logging.debug("Shutting down Huginn")
+        
         reactor.callFromThread(reactor.stop)
         
     def register_arguments(self, parser):
@@ -126,6 +168,10 @@ class StartSimulator(Command):
         parser.add_argument("--controls", action="store", default=self.DEFAULT_INTERFACES["controls"], help="The controls port")
     
     def execute(self, args):
+        self.init_logging()
+        
+        logging.info("Starting the Huginn flight simulator")
+        
         dt = args.dt
 
         package_filename = inspect.getfile(huginn)
@@ -150,7 +196,9 @@ class StartSimulator(Command):
 
         fdmexec.hold()
 
+        logging.debug("Starting the event loop")
         reactor.run()
+        logging.info("The simulator has shut down")
         
 class PrintFDMData(Command):
     FDM_HOST = "127.0.0.1"

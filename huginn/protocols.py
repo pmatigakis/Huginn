@@ -1,4 +1,5 @@
 import struct
+import logging
 
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
@@ -47,6 +48,7 @@ class ControlsProtocol(DatagramProtocol):
             for control_property in controls_properties:
                 self.fdmexec.set_property_value(control_property, controls_data[control_property])
         except ValueError:
+            logging.error("Failed to parse control data")
             print("Failed to parse control data")
 
 class FDMDataClientProtocol(DatagramProtocol):
