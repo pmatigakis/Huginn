@@ -16,6 +16,7 @@ from huginn.protocols import FDMDataProtocol, ControlsProtocol, FDMDataClientPro
 from huginn.http import Index, FDMData, Controls
 from huginn.rpc import FlightSimulatorRPC
 import huginn
+from huginn.configuration import CONTROLS_PORT, FDM_PORT, RPC_PORT, WEB_SERVER_PORT, DT, HUGINN_HOST, HTTP_PORT
 
 class Command(object):
     __metaclass__ = ABCMeta
@@ -40,13 +41,6 @@ class Command(object):
         parser.set_defaults(command=self)
         
 class StartSimulator(Command):
-    DEFAULT_INTERFACES = {
-        "rpc": 10500,
-        "http": 8090,
-        "fdm": 10300,
-        "controls": 10301
-    }
-
     command_name = "start"
     
     def init_logging(self):
@@ -152,7 +146,7 @@ class StartSimulator(Command):
         if not running:
             logging.error("Failed to update the flight dynamics model")
             print("Failed to update the flight dynamics model")
-            reactor.callFromThread(reactor.stop)
+            self.shutdown()
             
     def shutdown(self):
         logging.debug("Shutting down Huginn")
@@ -161,11 +155,11 @@ class StartSimulator(Command):
         
     def register_arguments(self, parser):
         parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-        parser.add_argument("--rpc", action="store", default=self.DEFAULT_INTERFACES["rpc"], help="The XMLRPC port")
-        parser.add_argument("--dt", action="store", default=0.0166, help="The simulation timestep")
-        parser.add_argument("--http", action="store", default=self.DEFAULT_INTERFACES["http"], help="The web server port")
-        parser.add_argument("--fdm", action="store", default=self.DEFAULT_INTERFACES["fdm"], help="The fdm data port")
-        parser.add_argument("--controls", action="store", default=self.DEFAULT_INTERFACES["controls"], help="The controls port")
+        parser.add_argument("--rpc", action="store", default=RPC_PORT, help="The XMLRPC port")
+        parser.add_argument("--dt", action="store", default=DT, help="The simulation timestep")
+        parser.add_argument("--http", action="store", default=WEB_SERVER_PORT, help="The web server port")
+        parser.add_argument("--fdm", action="store", default=FDM_PORT, help="The fdm data port")
+        parser.add_argument("--controls", action="store", default=CONTROLS_PORT, help="The controls port")
     
     def execute(self, args):
         self.init_logging()
@@ -201,14 +195,11 @@ class StartSimulator(Command):
         logging.info("The simulator has shut down")
         
 class PrintFDMData(Command):
-    FDM_HOST = "127.0.0.1"
-    FDM_PORT = 10300
-    
     command_name = "data"
     
     def register_arguments(self, parser):
-        parser.add_argument("--host", action="store", default=self.FDM_HOST, help="the simulator ip address")
-        parser.add_argument("--port", action="store", default=self.FDM_PORT, type=int, help="the simulator port")
+        parser.add_argument("--host", action="store", default=HUGINN_HOST, help="the simulator ip address")
+        parser.add_argument("--port", action="store", default=FDM_PORT, type=int, help="the flight dynamics model data port")
         
     def execute(self, args):
         protocol = FDMDataClientProtocol(args.host, args.port)
@@ -216,9 +207,6 @@ class PrintFDMData(Command):
         reactor.run()
         
 class SimulatorControl(Command):
-    RPC_HOST = "127.0.0.1"
-    RPC_PORT = 10500
-    
     command_name = "control"
 
     def reset_command(self, proxy):
@@ -227,12 +215,12 @@ class SimulatorControl(Command):
     def pause_command(self, proxy):
         return proxy.pause()
     
-    def unpause_command(self, proxy):
-        return proxy.unpause()
+    def resume_command(self, proxy):
+        return proxy.resume()
 
     def register_arguments(self, parser):
-        parser.add_argument("--host", action="store", default=self.RPC_HOST, help="The simulator host address")
-        parser.add_argument("--port", action="store", default=self.RPC_PORT, type=int, help="The simulator port")
+        parser.add_argument("--host", action="store", default=HUGINN_HOST, help="The simulator host address")
+        parser.add_argument("--port", action="store", default=RPC_PORT, type=int, help="The RPC port")
         
         subparsers = parser.add_subparsers()
         
@@ -242,8 +230,8 @@ class SimulatorControl(Command):
         pause = subparsers.add_parser("pause")
         pause.set_defaults(func=self.pause_command)
         
-        unpause = subparsers.add_parser("unpause")
-        unpause.set_defaults(func=self.unpause_command)
+        unpause = subparsers.add_parser("resume")
+        unpause.set_defaults(func=self.resume_command)
 
     def execute(self, args):
         proxy = ServerProxy("http://%s:%s/" % (args.host, args.port))
@@ -251,35 +239,26 @@ class SimulatorControl(Command):
         args.func(proxy)
         
 class StartWebServer(Command):
-    HTTP_HOST = "127.0.0.1"
-    HTTP_PORT = 8080
-    FDM_HOST = "127.0.0.1"
-    FDM_PORT = 8090
-
     command_name = "web"
     
     def register_arguments(self, parser):
-        parser.add_argument("--host", default=self.HTTP_HOST, help="The server ip address")
-        parser.add_argument("--port", default=self.HTTP_PORT, type=int, help="The server port")
-        parser.add_argument("--fdm_host", default=self.FDM_HOST, help="The fdm server ip address")
-        parser.add_argument("--fdm_port", default=self.FDM_PORT, type=int, help="The fdm server port")
+        parser.add_argument("--host", default=HUGINN_HOST, help="The server ip address")
+        parser.add_argument("--port", default=HTTP_PORT, type=int, help="The server port")
+        parser.add_argument("--fdm_port", default=WEB_SERVER_PORT, type=int, help="The fdm server http port")
         parser.add_argument("--debug", action="store_true", help="Run in debug mode")
 
     def execute(self, args):
-        app.config["FDM_HOST"] = args.fdm_host
+        app.config["FDM_HOST"] = args.host
         app.config["FDM_PORT"] = args.fdm_port
     
         app.run(host=args.host, port=args.port, debug=args.debug)
 
 class SetControls(Command):
-    FDM_HOST = "127.0.0.1"
-    CONTROLS_PORT = 10301
-    
     command_name = "controls"
     
     def register_arguments(self, parser):
-        parser.add_argument("--host", default=self.FDM_HOST, help="the simulator ip address")
-        parser.add_argument("--port", default=self.CONTROLS_PORT, type=int, help="the simulator port")
+        parser.add_argument("--host", default=HUGINN_HOST, help="the simulator ip address")
+        parser.add_argument("--port", default=CONTROLS_PORT, type=int, help="the controls port")
     
         parser.add_argument("aileron", type=float, help="aileron value")
         parser.add_argument("elevator", type=float, help="elevator value")

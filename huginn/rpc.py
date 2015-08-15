@@ -11,7 +11,7 @@ class FlightSimulatorRPC(XMLRPC):
 
         return True
 
-    def xmlrpc_unpause(self):
+    def xmlrpc_resume(self):
         self.fdmexec.resume()
 
         return True
