@@ -13,18 +13,26 @@ class FDMDataEncoder(object):
     def encode_fdm_data(self, fdm_properties):
         property_values = [self.fdmexec.get_property_value(fdm_property) for fdm_property in fdm_properties]
         
-        fdm_data_string = struct.pack("!" + "f" * len(property_values), *property_values)
+        fdm_data_string = struct.pack("!c" + "f" * len(property_values), chr(1), *property_values)
         
         return fdm_data_string
 
 class FDMDataDecoder(object):
     def decode_fdm_data(self, datagram, fdm_properties):
         try:
-            decoded_fdm_properties = struct.unpack("!" + "f" * len(fdm_properties), datagram)
-            fdm_data = [(fdm_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
-            return dict(fdm_data)
-        except struct.error as e:
+            decoded_fdm_properties = struct.unpack("!c" + "f" * len(fdm_properties), datagram)
+        except struct.error:
             raise ValueError("Invalid fdm datagram data")
+
+        command_result = ord(decoded_fdm_properties[0])
+        
+        if command_result != 1:
+            raise ValueError("Invalid fdm data command result code")
+        
+        decoded_fdm_properties = decoded_fdm_properties[1:]
+        
+        fdm_data = [(fdm_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
+        return dict(fdm_data)
 
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
@@ -32,9 +40,25 @@ class FDMDataProtocol(DatagramProtocol):
         self.fdm_data_encoder = FDMDataEncoder(fdmexec)
         
     def datagramReceived(self, datagram, (host, port)):
-        encoded_fdm_data = self.fdm_data_encoder.encode_fdm_data(fdm_data_properties)
+        try:
+            decoded_packet = struct.unpack("!c", datagram)
+        except struct.error:
+            print("Failed to parse fdm data command datagram")
+            logging.exception("Failed to parse fdm data command datagram")
+            error_responce = struct.pack("!c", chr(255))
+            self.transport.write(error_responce, (host, port))
+            return
         
-        self.transport.write(encoded_fdm_data, (host, port))
+        command = ord(decoded_packet[0])
+        if command == 1:
+            encoded_fdm_data = self.fdm_data_encoder.encode_fdm_data(fdm_data_properties)
+        
+            self.transport.write(encoded_fdm_data, (host, port))
+        else:
+            print("Unknown fdm data command %d" % command)
+            logging.error("Unknown fdm data command %d" % command)
+            error_responce = struct.pack("!c", chr(255))
+            self.transport.write(error_responce, (host, port))
     
 class ControlsProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
@@ -58,7 +82,8 @@ class FDMDataClientProtocol(DatagramProtocol):
         self.fdm_data_decoder = FDMDataDecoder()
     
     def startProtocol(self):
-        self.transport.write("\n", (self.host, self.port))
+        fdm_data_command = struct.pack("!c", chr(1))
+        self.transport.write(fdm_data_command, (self.host, self.port))
     
     def datagramReceived(self, datagram, addr):
         try:
