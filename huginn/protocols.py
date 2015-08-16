@@ -90,7 +90,7 @@ class FDMDataProtocol(DatagramProtocol):
         if datagram_size <= 0:
             raise InvalidFDMDataCommandDatagram()
         
-        command = struct.unpack("!c", datagram)
+        command = struct.unpack("!c", datagram[0])
         command = ord(command[0])
         
         if command == 1 and datagram_size == 1:
@@ -108,7 +108,7 @@ class FDMDataProtocol(DatagramProtocol):
             print("Unknown fdm data request command %" % request.command)
             logging.error("Unknown fdm data request command %" % request.command)
             error_responce = struct.pack("!c", chr(255))
-            self.transport.write(error_responce, (request.host, request.port))
+            self.transmit_datagram(error_responce, (request.host, request.port))
     
     def encode_responce(self, responce):
         command = responce.fdm_data_request.command
@@ -132,7 +132,10 @@ class FDMDataProtocol(DatagramProtocol):
         remote_host = responce.fdm_data_request.host
         remote_port = responce.fdm_data_request.port
         
-        self.transport.write(encoded_responce, (remote_host, remote_port))
+        self.transmit_datagram(encoded_responce, (remote_host, remote_port))
+    
+    def transmit_datagram(self, datagram, host, port):
+        self.transport.write(datagram, (host, port))
     
     def datagramReceived(self, datagram, address):
         host, port = address
@@ -143,7 +146,7 @@ class FDMDataProtocol(DatagramProtocol):
             print("Failed to parse fdm data command datagram")
             logging.exception("Failed to parse fdm data command datagram")
             error_responce = struct.pack("!c", chr(255))
-            self.transport.write(error_responce, (host, port))
+            self.transmit_datagram(error_responce, (host, port))
             return
         
         self.process_request(request)

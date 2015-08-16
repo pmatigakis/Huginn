@@ -69,20 +69,24 @@ class FDMDataProtocolTests(TestCase):
         self.assertEqual(request.host, host)
         self.assertEqual(request.port, port)
         self.assertEqual(request.fdm_properties, fdm_data_properties)
-    
-    def test_process_request(self):
+            
+    def test_datagramReceived(self):
         fdmexec = get_fdmexec()
         
         fdm_data_protocol = FDMDataProtocol(fdmexec)
         
-        fdm_data_protocol.send_responce = MagicMock()
-        
-        request_datagram = struct.pack("!c", chr(1))
         host = "127.0.0.1"
         port = 12345
         
-        request = fdm_data_protocol.decode_request(request_datagram, host, port)
+        fdm_data_protocol.transmit_datagram = MagicMock()
         
-        fdm_data_protocol.process_request(request)
+        fdm_data_request_datagram = struct.pack("!c", chr(1))
         
-        fdm_data_protocol.send_responce.assert_called_once_with(ANY)
+        fdm_data_protocol.datagramReceived(fdm_data_request_datagram, (host, port))
+        
+        fdm_property_values = [fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
+        fdm_property_value_count = len(fdm_property_values)
+        
+        expected_responce_datagram = struct.pack("!c" + ("f" * fdm_property_value_count), chr(1), *fdm_property_values)
+        
+        fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, (host, port))
