@@ -1,11 +1,13 @@
+import struct
 from unittest import TestCase
 from os import path
 import inspect
 
 from flightsimlib import FGFDMExec
+from mock import MagicMock, ANY
 
 import huginn
-from huginn.protocols import FDMDataEncoder, FDMDataDecoder
+from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDMDataResponce
 from huginn.fdm import fdm_data_properties
 
 def get_fdmexec():
@@ -50,17 +52,37 @@ def get_fdmexec():
         
     return fdmexec
 
-class EncodingAndDecodingFDMDataTests(TestCase):
-    def test_encode_and_decode_fdm_data(self):
+class FDMDataProtocolTests(TestCase):
+    def test_decode_request(self):
         fdmexec = get_fdmexec()
         
-        fdm_data_encoder = FDMDataEncoder(fdmexec)
+        fdm_data_protocol = FDMDataProtocol(fdmexec)
         
-        encoded_fdm_data = fdm_data_encoder.encode_fdm_data(fdm_data_properties)
+        request_datagram = struct.pack("!c", chr(1))
+        host = "127.0.0.1"
+        port = 12345
         
-        fdm_data_decoder = FDMDataDecoder()
+        request = fdm_data_protocol.decode_request(request_datagram, host, port)
         
-        decoded_fdm_data = fdm_data_decoder.decode_fdm_data(encoded_fdm_data, fdm_data_properties)
+        self.assertIsInstance(request, FDMDataRequest)
+        self.assertEqual(request.command, 1)
+        self.assertEqual(request.host, host)
+        self.assertEqual(request.port, port)
+        self.assertEqual(request.fdm_properties, fdm_data_properties)
+    
+    def test_process_request(self):
+        fdmexec = get_fdmexec()
         
-        for fdm_property in fdm_data_properties:
-            self.assertAlmostEqual(decoded_fdm_data[fdm_property], fdmexec.get_property_value(fdm_property), 3)
+        fdm_data_protocol = FDMDataProtocol(fdmexec)
+        
+        fdm_data_protocol.send_responce = MagicMock()
+        
+        request_datagram = struct.pack("!c", chr(1))
+        host = "127.0.0.1"
+        port = 12345
+        
+        request = fdm_data_protocol.decode_request(request_datagram, host, port)
+        
+        fdm_data_protocol.process_request(request)
+        
+        fdm_data_protocol.send_responce.assert_called_once_with(ANY)
