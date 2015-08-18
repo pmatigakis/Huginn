@@ -132,7 +132,7 @@ class FDMDataProtocol(DatagramProtocol):
         remote_host = responce.fdm_data_request.host
         remote_port = responce.fdm_data_request.port
         
-        self.transmit_datagram(encoded_responce, (remote_host, remote_port))
+        self.transmit_datagram(encoded_responce, remote_host, remote_port)
     
     def transmit_datagram(self, datagram, host, port):
         self.transport.write(datagram, (host, port))
