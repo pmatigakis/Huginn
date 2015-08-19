@@ -89,4 +89,4 @@ class FDMDataProtocolTests(TestCase):
         
         expected_responce_datagram = struct.pack("!c" + ("f" * fdm_property_value_count), chr(1), *fdm_property_values)
         
-        fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, (host, port))
+        fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, host, port)
