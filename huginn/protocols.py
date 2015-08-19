@@ -2,6 +2,7 @@ import struct
 import logging
 
 from twisted.internet.protocol import DatagramProtocol
+from twisted.protocols.policies import TimeoutMixin
 from twisted.internet import reactor
 
 from huginn.fdm import fdm_data_properties, controls_properties
@@ -165,7 +166,7 @@ class ControlsProtocol(DatagramProtocol):
             logging.error("Failed to parse control data")
             print("Failed to parse control data")
 
-class FDMDataClientProtocol(DatagramProtocol):
+class FDMDataClientProtocol(DatagramProtocol, TimeoutMixin):
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -173,8 +174,11 @@ class FDMDataClientProtocol(DatagramProtocol):
     def startProtocol(self):
         fdm_data_command = struct.pack("!c", chr(1))
         self.transport.write(fdm_data_command, (self.host, self.port))
+        self.setTimeout(0.01)
     
     def datagramReceived(self, datagram, addr):
+        self.resetTimeout()
+        
         fdm_data_decoder = FDMDataResponceDecoder()
         
         try:
@@ -185,7 +189,11 @@ class FDMDataClientProtocol(DatagramProtocol):
             print("Failed to parse received data")
         finally:
             reactor.callFromThread(reactor.stop)
-            
+    
+    def timeoutConnection(self):
+        print("The fdm server did not respond in time")
+        reactor.callFromThread(reactor.stop)
+    
 class FDMControlsProtocol(DatagramProtocol):
     def __init__(self, host, port, aileron, elevator, rudder, throttle):
         self.host = host
