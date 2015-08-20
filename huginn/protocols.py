@@ -18,20 +18,10 @@ class InvalidFDMDataResponceDatagram(Exception):
     def __init__(self, datagram):
         self.datagram = datagram
 
-def decode_fdm_data_command(self, datagram):
-        command = struct.unpack("!c", datagram[0])
-        command = ord(command[0])
-        
-        if command == 1:
-            pass
-        else:
-            raise InvalidFDMDataCommandDatagram()
-
 class FDMDataRequest(object):
-    def __init__(self, host, port, command, fdm_properties):
+    def __init__(self, host, port, fdm_properties):
         self.host = host
         self.port = port
-        self.command = command
         self.fdm_properties = fdm_properties
 
     def __eq__(self, other):
@@ -41,8 +31,6 @@ class FDMDataRequest(object):
         if self.host != other.host:
             return False
         elif self.port != other.port:
-            return False
-        elif self.command != other.command:
             return False
         elif self.fdm_properties != other.fdm_properties:
             return False
@@ -68,16 +56,9 @@ class FDMDataResponce(object):
 class FDMDataResponceDecoder(object):
     def decode_responce(self, datagram):
         try:
-            decoded_fdm_properties = struct.unpack("!c" + "f" * len(fdm_data_properties), datagram)
+            decoded_fdm_properties = struct.unpack("!" + ("f" * len(fdm_data_properties)), datagram)
         except struct.error:
             raise ValueError("Invalid fdm datagram data")
-        
-        command = ord(decoded_fdm_properties[0]) 
-        
-        if command != 1:
-            raise InvalidFDMDataResponceDatagram(datagram)
-        
-        decoded_fdm_properties = decoded_fdm_properties[1:]
         
         fdm_data = [(fdm_data_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
         return dict(fdm_data)
@@ -95,40 +76,25 @@ class FDMDataProtocol(DatagramProtocol):
         command = ord(command[0])
         
         if command == 1 and datagram_size == 1:
-            return FDMDataRequest(host, port, command, fdm_data_properties)
+            return FDMDataRequest(host, port, fdm_data_properties)
         else:
             raise InvalidFDMDataCommandDatagram()
     
     def process_request(self, request):
-        if request.command == 1:
-            fdm_property_values = [self.fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
-            responce = FDMDataResponce(request, fdm_property_values)
+        fdm_property_values = [self.fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
+        responce = FDMDataResponce(request, fdm_property_values)
             
-            self.send_responce(responce)
-        else:
-            print("Unknown fdm data request command %" % request.command)
-            logging.error("Unknown fdm data request command %" % request.command)
-            error_responce = struct.pack("!c", chr(255))
-            self.transmit_datagram(error_responce, (request.host, request.port))
+        self.send_responce(responce)
     
     def encode_responce(self, responce):
-        command = responce.fdm_data_request.command
+        fdm_property_values_count = len(responce.fdm_property_values)
         
-        if command == 1:
-            fdm_property_values_count = len(responce.fdm_property_values)
-            encoded_responce = struct.pack("!c" + ("f" * fdm_property_values_count), chr(1), *responce.fdm_property_values)
+        encoded_responce = struct.pack("!" + ("f" * fdm_property_values_count), *responce.fdm_property_values)
+
+        return encoded_responce
             
-            return encoded_responce
-        else:
-            raise InvalidFDMDataRequestCommand(command)
-    
     def send_responce(self, responce):
-        try:
-            encoded_responce = self.encode_responce(responce)
-        except InvalidFDMDataRequestCommand as e:
-            print("Invalid fdm data request command %d" % e.command)
-            logging.exception("Invalid fdm data request command %d" % e.command)
-            return
+        encoded_responce = self.encode_responce(responce)
         
         remote_host = responce.fdm_data_request.host
         remote_port = responce.fdm_data_request.port

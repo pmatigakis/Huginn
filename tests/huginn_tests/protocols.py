@@ -65,7 +65,6 @@ class FDMDataProtocolTests(TestCase):
         request = fdm_data_protocol.decode_request(request_datagram, host, port)
         
         self.assertIsInstance(request, FDMDataRequest)
-        self.assertEqual(request.command, 1)
         self.assertEqual(request.host, host)
         self.assertEqual(request.port, port)
         self.assertEqual(request.fdm_properties, fdm_data_properties)
@@ -87,6 +86,6 @@ class FDMDataProtocolTests(TestCase):
         fdm_property_values = [fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
         fdm_property_value_count = len(fdm_property_values)
         
-        expected_responce_datagram = struct.pack("!c" + ("f" * fdm_property_value_count), chr(1), *fdm_property_values)
+        expected_responce_datagram = struct.pack("!" + ("f" * fdm_property_value_count), *fdm_property_values)
         
         fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, host, port)
