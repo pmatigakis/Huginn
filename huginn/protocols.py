@@ -7,6 +7,49 @@ from twisted.internet import reactor
 
 from huginn.fdm import fdm_data_properties, controls_properties
 
+ACCELEROMETER_DATA = 0x01
+GYROSCOPE_DATA = 0x02
+MAGNETOMETER_DATA = 0x04
+GPS_DATA = 0x08
+ATMOSPHERIC_PRESSURE_DATA = 0x10
+TEMPERATURE_DATA = 0x20
+
+ERROR_COMMAND = 0x80
+
+FDM_DATA_PROTOCOL_PROPERTIES = {
+    ACCELEROMETER_DATA: [
+        "accelerations/a-pilot-x-ft_sec2",
+        "accelerations/a-pilot-y-ft_sec2",
+        "accelerations/a-pilot-z-ft_sec2"
+    ],
+                                
+    GYROSCOPE_DATA: [
+        "velocities/p-rad_sec",
+        "velocities/q-rad_sec",
+        "velocities/r-rad_sec"
+    ],
+                                
+    MAGNETOMETER_DATA: [
+    ],
+                                
+    GPS_DATA: [
+        "position/lat-gc-deg",
+        "position/long-gc-deg",
+        "position/h-sl-ft",
+        "velocities/vtrue-kts",
+        "attitude/heading-true-rad"
+    ],
+                                
+    ATMOSPHERIC_PRESSURE_DATA: [
+        "atmosphere/P-psf",
+        "aero/qbar-psf"
+    ],
+                                
+    TEMPERATURE_DATA: [
+        "atmosphere/T-R"
+    ]
+}
+
 class InvalidFDMDataCommandDatagram(Exception):
     pass
 
@@ -19,10 +62,10 @@ class InvalidFDMDataResponceDatagram(Exception):
         self.datagram = datagram
 
 class FDMDataRequest(object):
-    def __init__(self, host, port, fdm_properties):
+    def __init__(self, host, port, command):
         self.host = host
         self.port = port
-        self.fdm_properties = fdm_properties
+        self.command = command
 
     def __eq__(self, other):
         if not isinstance(other, FDMDataRequest):
@@ -32,18 +75,18 @@ class FDMDataRequest(object):
             return False
         elif self.port != other.port:
             return False
-        elif self.fdm_properties != other.fdm_properties:
+        elif self.command != other.command:
             return False
         
         return True
 
-class FDMDataResponce(object):
+class FDMDataResponse(object):
     def __init__(self, fdm_data_request, fdm_property_values):
         self.fdm_data_request = fdm_data_request
         self.fdm_property_values = fdm_property_values
 
     def __eq__(self, other):
-        if not isinstance(other, FDMDataResponce):
+        if not isinstance(other, FDMDataResponse):
             return False
         
         if self.fdm_data_request != other.fdm_data_request:
@@ -55,51 +98,72 @@ class FDMDataResponce(object):
 
 class FDMDataResponceDecoder(object):
     def decode_responce(self, datagram):
+        if len(datagram) < 1:
+            raise ValueError("The fdm data datagram does not contain any data")
+        
+        command, data = datagram[0], datagram[1:]
+        command = ord(command)
+        
+        fdm_properties = []
+        
+        if not command & ERROR_COMMAND:
+            property_flags = sorted(FDM_DATA_PROTOCOL_PROPERTIES.keys(), reverse=True)
+            
+            for property_flag in property_flags:
+                if command & property_flag:
+                    fdm_properties.extend(FDM_DATA_PROTOCOL_PROPERTIES[property_flag]) 
+        else:
+            return command, {}
+        
         try:
-            decoded_fdm_properties = struct.unpack("!" + ("f" * len(fdm_data_properties)), datagram)
+            decoded_fdm_properties = struct.unpack("!" + ("f" * len(fdm_properties)), data)
         except struct.error:
             raise ValueError("Invalid fdm datagram data")
         
-        fdm_data = [(fdm_data_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
-        return dict(fdm_data)
+        fdm_data = [(fdm_properties[index], fdm_property_value) for index, fdm_property_value in enumerate(decoded_fdm_properties)]
+        return command, dict(fdm_data)
 
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
     
     def decode_request(self, datagram, host, port):
-        datagram_size = len(datagram)
-        if datagram_size <= 0:
+        try:
+            command = struct.unpack("!c", datagram)
+            command = ord(command[0]) & 0x3f
+        except:
             raise InvalidFDMDataCommandDatagram()
-        
-        command = struct.unpack("!c", datagram[0])
-        command = ord(command[0])
-        
-        if command == 1 and datagram_size == 1:
-            return FDMDataRequest(host, port, fdm_data_properties)
-        else:
-            raise InvalidFDMDataCommandDatagram()
+                
+        return FDMDataRequest(host, port, command)
     
     def process_request(self, request):
-        fdm_property_values = [self.fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
-        responce = FDMDataResponce(request, fdm_property_values)
+        property_flags = sorted(FDM_DATA_PROTOCOL_PROPERTIES.keys(), reverse=True)
+        
+        fdm_properties = []
+        
+        for property_flag in property_flags:
+            if request.command & property_flag:
+                fdm_properties.extend(FDM_DATA_PROTOCOL_PROPERTIES[property_flag])
+        
+        fdm_property_values = [self.fdmexec.get_property_value(fdm_property) for fdm_property in fdm_properties]
+        response = FDMDataResponse(request, fdm_property_values)
             
-        self.send_responce(responce)
+        self.send_response(response)
     
-    def encode_responce(self, responce):
-        fdm_property_values_count = len(responce.fdm_property_values)
+    def encode_response(self, response):
+        fdm_property_values_count = len(response.fdm_property_values)
         
-        encoded_responce = struct.pack("!" + ("f" * fdm_property_values_count), *responce.fdm_property_values)
+        encoded_response = struct.pack("!c" + ("f" * fdm_property_values_count), chr(response.fdm_data_request.command), *response.fdm_property_values)
 
-        return encoded_responce
+        return encoded_response
             
-    def send_responce(self, responce):
-        encoded_responce = self.encode_responce(responce)
+    def send_response(self, response):
+        encoded_response = self.encode_response(response)
         
-        remote_host = responce.fdm_data_request.host
-        remote_port = responce.fdm_data_request.port
+        remote_host = response.fdm_data_request.host
+        remote_port = response.fdm_data_request.port
         
-        self.transmit_datagram(encoded_responce, remote_host, remote_port)
+        self.transmit_datagram(encoded_response, remote_host, remote_port)
     
     def transmit_datagram(self, datagram, host, port):
         self.transport.write(datagram, (host, port))
@@ -112,8 +176,8 @@ class FDMDataProtocol(DatagramProtocol):
         except InvalidFDMDataCommandDatagram:
             print("Failed to parse fdm data command datagram")
             logging.exception("Failed to parse fdm data command datagram")
-            error_responce = struct.pack("!c", chr(255))
-            self.transmit_datagram(error_responce, (host, port))
+            error_response = struct.pack("!c", chr(255))
+            self.transmit_datagram(error_response, (host, port))
             return
         
         self.process_request(request)
@@ -138,7 +202,7 @@ class FDMDataClientProtocol(DatagramProtocol, TimeoutMixin):
         self.port = port
     
     def startProtocol(self):
-        fdm_data_command = struct.pack("!c", chr(1))
+        fdm_data_command = struct.pack("!c", chr(0x3f)) #get all fdm data
         self.transport.write(fdm_data_command, (self.host, self.port))
         self.setTimeout(0.01)
     
@@ -148,17 +212,20 @@ class FDMDataClientProtocol(DatagramProtocol, TimeoutMixin):
         fdm_data_decoder = FDMDataResponceDecoder()
         
         try:
-            decoded_fdm_data = fdm_data_decoder.decode_responce(datagram)
-            for fdm_property in fdm_data_properties:
-                print("%s\t%f" % (fdm_property, decoded_fdm_data[fdm_property]))
+            command, decoded_fdm_data = fdm_data_decoder.decode_responce(datagram)
         except ValueError:
             print("Failed to parse received data")
-        finally:
-            reactor.callFromThread(reactor.stop)
+        
+        property_flags = sorted(FDM_DATA_PROTOCOL_PROPERTIES.keys(), reverse=True)
+        
+        for fdm_property in sorted(decoded_fdm_data.keys()):
+            print("%s\t%f" % (fdm_property, decoded_fdm_data[fdm_property]))
+            
+        reactor.stop()
     
     def timeoutConnection(self):
         print("The fdm server did not respond in time")
-        reactor.callFromThread(reactor.stop)
+        reactor.stop()
     
 class FDMControlsProtocol(DatagramProtocol):
     def __init__(self, host, port, aileron, elevator, rudder, throttle):
@@ -173,4 +240,4 @@ class FDMControlsProtocol(DatagramProtocol):
         controls_data = struct.pack("!ffff", self.elevator, self.aileron, self.rudder, self.throttle)
         self.transport.write(controls_data, (self.host, self.port))
         
-        reactor.callFromThread(reactor.stop)
+        reactor.stop()

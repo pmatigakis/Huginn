@@ -7,7 +7,7 @@ from flightsimlib import FGFDMExec
 from mock import MagicMock, ANY
 
 import huginn
-from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDMDataResponce
+from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDMDataResponse, FDM_DATA_PROTOCOL_PROPERTIES, ACCELEROMETER_DATA
 from huginn.fdm import fdm_data_properties
 
 def get_fdmexec():
@@ -58,7 +58,7 @@ class FDMDataProtocolTests(TestCase):
         
         fdm_data_protocol = FDMDataProtocol(fdmexec)
         
-        request_datagram = struct.pack("!c", chr(1))
+        request_datagram = struct.pack("!c", chr(0x3f))
         host = "127.0.0.1"
         port = 12345
         
@@ -67,7 +67,7 @@ class FDMDataProtocolTests(TestCase):
         self.assertIsInstance(request, FDMDataRequest)
         self.assertEqual(request.host, host)
         self.assertEqual(request.port, port)
-        self.assertEqual(request.fdm_properties, fdm_data_properties)
+        self.assertEqual(request.command, 0x3f)
             
     def test_datagramReceived(self):
         fdmexec = get_fdmexec()
@@ -79,13 +79,13 @@ class FDMDataProtocolTests(TestCase):
         
         fdm_data_protocol.transmit_datagram = MagicMock()
         
-        fdm_data_request_datagram = struct.pack("!c", chr(1))
+        fdm_data_request_datagram = struct.pack("!c", chr(ACCELEROMETER_DATA))
         
         fdm_data_protocol.datagramReceived(fdm_data_request_datagram, (host, port))
         
-        fdm_property_values = [fdmexec.get_property_value(fdm_property) for fdm_property in fdm_data_properties]
+        fdm_property_values = [fdmexec.get_property_value(fdm_property) for fdm_property in FDM_DATA_PROTOCOL_PROPERTIES[ACCELEROMETER_DATA]]
         fdm_property_value_count = len(fdm_property_values)
         
-        expected_responce_datagram = struct.pack("!" + ("f" * fdm_property_value_count), *fdm_property_values)
+        expected_responce_datagram = struct.pack("!c" + ("f" * fdm_property_value_count), chr(ACCELEROMETER_DATA), *fdm_property_values)
         
         fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, host, port)
