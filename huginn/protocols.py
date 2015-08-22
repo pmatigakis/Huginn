@@ -5,7 +5,7 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.protocols.policies import TimeoutMixin
 from twisted.internet import reactor
 
-from huginn.fdm import fdm_data_properties, controls_properties
+from huginn.fdm import controls_properties
 
 ACCELEROMETER_DATA = 0x01
 GYROSCOPE_DATA = 0x02

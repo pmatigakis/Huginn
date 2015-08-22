@@ -4,9 +4,9 @@ import json
 from huginn.http import JSONFDMDataEncoder
 from huginn.fdm import fdm_data_properties
 
-from huginn_tests.protocols import get_fdmexec 
+from test_protocols import get_fdmexec 
 
-class JSONFDMDataEncoderTests(TestCase):
+class TestJSONFDMDataEncoder(TestCase):
     def test_encode_fdm_data(self):
         fdmexec = get_fdmexec()
         

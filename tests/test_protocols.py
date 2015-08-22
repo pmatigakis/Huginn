@@ -4,11 +4,10 @@ from os import path
 import inspect
 
 from flightsimlib import FGFDMExec
-from mock import MagicMock, ANY
+from mock import MagicMock
 
 import huginn
-from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDMDataResponse, FDM_DATA_PROTOCOL_PROPERTIES, ACCELEROMETER_DATA
-from huginn.fdm import fdm_data_properties
+from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDM_DATA_PROTOCOL_PROPERTIES, ACCELEROMETER_DATA
 
 def get_fdmexec():
     package_filename = inspect.getfile(huginn)
@@ -52,7 +51,7 @@ def get_fdmexec():
         
     return fdmexec
 
-class FDMDataProtocolTests(TestCase):
+class TestFDMDataProtocol(TestCase):
     def test_decode_request(self):
         fdmexec = get_fdmexec()
         
