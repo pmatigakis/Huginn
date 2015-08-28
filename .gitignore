@@ -1,4 +1,5 @@
 build
+docs/build
 .coverage
 .pydevproject
 .project
@@ -6,3 +7,4 @@ build
 temp
 huginn.egg-info
 coverage_results
+virtualenv

@@ -7,7 +7,7 @@ from flightsimlib import FGFDMExec
 from mock import MagicMock
 
 import huginn
-from huginn.protocols import FDMDataProtocol, FDMDataRequest, FDM_DATA_PROTOCOL_PROPERTIES, ACCELEROMETER_DATA
+from huginn.protocols import FDMDataProtocol, FDMDataRequest
 
 def get_fdmexec():
     package_filename = inspect.getfile(huginn)
@@ -57,7 +57,7 @@ class TestFDMDataProtocol(TestCase):
         
         fdm_data_protocol = FDMDataProtocol(fdmexec)
         
-        request_datagram = struct.pack("!c", chr(0x3f))
+        request_datagram = struct.pack("!c", chr(0x01))
         host = "127.0.0.1"
         port = 12345
         
@@ -66,25 +66,4 @@ class TestFDMDataProtocol(TestCase):
         self.assertIsInstance(request, FDMDataRequest)
         self.assertEqual(request.host, host)
         self.assertEqual(request.port, port)
-        self.assertEqual(request.command, 0x3f)
-            
-    def test_datagramReceived(self):
-        fdmexec = get_fdmexec()
-        
-        fdm_data_protocol = FDMDataProtocol(fdmexec)
-        
-        host = "127.0.0.1"
-        port = 12345
-        
-        fdm_data_protocol.transmit_datagram = MagicMock()
-        
-        fdm_data_request_datagram = struct.pack("!c", chr(ACCELEROMETER_DATA))
-        
-        fdm_data_protocol.datagramReceived(fdm_data_request_datagram, (host, port))
-        
-        fdm_property_values = [fdmexec.get_property_value(fdm_property) for fdm_property in FDM_DATA_PROTOCOL_PROPERTIES[ACCELEROMETER_DATA]]
-        fdm_property_value_count = len(fdm_property_values)
-        
-        expected_responce_datagram = struct.pack("!c" + ("f" * fdm_property_value_count), chr(ACCELEROMETER_DATA), *fdm_property_values)
-        
-        fdm_data_protocol.transmit_datagram.assert_called_once_with(expected_responce_datagram, host, port)
+        self.assertEqual(request.command, 0x01)

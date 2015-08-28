@@ -10,9 +10,10 @@ from flightsimlib import FGFDMExec
 
 import huginn
 from huginn.protocols import FDMDataProtocol, ControlsProtocol
-from huginn.http import Index, FDMData, Controls
+from huginn.http import Index, FDMData
 from huginn.rpc import FlightSimulatorRPC
 from huginn.configuration import CONTROLS_PORT, FDM_PORT, RPC_PORT, WEB_SERVER_PORT, DT
+from huginn.aircraft import Aircraft
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -90,8 +91,9 @@ def init_rpc_server(args, fdmexec):
 
 def init_web_server(args, fdmexec, package_path):
     index_page = Index(fdmexec)
-    index_page.putChild("fdmdata", FDMData(fdmexec))
-    index_page.putChild("controls", Controls(fdmexec))
+    aircraft = Aircraft(fdmexec)
+    
+    index_page.putChild("fdmdata", FDMData(aircraft))
     
     http_port = args.http
     
@@ -101,7 +103,9 @@ def init_web_server(args, fdmexec, package_path):
     reactor.listenTCP(http_port, frontend)
 
 def init_fdm_server(args, fdmexec):
-    fdm_protocol = FDMDataProtocol(fdmexec)
+    aircraft = Aircraft(fdmexec)
+    
+    fdm_protocol = FDMDataProtocol(aircraft)
     fdm_port = args.fdm
     
     logging.debug("Starting the flight dynamics model server at port %d", fdm_port)

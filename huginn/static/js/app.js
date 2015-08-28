@@ -15,14 +15,14 @@ function init_map(){
 function start_map_update(){
 	setInterval(function(){
 		$.getJSON("fdmdata", function(data){
-			$("#location .longitude").text(data.fdm_data["position/long-gc-deg"]);
-			$("#location .latitude").text(data.fdm_data["position/lat-gc-deg"]);
-			$("#location .altitude").text(data.fdm_data["position/h-sl-ft"]);
-			$("#location .airspeed").text(data.fdm_data["velocities/vtrue-kts"]);
-			$("#location .heading").text(data.fdm_data["attitude/heading-true-rad"] / 0.0174532925);
+			$("#location .longitude").text(data.fdm_data["longitude"]);
+			$("#location .latitude").text(data.fdm_data["latitude"]);
+			$("#location .altitude").text(data.fdm_data["altitude"]);
+			$("#location .airspeed").text(data.fdm_data["airspeed"]);
+			$("#location .heading").text(data.fdm_data["heading"]);
 	      
-			var latitude = data.fdm_data["position/lat-gc-deg"];
-			var longitude = data.fdm_data["position/long-gc-deg"];
+			var latitude = data.fdm_data["latitude"];
+			var longitude = data.fdm_data["longitude"];
 			
 			if(follow_aircraft){
 	    		map.setView([latitude, longitude], 13);

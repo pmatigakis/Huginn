@@ -2,23 +2,30 @@ import json
 
 from twisted.web.resource import Resource
 
-from huginn.fdm import fdm_properties
-
 class JSONFDMDataEncoder(object):
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
+    def __init__(self, aircraft):
+        self.aircraft = aircraft
         
-    def encode_fdm_data(self, fdm_properties):
-        try:
-            fdm_data = [(fdm_property, self.fdmexec.get_property_value(fdm_property))
-                        for fdm_property in fdm_properties]
+    def encode_fdm_data(self):
+        fdm_data = {
+                "temperature": self.aircraft.thermometer.temperature,
+                "dynamic_pressure": self.aircraft.pitot_tube.pressure,
+                "static_pressure": self.aircraft.pressure_sensor.pressure,
+                "latitude": self.aircraft.gps.latitude,
+                "longitude": self.aircraft.gps.longitude,
+                "altitude": self.aircraft.gps.altitude,
+                "airspeed": self.aircraft.gps.airspeed,
+                "heading": self.aircraft.gps.heading,
+                "x_acceleration": self.aircraft.accelerometer.x_acceleration,
+                "y_acceleration": self.aircraft.accelerometer.y_acceleration,
+                "z_acceleration": self.aircraft.accelerometer.z_acceleration,
+                "roll_rate": self.aircraft.gyroscope.roll_rate,
+                "pitch_rate": self.aircraft.gyroscope.pitch_rate,
+                "yaw_rate": self.aircraft.gyroscope.yaw_rate,
+        }
         
-            fdm_data = dict(fdm_data)
+        return json.dumps({"result": "ok", "fdm_data": fdm_data})
         
-            return json.dumps({"result": "ok", "fdm_data": fdm_data})
-        except:
-            return None
-
 class Index(Resource):
     isLeaf = False
     
@@ -38,38 +45,14 @@ class Index(Resource):
 class FDMData(Resource):
     isLeaf = True
     
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.fdm_data_encoder = JSONFDMDataEncoder(fdmexec)
+    def __init__(self, aircraft):
+        self.fdm_data_encoder = JSONFDMDataEncoder(aircraft)
     
     def render_GET(self, request):
         request.responseHeaders.addRawHeader("content-type", "application/json")
         
-        encoded_fdm_data = self.fdm_data_encoder.encode_fdm_data(fdm_properties)
+        encoded_fdm_data = self.fdm_data_encoder.encode_fdm_data()
         if encoded_fdm_data:
             return encoded_fdm_data
         else:
             return json.dumps({"result": "error"})
-    
-class Controls(Resource):
-    ifLeaf = True
-    
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        
-    def render_POST(self, request):
-        request.responseHeaders.addRawHeader("content-type", "application/json")
-        
-        data = request.content.read()
-        
-        try:
-            controls_data = json.loads(data)
-        except:
-            return json.dumps({"response": "error"})
-        
-        self.fdmexec.set_property_value("fcs/elevator-cmd-norm", controls_data["fcs/elevator-cmd-norm"])
-        self.fdmexec.set_property_value("fcs/aileron-cmd-norm", controls_data["fcs/aileron-cmd-norm"])
-        self.fdmexec.set_property_value("fcs/rudder-cmd-norm", controls_data["fcs/rudder-cmd-norm"])
-        self.fdmexec.set_property_value("fcs/throttle-cmd-norm", controls_data["fcs/throttle-cmd-norm"])
-        
-        return json.dumps({"response": "ok"})
