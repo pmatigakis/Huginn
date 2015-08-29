@@ -7,7 +7,8 @@ from flightsimlib import FGFDMExec
 from mock import MagicMock
 
 import huginn
-from huginn.protocols import FDMDataProtocol, FDMDataRequest
+from huginn.protocols import FDMDataProtocol, FDMDataRequest,  FDMDataResponse,  FDM_DATA_COMMAND, ERROR_CODE,\
+    FDM_DATA_RESPONCE_OK
 
 def get_fdmexec():
     package_filename = inspect.getfile(huginn)
@@ -57,7 +58,7 @@ class TestFDMDataProtocol(TestCase):
         
         fdm_data_protocol = FDMDataProtocol(fdmexec)
         
-        request_datagram = struct.pack("!c", chr(0x01))
+        request_datagram = struct.pack("!c", chr(FDM_DATA_COMMAND))
         host = "127.0.0.1"
         port = 12345
         
@@ -66,4 +67,51 @@ class TestFDMDataProtocol(TestCase):
         self.assertIsInstance(request, FDMDataRequest)
         self.assertEqual(request.host, host)
         self.assertEqual(request.port, port)
-        self.assertEqual(request.command, 0x01)
+        self.assertEqual(request.command, FDM_DATA_COMMAND)
+        
+    def test_return_error_code_on_invalid_request_datagram(self):
+        fdmexec = get_fdmexec()
+        
+        fdm_data_protocol = FDMDataProtocol(fdmexec)
+        
+        fdm_data_protocol.transmit_error_code = MagicMock()
+        
+        request_datagram = struct.pack("!cc", chr(FDM_DATA_COMMAND), chr(0x00))
+        host = "127.0.0.1"
+        port = 12345
+        
+        fdm_data_protocol.datagramReceived(request_datagram, (host, port))
+        
+        fdm_data_protocol.transmit_error_code.assert_called_once_with(ERROR_CODE, host, port)
+        
+    def test_return_error_code_on_invalid_request_command(self):
+        fdmexec = get_fdmexec()
+        
+        fdm_data_protocol = FDMDataProtocol(fdmexec)
+        
+        fdm_data_protocol.transmit_error_code = MagicMock()
+        
+        request_datagram = struct.pack("!cc", chr(0x50), chr(0x00))
+        host = "127.0.0.1"
+        port = 12345
+        
+        fdm_data_protocol.datagramReceived(request_datagram, (host, port))
+        
+        fdm_data_protocol.transmit_error_code.assert_called_once_with(ERROR_CODE, host, port)
+
+class TestFDMDataResponse(TestCase):
+    def test_encode_response(self):
+        fdm_data_request = FDMDataRequest("127.0.0.1", 12345, FDM_DATA_COMMAND)
+        
+        fdm_property_values = [1.0, 2.0, 3.0]
+        
+        fdm_data_response = FDMDataResponse(fdm_data_request, fdm_property_values)
+        
+        encoded_response = fdm_data_response.encode_response()
+        
+        decoded_reponse = struct.unpack("!cfff", encoded_response)
+        
+        self.assertEqual(ord(decoded_reponse[0]), FDM_DATA_RESPONCE_OK)
+        self.assertAlmostEqual(decoded_reponse[1], 1.0)
+        self.assertAlmostEqual(decoded_reponse[2], 2.0)
+        self.assertAlmostEqual(decoded_reponse[3], 3.0)

@@ -8,3 +8,4 @@ temp
 huginn.egg-info
 coverage_results
 virtualenv
+huginn.log
