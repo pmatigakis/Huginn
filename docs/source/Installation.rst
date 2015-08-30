@@ -1,2 +1,43 @@
 Installation
 ============
+Requirements
+------------
+Huginn requires the following Python packages to be installed on your system.
+
+- Flask >= 0.10.1
+- requests >= 2.7.0
+- Twisted >= 15.3.0
+
+Besides those packages you will also need to download and install flightsimlib from
+https://github.com/pmatigakis/flightsimlib.
+
+Hugin can then be installed by downloading the source coding and running the following command on the console.
+
+.. code-block:: bash
+
+    python setup.py install
+
+Testing
+-------
+In order to run the tests you will also need to install the following packages.
+
+- coverage >= 3.7.1
+- nose >= 1.3.7
+- mock >= 1.3.0
+
+Go to the source code directory and run the tests with the following command.
+
+.. code-block:: bash
+
+    ./run_tests.sh
+
+Documentation
+-------------
+The documentation can be build using Sphinx. Go to the *docs* directory and run the following command to create 
+the html documentation
+
+.. code-block:: bash
+
+    make html 
+    
+The documentation will be in the *build/html* directory.

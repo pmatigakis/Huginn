@@ -16,19 +16,8 @@ hardware-in-the-loop simulations.
    Starting the simulator
    FDMData protocol
 
-.. automodule:: huginn
-   :members:
-
-.. automodule:: huginn.protocols
-   :members:
-
-.. automodule:: huginn.http
-   :members:
-
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 

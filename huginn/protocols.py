@@ -8,8 +8,8 @@ from twisted.internet import reactor
 from huginn.fdm import controls_properties
 
 FDM_DATA_COMMAND = 0x01
-ERROR_CODE = 0xff
 
+ERROR_CODE = 0xff
 FDM_DATA_RESPONCE_OK = 0x01
 
 class InvalidFDMDataCommandDatagram(Exception):
