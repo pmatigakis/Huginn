@@ -126,3 +126,23 @@ class PitotTube(Sensor):
         pressure_in_pascal = convert_psf_to_pascal(pressure_in_psf)
         
         return pressure_in_pascal
+    
+class AttitudeIndicator(Sensor):
+    def __init__(self, fdmexec):
+        Sensor.__init__(self, fdmexec)
+        
+    @property
+    def roll(self):
+        roll_in_radians = self.fdmexec.get_property_value("attitude/roll-rad")
+        
+        roll_in_degrees = degrees(roll_in_radians)
+        
+        return roll_in_degrees
+    
+    @property
+    def pitch(self):
+        pitch_in_radians = self.fdmexec.get_property_value("attitude/pitch-rad")
+        
+        pitch_in_degrees = degrees(pitch_in_radians)
+        
+        return pitch_in_degrees

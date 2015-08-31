@@ -2,6 +2,7 @@ from unittest import TestCase
 import math
 
 from huginn.sensors import GPS, Accelerometer, Gyroscope, Thermometer, PressureSensor, PitotTube
+from huginn.sensors import AttitudeIndicator
 from huginn.unit_conversions import convert_knots_to_meters_per_sec, convert_feet_to_meters
 from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared, convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
@@ -182,3 +183,31 @@ class TestPitotTube(TestCase):
         expected_pressure_in_pascal = convert_psf_to_pascal(expected_pressure_in_psf)
         
         self.assertAlmostEqual(pressure, expected_pressure_in_pascal, 3)
+
+class TestAttitudeIndicator(TestCase):
+    def test_roll(self):
+        fdmexec = get_fdmexec()
+        
+        attitude_indicator = AttitudeIndicator(fdmexec)
+        
+        roll = attitude_indicator.roll
+        
+        expected_roll = fdmexec.get_property_value("attitude/roll-rad")
+        
+        expected_roll_in_degrees = math.degrees(expected_roll)
+        
+        self.assertAlmostEqual(roll, expected_roll_in_degrees, 3)
+        
+    def test_pitch(self):
+        fdmexec = get_fdmexec()
+        
+        attitude_indicator = AttitudeIndicator(fdmexec)
+        
+        pitch = attitude_indicator.pitch
+        
+        expected_pitch = fdmexec.get_property_value("attitude/pitch-rad")
+        
+        expected_pitch_in_degrees = math.degrees(expected_pitch)
+        
+        self.assertAlmostEqual(pitch, expected_pitch_in_degrees, 3)
+    
