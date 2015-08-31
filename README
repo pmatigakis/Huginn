@@ -1,12 +1,5 @@
-Flight simulator in Python
+Huginn is a flight simulator designed for software-in-the-loop and
+hardware-in-the-loop simulations.
 
-Installation
-============
-Download and install flightsimlib from the following link.
-
-https://github.com/pmatigakis/flightsimlib
-
-Download Huginn and install it by running the following
-command on the console.
-
-python setup.py install
+This is in very early stage of development. See the documentation for
+instructions on how to build and use Huginn.
