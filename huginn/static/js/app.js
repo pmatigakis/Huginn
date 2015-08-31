@@ -1,6 +1,7 @@
 var map;
 var follow_aircraft;
 var aircraft_marker;
+var myhud;
 
 function init_map(){
 	map = L.map('map').setView([51.0, 0.0], 13);
@@ -15,6 +16,14 @@ function init_map(){
 function start_map_update(){
 	setInterval(function(){
 		$.getJSON("fdmdata", function(data){
+			myhud.roll = data.fdm_data["roll"];
+			myhud.pitch = data.fdm_data["pitch"];
+			myhud.airspeed = data.fdm_data["airspeed"];
+			myhud.altitude = data.fdm_data["altitude"];
+			myhud.heading = data.fdm_data["heading"];
+			
+			myhud.draw();
+			
 			$("#location .longitude").text(data.fdm_data["longitude"]);
 			$("#location .latitude").text(data.fdm_data["latitude"]);
 			$("#location .altitude").text(data.fdm_data["altitude"]);
@@ -35,6 +44,19 @@ function start_map_update(){
 
 $(document).ready(function(){
 	init_map();
+	
+	var primaryFlightDisplayCanvas = document.getElementById("primary_flight_diplay");
+    
+	myhud = new Avionics.PrimaryFlightDisplay(primaryFlightDisplayCanvas);
+	
+	myhud.roll = 0.0;
+	myhud.pitch = 0.0;
+	myhud.airspeed = 0.0;
+	myhud.altitude = 0.0;
+	myhud.heading = 0.0;
+	
+	myhud.draw();
+	
 	start_map_update();
 	
 	follow_aircraft = $("#follow_aircraft").is(":checked");
