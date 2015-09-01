@@ -10,7 +10,7 @@
     <title>Flight simulator data viewer</title>
   </head>
   <body>
-    <div class="container-fluid">
+    <div class="container">
       <div class="row">
         <div class="col-lg-12">
           <h1>Flight simulator data viewer</h1>
@@ -19,7 +19,7 @@
 
       <div class="row">
         <div class="col-lg-6">
-          <canvas id="primary_flight_diplay" width="400" height="500">
+          <canvas id="primary_flight_diplay" width="400" height="400">
             This browser doesn't support the canvas element
           </canvas>
         </div>
@@ -29,14 +29,14 @@
           <input id="follow_aircraft" name="follow_aircraft" type="checkbox" value="Follow aircraft" checked>Follow aircraft</input>
         </div>
       </div>
-    </div>
-  
-    <div class="row">
+      
+        
+      <div class="row">
         <div class="col-lg-12">
           <table id="location" class="table table-bordered">
             <thead>
               <tr>
-                <th>Variable</th>
+                <th>Flight data</th>
                 <th>Value</th>
                 <th>Unit</th>
               </tr>
@@ -70,6 +70,7 @@
             </tbody>
           </table>
         </div>
+      </div>
     </div>
     
     <script src="static/js/leaflet.js" type="text/javascript"></script>

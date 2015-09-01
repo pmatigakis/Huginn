@@ -10,10 +10,17 @@ function init_map(){
 		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 	}).addTo(map);
 	
-	aircraft_marker = L.marker([51.0, 0.0]).addTo(map);
+	var aircraftIcon = L.icon({
+	    iconUrl: 'static/images/32px-Airplane_silhouette.png',
+
+	    iconSize:     [32, 32],
+	    iconAnchor:   [16, 16]
+	});
+	
+	aircraft_marker = L.marker([51.0, 0.0], {icon: aircraftIcon}).addTo(map);
 } 
 
-function start_map_update(){
+function start_update(){
 	setInterval(function(){
 		$.getJSON("fdmdata", function(data){
 			myhud.roll = data.fdm_data["roll"];
@@ -57,7 +64,7 @@ $(document).ready(function(){
 	
 	myhud.draw();
 	
-	start_map_update();
+	start_update();
 	
 	follow_aircraft = $("#follow_aircraft").is(":checked");
 	
