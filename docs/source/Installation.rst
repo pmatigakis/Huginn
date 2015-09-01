@@ -8,13 +8,14 @@ Huginn requires the following Python packages to be installed on your system.
 - requests >= 2.7.0
 - Twisted >= 15.3.0
 
-Besides those packages you will also need to download and install flightsimlib from
-https://github.com/pmatigakis/flightsimlib.
+Huginn also requires that you have installed the JSBsim flight dynamics model library. You can download this
+from http://jsbsim.sourceforge.net/
 
-Hugin can then be installed by downloading the source coding and running the following command on the console.
+The simulator can be installed by downloading the source code and running the following commands on the console.
 
 .. code-block:: bash
 
+    python setup.py build_ext
     python setup.py install
 
 Testing

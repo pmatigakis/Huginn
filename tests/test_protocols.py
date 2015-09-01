@@ -3,7 +3,7 @@ from unittest import TestCase
 from os import path
 import inspect
 
-from flightsimlib import FGFDMExec
+from huginn_jsbsim import FGFDMExec
 from mock import MagicMock
 
 import huginn

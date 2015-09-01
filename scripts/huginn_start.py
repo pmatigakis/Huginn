@@ -6,7 +6,7 @@ import signal
 
 from twisted.internet import reactor, task
 from twisted.web import server
-from flightsimlib import FGFDMExec
+from huginn_jsbsim import FGFDMExec
 
 import huginn
 from huginn.protocols import FDMDataProtocol, ControlsProtocol

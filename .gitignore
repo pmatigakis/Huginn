@@ -1,3 +1,4 @@
+dist
 build
 docs/build
 .coverage
@@ -9,3 +10,6 @@ huginn.egg-info
 coverage_results
 virtualenv
 huginn.log
+huginn_jsbsim.py
+huginn_jsbsim_wrap.cpp
+_huginn_jsbsim.so
