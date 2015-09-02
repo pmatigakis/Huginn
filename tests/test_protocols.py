@@ -1,31 +1,36 @@
 import struct
 from unittest import TestCase
 from os import path
-import inspect
+import os
 
 from huginn_jsbsim import FGFDMExec
 from mock import MagicMock
 
-import huginn
+from huginn import configuration
 from huginn.protocols import FDMDataProtocol, FDMDataRequest,  FDMDataResponse,  FDM_DATA_COMMAND, ERROR_CODE,\
     FDM_DATA_RESPONCE_OK, ControlsProtocol
 
 def get_fdmexec():
-    package_filename = inspect.getfile(huginn)
-    package_path = path.dirname(package_filename)
+    jsbsim_path = os.environ["JSBSIM_HOME"]
     
     fdmexec = FGFDMExec()
     
-    fdmexec.set_root_dir(package_path + "/data/")
-    fdmexec.set_aircraft_path("aircraft")
-    fdmexec.set_engine_path("engine")
-    fdmexec.set_systems_path("systems")
+    fdmexec.set_root_dir(jsbsim_path)
+    fdmexec.set_aircraft_path("/aircraft")
+    fdmexec.set_engine_path("/engine")
+    fdmexec.set_systems_path("/systems")
 
     fdmexec.set_dt(1.0/60.0)
 
     fdmexec.load_model("c172p")
 
-    fdmexec.load_ic("reset01")
+    fdmexec.load_ic("reset00")
+
+    fdmexec.set_property_value("ic/lat-gc-deg", configuration.INITIAL_LATITUDE)
+    fdmexec.set_property_value("ic/long-gc-deg", configuration.INITIAL_LONGITUDE)
+    fdmexec.set_property_value("ic/h-sl-ft", configuration.INITIAL_ALTITUDE)
+    fdmexec.set_property_value("ic/vt-kts", configuration.INITIAL_AIRSPEED)
+    fdmexec.set_property_value("ic/psi-true-deg", configuration.INITIAL_HEADING)
 
     fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
     fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)

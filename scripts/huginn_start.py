@@ -1,18 +1,18 @@
 from os import path
+import os
 import logging
 from argparse import ArgumentParser
-import inspect
 import signal
 
 from twisted.internet import reactor, task
 from twisted.web import server
 from huginn_jsbsim import FGFDMExec
 
-import huginn
 from huginn.protocols import FDMDataProtocol, ControlsProtocol
 from huginn.http import Index, FDMData
 from huginn.rpc import FlightSimulatorRPC
 from huginn.configuration import CONTROLS_PORT, FDM_PORT, RPC_PORT, WEB_SERVER_PORT, DT
+from huginn import configuration
 from huginn.aircraft import Aircraft
 
 def get_arguments():
@@ -27,25 +27,29 @@ def get_arguments():
     
     return parser.parse_args()
 
-def create_fdm(dt, package_path):
+def create_fdm(dt, jsbsim_path):
     logging.debug("Initializing the flight dynamics model")
     
     fdmexec = FGFDMExec()
     
-    jsbsim_data_path = path.join(package_path, "data/")
+    logging.debug("Using jsbsim data at %s", jsbsim_path)
     
-    logging.debug("Using jsbsim data at %s", jsbsim_data_path)
-    
-    fdmexec.set_root_dir(jsbsim_data_path)
-    fdmexec.set_aircraft_path("aircraft")
-    fdmexec.set_engine_path("engine")
-    fdmexec.set_systems_path("systems")
+    fdmexec.set_root_dir(jsbsim_path)
+    fdmexec.set_aircraft_path("/aircraft")
+    fdmexec.set_engine_path("/engine")
+    fdmexec.set_systems_path("/systems")
 
     fdmexec.set_dt(dt)
 
     fdmexec.load_model("c172p")
 
-    fdmexec.load_ic("reset01")
+    fdmexec.load_ic("reset00")
+
+    fdmexec.set_property_value("ic/lat-gc-deg", configuration.INITIAL_LATITUDE)
+    fdmexec.set_property_value("ic/long-gc-deg", configuration.INITIAL_LONGITUDE)
+    fdmexec.set_property_value("ic/h-sl-ft", configuration.INITIAL_ALTITUDE)
+    fdmexec.set_property_value("ic/vt-kts", configuration.INITIAL_AIRSPEED)
+    fdmexec.set_property_value("ic/psi-true-deg", configuration.INITIAL_HEADING)
 
     fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
     fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)
@@ -89,7 +93,7 @@ def init_rpc_server(args, fdmexec):
     
     reactor.listenTCP(rpc_port, server.Site(rpc))
 
-def init_web_server(args, fdmexec, package_path):
+def init_web_server(args, fdmexec):
     index_page = Index(fdmexec)
     aircraft = Aircraft(fdmexec)
     
@@ -132,7 +136,8 @@ def update_fdm(fdmexec):
 def shutdown():
     logging.debug("Shutting down Huginn")
     
-    reactor.callFromThread(reactor.stop)
+    #reactor.callFromThread(reactor.stop)
+    reactor.stop()
 
 def main():
     logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
@@ -146,14 +151,18 @@ def main():
         
     dt = args.dt
 
-    package_filename = inspect.getfile(huginn)
-    package_path = path.dirname(package_filename)
-
-    fdmexec = create_fdm(dt, package_path)
+    jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+    
+    if not jsbsim_path:
+        logging.error("The JSBSIM_HOME environment variable is not set")
+        print("The JSBSIM_HOME environment variable is not set")
+        exit(-1)
+    
+    fdmexec = create_fdm(dt, jsbsim_path)
 
     init_rpc_server(args, fdmexec)
     init_fdm_server(args, fdmexec)
-    init_web_server(args, fdmexec, package_path)
+    init_web_server(args, fdmexec)
     
     fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
