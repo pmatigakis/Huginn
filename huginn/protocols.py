@@ -7,10 +7,15 @@ from twisted.internet import reactor
 
 from huginn.fdm import controls_properties
 
+#Declare the available commands supported by the fdm data protocol
 FDM_DATA_COMMAND = 0x01
 
+#fdm data request response codes 
 ERROR_CODE = 0xff
 FDM_DATA_RESPONCE_OK = 0x01
+
+class InvalidControlsDatagram(Exception):
+    pass
 
 class InvalidFDMDataCommandDatagram(Exception):
     pass
@@ -176,15 +181,34 @@ class ControlsProtocol(DatagramProtocol):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
     
+    def update_aircraft_controls(self, aileron, elevator, rudder, throttle):  
+        self.fdmexec.set_property_value("fcs/aileron-cmd-norm", aileron)
+        self.fdmexec.set_property_value("fcs/elevator-cmd-norm", elevator)
+        self.fdmexec.set_property_value("fcs/rudder-cmd-norm", rudder)
+        self.fdmexec.set_property_value("fcs/throttle-cmd-norm", throttle)
+    
+    def decode_datagram(self, datagram):
+        try:
+            controls_data = struct.unpack("!ffff", datagram)
+            
+            return controls_data
+        except ValueError:
+            raise InvalidControlsDatagram()
+    
     def datagramReceived(self, datagram, addr):
         try:
-            controls_data = struct.unpack("!" + ("f" % len(controls_properties)), datagram)
-        
-            for control_property in controls_properties:
-                self.fdmexec.set_property_value(control_property, controls_data[control_property])
-        except ValueError:
+            controls = self.decode_datagram(datagram)
+        except InvalidControlsDatagram:
             logging.error("Failed to parse control data")
             print("Failed to parse control data")
+            return
+            
+        aileron = controls[0]
+        elevator = controls[1]
+        rudder = controls[2]
+        throttle = controls[3]
+            
+        self.update_aircraft_controls(aileron, elevator, rudder, throttle)
 
 class FDMDataClientProtocol(DatagramProtocol, TimeoutMixin):
     def __init__(self, host, port):

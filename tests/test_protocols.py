@@ -8,7 +8,7 @@ from mock import MagicMock
 
 import huginn
 from huginn.protocols import FDMDataProtocol, FDMDataRequest,  FDMDataResponse,  FDM_DATA_COMMAND, ERROR_CODE,\
-    FDM_DATA_RESPONCE_OK
+    FDM_DATA_RESPONCE_OK, ControlsProtocol
 
 def get_fdmexec():
     package_filename = inspect.getfile(huginn)
@@ -115,3 +115,26 @@ class TestFDMDataResponse(TestCase):
         self.assertAlmostEqual(decoded_reponse[1], 1.0)
         self.assertAlmostEqual(decoded_reponse[2], 2.0)
         self.assertAlmostEqual(decoded_reponse[3], 3.0)
+        
+class TestControlsProtocol(TestCase):
+    def test_datagram_received(self):
+        fdmexec = get_fdmexec()
+        
+        controls_protocol = ControlsProtocol(fdmexec)
+        
+        aileron = 0.1
+        elevator = 0.2
+        rudder = 0.3
+        throttle = 0.4
+        
+        controls_datagram = struct.pack("!ffff", aileron, elevator, rudder, throttle)
+        
+        host = "127.0.0.1"
+        port = 12345
+        
+        controls_protocol.datagramReceived(controls_datagram, (host, port))
+                
+        self.assertAlmostEqual(fdmexec.get_property_value("fcs/aileron-cmd-norm"), aileron, 3)                  
+        self.assertAlmostEqual(fdmexec.get_property_value("fcs/elevator-cmd-norm"), elevator, 3)
+        self.assertAlmostEqual(fdmexec.get_property_value("fcs/rudder-cmd-norm"), rudder, 3)
+        self.assertAlmostEqual(fdmexec.get_property_value("fcs/throttle-cmd-norm"), throttle, 3)

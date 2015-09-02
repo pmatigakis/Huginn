@@ -35,3 +35,15 @@ Datagram offset  Description
 48-52            Pitch rate
 53-56            Yaw rate
 ===============  ===========
+
+The aircraft can be controlled by sending 4 float values to the controls UDP port.
+These values must be in the range -1.0 to 1.0. The datagram must have the following format.
+
+===============  ===========
+Datagram offset  Description
+===============  ===========
+0-3              aileron
+4-7              elevator
+8-11             rudder
+12-16            throttle
+===============  ===========
