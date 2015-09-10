@@ -34,5 +34,5 @@ class TestJSONFDMDataEncoder(TestCase):
         self.assertAlmostEqual(aircraft.gyroscope.roll_rate, decoded_fdm_data["fdm_data"]["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.gyroscope.pitch_rate, decoded_fdm_data["fdm_data"]["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.gyroscope.yaw_rate, decoded_fdm_data["fdm_data"]["yaw_rate"], 3)
-        self.assertAlmostEqual(aircraft.attitude_indicator.roll, decoded_fdm_data["fdm_data"]["roll"], 3)
-        self.assertAlmostEqual(aircraft.attitude_indicator.pitch, decoded_fdm_data["fdm_data"]["pitch"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.roll, decoded_fdm_data["fdm_data"]["roll"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.pitch, decoded_fdm_data["fdm_data"]["pitch"], 3)

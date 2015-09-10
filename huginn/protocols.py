@@ -5,19 +5,24 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.protocols.policies import TimeoutMixin
 from twisted.internet import reactor
 
-from huginn.fdm import controls_properties
-
 #Declare the available commands supported by the fdm data protocol
-FDM_DATA_COMMAND = 0x01
+GPS_DATA_REQUEST = 0x00
+ACCELEROMETER_DATA_REQUEST = 0x01
+GYROSCOPE_DATA_REQUEST = 0x02
+MAGNETOMETER_DATA_REQUEST = 0x03
+THERMOMETER_DATA_REQUEST = 0x04
+PITOT_TUBE_DATA_REQUEST = 0x05
+STATIC_PRESSURE_DATA_REQUEST = 0x06
+INS_DATA_REQUEST = 0x07
 
 #fdm data request response codes 
 ERROR_CODE = 0xff
-FDM_DATA_RESPONCE_OK = 0x01
+FDM_DATA_RESPONCE_OK = 0x00
 
 class InvalidControlsDatagram(Exception):
     pass
 
-class InvalidFDMDataCommandDatagram(Exception):
+class InvalidFDMDataRequestDatagram(Exception):
     pass
 
 class InvalidFDMDataRequestCommand(Exception):
@@ -55,7 +60,9 @@ class FDMDataResponse(object):
     def encode_response(self):
         fdm_property_values_count = len(self.fdm_property_values)
         
-        encoded_response = struct.pack("!c" + ("f" * fdm_property_values_count), chr(FDM_DATA_RESPONCE_OK), *self.fdm_property_values)
+        encoded_response = struct.pack("!cc" + ("f" * fdm_property_values_count), chr(FDM_DATA_RESPONCE_OK), 
+                                                                                  chr(self.fdm_data_request.command),
+                                                                                  *self.fdm_property_values)
 
         return encoded_response
 
@@ -70,40 +77,38 @@ class FDMDataResponse(object):
         
         return True
 
-class FDMDataResponseDecoder(object):
+class FDMDataGPSResponseDecoder(object):
+    def parse_command_data(self, data):
+        pass
+    
     def decode_response(self, datagram):
         if len(datagram) < 1:
             raise ValueError("The fdm data datagram does not contain any data")
         
-        command, data = datagram[0], datagram[1:]
+        response_code, command, data = datagram[0], datagram[1], datagram[2:]
+        response_code = ord(response_code)
         command = ord(command)
         
-        if command & FDM_DATA_RESPONCE_OK:
-            try:
-                decoded_fdm_properties = struct.unpack("!" + ("f" * 14), data)
+        if response_code == FDM_DATA_RESPONCE_OK:
+            if command == GPS_DATA_REQUEST:            
+                try:
+                    decoded_gps_properties = struct.unpack("!fffff", data)
                 
-                fdm_data = {
-                    "temperature": decoded_fdm_properties[0],
-                    "dynamic_pressure": decoded_fdm_properties[1],
-                    "static_pressure": decoded_fdm_properties[2],
-                    "latitude": decoded_fdm_properties[3],
-                    "longitude": decoded_fdm_properties[4],
-                    "altitude": decoded_fdm_properties[5],
-                    "airspeed": decoded_fdm_properties[6],
-                    "heading": decoded_fdm_properties[7],
-                    "x_aceleration": decoded_fdm_properties[8],
-                    "y_aceleration": decoded_fdm_properties[9],
-                    "z_aceleration": decoded_fdm_properties[10],
-                    "roll_rate": decoded_fdm_properties[11],
-                    "pitch_rate": decoded_fdm_properties[12],
-                    "yaw_rate": decoded_fdm_properties[13],
-                }
+                    gps_data = {
+                        "latitude": decoded_gps_properties[0],
+                        "longitude": decoded_gps_properties[1],
+                        "altitude": decoded_gps_properties[2],
+                        "airspeed": decoded_gps_properties[3],
+                        "heading": decoded_gps_properties[4]
+                    }
+                except struct.error:
+                    raise ValueError("Invalid fdm datagram data")
                 
-                return command, fdm_data
-            except struct.error:
-                raise ValueError("Invalid fdm datagram data")
+                return response_code, command, gps_data
+            else:
+                raise ValueError("Invalid fdm command")
         else:
-            return command, {}
+            return response_code, command, {}
         
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, aircraft):
@@ -113,39 +118,94 @@ class FDMDataProtocol(DatagramProtocol):
         try:
             command = struct.unpack("!c", datagram)
         except:
-            raise InvalidFDMDataCommandDatagram()
+            raise InvalidFDMDataRequestDatagram()
                 
         command = ord(command[0])
         return FDMDataRequest(host, port, command)
     
-    def create_fdm_data_responce(self, request):
-        fdm_property_values = []
+    def create_gps_data_response(self, request):
+        gps_values = [
+            self.aircraft.gps.latitude,
+            self.aircraft.gps.longitude,
+            self.aircraft.gps.altitude,
+            self.aircraft.gps.airspeed,
+            self.aircraft.gps.heading
+        ]
         
-        fdm_property_values.append(self.aircraft.thermometer.temperature)
-        fdm_property_values.append(self.aircraft.pitot_tube.pressure)
-        fdm_property_values.append(self.aircraft.pressure_sensor.pressure)
-        fdm_property_values.append(self.aircraft.gps.latitude)
-        fdm_property_values.append(self.aircraft.gps.longitude)
-        fdm_property_values.append(self.aircraft.gps.altitude)
-        fdm_property_values.append(self.aircraft.gps.airspeed)
-        fdm_property_values.append(self.aircraft.gps.heading)
-        fdm_property_values.append(self.aircraft.accelerometer.x_acceleration)
-        fdm_property_values.append(self.aircraft.accelerometer.y_acceleration)
-        fdm_property_values.append(self.aircraft.accelerometer.z_acceleration)
-        fdm_property_values.append(self.aircraft.gyroscope.roll_rate)
-        fdm_property_values.append(self.aircraft.gyroscope.pitch_rate)
-        fdm_property_values.append(self.aircraft.gyroscope.yaw_rate)
-        
-        response = FDMDataResponse(request, fdm_property_values)
-        
-        return response
+        return FDMDataResponse(request, gps_values)
     
-    def process_request(self, request):
-        if request.command == FDM_DATA_COMMAND:
-            response = self.create_fdm_data_responce(request)
+    def create_accelerometer_data_response(self, request):
+        accelerometer_values = [
+            self.aircraft.accelerometer.x_acceleration,
+            self.aircraft.accelerometer.y_acceleration,
+            self.aircraft.accelerometer.z_acceleration
+        ]
+        
+        return FDMDataResponse(request, accelerometer_values)
+        
+    def create_gyroscope_data_response(self, request):
+        gyroscope_data = [
+            self.aircraft.gyroscope.roll_rate,
+            self.aircraft.gyroscope.pitch_rate,
+            self.aircraft.gyroscope.yaw_rate
+        ]
+        
+        return FDMDataResponse(request, gyroscope_data)
+    
+    def create_magnetometer_data_response(self, request):
+        return FDMDataResponse(request, [0.0, 0.0, 0.0])
+    
+    def create_thermometer_data_response(self, request):
+        return FDMDataResponse(request, [self.aircraft.thermometer.temperature])
+    
+    def create_pitot_tube_data_response(self, request):
+        return FDMDataResponse(request, [self.aircraft.pitot_tube.pressure])
+    
+    def create_static_pressure_data_response(self, request):
+        return FDMDataResponse(request, [self.aircraft.pressure_sensor.pressure])
+    
+    def create_ins_data_response(self, request):
+        ins_data = [
+            self.aircraft.inertial_navigation_system.climb_rate,
+            self.aircraft.inertial_navigation_system.roll,
+            self.aircraft.inertial_navigation_system.pitch,
+            self.aircraft.inertial_navigation_system.heading,
+            self.aircraft.inertial_navigation_system.latitude,
+            self.aircraft.inertial_navigation_system.longitude,
+            self.aircraft.inertial_navigation_system.airspeed,
+            self.aircraft.inertial_navigation_system.altitude,
+            self.aircraft.inertial_navigation_system.turn_rate
+        ]
+        
+        return FDMDataResponse(request, ins_data)
+    
+    def create_response(self, request):
+        command = request.command
+        
+        if command == GPS_DATA_REQUEST:
+            response = self.create_gps_data_response(request)
+        elif command == ACCELEROMETER_DATA_REQUEST:
+            response = self.create_accelerometer_data_response(request)
+        elif command == GYROSCOPE_DATA_REQUEST:
+            response = self.create_gyroscope_data_response(request)
+        elif command == MAGNETOMETER_DATA_REQUEST:
+            response = self.create_magnetometer_data_response(request)
+        elif command == THERMOMETER_DATA_REQUEST:
+            response = self.create_thermometer_data_response(request) 
+        elif command == PITOT_TUBE_DATA_REQUEST:
+            response = self.create_pitot_tube_data_response(request)
+        elif command == STATIC_PRESSURE_DATA_REQUEST:
+            response = self.create_static_pressure_data(request)
+        elif command == INS_DATA_REQUEST:
+            response = self.create_ins_data_response(request) 
         else:
             raise InvalidFDMDataRequestCommand(request.command)
+
+        return response
         
+    def process_request(self, request):
+        response = self.create_response(request)
+    
         self.send_response(response)
                 
     def send_response(self, response):        
@@ -168,7 +228,7 @@ class FDMDataProtocol(DatagramProtocol):
             request = self.decode_request(datagram, host, port)
             
             self.process_request(request)
-        except InvalidFDMDataCommandDatagram:
+        except InvalidFDMDataRequestDatagram:
             print("Failed to parse fdm data command datagram")
             logging.exception("Failed to parse fdm data command datagram")
             self.transmit_error_code(ERROR_CODE, host, port)
@@ -216,21 +276,22 @@ class FDMDataClientProtocol(DatagramProtocol, TimeoutMixin):
         self.port = port
     
     def startProtocol(self):
-        fdm_data_command = struct.pack("!c", chr(FDM_DATA_COMMAND))
+        fdm_data_command = struct.pack("!c", chr(GPS_DATA_REQUEST))
         self.transport.write(fdm_data_command, (self.host, self.port))
         self.setTimeout(0.01)
     
     def datagramReceived(self, datagram, addr):
         self.resetTimeout()
         
-        fdm_data_decoder = FDMDataResponseDecoder()
+        fdm_data_decoder = FDMDataGPSResponseDecoder()
         
         try:
-            command, decoded_fdm_data = fdm_data_decoder.decode_response(datagram)
-        except ValueError:
+            response_code, command, decoded_fdm_data = fdm_data_decoder.decode_response(datagram)
+        except ValueError as e:
             print("Failed to parse received data")
+            raise e
         
-        if command == FDM_DATA_COMMAND:
+        if command == GPS_DATA_REQUEST and response_code == FDM_DATA_RESPONCE_OK:
             for fdm_property in decoded_fdm_data.keys():
                 print("%s\t%f" % (fdm_property, decoded_fdm_data[fdm_property]))
         else:

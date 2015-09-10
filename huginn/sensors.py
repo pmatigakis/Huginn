@@ -125,12 +125,20 @@ class PitotTube(Sensor):
         
         pressure_in_pascal = convert_psf_to_pascal(pressure_in_psf)
         
-        return pressure_in_pascal
-    
-class AttitudeIndicator(Sensor):
+        return pressure_in_pascal        
+
+class InertialNavigationSystem(Sensor):
     def __init__(self, fdmexec):
         Sensor.__init__(self, fdmexec)
+    
+    @property
+    def climb_rate(self):
+        climb_rate = self.fdmexec.get_property_value("velocities/v-down-fps")
         
+        climb_rate_in_meters_sec = convert_feet_to_meters(climb_rate)
+        
+        return climb_rate_in_meters_sec
+    
     @property
     def roll(self):
         roll_in_radians = self.fdmexec.get_property_value("attitude/roll-rad")
@@ -146,3 +154,40 @@ class AttitudeIndicator(Sensor):
         pitch_in_degrees = degrees(pitch_in_radians)
         
         return pitch_in_degrees
+    
+    @property
+    def heading(self):
+        yaw_in_radians = self.fdmexec.get_property_value("attitude/heading-true-rad")
+        
+        yaw_in_degrees = degrees(yaw_in_radians)
+        
+        return yaw_in_degrees
+    
+    @property
+    def latitude(self):
+        return self.fdmexec.get_property_value("position/lat-gc-deg")
+    
+    @property
+    def longitude(self):
+        return self.fdmexec.get_property_value("position/long-gc-deg")
+    
+    @property
+    def airspeed(self):
+        airspeed_in_knots = self.fdmexec.get_property_value("velocities/vtrue-kts")
+        airspeed_in_meters_per_sec = convert_knots_to_meters_per_sec(airspeed_in_knots)
+        
+        return airspeed_in_meters_per_sec
+    
+    @property
+    def altitude(self):
+        altitude_in_feet = self.fdmexec.get_property_value("position/h-sl-ft")
+        altitude_in_meters = convert_feet_to_meters(altitude_in_feet)
+        
+        return altitude_in_meters
+    
+    @property
+    def turn_rate(self):
+        turn_rate_in_rad_sec = self.fdmexec.get_property_value("velocities/psidot-rad_sec")
+        turn_rate_in_degrees_sec = degrees(turn_rate_in_rad_sec)
+        
+        return turn_rate_in_degrees_sec

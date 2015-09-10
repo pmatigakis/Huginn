@@ -22,8 +22,8 @@ class JSONFDMDataEncoder(object):
                 "roll_rate": self.aircraft.gyroscope.roll_rate,
                 "pitch_rate": self.aircraft.gyroscope.pitch_rate,
                 "yaw_rate": self.aircraft.gyroscope.yaw_rate,
-                "roll": self.aircraft.attitude_indicator.roll,
-                "pitch": self.aircraft.attitude_indicator.pitch,
+                "roll": self.aircraft.inertial_navigation_system.roll,
+                "pitch": self.aircraft.inertial_navigation_system.pitch,
         }
         
         return json.dumps({"result": "ok", "fdm_data": fdm_data})

@@ -1,6 +1,6 @@
 from huginn.sensors import (GPS, Accelerometer, Gyroscope, 
                             Thermometer, PressureSensor, PitotTube,
-                            AttitudeIndicator)
+                            InertialNavigationSystem)
 
 class Aircraft(object):
     def __init__(self, fdmexec):
@@ -11,4 +11,4 @@ class Aircraft(object):
         self.thermometer = Thermometer(fdmexec)
         self.pressure_sensor = PressureSensor(fdmexec)
         self.pitot_tube = PitotTube(fdmexec)
-        self.attitude_indicator = AttitudeIndicator(fdmexec)
+        self.inertial_navigation_system = InertialNavigationSystem(fdmexec)
