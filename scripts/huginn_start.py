@@ -11,7 +11,6 @@ from huginn_jsbsim import FGFDMExec
 from huginn.protocols import FDMDataProtocol, ControlsProtocol
 from huginn.http import Index, FDMData
 from huginn.rpc import FlightSimulatorRPC
-from huginn.configuration import CONTROLS_PORT, FDM_PORT, RPC_PORT, WEB_SERVER_PORT, DT
 from huginn import configuration
 from huginn.aircraft import Aircraft
 
@@ -19,17 +18,15 @@ def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
     
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-    parser.add_argument("--rpc", action="store", default=RPC_PORT, help="The XMLRPC port")
-    parser.add_argument("--dt", action="store", default=DT, help="The simulation timestep")
-    parser.add_argument("--http", action="store", default=WEB_SERVER_PORT, help="The web server port")
-    parser.add_argument("--fdm", action="store", default=FDM_PORT, help="The fdm data port")
-    parser.add_argument("--controls", action="store", default=CONTROLS_PORT, help="The controls port")
+    parser.add_argument("--rpc", action="store", default=configuration.RPC_PORT, help="The XMLRPC port")
+    parser.add_argument("--dt", action="store", default=configuration.DT, help="The simulation timestep")
+    parser.add_argument("--http", action="store", default=configuration.WEB_SERVER_PORT, help="The web server port")
+    parser.add_argument("--fdm", action="store", default=configuration.FDM_PORT, help="The fdm data port")
+    parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
     
     return parser.parse_args()
 
-def create_fdm(dt, jsbsim_path):
-    logging.debug("Initializing the flight dynamics model")
-    
+def create_fdm(dt, jsbsim_path):    
     fdmexec = FGFDMExec()
     
     logging.debug("Using jsbsim data at %s", jsbsim_path)
@@ -41,9 +38,19 @@ def create_fdm(dt, jsbsim_path):
 
     fdmexec.set_dt(dt)
 
-    fdmexec.load_model("c172p")
+    logging.debug("Will use aircraft %s with reset file %s" % (configuration.AIRCRAFT_NAME,
+                                                               configuration.RESET_FILE))
 
-    fdmexec.load_ic("reset00")
+    fdmexec.load_model(configuration.AIRCRAFT_NAME)
+
+    fdmexec.load_ic(configuration.RESET_FILE)
+
+    logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f" %
+                  (configuration.INITIAL_LATITUDE,
+                   configuration.INITIAL_LONGITUDE,
+                   configuration.INITIAL_ALTITUDE,
+                   configuration.INITIAL_AIRSPEED,
+                   configuration.INITIAL_HEADING))
 
     fdmexec.set_property_value("ic/lat-gc-deg", configuration.INITIAL_LATITUDE)
     fdmexec.set_property_value("ic/long-gc-deg", configuration.INITIAL_LONGITUDE)
@@ -51,6 +58,7 @@ def create_fdm(dt, jsbsim_path):
     fdmexec.set_property_value("ic/vt-kts", configuration.INITIAL_AIRSPEED)
     fdmexec.set_property_value("ic/psi-true-deg", configuration.INITIAL_HEADING)
 
+    #the following statements will make the aircraft to start it's engine
     fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
     fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)
     fdmexec.set_property_value("propulsion/magneto_cmd", 3.0)
@@ -70,12 +78,14 @@ def create_fdm(dt, jsbsim_path):
         print("Failed to make initial flight dynamics model run")
         exit(-1)
     
+    #run the simulation for some time before we attemt to trim the aircraft
     while running and fdmexec.get_sim_time() < 0.1:
         fdmexec.process_message()
         fdmexec.check_incremental_hold()
 
         running = fdmexec.run()
-        
+    
+    #trim the aircraft
     result = fdmexec.trim()    
     if not result:
         logging.error("Failed to trim the aircraft")
@@ -89,7 +99,7 @@ def init_rpc_server(args, fdmexec):
 
     rpc_port = args.rpc
     
-    logging.debug("Starting the RPC server at port %d", rpc_port)
+    logging.info("Starting the RPC server at port %d", rpc_port)
     
     reactor.listenTCP(rpc_port, server.Site(rpc))
 
@@ -101,7 +111,7 @@ def init_web_server(args, fdmexec):
     
     http_port = args.http
     
-    logging.debug("Starting the web server at port %d", http_port)
+    logging.info("Starting the web server at port %d", http_port)
     
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
@@ -112,14 +122,14 @@ def init_fdm_server(args, fdmexec):
     fdm_protocol = FDMDataProtocol(aircraft)
     fdm_port = args.fdm
     
-    logging.debug("Starting the flight dynamics model server at port %d", fdm_port)
+    logging.info("Starting the flight dynamics model server at port %d", fdm_port)
     
     reactor.listenUDP(fdm_port, fdm_protocol)
 
     controls_protocol = ControlsProtocol(fdmexec) 
     controls_port = args.controls
     
-    logging.debug("Starting the aircraft controls server at port %d", controls_port)
+    logging.info("Starting the aircraft controls server at port %d", controls_port)
     
     reactor.listenUDP(controls_port, controls_protocol)
 
