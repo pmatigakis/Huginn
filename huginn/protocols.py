@@ -114,6 +114,17 @@ class FDMDataProtocol(DatagramProtocol):
     def __init__(self, aircraft):
         self.aircraft = aircraft
     
+        self.request_processors = {
+            GPS_DATA_REQUEST: self.create_gps_data_response,
+            ACCELEROMETER_DATA_REQUEST: self.create_accelerometer_data_response,
+            GYROSCOPE_DATA_REQUEST: self.create_gyroscope_data_response,
+            MAGNETOMETER_DATA_REQUEST: self.create_magnetometer_data_response,
+            PITOT_TUBE_DATA_REQUEST: self.create_pitot_tube_data_response,
+            STATIC_PRESSURE_DATA_REQUEST: self.create_static_pressure_data_response,
+            THERMOMETER_DATA_REQUEST: self.create_thermometer_data_response,
+            INS_DATA_REQUEST: self.create_ins_data_response
+        }
+    
     def decode_request(self, datagram, host, port):
         try:
             command = struct.unpack("!c", datagram)
@@ -179,27 +190,18 @@ class FDMDataProtocol(DatagramProtocol):
         
         return FDMDataResponse(request, ins_data)
     
+    def get_request_processor(self, command):
+        return self.request_processors.get(command, None)
+    
     def create_response(self, request):
         command = request.command
         
-        if command == GPS_DATA_REQUEST:
-            response = self.create_gps_data_response(request)
-        elif command == ACCELEROMETER_DATA_REQUEST:
-            response = self.create_accelerometer_data_response(request)
-        elif command == GYROSCOPE_DATA_REQUEST:
-            response = self.create_gyroscope_data_response(request)
-        elif command == MAGNETOMETER_DATA_REQUEST:
-            response = self.create_magnetometer_data_response(request)
-        elif command == THERMOMETER_DATA_REQUEST:
-            response = self.create_thermometer_data_response(request) 
-        elif command == PITOT_TUBE_DATA_REQUEST:
-            response = self.create_pitot_tube_data_response(request)
-        elif command == STATIC_PRESSURE_DATA_REQUEST:
-            response = self.create_static_pressure_data(request)
-        elif command == INS_DATA_REQUEST:
-            response = self.create_ins_data_response(request) 
-        else:
+        request_processor = self.get_request_processor(command)
+        
+        if not request_processor:
             raise InvalidFDMDataRequestCommand(request.command)
+
+        response = request_processor(request)
 
         return response
         
