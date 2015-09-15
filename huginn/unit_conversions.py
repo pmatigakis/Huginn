@@ -15,3 +15,6 @@ def convert_rankine_to_kelvin(temperature):
 
 def convert_psf_to_pascal(pressure):
     return pressure * 47.8802588889
+
+def convert_pounds_to_newtons(pounds):
+    return pounds * 4.44822162

@@ -297,11 +297,10 @@ class TestFDMDataResponse(TestCase):
 class TestControlsProtocol(TestCase):
     def setUp(self):
         self.fdmexec = get_fdmexec()
+        self.aircraft = Aircraft(self.fdmexec)
                 
     def test_datagram_received(self):
-        fdmexec = self.fdmexec
-             
-        controls_protocol = ControlsProtocol(fdmexec)
+        controls_protocol = ControlsProtocol(self.aircraft)
              
         aileron = 0.1
         elevator = 0.2
@@ -315,7 +314,7 @@ class TestControlsProtocol(TestCase):
              
         controls_protocol.datagramReceived(controls_datagram, (host, port))
                      
-        self.assertAlmostEqual(fdmexec.get_property_value("fcs/aileron-cmd-norm"), aileron, 3)                  
-        self.assertAlmostEqual(fdmexec.get_property_value("fcs/elevator-cmd-norm"), elevator, 3)
-        self.assertAlmostEqual(fdmexec.get_property_value("fcs/rudder-cmd-norm"), rudder, 3)
-        self.assertAlmostEqual(fdmexec.get_property_value("fcs/throttle-cmd-norm"), throttle, 3)
+        self.assertAlmostEqual(self.aircraft.controls.aileron, aileron, 3)                  
+        self.assertAlmostEqual(self.aircraft.controls.elevator, elevator, 3)
+        self.assertAlmostEqual(self.aircraft.controls.rudder, rudder, 3)
+        self.assertAlmostEqual(self.aircraft.engine.throttle, throttle, 3)

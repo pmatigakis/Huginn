@@ -240,14 +240,14 @@ class FDMDataProtocol(DatagramProtocol):
             self.transmit_error_code(ERROR_CODE, host, port)
     
 class ControlsProtocol(DatagramProtocol):
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
+    def __init__(self, aircraft):
+        self.aircraft = aircraft
     
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):  
-        self.fdmexec.set_property_value("fcs/aileron-cmd-norm", aileron)
-        self.fdmexec.set_property_value("fcs/elevator-cmd-norm", elevator)
-        self.fdmexec.set_property_value("fcs/rudder-cmd-norm", rudder)
-        self.fdmexec.set_property_value("fcs/throttle-cmd-norm", throttle)
+        self.aircraft.controls.aileron = aileron
+        self.aircraft.controls.elevator = elevator
+        self.aircraft.controls.rudder = rudder
+        self.aircraft.engine.throttle = throttle
     
     def decode_datagram(self, datagram):
         try:

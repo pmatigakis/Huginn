@@ -126,7 +126,7 @@ def init_fdm_server(args, fdmexec):
     
     reactor.listenUDP(fdm_port, fdm_protocol)
 
-    controls_protocol = ControlsProtocol(fdmexec) 
+    controls_protocol = ControlsProtocol(aircraft) 
     controls_port = args.controls
     
     logging.info("Starting the aircraft controls server at port %d", controls_port)

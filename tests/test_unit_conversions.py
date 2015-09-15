@@ -3,6 +3,7 @@ from unittest import TestCase
 from huginn.unit_conversions import convert_feet_to_meters, convert_knots_to_meters_per_sec
 from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared, convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
+from huginn.unit_conversions import convert_pounds_to_newtons
 
 class TestConvertFeetToMeters(TestCase):
     def test_convert_feet_to_meters(self):
@@ -63,3 +64,13 @@ class TestConvertPSFToPascal(TestCase):
         expected_pressure_in_pascal = 101325.0
         
         self.assertAlmostEqual(pressure_in_pascal, expected_pressure_in_pascal, 3)
+        
+class TestConvertPoundsToNewtons(TestCase):
+    def test_convert_pounds_to_newtons(self):
+        force_in_pounds = 12.7
+        
+        force_in_newtons = convert_pounds_to_newtons(force_in_pounds)
+        
+        expected_force_in_newtons = 56.4924
+        
+        self.assertAlmostEqual(force_in_newtons, expected_force_in_newtons, 3)
