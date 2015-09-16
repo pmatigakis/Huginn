@@ -4,7 +4,7 @@ import json
 from huginn.http import JSONFDMDataEncoder
 from huginn.aircraft import Aircraft
 
-from test_protocols import get_fdmexec 
+from test_common import get_fdmexec 
 
 class TestJSONFDMDataEncoder(TestCase):
     def test_encode_fdm_data(self):
