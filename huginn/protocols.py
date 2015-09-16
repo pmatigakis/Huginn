@@ -177,7 +177,6 @@ class FDMDataProtocol(DatagramProtocol):
     
     def create_ins_data_response(self, request):
         ins_data = [
-            self.aircraft.inertial_navigation_system.climb_rate,
             self.aircraft.inertial_navigation_system.roll,
             self.aircraft.inertial_navigation_system.pitch,
             self.aircraft.inertial_navigation_system.heading,
@@ -185,7 +184,6 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.inertial_navigation_system.longitude,
             self.aircraft.inertial_navigation_system.airspeed,
             self.aircraft.inertial_navigation_system.altitude,
-            self.aircraft.inertial_navigation_system.turn_rate
         ]
         
         return FDMDataResponse(request, ins_data)

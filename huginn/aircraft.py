@@ -130,14 +130,6 @@ class InertialNavigationSystem(object):
         self.fdmexec = fdmexec
     
     @property
-    def climb_rate(self):
-        climb_rate = self.fdmexec.get_property_value("velocities/v-down-fps")
-        
-        climb_rate_in_meters_sec = convert_feet_to_meters(climb_rate)
-        
-        return climb_rate_in_meters_sec
-    
-    @property
     def roll(self):
         roll_in_radians = self.fdmexec.get_property_value("attitude/roll-rad")
         
@@ -183,13 +175,6 @@ class InertialNavigationSystem(object):
         
         return altitude_in_meters
     
-    @property
-    def turn_rate(self):
-        turn_rate_in_rad_sec = self.fdmexec.get_property_value("velocities/psidot-rad_sec")
-        turn_rate_in_degrees_sec = degrees(turn_rate_in_rad_sec)
-        
-        return turn_rate_in_degrees_sec
-
 class Controls(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec

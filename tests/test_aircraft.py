@@ -281,18 +281,3 @@ class TestPitotTube(TestCase):
         expected_pressure_in_pascal = convert_psf_to_pascal(expected_pressure_in_psf)
         
         self.assertAlmostEqual(pressure, expected_pressure_in_pascal, 3)
-        
-class TestInertialNavigationSystem(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-
-    def test_climb_rate(self):
-        ins = InertialNavigationSystem(self.fdmexec)
-         
-        climb_rate = ins.climb_rate
-         
-        expected_climb_rate = self.fdmexec.get_property_value("velocities/v-down-fps")
-         
-        expected_climb_rate_in_meters_sec = convert_feet_to_meters(expected_climb_rate)
-         
-        self.assertAlmostEqual(climb_rate, expected_climb_rate_in_meters_sec, 3)    

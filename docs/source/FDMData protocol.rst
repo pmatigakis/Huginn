@@ -128,15 +128,13 @@ For the command code 0x07 the following response will be transmitted.
   ===============  ===================  ===========
   0                0x00 (response ok)
   1                0x07 (command code)
-  2-5              Climb rate           Meters/Sec
-  6-9              Roll                 Degrees
-  10-13            Pitch                Degrees
-  14-17            Heading              Degrees
-  18-21            Latitude             Degress
-  22-25            Longitude            Degrees
-  26-29            Airspeed             Meters/Sec
-  30-33            Altitude             Meters
-  34-37            Turn rate            Degrees/Sec
+  2-5              Roll                 Degrees
+  6-9              Pitch                Degrees
+  10-13            Heading              Degrees
+  14-17            Latitude             Degress
+  18-21            Longitude            Degrees
+  22-25            Airspeed             Meters/Sec
+  26-29            Altitude             Meters
   ===============  ===================  ===========
 
 The aircraft can be controlled by sending 4 float values to the controls UDP port.

@@ -213,18 +213,16 @@ class TestFDMDataProtocol(TestCase):
             
         response = fdm_data_protocol.create_ins_data_response(request)
     
-        self.assertEqual(len(response.fdm_property_values), 9)
+        self.assertEqual(len(response.fdm_property_values), 7)
         self.assertEqual(response.fdm_data_request, request)
             
-        self.assertAlmostEqual(response.fdm_property_values[0], aircraft.inertial_navigation_system.climb_rate, 3)
-        self.assertAlmostEqual(response.fdm_property_values[1], aircraft.inertial_navigation_system.roll, 3)
-        self.assertAlmostEqual(response.fdm_property_values[2], aircraft.inertial_navigation_system.pitch, 3)
-        self.assertAlmostEqual(response.fdm_property_values[3], aircraft.inertial_navigation_system.heading, 3)
-        self.assertAlmostEqual(response.fdm_property_values[4], aircraft.inertial_navigation_system.latitude, 3)
-        self.assertAlmostEqual(response.fdm_property_values[5], aircraft.inertial_navigation_system.longitude, 3)
-        self.assertAlmostEqual(response.fdm_property_values[6], aircraft.inertial_navigation_system.airspeed, 3)
-        self.assertAlmostEqual(response.fdm_property_values[7], aircraft.inertial_navigation_system.altitude, 3)
-        self.assertAlmostEqual(response.fdm_property_values[8], aircraft.inertial_navigation_system.turn_rate, 3)
+        self.assertAlmostEqual(response.fdm_property_values[0], aircraft.inertial_navigation_system.roll, 3)
+        self.assertAlmostEqual(response.fdm_property_values[1], aircraft.inertial_navigation_system.pitch, 3)
+        self.assertAlmostEqual(response.fdm_property_values[2], aircraft.inertial_navigation_system.heading, 3)
+        self.assertAlmostEqual(response.fdm_property_values[3], aircraft.inertial_navigation_system.latitude, 3)
+        self.assertAlmostEqual(response.fdm_property_values[4], aircraft.inertial_navigation_system.longitude, 3)
+        self.assertAlmostEqual(response.fdm_property_values[5], aircraft.inertial_navigation_system.airspeed, 3)
+        self.assertAlmostEqual(response.fdm_property_values[6], aircraft.inertial_navigation_system.altitude, 3)
        
 class TestFDMDataResponse(TestCase):
     def test_encode_response(self):
