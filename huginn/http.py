@@ -24,6 +24,13 @@ class JSONFDMDataEncoder(object):
                 "yaw_rate": self.aircraft.gyroscope.yaw_rate,
                 "roll": self.aircraft.inertial_navigation_system.roll,
                 "pitch": self.aircraft.inertial_navigation_system.pitch,
+                "engine_rpm": self.aircraft.engine.rpm,
+                "engine_thrust": self.aircraft.engine.thrust,
+                "engine_power": self.aircraft.engine.power,
+                "aileron": self.aircraft.controls.aileron,
+                "elevator": self.aircraft.controls.elevator,
+                "rudder": self.aircraft.controls.rudder,
+                "throttle": self.aircraft.engine.throttle,
         }
         
         return json.dumps({"result": "ok", "fdm_data": fdm_data})
