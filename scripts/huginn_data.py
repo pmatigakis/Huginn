@@ -20,12 +20,8 @@ def main():
     
     data = json.loads(response.text)
 
-    if data["result"] != "ok":
-        print("Failed to get the fdm data from the web server")
-        exit(-1)
-
-    for fdm_property in data["fdm_data"]:
-        print('%s: %f' % (fdm_property, data["fdm_data"][fdm_property]))
+    for fdm_property in data:
+        print('%s: %f' % (fdm_property, data[fdm_property]))
 
 if __name__ == "__main__":
     main()

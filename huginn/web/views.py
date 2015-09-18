@@ -12,11 +12,12 @@ def index():
 @app.route("/fdmdata")
 def fdmdata():
     try:
-        r = requests.get("http://%s:%d/fdmdata" % (app.config["FDM_HOST"], app.config["FDM_PORT"]))
+        response = requests.get("http://%s:%d/fdmdata" % (app.config["FDM_HOST"], 
+                                                          app.config["FDM_PORT"]))
     except requests.ConnectionError:
         print("Failed to get fdm data from simulator")
         return jsonify(result="error", cause="Connection error")
     
-    fdmdata = json.loads(r.text)
+    response_data = json.loads(response.text)
     
-    return jsonify(**fdmdata)
+    return jsonify(result="ok", fdm_data=response_data)
