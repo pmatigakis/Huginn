@@ -6,45 +6,12 @@ from mock import MagicMock
 from test_common import get_fdmexec
 
 from huginn.protocols import FDMDataProtocol, FDMDataRequest,  FDMDataResponse,  ERROR_CODE,\
-    FDM_DATA_RESPONCE_OK, ControlsProtocol, GPS_DATA_REQUEST, FDMDataGPSResponseDecoder,\
+    FDM_DATA_RESPONCE_OK, ControlsProtocol, GPS_DATA_REQUEST,\
     ACCELEROMETER_DATA_REQUEST, GYROSCOPE_DATA_REQUEST,\
     MAGNETOMETER_DATA_REQUEST, THERMOMETER_DATA_REQUEST, PITOT_TUBE_DATA_REQUEST,\
-    STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST
+    STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST, SimulatorControl,\
+    SIMULATION_PAUSE, SIMULATION_RESET, SIMULATION_RESUME
 from huginn.aircraft import Aircraft
-
-class TestFDMDataGPSResponseDecoder(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-    
-    def test_decode_response(self):
-        aircraft = Aircraft(self.fdmexec) 
-  
-        request = FDMDataRequest("127.0.0.1", 12345, GPS_DATA_REQUEST)
-          
-        fdm_data_protocol = FDMDataProtocol(aircraft)
-          
-        response = fdm_data_protocol.create_gps_data_response(request)
-          
-        encoded_response = response.encode_response()
-          
-        gps_data_decoder = FDMDataGPSResponseDecoder()
-          
-        response_code, command, gps_data = gps_data_decoder.decode_response(encoded_response)
-          
-        self.assertEqual(response_code, FDM_DATA_RESPONCE_OK)
-        self.assertEqual(command, GPS_DATA_REQUEST)
-          
-        self.assertTrue(gps_data.has_key("latitude"))
-        self.assertTrue(gps_data.has_key("longitude"))
-        self.assertTrue(gps_data.has_key("airspeed"))
-        self.assertTrue(gps_data.has_key("altitude"))
-        self.assertTrue(gps_data.has_key("heading"))
-          
-        self.assertAlmostEqual(gps_data["latitude"], aircraft.gps.latitude, 3)
-        self.assertAlmostEqual(gps_data["longitude"], aircraft.gps.longitude, 3)
-        self.assertAlmostEqual(gps_data["airspeed"], aircraft.gps.airspeed, 3)
-        self.assertAlmostEqual(gps_data["altitude"], aircraft.gps.altitude, 3)
-        self.assertAlmostEqual(gps_data["heading"], aircraft.gps.heading, 3)
 
 class TestFDMDataProtocol(TestCase):
     def setUp(self):
@@ -268,3 +235,40 @@ class TestControlsProtocol(TestCase):
         self.assertAlmostEqual(self.aircraft.controls.elevator, elevator, 3)
         self.assertAlmostEqual(self.aircraft.controls.rudder, rudder, 3)
         self.assertAlmostEqual(self.aircraft.engine.throttle, throttle, 3)
+        
+class TestSimulatorControl(TestCase):
+    def setUp(self):
+        self.fdmexec = get_fdmexec()
+    
+    def test_reset_simulator(self):
+        protocol = SimulatorControl(self.fdmexec)
+
+        self.fdmexec.trim = MagicMock()
+
+        reset_datagram = struct.pack("!c", chr(SIMULATION_RESET))
+
+        protocol.datagramReceived(reset_datagram, ("127.0.0.1", 12345))
+
+        self.fdmexec.trim.assert_called_once_with()
+
+    def test_resume_simulator(self):
+        protocol = SimulatorControl(self.fdmexec)
+
+        self.fdmexec.resume = MagicMock()
+
+        reset_datagram = struct.pack("!c", chr(SIMULATION_RESUME))
+
+        protocol.datagramReceived(reset_datagram, ("127.0.0.1", 12345))
+
+        self.fdmexec.resume.assert_called_once_with()
+
+    def test_pause_simulator(self):
+        protocol = SimulatorControl(self.fdmexec)
+
+        self.fdmexec.hold = MagicMock()
+
+        reset_datagram = struct.pack("!c", chr(SIMULATION_PAUSE))
+
+        protocol.datagramReceived(reset_datagram, ("127.0.0.1", 12345))
+
+        self.fdmexec.hold.assert_called_once_with()

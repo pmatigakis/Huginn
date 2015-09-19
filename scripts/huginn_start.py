@@ -1,4 +1,3 @@
-from os import path
 import os
 import logging
 from argparse import ArgumentParser
@@ -8,29 +7,28 @@ from twisted.internet import reactor, task
 from twisted.web import server
 from huginn_jsbsim import FGFDMExec
 
-from huginn.protocols import FDMDataProtocol, ControlsProtocol
+from huginn.protocols import FDMDataProtocol, ControlsProtocol, SimulatorControl
 from huginn.http import Index, FDMData
-from huginn.rpc import FlightSimulatorRPC
 from huginn import configuration
 from huginn.aircraft import Aircraft
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
-    
+
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-    parser.add_argument("--rpc", action="store", default=configuration.RPC_PORT, help="The XMLRPC port")
+    parser.add_argument("--simulator", action="store", default=configuration.SIMULATOR_CONTROL_PORT, help="The simulator control port")
     parser.add_argument("--dt", action="store", default=configuration.DT, help="The simulation timestep")
     parser.add_argument("--http", action="store", default=configuration.WEB_SERVER_PORT, help="The web server port")
     parser.add_argument("--fdm", action="store", default=configuration.FDM_PORT, help="The fdm data port")
     parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
-    
+
     return parser.parse_args()
 
-def create_fdm(dt, jsbsim_path):    
+def create_fdm(dt, jsbsim_path):
     fdmexec = FGFDMExec()
-    
+
     logging.debug("Using jsbsim data at %s", jsbsim_path)
-    
+
     fdmexec.set_root_dir(jsbsim_path)
     fdmexec.set_aircraft_path("/aircraft")
     fdmexec.set_engine_path("/engine")
@@ -38,19 +36,20 @@ def create_fdm(dt, jsbsim_path):
 
     fdmexec.set_dt(dt)
 
-    logging.debug("Will use aircraft %s with reset file %s" % (configuration.AIRCRAFT_NAME,
-                                                               configuration.RESET_FILE))
+    logging.debug("Will use aircraft %s with reset file %s",
+                  configuration.AIRCRAFT_NAME,
+                  configuration.RESET_FILE)
 
     fdmexec.load_model(configuration.AIRCRAFT_NAME)
 
     fdmexec.load_ic(configuration.RESET_FILE)
 
-    logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f" %
-                  (configuration.INITIAL_LATITUDE,
-                   configuration.INITIAL_LONGITUDE,
-                   configuration.INITIAL_ALTITUDE,
-                   configuration.INITIAL_AIRSPEED,
-                   configuration.INITIAL_HEADING))
+    logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
+                  configuration.INITIAL_LATITUDE,
+                  configuration.INITIAL_LONGITUDE,
+                  configuration.INITIAL_ALTITUDE,
+                  configuration.INITIAL_AIRSPEED,
+                  configuration.INITIAL_HEADING)
 
     fdmexec.set_property_value("ic/lat-gc-deg", configuration.INITIAL_LATITUDE)
     fdmexec.set_property_value("ic/long-gc-deg", configuration.INITIAL_LONGITUDE)
@@ -72,108 +71,107 @@ def create_fdm(dt, jsbsim_path):
         exit(-1)
 
     running = fdmexec.run()
-    
+
     if not running:
         logging.error("Failed to make initial flight dynamics model run")
         print("Failed to make initial flight dynamics model run")
         exit(-1)
-    
+
     #run the simulation for some time before we attemt to trim the aircraft
     while running and fdmexec.get_sim_time() < 0.1:
         fdmexec.process_message()
         fdmexec.check_incremental_hold()
 
         running = fdmexec.run()
-    
+
     #trim the aircraft
-    result = fdmexec.trim()    
+    result = fdmexec.trim()
     if not result:
         logging.error("Failed to trim the aircraft")
         print("Failed to trim the aircraft")
         exit(-1)
-        
+
     return fdmexec
 
-def init_rpc_server(args, fdmexec):        
-    rpc = FlightSimulatorRPC(fdmexec)
+def init_simulator_control_server(args, fdmexec):
+    simulator_control = SimulatorControl(fdmexec)
 
-    rpc_port = args.rpc
-    
-    logging.info("Starting the RPC server at port %d", rpc_port)
-    
-    reactor.listenTCP(rpc_port, server.Site(rpc))
+    simulator_control_port = args.simulator
+
+    logging.info("Starting the simulator control server at port %d", simulator_control_port)
+
+    reactor.listenUDP(simulator_control_port, simulator_control)
 
 def init_web_server(args, fdmexec):
     index_page = Index(fdmexec)
     aircraft = Aircraft(fdmexec)
-    
+
     index_page.putChild("fdmdata", FDMData(aircraft))
-    
+
     http_port = args.http
-    
+
     logging.info("Starting the web server at port %d", http_port)
-    
+
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
 
 def init_fdm_server(args, fdmexec):
     aircraft = Aircraft(fdmexec)
-    
+
     fdm_protocol = FDMDataProtocol(aircraft)
     fdm_port = args.fdm
-    
+
     logging.info("Starting the flight dynamics model server at port %d", fdm_port)
-    
+
     reactor.listenUDP(fdm_port, fdm_protocol)
 
-    controls_protocol = ControlsProtocol(aircraft) 
+    controls_protocol = ControlsProtocol(aircraft)
     controls_port = args.controls
-    
+
     logging.info("Starting the aircraft controls server at port %d", controls_port)
-    
+
     reactor.listenUDP(controls_port, controls_protocol)
 
 def update_fdm(fdmexec):
     fdmexec.process_message()
     fdmexec.check_incremental_hold()
     running = fdmexec.run()
-    
+
     if not running:
         logging.error("Failed to update the flight dynamics model")
         print("Failed to update the flight dynamics model")
         shutdown()
-        
+
 def shutdown():
     logging.debug("Shutting down Huginn")
-    
-    #reactor.callFromThread(reactor.stop)
-    reactor.stop()
+
+    reactor.callFromThread(reactor.stop)
 
 def main():
     logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
-                        filename="huginn.log", 
-                        filemode="a", 
+                        filename="huginn.log",
+                        filemode="a",
                         level=logging.DEBUG)
 
     logging.info("Starting the Huginn flight simulator")
-    
+
     args = get_arguments()
-        
+
     dt = args.dt
 
     jsbsim_path = os.environ.get("JSBSIM_HOME", None)
-    
+
     if not jsbsim_path:
         logging.error("The JSBSIM_HOME environment variable is not set")
         print("The JSBSIM_HOME environment variable is not set")
         exit(-1)
-    
+
     fdmexec = create_fdm(dt, jsbsim_path)
 
-    init_rpc_server(args, fdmexec)
+    init_simulator_control_server(args, fdmexec)
     init_fdm_server(args, fdmexec)
     init_web_server(args, fdmexec)
-    
+
     fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
 
