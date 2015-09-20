@@ -7,8 +7,12 @@ from twisted.internet import reactor, task
 from twisted.web import server
 from huginn_jsbsim import FGFDMExec
 
-from huginn.protocols import FDMDataProtocol, ControlsProtocol, SimulatorControl
-from huginn.http import Index, FDMData
+from huginn.protocols import FDMDataProtocol, ControlsProtocol,\
+                             SimulatorControl
+from huginn.http import Index, FDMData, GPSData, AccelerometerData,\
+                        GyroscopeData, ThermometerData, PressureSensorData,\
+                        PitotTubeData, InertialNavigationSystemData,\
+                        EngineData, FlightControlsData
 from huginn import configuration
 from huginn.aircraft import Aircraft
 
@@ -107,6 +111,15 @@ def init_web_server(args, fdmexec):
     aircraft = Aircraft(fdmexec)
 
     index_page.putChild("fdmdata", FDMData(aircraft))
+    index_page.putChild("gps", GPSData(aircraft))
+    index_page.putChild("accelerometer", AccelerometerData(aircraft))
+    index_page.putChild("gyroscope", GyroscopeData(aircraft))
+    index_page.putChild("thermometer", ThermometerData(aircraft))
+    index_page.putChild("pressure_sensor", PressureSensorData(aircraft))
+    index_page.putChild("pitot_tube", PitotTubeData(aircraft))
+    index_page.putChild("ins", InertialNavigationSystemData(aircraft))
+    index_page.putChild("engine", EngineData(aircraft))
+    index_page.putChild("flight_controls", FlightControlsData(aircraft))
 
     http_port = args.http
 
