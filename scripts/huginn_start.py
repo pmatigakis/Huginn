@@ -9,7 +9,7 @@ from huginn_jsbsim import FGFDMExec
 
 from huginn.protocols import FDMDataProtocol, ControlsProtocol,\
                              SimulatorControl
-from huginn.http import Index, FDMData, GPSData, AccelerometerData,\
+from huginn.http import Index, GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData
@@ -110,7 +110,6 @@ def init_web_server(args, fdmexec):
     index_page = Index(fdmexec)
     aircraft = Aircraft(fdmexec)
 
-    index_page.putChild("fdmdata", FDMData(aircraft))
     index_page.putChild("gps", GPSData(aircraft))
     index_page.putChild("accelerometer", AccelerometerData(aircraft))
     index_page.putChild("gyroscope", GyroscopeData(aircraft))

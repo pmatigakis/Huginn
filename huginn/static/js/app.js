@@ -20,31 +20,43 @@ function init_map(){
 	aircraft_marker = L.marker([51.0, 0.0], {icon: aircraftIcon}).addTo(map);
 } 
 
-function start_update(){
+function update_hud(altitude, airspeed, heading, roll, pitch){
+	myhud.roll = roll;
+	myhud.pitch = pitch;
+	myhud.airspeed = airspeed;
+	myhud.altitude = altitude;
+	myhud.heading = heading;
+	
+	myhud.draw();
+}
+
+function update_map(latitude, longitude, altitude, airspeed, heading){	
+	$("#location .longitude").text(longitude);
+	$("#location .latitude").text(latitude);
+	$("#location .altitude").text(altitude);
+	$("#location .airspeed").text(airspeed);
+	$("#location .heading").text(heading);
+  
+	if(follow_aircraft){
+		map.setView([latitude, longitude], 13);
+	}
+	
+	aircraft_marker.setLatLng([latitude, longitude]);
+}
+
+function start_data_update(){
 	setInterval(function(){
-		$.getJSON("fdmdata", function(data){
-			myhud.roll = data.fdm_data["roll"];
-			myhud.pitch = data.fdm_data["pitch"];
-			myhud.airspeed = data.fdm_data["airspeed"];
-			myhud.altitude = data.fdm_data["altitude"];
-			myhud.heading = data.fdm_data["heading"];
-			
-			myhud.draw();
-			
-			$("#location .longitude").text(data.fdm_data["longitude"]);
-			$("#location .latitude").text(data.fdm_data["latitude"]);
-			$("#location .altitude").text(data.fdm_data["altitude"]);
-			$("#location .airspeed").text(data.fdm_data["airspeed"]);
-			$("#location .heading").text(data.fdm_data["heading"]);
-	      
+		$.getJSON("gps", function(data){
+			var roll = data.fdm_data["roll"];
+			var pitch = data.fdm_data["pitch"];
+			var airspeed = data.fdm_data["airspeed"];
+			var altitude = data.fdm_data["altitude"];
+			var heading = data.fdm_data["heading"];
 			var latitude = data.fdm_data["latitude"];
 			var longitude = data.fdm_data["longitude"];
 			
-			if(follow_aircraft){
-	    		map.setView([latitude, longitude], 13);
-			}
-			
-			aircraft_marker.setLatLng([latitude, longitude]);
+			update_hud(altitude, airspeed, heading, roll, pitch);
+			update_map(latitude, longitude, altitude, airspeed, heading);
 		});
 	}, 1000);
 }
@@ -64,7 +76,7 @@ $(document).ready(function(){
 	
 	myhud.draw();
 	
-	start_update();
+	start_data_update();
 	
 	follow_aircraft = $("#follow_aircraft").is(":checked");
 	
