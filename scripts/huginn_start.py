@@ -8,7 +8,7 @@ from twisted.web import server
 from huginn_jsbsim import FGFDMExec
 
 from huginn.protocols import FDMDataProtocol, ControlsProtocol,\
-                             SimulatorControl
+                             SimulatorControl, TelemetryFactory
 from huginn.http import Index, GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
@@ -22,6 +22,8 @@ def get_arguments():
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
     parser.add_argument("--simulator", action="store", default=configuration.SIMULATOR_CONTROL_PORT, help="The simulator control port")
     parser.add_argument("--dt", action="store", default=configuration.DT, help="The simulation timestep")
+    parser.add_argument("--telemetry", action="store", default=configuration.TELEMETRY_PORT, help="The telemetry port")
+    parser.add_argument("--telemetry_dt", action="store", default=configuration.TELEMETRY_UPDATE_RATE, help="The telemetry update rate")
     parser.add_argument("--http", action="store", default=configuration.WEB_SERVER_PORT, help="The web server port")
     parser.add_argument("--fdm", action="store", default=configuration.FDM_PORT, help="The fdm data port")
     parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
@@ -144,6 +146,15 @@ def init_fdm_server(args, fdmexec):
 
     reactor.listenUDP(controls_port, controls_protocol)
 
+def init_telemetry_server(args, fdmexec):
+    aircraft = Aircraft(fdmexec)
+
+    factory = TelemetryFactory(fdmexec, aircraft)
+    
+    reactor.listenTCP(args.telemetry, factory)
+    
+    return factory
+
 def update_fdm(fdmexec):
     fdmexec.process_message()
     fdmexec.check_incremental_hold()
@@ -183,10 +194,14 @@ def main():
     init_simulator_control_server(args, fdmexec)
     init_fdm_server(args, fdmexec)
     init_web_server(args, fdmexec)
+    factory = init_telemetry_server(args, fdmexec)
 
     fdm_updater = task.LoopingCall(update_fdm, fdmexec)
     fdm_updater.start(dt)
 
+    telemetry_updater = task.LoopingCall(factory.update_clients)
+    telemetry_updater.start(args.telemetry_dt)
+    
     signal.signal(signal.SIGTERM, shutdown)
 
     fdmexec.hold()

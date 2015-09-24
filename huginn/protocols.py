@@ -1,8 +1,9 @@
 import struct
 import logging
 
-from twisted.internet.protocol import DatagramProtocol
+from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.internet import reactor
+from twisted.protocols.basic import LineReceiver
 
 #Declare the available commands supported by the fdm data protocol
 GPS_DATA_REQUEST = 0x00
@@ -341,3 +342,98 @@ class SimulatorControlClient(DatagramProtocol):
         self.transport.write(datagram, (self.host, self.port))
 
         reactor.callFromThread(reactor.stop)
+
+class TelemetryProtocol(Protocol):
+    def __init__(self, factory):
+        self.factory = factory
+
+        self.have_sent_header = False
+
+        self.telemetry_items = [
+            "time", "dt", "running", "latitude", "longitude", "altitude",
+            "airspeed", "heading", "x_acceleration", "y_acceleration",
+            "z_acceleration", "roll_rate", "pitch_rate", "yaw_rate",
+            "temperature", "static_pressure", "dynamic_pressure",
+            "roll", "pitch", "engine_rpm", "engine_thrust",
+            "engine_power", "aileron", "elevator", "rudder", "throttle",
+        ]
+
+    def connectionMade(self):
+        self.factory.clients.add(self)
+
+    def connectionLost(self, reason):
+        self.factory.clients.remove(self)
+
+    def transmit_telemetry_data(self, telemetry_data):
+        if not self.have_sent_header:
+            telemetry_header = ','.join(self.telemetry_items)
+            telemetry_header += "\r\n"
+            
+            self.transport.write(telemetry_header)
+            self.have_sent_header = True
+
+        telemetry_string = ','.join([str(telemetry_data[value]) for value in self.telemetry_items])
+        
+        telemetry_string += "\r\n"
+        
+        self.transport.write(telemetry_string)
+
+class TelemetryFactory(Factory):
+    def __init__(self, fdmexec, aircraft):
+        self.fdmexec = fdmexec
+        self.aircraft = aircraft
+
+        self.clients = set()
+
+    def buildProtocol(self, addr):
+        return TelemetryProtocol(self)
+
+    def get_telemetry_data(self):
+        return {
+            "time": self.fdmexec.get_property_value("simulation/sim-time-sec"),
+            "dt": self.fdmexec.get_property_value("simulation/dt"),
+            "running": not self.fdmexec.holding(),
+            "latitude": self.aircraft.gps.latitude,
+            "longitude": self.aircraft.gps.longitude,
+            "altitude": self.aircraft.gps.altitude,
+            "airspeed": self.aircraft.gps.airspeed,
+            "heading": self.aircraft.gps.heading,
+            "x_acceleration": self.aircraft.accelerometer.x_acceleration,
+            "y_acceleration": self.aircraft.accelerometer.y_acceleration,
+            "z_acceleration": self.aircraft.accelerometer.z_acceleration,
+            "roll_rate": self.aircraft.gyroscope.roll_rate,
+            "pitch_rate": self.aircraft.gyroscope.pitch_rate,
+            "yaw_rate": self.aircraft.gyroscope.yaw_rate,
+            "temperature": self.aircraft.thermometer.temperature,
+            "static_pressure": self.aircraft.pressure_sensor.pressure,
+            "dynamic_pressure": self.aircraft.pitot_tube.pressure,
+            "roll": self.aircraft.inertial_navigation_system.roll,
+            "pitch": self.aircraft.inertial_navigation_system.pitch,
+            "engine_rpm": self.aircraft.engine.rpm,
+            "engine_thrust": self.aircraft.engine.thrust,
+            "engine_power": self.aircraft.engine.power,
+            "aileron": self.aircraft.controls.aileron,
+            "elevator": self.aircraft.controls.elevator,
+            "rudder": self.aircraft.controls.rudder,
+            "throttle": self.aircraft.engine.throttle,
+        }
+
+    def update_clients(self):
+        telemetry_data = self.get_telemetry_data()
+    
+        for client in self.clients:
+            client.transmit_telemetry_data(telemetry_data)
+
+class TelemetryClient(LineReceiver):
+    def __init__(self, output_file):
+        self.output_file = output_file
+
+    def lineReceived(self, line):
+        self.output_file.write(line + "\n")
+
+class TelemetryClientFactory(Factory):
+    def __init__(self, output_file):
+        self.output_file = output_file
+
+    def buildProtocol(self, addr):
+        return TelemetryClient(self.output_file)
