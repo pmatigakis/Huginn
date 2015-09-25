@@ -15,6 +15,7 @@ hardware-in-the-loop simulations.
    Installation
    Starting the simulator
    FDMData protocol
+   Recording telemetry data
 
 Indices and tables
 ==================
