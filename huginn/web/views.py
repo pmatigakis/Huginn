@@ -9,10 +9,10 @@ from huginn.web import app
 def index():
     return render_template("index.html")
 
-@app.route("/gps")
-def gps():
+@app.route("/ins")
+def ins():
     try:
-        response = requests.get("http://%s:%d/gps" % (app.config["FDM_HOST"], 
+        response = requests.get("http://%s:%d/ins" % (app.config["FDM_HOST"], 
                                                       app.config["FDM_PORT"]))
     except requests.ConnectionError:
         print("Failed to get fdm data from simulator")

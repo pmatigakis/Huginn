@@ -59,7 +59,7 @@ Avionics.PrimaryFlightDisplay.prototype.drawHorizon = function(){
 	context.save();
 	//context.translate(this.displayWidth/2.0, this.displayHeight/2.0);
 	context.translate(this.displayWidth/2.0, this.displayHeight/2.0);
-	context.rotate(this.roll * (Math.PI / 180));
+	context.rotate(-this.roll * (Math.PI / 180));
 	context.translate(0, p);
 	
 	//draw the ground
@@ -82,7 +82,7 @@ Avionics.PrimaryFlightDisplay.prototype.drawPitchAngles = function(){
 	context.save();
 	//context.translate(this.displayWidth/2.0, this.displayHeight/2.0);
 	context.translate(this.displayWidth/2.0, this.displayHeight/2.0);
-	context.rotate(this.roll * (Math.PI / 180));
+	context.rotate(-this.roll * (Math.PI / 180));
 	context.translate(0, p);
 	
 	context.strokeStyle = "white";

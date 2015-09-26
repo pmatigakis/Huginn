@@ -272,19 +272,30 @@ class SimulatorControl(DatagramProtocol):
 
     def pause_simulator(self):
         """Pause the simulator"""
+        logging.debug("Pausing the simulator")
+        
         self.fdmexec.hold()
 
     def resume_simulator(self):
         """Resume simulation"""
+        logging.debug("Resuming simulation")
+        
         self.fdmexec.resume()
 
     def reset_simulator(self):
         """Reset the simulation"""
         #TODO: The reset procedure needs to be refactored
+        logging.debug("Reseting the simulator")
+        
+        #resume simulation just in case the simulator was paused
+        self.fdmexec.resume()
+        
         if not self.fdmexec.run_ic():
+            logging.error("Failed to run initial condition")
             return
 
         if not self.fdmexec.run():
+            logging.error("Failed to make initial run")
             return
 
         running = True
@@ -295,7 +306,15 @@ class SimulatorControl(DatagramProtocol):
             running = self.fdmexec.run()
 
         if running:
-            return self.fdmexec.trim()
+            logging.debug("Trimming the aircraft")
+            
+            trim_result = self.fdmexec.trim()
+            
+            self.fdmexec.hold()
+            
+            return trim_result
+        else:
+            logging.error("Failed to run up to 0.1 sec")
 
     def parse_request(self, datagram):
         """Parse the request datagram and return the request code."""
