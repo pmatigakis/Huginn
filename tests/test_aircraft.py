@@ -1,283 +1,319 @@
 from unittest import TestCase
 import math
 
-from huginn.aircraft import Controls, Engine, GPS, Accelerometer, Gyroscope, Thermometer, PressureSensor, PitotTube, InertialNavigationSystem
-from huginn.unit_conversions import convert_pounds_to_newtons, convert_knots_to_meters_per_sec, convert_feet_to_meters 
-from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared, convert_radians_sec_to_degrees_sec
+from huginn.aircraft import Controls, Engine, GPS, Accelerometer, Gyroscope,\
+                            Thermometer, PressureSensor, PitotTube,\
+                            InertialNavigationSystem
+from huginn.unit_conversions import convert_pounds_to_newtons,\
+                                    convert_knots_to_meters_per_sec,\
+                                    convert_feet_to_meters 
+from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared,\
+                                    convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
 
 from test_common import get_fdmexec
+from mockFDM import MockFDMExec
+from mock.mock import MagicMock
 
 class TestControls(TestCase):
     def setUp(self):
         self.fdmexec = get_fdmexec()
     
     def test_get_aileron(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        controls = Controls(fdm_model)
         
         aileron = controls.aileron
         
-        expected_aileron = self.fdmexec.get_property_value("fcs/aileron-cmd-norm")
+        expected_aileron = fdm_model.get_property_value("fcs/aileron-cmd-norm")
         
         self.assertAlmostEqual(aileron, expected_aileron, 3)
     
     def test_set_aileron(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        fdm_model.set_property_value = MagicMock()
+        
+        controls = Controls(fdm_model)
         
         controls.aileron = 0.678
         
-        expected_aileron = self.fdmexec.get_property_value("fcs/aileron-cmd-norm")
-        
-        self.assertAlmostEqual(expected_aileron, 0.678, 3)
+        fdm_model.set_property_value.assert_called_once_with("fcs/aileron-cmd-norm", 0.678)
         
     def test_get_elevator(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        controls = Controls(fdm_model)
         
         elevator = controls.elevator
         
-        expected_elevator = self.fdmexec.get_property_value("fcs/elevator-cmd-norm")
+        expected_elevator = fdm_model.get_property_value("fcs/elevator-cmd-norm")
         
         self.assertAlmostEqual(elevator, expected_elevator, 3)
     
     def test_set_elevator(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        fdm_model.set_property_value = MagicMock()
+        
+        controls = Controls(fdm_model)
         
         controls.elevator = 0.378
         
-        expected_elevator = self.fdmexec.get_property_value("fcs/elevator-cmd-norm")
-        
-        self.assertAlmostEqual(expected_elevator, 0.378, 3)
+        fdm_model.set_property_value.assert_called_once_with("fcs/elevator-cmd-norm", 0.378)
         
     def test_get_rudder(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        controls = Controls(fdm_model)
         
         rudder = controls.rudder
         
-        expected_rudder = self.fdmexec.get_property_value("fcs/rudder-cmd-norm")
+        expected_rudder = fdm_model.get_property_value("fcs/rudder-cmd-norm")
         
         self.assertAlmostEqual(rudder, expected_rudder, 3)
     
     def test_set_rudder(self):
-        controls = Controls(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        fdm_model.set_property_value = MagicMock()
+        
+        controls = Controls(fdm_model)
         
         controls.rudder = 0.178
         
-        expected_rudder = self.fdmexec.get_property_value("fcs/rudder-cmd-norm")
+        fdm_model.set_property_value.assert_called_once_with("fcs/rudder-cmd-norm", 0.178)
         
-        self.assertAlmostEqual(expected_rudder, 0.178, 3)
-
-class TestEngine(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-        
+class TestEngine(TestCase):        
     def test_rpm(self):
-        engine = Engine(self.fdmexec)
+        fdm_model = MockFDMExec()
+        
+        engine = Engine(fdm_model)
         
         rpm = engine.rpm
         
-        expected_rpm = self.fdmexec.get_property_value("propulsion/engine/engine-rpm")
+        expected_rpm = fdm_model.get_property_value("propulsion/engine/engine-rpm")
         
         self.assertAlmostEqual(rpm, expected_rpm, 3)
         
     def test_thrust(self):
-        engine = Engine(self.fdmexec)
-        
+        fdm_model = MockFDMExec()        
+
+        engine = Engine(fdm_model)
+
         thrust = engine.thrust
-        
-        expected_thrust = self.fdmexec.get_property_value("propulsion/engine/thrust-lbs")
-        
+
+        expected_thrust = fdm_model.get_property_value("propulsion/engine/thrust-lbs")
+
         expected_thrust = convert_pounds_to_newtons(expected_thrust)
-        
+
         self.assertAlmostEqual(thrust, expected_thrust, 3)
-        
+
     def test_power(self):
-        engine = Engine(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        engine = Engine(fdm_model)
+
         engine_power = engine.power
-        
-        expected_engine_power = self.fdmexec.get_property_value("propulsion/engine/power-hp")
-        
+
+        expected_engine_power = fdm_model.get_property_value("propulsion/engine/power-hp")
+
         self.assertAlmostEqual(engine_power, expected_engine_power, 3)
-        
+
     def test_get_throttle(self):
-        engine = Engine(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        engine = Engine(fdm_model)
+
         throttle = engine.throttle
-        
-        expected_throttle = self.fdmexec.get_property_value("fcs/throttle-cmd-norm")
-        
+
+        expected_throttle = fdm_model.get_property_value("fcs/throttle-cmd-norm")
+
         self.assertAlmostEqual(throttle, expected_throttle, 3)
-        
+
     def test_set_throttle(self):
-        engine = Engine(self.fdmexec)
+        fdm_model = MockFDMExec()
+
+        fdm_model.set_property_value = MagicMock()
+
+        engine = Engine(fdm_model)
         
         engine.throttle = 0.678
-        
-        throttle = self.fdmexec.get_property_value("fcs/throttle-cmd-norm")
-        
-        self.assertAlmostEqual(throttle, 0.678, 3)
 
-class TestGPS(TestCase):        
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-    
+        fdm_model.set_property_value.assert_called_once_with("fcs/throttle-cmd-norm", 0.678)
+
+class TestGPS(TestCase):            
     def test_gps_latitude(self):
-        gps = GPS(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        gps = GPS(fdm_model)
+
         latitude = gps.latitude
-        
-        expected_latitude = self.fdmexec.get_property_value("position/lat-gc-deg")
-        
+
+        expected_latitude = fdm_model.get_property_value("position/lat-gc-deg")
+
         self.assertAlmostEqual(latitude, expected_latitude, 3)
 
-    def test_gps_longitude(self):        
-        gps = GPS(self.fdmexec)
+    def test_gps_longitude(self):
+        fdm_model = MockFDMExec()
+        
+        gps = GPS(fdm_model)
         
         longitude = gps.longitude
         
-        expected_longitude = self.fdmexec.get_property_value("position/long-gc-deg")
+        expected_longitude = fdm_model.get_property_value("position/long-gc-deg")
         
         self.assertAlmostEqual(longitude, expected_longitude, 3)
         
     def test_airspeed(self):
-        gps = GPS(self.fdmexec)
+        fdm_model = MockFDMExec()
+
+        gps = GPS(fdm_model)
 
         airspeed = gps.airspeed
-        
-        expected_airspeed_in_knots = self.fdmexec.get_property_value("velocities/vtrue-kts")
+
+        expected_airspeed_in_knots = fdm_model.get_property_value("velocities/vtrue-kts")
         expected_airspeed_in_meters_per_sec = convert_knots_to_meters_per_sec(expected_airspeed_in_knots)
-        
+
         self.assertAlmostEqual(airspeed, expected_airspeed_in_meters_per_sec, 3)
-        
-    def test_altitude(self):        
-        gps = GPS(self.fdmexec)
+
+    def test_altitude(self):
+        fdm_model = MockFDMExec()
+
+        gps = GPS(fdm_model)
 
         altitude = gps.altitude
-        
-        expected_altitude_in_feet = self.fdmexec.get_property_value("position/h-sl-ft")
-        expected_altitude_in_meters = convert_feet_to_meters(expected_altitude_in_feet)
-        
-        self.assertAlmostEqual(altitude, expected_altitude_in_meters, 3)
-        
-    def test_heading(self):        
-        gps = GPS(self.fdmexec)
-        
-        heading = gps.heading
-        
-        expected_heading_in_radians = self.fdmexec.get_property_value("attitude/heading-true-rad")
-        expected_heading_in_degrees = math.degrees(expected_heading_in_radians)
-        
-        self.assertAlmostEqual(heading, expected_heading_in_degrees, 3)
-        
-class TestAccelerometer(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
 
+        expected_altitude_in_feet = fdm_model.get_property_value("position/h-sl-ft")
+        expected_altitude_in_meters = convert_feet_to_meters(expected_altitude_in_feet)
+
+        self.assertAlmostEqual(altitude, expected_altitude_in_meters, 3)
+
+    def test_heading(self):        
+        fdm_model = MockFDMExec()
+
+        gps = GPS(fdm_model)
+
+        heading = gps.heading
+
+        expected_heading_in_radians = fdm_model.get_property_value("attitude/heading-true-rad")
+        expected_heading_in_degrees = math.degrees(expected_heading_in_radians)
+
+        self.assertAlmostEqual(heading, expected_heading_in_degrees, 3)
+
+class TestAccelerometer(TestCase):
     def test_x_acceleration(self):        
-        accelerometer = Accelerometer(self.fdmexec)
+        fdm_model = MockFDMExec()
+
+        accelerometer = Accelerometer(fdm_model)
         
         acceleration = accelerometer.x_acceleration
         
-        expected_acceleration_in_ft_sec2 = self.fdmexec.get_property_value("accelerations/a-pilot-x-ft_sec2")
+        expected_acceleration_in_ft_sec2 = fdm_model.get_property_value("accelerations/a-pilot-x-ft_sec2")
         expected_acceleration_in_m_sec2 = convert_feet_sec_squared_to_meters_sec_squared(expected_acceleration_in_ft_sec2)
         
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
         
     def test_y_acceleration(self):
-        accelerometer = Accelerometer(self.fdmexec)
+        fdm_model = MockFDMExec()
+
+        accelerometer = Accelerometer(fdm_model)
         
         acceleration = accelerometer.y_acceleration
         
-        expected_acceleration_in_ft_sec2 = self.fdmexec.get_property_value("accelerations/a-pilot-y-ft_sec2")
+        expected_acceleration_in_ft_sec2 = fdm_model.get_property_value("accelerations/a-pilot-y-ft_sec2")
         expected_acceleration_in_m_sec2 = convert_feet_sec_squared_to_meters_sec_squared(expected_acceleration_in_ft_sec2)
         
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
         
     def test_z_acceleration(self):
-        accelerometer = Accelerometer(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        accelerometer = Accelerometer(fdm_model)
+
         acceleration = accelerometer.z_acceleration
-        
-        expected_acceleration_in_ft_sec2 = self.fdmexec.get_property_value("accelerations/a-pilot-z-ft_sec2")
+
+        expected_acceleration_in_ft_sec2 = fdm_model.get_property_value("accelerations/a-pilot-z-ft_sec2")
         expected_acceleration_in_m_sec2 = convert_feet_sec_squared_to_meters_sec_squared(expected_acceleration_in_ft_sec2)
-        
+
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
-        
-class TestGyroscope(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-    
+
+class TestGyroscope(TestCase):    
     def test_roll_rate(self):        
-        gyroscope = Gyroscope(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        gyroscope = Gyroscope(fdm_model)
+
         roll_rate = gyroscope.roll_rate
-        
-        expected_roll_rate_in_rad_sec = self.fdmexec.get_property_value("velocities/p-rad_sec")
+
+        expected_roll_rate_in_rad_sec = fdm_model.get_property_value("velocities/p-rad_sec")
         expected_roll_rate_in_degres_sec = convert_radians_sec_to_degrees_sec(expected_roll_rate_in_rad_sec)
-        
+
         self.assertAlmostEqual(roll_rate, expected_roll_rate_in_degres_sec, 3)
-        
+
     def test_pitch_rate(self):
-        gyroscope = Gyroscope(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        gyroscope = Gyroscope(fdm_model)
+
         pitch_rate = gyroscope.pitch_rate
-        
-        expected_pitch_rate_in_rad_sec = self.fdmexec.get_property_value("velocities/q-rad_sec")
+
+        expected_pitch_rate_in_rad_sec = fdm_model.get_property_value("velocities/q-rad_sec")
         expected_pitch_rate_in_degres_sec = convert_radians_sec_to_degrees_sec(expected_pitch_rate_in_rad_sec)
-        
+
         self.assertAlmostEqual(pitch_rate, expected_pitch_rate_in_degres_sec, 3)
-        
-    def test_yaw_rate(self):        
-        gyroscope = Gyroscope(self.fdmexec)
+
+    def test_yaw_rate(self):
+        fdm_model = MockFDMExec()
+
+        gyroscope = Gyroscope(fdm_model)
         
         yaw_rate = gyroscope.yaw_rate
         
-        expected_yaw_rate_in_rad_sec = self.fdmexec.get_property_value("velocities/q-rad_sec")
+        expected_yaw_rate_in_rad_sec = fdm_model.get_property_value("velocities/r-rad_sec")
         expected_yaw_rate_in_degres_sec = convert_radians_sec_to_degrees_sec(expected_yaw_rate_in_rad_sec)
         
         self.assertAlmostEqual(yaw_rate, expected_yaw_rate_in_degres_sec, 3)
         
 class TestThermometer(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-
     def test_temperature(self):
-        thermometer = Thermometer(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        thermometer = Thermometer(fdm_model)
+
         temperature = thermometer.temperature
-        
-        expected_temperature_in_rankine = self.fdmexec.get_property_value("atmosphere/T-R")
-        
+
+        expected_temperature_in_rankine = fdm_model.get_property_value("atmosphere/T-R")
+
         expected_temperature_in_kelvin = convert_rankine_to_kelvin(expected_temperature_in_rankine)
-        
+
         self.assertAlmostEqual(temperature, expected_temperature_in_kelvin)
         
 class TestPressureSensor(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-
     def test_pressure(self):
-        pressure_sensor = PressureSensor(self.fdmexec)
+        fdm_model = MockFDMExec()
+
+        pressure_sensor = PressureSensor(fdm_model)
         
         pressure = pressure_sensor.pressure
         
-        expected_pressure_in_psf = self.fdmexec.get_property_value("atmosphere/P-psf")
+        expected_pressure_in_psf = fdm_model.get_property_value("atmosphere/P-psf")
         
         expected_pressure_in_pascal = convert_psf_to_pascal(expected_pressure_in_psf)
         
         self.assertAlmostEqual(pressure, expected_pressure_in_pascal, 3)
         
 class TestPitotTube(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-
     def test_pressure(self):
-        pitot_tube = PitotTube(self.fdmexec)
-        
+        fdm_model = MockFDMExec()
+
+        pitot_tube = PitotTube(fdm_model)
+
         pressure = pitot_tube.pressure
-        
-        expected_pressure_in_psf = self.fdmexec.get_property_value("aero/qbar-psf")
-        
+
+        expected_pressure_in_psf = fdm_model.get_property_value("aero/qbar-psf")
+
         expected_pressure_in_pascal = convert_psf_to_pascal(expected_pressure_in_psf)
-        
+
         self.assertAlmostEqual(pressure, expected_pressure_in_pascal, 3)
