@@ -249,119 +249,6 @@ class ControlsProtocol(DatagramProtocol):
 
         self.update_aircraft_controls(aileron, elevator, rudder, throttle)
 
-class InvalidSimulatorControlRequest(Exception):
-    def __init__(self, request_code):
-        Exception.__init__(self)
-        self.request_code = request_code
-
-class InvalidSimulatorControlDatagram(Exception):
-    pass
-
-class SimulatorControl(DatagramProtocol):
-    """The SimulatorControl protocol class is used to control the simulation
-    state."""
-
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-        self.request_handlers = {
-            SIMULATION_PAUSE: self.pause_simulator,
-            SIMULATION_RESUME: self.resume_simulator,
-            SIMULATION_RESET: self.reset_simulator
-        }
-
-    def pause_simulator(self):
-        """Pause the simulator"""
-        logging.debug("Pausing the simulator")
-        
-        self.fdmexec.hold()
-
-    def resume_simulator(self):
-        """Resume simulation"""
-        logging.debug("Resuming simulation")
-        
-        self.fdmexec.resume()
-
-    def reset_simulator(self):
-        """Reset the simulation"""
-        #TODO: The reset procedure needs to be refactored
-        logging.debug("Reseting the simulator")
-        
-        #resume simulation just in case the simulator was paused
-        self.fdmexec.resume()
-        
-        if not self.fdmexec.run_ic():
-            logging.error("Failed to run initial condition")
-            return
-
-        if not self.fdmexec.run():
-            logging.error("Failed to make initial run")
-            return
-
-        running = True
-        while running and self.fdmexec.get_sim_time() < 0.1:
-            self.fdmexec.process_message()
-            self.fdmexec.check_incremental_hold()
-
-            running = self.fdmexec.run()
-
-        if running:
-            logging.debug("Trimming the aircraft")
-            
-            trim_result = self.fdmexec.trim()
-            
-            self.fdmexec.hold()
-            
-            return trim_result
-        else:
-            logging.error("Failed to run up to 0.1 sec")
-
-    def parse_request(self, datagram):
-        """Parse the request datagram and return the request code."""
-        try:
-            request_code = struct.unpack("!c", datagram)
-
-            return ord(request_code[0])
-        except ValueError:
-            raise InvalidSimulatorControlDatagram()
-
-    def handle_request(self, request_code):
-        """Handle the request"""
-        request_handler = self.request_handlers.get(request_code, None)
-
-        if not request_handler:
-            raise InvalidSimulatorControlRequest(request_code)
-
-        request_handler()
-
-    def datagramReceived(self, datagram, addr):
-        """Handle the datagram that was received"""
-        try:
-            request_code = self.parse_request(datagram)
-
-            self.handle_request(request_code)
-        except InvalidSimulatorControlRequest as e:
-            logging.error("Invalid simulator control request code %d", e.request_code)
-            print("Invalid simulator control request code %d" % e.request_code)
-        except InvalidSimulatorControlDatagram:
-            logging.error("Invalid simulator control datagram")
-            print("Invalid simulator control datagram")
-
-class SimulatorControlClient(DatagramProtocol):
-    """The SimulatorControlClient is a client protocol that can be used to
-    control the simulator."""
-
-    def __init__(self, host, port, request_code):
-        self.host = host
-        self.port = port
-        self.request_code = request_code
-
-    def startProtocol(self):
-        datagram = struct.pack("!c", chr(self.request_code))
-        self.transport.write(datagram, (self.host, self.port))
-
-        reactor.callFromThread(reactor.stop)
-
 class TelemetryProtocol(Protocol):
     def __init__(self, factory):
         self.factory = factory
@@ -369,7 +256,7 @@ class TelemetryProtocol(Protocol):
         self.have_sent_header = False
 
         self.telemetry_items = [
-            "time", "dt", "running", "latitude", "longitude", "altitude",
+            "time", "dt", "latitude", "longitude", "altitude",
             "airspeed", "heading", "x_acceleration", "y_acceleration",
             "z_acceleration", "roll_rate", "pitch_rate", "yaw_rate",
             "temperature", "static_pressure", "dynamic_pressure",
@@ -398,8 +285,8 @@ class TelemetryProtocol(Protocol):
         self.transport.write(telemetry_string)
 
 class TelemetryFactory(Factory):
-    def __init__(self, fdmexec, aircraft):
-        self.fdmexec = fdmexec
+    def __init__(self, fdm_model, aircraft):
+        self.fdm_model = fdm_model
         self.aircraft = aircraft
 
         self.clients = set()
@@ -409,9 +296,8 @@ class TelemetryFactory(Factory):
 
     def get_telemetry_data(self):
         return {
-            "time": self.fdmexec.get_property_value("simulation/sim-time-sec"),
-            "dt": self.fdmexec.get_property_value("simulation/dt"),
-            "running": not self.fdmexec.holding(),
+            "time": self.fdm_model.get_property_value("simulation/sim-time-sec"),
+            "dt": self.fdm_model.get_property_value("simulation/dt"),
             "latitude": self.aircraft.gps.latitude,
             "longitude": self.aircraft.gps.longitude,
             "altitude": self.aircraft.gps.altitude,

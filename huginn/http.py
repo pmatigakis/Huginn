@@ -1,4 +1,5 @@
 import json
+import logging
 
 from twisted.web.resource import Resource
 
@@ -225,3 +226,53 @@ class FlightControlsData(Resource):
         flight_controls_data = self.get_flight_controls_data()
 
         return json.dumps(flight_controls_data)
+
+class SimulatorControl(Resource):
+    isLeaf = True
+
+    def __init__(self, fdm_model):
+        Resource.__init__(self)
+        self.fdm_model = fdm_model
+
+    def invalid_request(self, request):        
+        response_data =  {"result": "error",
+                          "reason": "invalid simulator command request"}
+
+        return self.send_response(request, response_data)
+
+    def invalid_command(self, request, command):
+        response_data = {"result": "error",
+                         "reason": "invalid simulator command",
+                         "command": command}
+
+        return self.send_response(request, response_data)
+
+    def send_response(self, request, response_data):
+        request.responseHeaders.addRawHeader("content-type", "application/json")
+        
+        return json.dumps(response_data)
+
+    def render_POST(self, request):
+        if not request.args.has_key("command"):
+            logging.error("Invalid simulator control request")
+            
+            return self.invalid_request(request)
+
+        simulator_command = request.args["command"][0]
+        
+        if simulator_command == "pause":
+            logging.debug("Pausing the simulator")
+            self.fdm_model.pause()
+        elif simulator_command == "resume":
+            logging.debug("Resuming simulation")
+            self.fdm_model.resume()
+        elif simulator_command == "reset":
+            logging.debug("Reseting the simulator")
+            self.fdm_model.reset()
+        else:
+            logging.error("Invalid simulator command %s", simulator_command)
+            return self.invalid_command(request, simulator_command)
+
+        response_data = {"command": simulator_command, "result": "ok"}
+
+        return self.send_response(request, response_data)

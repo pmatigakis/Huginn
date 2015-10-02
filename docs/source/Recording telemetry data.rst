@@ -17,28 +17,27 @@ Index  Variable          Unit
 =====  ================  =================
 0      time              seconds
 1      dt                seconds
-2      running           bool
-3      latitude          degrees
-4      longitude         degrees
-5      altitude          meters
-6      airspeed          meters/sec
-7      heading           degrees
-8      x acceleration    meters/sec^2
-9      y acceleration    meters/sec^2
-10     z acceleration    meters/sec^2
-11     roll rate         degrees/sec
-12     pitch rate        degrees/sec
-13     yaw rate          degrees/sec
-14     temperature       kelvin
-15     static pressure   pascal
-16     dynamic pressure  pascal
-17     roll              degrees
-18     pitch             degrees
-19     engine rpm        rounds per minute
-20     engine thrust     newton
-21     engine power      hp
-22     aileron           float
-23     elevator          float
-24     rudder            float
-25     throttle          float
+2      latitude          degrees
+3      longitude         degrees
+4      altitude          meters
+5      airspeed          meters/sec
+6      heading           degrees
+7      x acceleration    meters/sec^2
+8      y acceleration    meters/sec^2
+9      z acceleration    meters/sec^2
+10     roll rate         degrees/sec
+11     pitch rate        degrees/sec
+12     yaw rate          degrees/sec
+13     temperature       kelvin
+14     static pressure   pascal
+15     dynamic pressure  pascal
+16     roll              degrees
+17     pitch             degrees
+18     engine rpm        rounds per minute
+19     engine thrust     newton
+20     engine power      hp
+21     aileron           float
+22     elevator          float
+23     rudder            float
+24     throttle          float
 =====  ================  =================

@@ -1,4 +1,4 @@
-class MockFDMExec(object):
+class MockFDMModel(object):
     def __init__(self):
         self.properties = {"fcs/aileron-cmd-norm": 0.5555,
                            "fcs/elevator-cmd-norm": 0.6666,
@@ -20,10 +20,30 @@ class MockFDMExec(object):
                            "velocities/r-rad_sec": 3.234,
                            "atmosphere/T-R": 12345.0,
                            "atmosphere/P-psf": 456.543,
-                           "aero/qbar-psf": 12.88}
+                           "aero/qbar-psf": 12.88,
+                           "attitude/roll-rad": 1.456,
+                           "attitude/pitch-rad": 2.567,
+                           "simulation/dt": 0.01,
+                           "simulation/sim-time-sec": 100.2}
     
     def get_property_value(self, property_name):
         return self.properties[property_name]
     
     def set_property_value(self, property_name, value):
         pass
+    
+    def resume(self):
+        pass
+
+    def pause(self):
+        pass
+
+    def reset(self):
+        pass
+
+    def run(self):
+        pass
+    
+class MockRequest(object):
+    def __init__(self):
+        self.args = {}

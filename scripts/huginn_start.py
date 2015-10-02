@@ -8,19 +8,19 @@ from twisted.web import server
 from huginn_jsbsim import FGFDMExec
 
 from huginn.protocols import FDMDataProtocol, ControlsProtocol,\
-                             SimulatorControl, TelemetryFactory
+                             TelemetryFactory
 from huginn.http import Index, GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
-                        EngineData, FlightControlsData
+                        EngineData, FlightControlsData, SimulatorControl
 from huginn import configuration
 from huginn.aircraft import Aircraft
+from huginn.fdm import JSBSimFDMModel
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
 
     parser.add_argument("--properties", action="store_true", help="Print the property catalog")
-    parser.add_argument("--simulator", action="store", default=configuration.SIMULATOR_CONTROL_PORT, help="The simulator control port")
     parser.add_argument("--dt", action="store", default=configuration.DT, help="The simulation timestep")
     parser.add_argument("--telemetry", action="store", default=configuration.TELEMETRY_PORT, help="The telemetry port")
     parser.add_argument("--telemetry_dt", action="store", default=configuration.TELEMETRY_UPDATE_RATE, help="The telemetry update rate")
@@ -99,18 +99,9 @@ def create_fdm(dt, jsbsim_path):
 
     return fdmexec
 
-def init_simulator_control_server(args, fdmexec):
-    simulator_control = SimulatorControl(fdmexec)
-
-    simulator_control_port = args.simulator
-
-    logging.info("Starting the simulator control server at port %d", simulator_control_port)
-
-    reactor.listenUDP(simulator_control_port, simulator_control)
-
-def init_web_server(args, fdmexec):
-    index_page = Index(fdmexec)
-    aircraft = Aircraft(fdmexec)
+def init_web_server(args, fdm_model):    
+    index_page = Index(fdm_model)
+    aircraft = Aircraft(fdm_model)
 
     index_page.putChild("gps", GPSData(aircraft))
     index_page.putChild("accelerometer", AccelerometerData(aircraft))
@@ -121,6 +112,7 @@ def init_web_server(args, fdmexec):
     index_page.putChild("ins", InertialNavigationSystemData(aircraft))
     index_page.putChild("engine", EngineData(aircraft))
     index_page.putChild("flight_controls", FlightControlsData(aircraft))
+    index_page.putChild("simulator", SimulatorControl(fdm_model))
 
     http_port = args.http
 
@@ -129,8 +121,8 @@ def init_web_server(args, fdmexec):
     frontend = server.Site(index_page)
     reactor.listenTCP(http_port, frontend)
 
-def init_fdm_server(args, fdmexec):
-    aircraft = Aircraft(fdmexec)
+def init_fdm_server(args, fdm_model):
+    aircraft = Aircraft(fdm_model)
 
     fdm_protocol = FDMDataProtocol(aircraft)
     fdm_port = args.fdm
@@ -146,19 +138,17 @@ def init_fdm_server(args, fdmexec):
 
     reactor.listenUDP(controls_port, controls_protocol)
 
-def init_telemetry_server(args, fdmexec):
-    aircraft = Aircraft(fdmexec)
+def init_telemetry_server(args, fdm_model):
+    aircraft = Aircraft(fdm_model)
 
-    factory = TelemetryFactory(fdmexec, aircraft)
+    factory = TelemetryFactory(fdm_model, aircraft)
     
     reactor.listenTCP(args.telemetry, factory)
     
     return factory
 
-def update_fdm(fdmexec):
-    fdmexec.process_message()
-    fdmexec.check_incremental_hold()
-    running = fdmexec.run()
+def update_fdm(fdm_model):
+    running = fdm_model.run()
 
     if not running:
         logging.error("Failed to update the flight dynamics model")
@@ -190,18 +180,19 @@ def main():
         exit(-1)
 
     fdmexec = create_fdm(dt, jsbsim_path)
+    
+    fdm_model = JSBSimFDMModel(fdmexec)
 
-    init_simulator_control_server(args, fdmexec)
-    init_fdm_server(args, fdmexec)
-    init_web_server(args, fdmexec)
-    factory = init_telemetry_server(args, fdmexec)
+    init_fdm_server(args, fdm_model)
+    init_web_server(args, fdm_model)
+    factory = init_telemetry_server(args, fdm_model)
 
-    fdm_updater = task.LoopingCall(update_fdm, fdmexec)
+    fdm_updater = task.LoopingCall(update_fdm, fdm_model)
     fdm_updater.start(dt)
 
     telemetry_updater = task.LoopingCall(factory.update_clients)
     telemetry_updater.start(args.telemetry_dt)
-    
+
     signal.signal(signal.SIGTERM, shutdown)
 
     fdmexec.hold()

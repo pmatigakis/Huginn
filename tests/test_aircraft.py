@@ -11,16 +11,12 @@ from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squar
                                     convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
 
-from test_common import get_fdmexec
-from mockFDM import MockFDMExec
+from mockObjects import MockFDMModel
 from mock.mock import MagicMock
 
-class TestControls(TestCase):
-    def setUp(self):
-        self.fdmexec = get_fdmexec()
-    
+class TestControls(TestCase):    
     def test_get_aileron(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         controls = Controls(fdm_model)
         
@@ -31,7 +27,7 @@ class TestControls(TestCase):
         self.assertAlmostEqual(aileron, expected_aileron, 3)
     
     def test_set_aileron(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         fdm_model.set_property_value = MagicMock()
         
@@ -42,7 +38,7 @@ class TestControls(TestCase):
         fdm_model.set_property_value.assert_called_once_with("fcs/aileron-cmd-norm", 0.678)
         
     def test_get_elevator(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         controls = Controls(fdm_model)
         
@@ -53,7 +49,7 @@ class TestControls(TestCase):
         self.assertAlmostEqual(elevator, expected_elevator, 3)
     
     def test_set_elevator(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         fdm_model.set_property_value = MagicMock()
         
@@ -64,7 +60,7 @@ class TestControls(TestCase):
         fdm_model.set_property_value.assert_called_once_with("fcs/elevator-cmd-norm", 0.378)
         
     def test_get_rudder(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         controls = Controls(fdm_model)
         
@@ -75,7 +71,7 @@ class TestControls(TestCase):
         self.assertAlmostEqual(rudder, expected_rudder, 3)
     
     def test_set_rudder(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         fdm_model.set_property_value = MagicMock()
         
@@ -87,7 +83,7 @@ class TestControls(TestCase):
         
 class TestEngine(TestCase):        
     def test_rpm(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         engine = Engine(fdm_model)
         
@@ -98,7 +94,7 @@ class TestEngine(TestCase):
         self.assertAlmostEqual(rpm, expected_rpm, 3)
         
     def test_thrust(self):
-        fdm_model = MockFDMExec()        
+        fdm_model = MockFDMModel()        
 
         engine = Engine(fdm_model)
 
@@ -111,7 +107,7 @@ class TestEngine(TestCase):
         self.assertAlmostEqual(thrust, expected_thrust, 3)
 
     def test_power(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         engine = Engine(fdm_model)
 
@@ -122,7 +118,7 @@ class TestEngine(TestCase):
         self.assertAlmostEqual(engine_power, expected_engine_power, 3)
 
     def test_get_throttle(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         engine = Engine(fdm_model)
 
@@ -133,7 +129,7 @@ class TestEngine(TestCase):
         self.assertAlmostEqual(throttle, expected_throttle, 3)
 
     def test_set_throttle(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         fdm_model.set_property_value = MagicMock()
 
@@ -145,7 +141,7 @@ class TestEngine(TestCase):
 
 class TestGPS(TestCase):            
     def test_gps_latitude(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
 
@@ -156,7 +152,7 @@ class TestGPS(TestCase):
         self.assertAlmostEqual(latitude, expected_latitude, 3)
 
     def test_gps_longitude(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
         
         gps = GPS(fdm_model)
         
@@ -167,7 +163,7 @@ class TestGPS(TestCase):
         self.assertAlmostEqual(longitude, expected_longitude, 3)
         
     def test_airspeed(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
 
@@ -179,7 +175,7 @@ class TestGPS(TestCase):
         self.assertAlmostEqual(airspeed, expected_airspeed_in_meters_per_sec, 3)
 
     def test_altitude(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
 
@@ -191,7 +187,7 @@ class TestGPS(TestCase):
         self.assertAlmostEqual(altitude, expected_altitude_in_meters, 3)
 
     def test_heading(self):        
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
 
@@ -204,7 +200,7 @@ class TestGPS(TestCase):
 
 class TestAccelerometer(TestCase):
     def test_x_acceleration(self):        
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
         
@@ -216,7 +212,7 @@ class TestAccelerometer(TestCase):
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
         
     def test_y_acceleration(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
         
@@ -228,7 +224,7 @@ class TestAccelerometer(TestCase):
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
         
     def test_z_acceleration(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
 
@@ -241,7 +237,7 @@ class TestAccelerometer(TestCase):
 
 class TestGyroscope(TestCase):    
     def test_roll_rate(self):        
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
 
@@ -253,7 +249,7 @@ class TestGyroscope(TestCase):
         self.assertAlmostEqual(roll_rate, expected_roll_rate_in_degres_sec, 3)
 
     def test_pitch_rate(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
 
@@ -265,7 +261,7 @@ class TestGyroscope(TestCase):
         self.assertAlmostEqual(pitch_rate, expected_pitch_rate_in_degres_sec, 3)
 
     def test_yaw_rate(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
         
@@ -278,7 +274,7 @@ class TestGyroscope(TestCase):
         
 class TestThermometer(TestCase):
     def test_temperature(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         thermometer = Thermometer(fdm_model)
 
@@ -292,7 +288,7 @@ class TestThermometer(TestCase):
         
 class TestPressureSensor(TestCase):
     def test_pressure(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         pressure_sensor = PressureSensor(fdm_model)
         
@@ -306,7 +302,7 @@ class TestPressureSensor(TestCase):
         
 class TestPitotTube(TestCase):
     def test_pressure(self):
-        fdm_model = MockFDMExec()
+        fdm_model = MockFDMModel()
 
         pitot_tube = PitotTube(fdm_model)
 
