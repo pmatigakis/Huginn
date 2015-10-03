@@ -1,5 +1,7 @@
 import logging
 
+from huginn_jsbsim import FGFDMExec
+
 fdm_properties = [
     "simulation/sim-time-sec",
     "simulation/dt",
@@ -89,6 +91,9 @@ class FDMModel(object):
     def set_property_value(self, property_name, value):
         pass
 
+    def dt(self):
+        pass 
+
 class JSBSimFDMModel(FDMModel):
     def __init__(self, fdmexec):
         FDMModel.__init__(self)
@@ -145,3 +150,94 @@ class JSBSimFDMModel(FDMModel):
     
     def set_property_value(self, property_name, value):
         self.fdmexec.set_property_value(property_name, value)
+
+    def dt(self):
+        return self.fdmexec.get_dt()
+
+class FDMModelCreator(object):
+    def __init__(self, dt, latitude, longitude, altitude, airspeed, heading):
+        self.dt = dt
+
+        self.latitude = latitude
+        self.longitude = longitude
+        self.altitude = altitude
+        self.airspeed = airspeed
+        self.heading = heading
+
+    def create_fdm_model(self, latitude, longitude, altitude, airspeed, heading):
+        return None
+
+class JSBSimFDMModelCreator(FDMModelCreator):
+    def __init__(self, jsbsim_root_path, dt, latitude, longitude, altitude, airspeed, heading):
+        FDMModelCreator.__init__(self, dt, latitude, longitude, altitude, airspeed, heading)
+
+        self.jsbsim_root_path = jsbsim_root_path
+
+        self.aircraft_name = "c172p"
+        self.reset_file = "reset00"
+
+    def create_fdm_model(self):
+        fdmexec = FGFDMExec()
+    
+        logging.debug("Using jsbsim data at %s", self.jsbsim_root_path)
+    
+        fdmexec.set_root_dir(self.jsbsim_root_path)
+        fdmexec.set_aircraft_path("/aircraft")
+        fdmexec.set_engine_path("/engine")
+        fdmexec.set_systems_path("/systems")
+    
+        fdmexec.set_dt(self.dt)
+    
+        logging.debug("Will use aircraft %s with reset file %s",
+                      self.aircraft_name,
+                      self.reset_file)
+
+        fdmexec.load_model(self.aircraft_name)
+
+        fdmexec.load_ic(self.reset_file)
+
+        logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
+                      self.latitude,
+                      self.longitude,
+                      self.altitude,
+                      self.airspeed,
+                      self.heading)
+
+        fdmexec.set_property_value("ic/lat-gc-deg", self.latitude)
+        fdmexec.set_property_value("ic/long-gc-deg", self.longitude)
+        fdmexec.set_property_value("ic/h-sl-ft", self.altitude)
+        fdmexec.set_property_value("ic/vt-kts", self.airspeed)
+        fdmexec.set_property_value("ic/psi-true-deg", self.heading)
+
+        #the following statements will make the aircraft to start it's engine
+        fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
+        fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)
+        fdmexec.set_property_value("propulsion/magneto_cmd", 3.0)
+        fdmexec.set_property_value("propulsion/starter_cmd", 1.0)
+
+        initial_condition_result = fdmexec.run_ic()
+
+        if not initial_condition_result:
+            logging.error("Failed to set the flight dynamics model's initial condition")
+            return None
+
+        running = fdmexec.run()
+
+        if not running:
+            logging.error("Failed to make initial flight dynamics model run")
+            return None
+
+        #run the simulation for some time before we attempt to trim the aircraft
+        while running and fdmexec.get_sim_time() < 0.1:
+            fdmexec.process_message()
+            fdmexec.check_incremental_hold()
+
+            running = fdmexec.run()
+
+        #trim the aircraft
+        result = fdmexec.trim()
+        if not result:
+            logging.error("Failed to trim the aircraft")
+            return None
+
+        return JSBSimFDMModel(fdmexec)

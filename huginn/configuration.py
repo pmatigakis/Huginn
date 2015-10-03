@@ -20,7 +20,3 @@ INITIAL_LONGITUDE = 23.931830
 INITIAL_ALTITUDE = 2000.0 #feet
 INITIAL_AIRSPEED = 90.0 #knots
 INITIAL_HEADING = 45.0 #degrees
-
-#default aircraft configuration
-AIRCRAFT_NAME = "c172p"
-RESET_FILE = "reset00"
