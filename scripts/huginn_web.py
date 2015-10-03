@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from huginn.web import app
+from huginn.web.servers import HuginnWebServer
 from huginn.configuration import HUGINN_HOST, HTTP_PORT, WEB_SERVER_PORT
 
 def get_arguments():
@@ -16,10 +16,9 @@ def get_arguments():
 def main():
     args = get_arguments()
     
-    app.config["FDM_HOST"] = args.host
-    app.config["FDM_PORT"] = args.fdm_port
-    
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    web_server = HuginnWebServer(args.host, args.fdm_port, args.host, args.port, debug=True)
+
+    web_server.run()
 
 if __name__ == "__main__":
     main()
