@@ -1,10 +1,7 @@
 from argparse import ArgumentParser
-import json
-
-import requests
 
 from huginn.configuration import HUGINN_HOST, WEB_SERVER_PORT
-
+from huginn.control import SimulatorControlClient
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator control")
@@ -19,14 +16,22 @@ def get_arguments():
 
 def main():
     args = get_arguments()
-    
-    response = requests.post("http://%s:%d/simulator" % (args.host, args.port),
-                             data={"command": args.command})
 
-    response_data = json.loads(response.text)
+    simulator_control_client = SimulatorControlClient(args.host, args.port)
 
-    if response_data["result"] != "ok":
-        print("ERROR: %s" % response_data["reason"]) 
+    if args.command == "reset":
+        result = simulator_control_client.reset()
+    elif args.command == "pause":
+        result = simulator_control_client.pause()
+    elif args.command == "resume":
+        result = simulator_control_client.resume()
+    else:
+        print("Invalid command %s" % args.command)
+        exit(-1)
+
+    if not result:
+        print("Failed to execute command %s" % args.command)
+        exit(-1)
 
 if __name__ == "__main__":
     main()
