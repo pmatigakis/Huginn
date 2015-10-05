@@ -1,6 +1,6 @@
 from flask import Flask
 
-from huginn.web.views import index, INS
+from huginn.web.views import index, data
 
 class HuginnWebServer(object):
     def __init__(self, huginn_host, huginn_port, 
@@ -16,7 +16,7 @@ class HuginnWebServer(object):
         self.debug = debug
 
         self.app.add_url_rule("/", "index", index)
-        self.app.add_url_rule("/ins", "ins", INS(huginn_host, huginn_port))
+        self.app.add_url_rule("/data", "data", data(huginn_host, huginn_port))
 
     def run(self):
         self.app.run(host=self.host, port=self.port, debug=self.debug)

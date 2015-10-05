@@ -6,7 +6,7 @@ import requests
 def index():
     return render_template("index.html")
 
-class INS(object):
+class data(object):
     def __init__(self, fdm_host, fdm_port):
         self.fdm_host = fdm_host
         self.fdm_port = fdm_port

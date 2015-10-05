@@ -46,7 +46,7 @@ function update_map(latitude, longitude, altitude, airspeed, heading){
 
 function start_data_update(){
 	setInterval(function(){
-		$.getJSON("ins", function(data){
+		$.getJSON("data", function(data){
 			var roll = data.fdm_data["roll"];
 			var pitch = data.fdm_data["pitch"];
 			var airspeed = data.fdm_data["airspeed"];
