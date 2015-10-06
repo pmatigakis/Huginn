@@ -224,7 +224,7 @@ class ControlsProtocol(DatagramProtocol):
         self.aircraft.controls.aileron = aileron
         self.aircraft.controls.elevator = elevator
         self.aircraft.controls.rudder = rudder
-        self.aircraft.engine.throttle = throttle
+        self.aircraft.controls.throttle = throttle
 
     def decode_datagram(self, datagram):
         try:

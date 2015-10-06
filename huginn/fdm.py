@@ -1,4 +1,5 @@
 import logging
+from abc import ABCMeta, abstractmethod
 
 from huginn_jsbsim import FGFDMExec
 
@@ -241,3 +242,13 @@ class JSBSimFDMModelCreator(FDMModelCreator):
             return None
 
         return JSBSimFDMModel(fdmexec)
+
+class Model(object):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, fdm_model):
+        self.fdm_model = fdm_model
+
+    @abstractmethod
+    def run(self):
+        pass

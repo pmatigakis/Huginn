@@ -80,12 +80,37 @@ class TestControls(TestCase):
         controls.rudder = 0.178
         
         fdm_model.set_property_value.assert_called_once_with("fcs/rudder-cmd-norm", 0.178)
+
+    def test_get_throttle(self):
+        fdm_model = MockFDMModel()
         
+        controls = Controls(fdm_model)
+        
+        throttle = controls.throttle
+        
+        expected_throttle = fdm_model.get_property_value("fcs/throttle-cmd-norm")
+        
+        self.assertAlmostEqual(throttle, expected_throttle, 3)
+    
+    def test_set_throttle(self):
+        fdm_model = MockFDMModel()
+        
+        fdm_model.set_property_value = MagicMock()
+        
+        controls = Controls(fdm_model)
+        
+        controls.throttle = 0.178
+        
+        fdm_model.set_property_value.assert_called_once_with("fcs/throttle-cmd-norm", 0.178)
+
 class TestEngine(TestCase):        
     def test_rpm(self):
         fdm_model = MockFDMModel()
         
         engine = Engine(fdm_model)
+        result = engine.run()
+        
+        self.assertTrue(result)
         
         rpm = engine.rpm
         
@@ -97,6 +122,9 @@ class TestEngine(TestCase):
         fdm_model = MockFDMModel()        
 
         engine = Engine(fdm_model)
+        result = engine.run()
+        
+        self.assertTrue(result)
 
         thrust = engine.thrust
 
@@ -110,6 +138,9 @@ class TestEngine(TestCase):
         fdm_model = MockFDMModel()
 
         engine = Engine(fdm_model)
+        result = engine.run()
+        
+        self.assertTrue(result)
 
         engine_power = engine.power
 
@@ -121,6 +152,9 @@ class TestEngine(TestCase):
         fdm_model = MockFDMModel()
 
         engine = Engine(fdm_model)
+        result = engine.run()
+        
+        self.assertTrue(result)
 
         throttle = engine.throttle
 
@@ -128,22 +162,14 @@ class TestEngine(TestCase):
 
         self.assertAlmostEqual(throttle, expected_throttle, 3)
 
-    def test_set_throttle(self):
-        fdm_model = MockFDMModel()
-
-        fdm_model.set_property_value = MagicMock()
-
-        engine = Engine(fdm_model)
-        
-        engine.throttle = 0.678
-
-        fdm_model.set_property_value.assert_called_once_with("fcs/throttle-cmd-norm", 0.678)
-
 class TestGPS(TestCase):            
     def test_gps_latitude(self):
         fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
+        result = gps.run()
+
+        self.assertTrue(result)
 
         latitude = gps.latitude
 
@@ -153,19 +179,25 @@ class TestGPS(TestCase):
 
     def test_gps_longitude(self):
         fdm_model = MockFDMModel()
-        
+
         gps = GPS(fdm_model)
-        
+        result = gps.run()
+
+        self.assertTrue(result)
+
         longitude = gps.longitude
-        
+
         expected_longitude = fdm_model.get_property_value("position/long-gc-deg")
-        
+
         self.assertAlmostEqual(longitude, expected_longitude, 3)
-        
+
     def test_airspeed(self):
         fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
+        result = gps.run()
+
+        self.assertTrue(result)
 
         airspeed = gps.airspeed
 
@@ -178,6 +210,9 @@ class TestGPS(TestCase):
         fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
+        result = gps.run()
+
+        self.assertTrue(result)
 
         altitude = gps.altitude
 
@@ -190,6 +225,9 @@ class TestGPS(TestCase):
         fdm_model = MockFDMModel()
 
         gps = GPS(fdm_model)
+        result = gps.run()
+
+        self.assertTrue(result)
 
         heading = gps.heading
 
@@ -203,18 +241,24 @@ class TestAccelerometer(TestCase):
         fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
-        
+        result = accelerometer.run()
+
+        self.assertTrue(result)
+
         acceleration = accelerometer.x_acceleration
-        
+
         expected_acceleration_in_ft_sec2 = fdm_model.get_property_value("accelerations/a-pilot-x-ft_sec2")
         expected_acceleration_in_m_sec2 = convert_feet_sec_squared_to_meters_sec_squared(expected_acceleration_in_ft_sec2)
-        
+
         self.assertAlmostEqual(acceleration, expected_acceleration_in_m_sec2, 3)
-        
+
     def test_y_acceleration(self):
         fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
+        result = accelerometer.run()
+
+        self.assertTrue(result)
         
         acceleration = accelerometer.y_acceleration
         
@@ -227,6 +271,9 @@ class TestAccelerometer(TestCase):
         fdm_model = MockFDMModel()
 
         accelerometer = Accelerometer(fdm_model)
+        result = accelerometer.run()
+
+        self.assertTrue(result)
 
         acceleration = accelerometer.z_acceleration
 
@@ -240,6 +287,9 @@ class TestGyroscope(TestCase):
         fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
+        result = gyroscope.run() 
+
+        self.assertTrue(result)
 
         roll_rate = gyroscope.roll_rate
 
@@ -252,6 +302,9 @@ class TestGyroscope(TestCase):
         fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
+        result = gyroscope.run() 
+
+        self.assertTrue(result)
 
         pitch_rate = gyroscope.pitch_rate
 
@@ -264,6 +317,9 @@ class TestGyroscope(TestCase):
         fdm_model = MockFDMModel()
 
         gyroscope = Gyroscope(fdm_model)
+        result = gyroscope.run() 
+
+        self.assertTrue(result)
         
         yaw_rate = gyroscope.yaw_rate
         
@@ -277,6 +333,9 @@ class TestThermometer(TestCase):
         fdm_model = MockFDMModel()
 
         thermometer = Thermometer(fdm_model)
+        run_result = thermometer.run()
+        
+        self.assertTrue(run_result)
 
         temperature = thermometer.temperature
 
@@ -291,6 +350,9 @@ class TestPressureSensor(TestCase):
         fdm_model = MockFDMModel()
 
         pressure_sensor = PressureSensor(fdm_model)
+        result = pressure_sensor.run()
+        
+        self.assertTrue(result)
         
         pressure = pressure_sensor.pressure
         
@@ -305,7 +367,10 @@ class TestPitotTube(TestCase):
         fdm_model = MockFDMModel()
 
         pitot_tube = PitotTube(fdm_model)
-
+        result = pitot_tube.run()
+        
+        self.assertTrue(result)
+        
         pressure = pitot_tube.pressure
 
         expected_pressure_in_psf = fdm_model.get_property_value("aero/qbar-psf")

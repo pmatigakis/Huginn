@@ -23,7 +23,8 @@ class Simulator(object):
         self.aircraft = Aircraft(fdm_model)
 
     def _update_fdm(self):
-        running = self.fdm_model.run()
+        #running = self.fdm_model.run()
+        running = self.aircraft.run()
 
         if not running:
             logging.error("Failed to update the flight dynamics model")
