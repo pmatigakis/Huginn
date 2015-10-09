@@ -5,7 +5,7 @@ from huginn.configuration import HUGINN_HOST, HTTP_PORT, WEB_SERVER_PORT
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator web server")
-    
+
     parser.add_argument("--host", default=HUGINN_HOST, help="The server ip address")
     parser.add_argument("--port", default=HTTP_PORT, type=int, help="The server port")
     parser.add_argument("--fdm_port", default=WEB_SERVER_PORT, type=int, help="The fdm server http port")
@@ -15,8 +15,9 @@ def get_arguments():
 
 def main():
     args = get_arguments()
-    
-    web_server = HuginnWebServer(args.host, args.fdm_port, args.host, args.port, debug=True)
+
+    web_server = HuginnWebServer(args.host, args.fdm_port, args.host, args.port)
+    web_server.debug = True
 
     web_server.run()
 
