@@ -14,7 +14,8 @@ hardware-in-the-loop simulations.
 
    Installation
    Starting the simulator
-   FDMData protocol
+   SensorData protocol
+   Controlling the aircraft
    Recording telemetry data
 
 Indices and tables

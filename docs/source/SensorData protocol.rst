@@ -1,10 +1,8 @@
-FDMData protocol
-================
+SensorData protocol
+===================
 
-The simulator uses 2 UDP ports to transmit FDM data and to receive aircraft control commands.
-The FDM data are accessed from port 10300 and the aircraft controls are accessed from port 10301.
-
-The FDM data can be requested by sending a UDP datagram with a request code to the FDM data port. 
+The simulator uses an UDP port to transmit sensor data. The default port for the sensor data is 10300.
+The Sensor data can be requested by sending a UDP datagram with a request code to the sensor data port. 
 At the moment the simulator supports 8 request codes.
 
 ============   ==========================================
@@ -136,18 +134,3 @@ For the request code 0x07 the following response will be transmitted.
   22-25            Airspeed             Meters/Sec
   26-29            Altitude             Meters
   ===============  ===================  ===========
-
-The aircraft can be controlled by sending 4 float values to the controls UDP port.
-These values must be in the range -1.0 to 1.0 except for the throttle that must
-be in the range 0.0 to 1.0. The datagram must have the following format.
-
-.. table:: Aircraft controls
-
-  ===============  ===========
-  Datagram offset  Description
-  ===============  ===========
-  0-3              aileron
-  4-7              elevator
-  8-11             rudder
-  12-16            throttle
-  ===============  ===========

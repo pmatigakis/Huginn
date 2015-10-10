@@ -1,8 +1,8 @@
 import struct
 import logging
+from abc import ABCMeta, abstractmethod
 
 from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
-from twisted.internet import reactor
 from twisted.protocols.basic import LineReceiver
 
 #Declare the available commands supported by the fdm data protocol
@@ -17,7 +17,7 @@ INS_DATA_REQUEST = 0x07
 
 #fdm data request response codes
 ERROR_CODE = 0xff
-FDM_DATA_RESPONCE_OK = 0x00
+SENSOR_DATA_RESPONCE_OK = 0x00
 
 #Simulator control request codes
 SIMULATION_RESUME = 0x00
@@ -28,7 +28,7 @@ SIMULATION_STATUS = 0x03
 class InvalidControlsDatagram(Exception):
     pass
 
-class InvalidFDMDataRequestDatagram(Exception):
+class InvalidSensorDataRequestDatagram(Exception):
     pass
 
 class InvalidFDMDataRequestCommand(Exception):
@@ -36,19 +36,19 @@ class InvalidFDMDataRequestCommand(Exception):
         Exception.__init__(self)
         self.command = command
 
-class InvalidFDMDataResponceDatagram(Exception):
+class InvalidSensorDataResponceDatagram(Exception):
     def __init__(self, datagram):
         Exception.__init__(self)
         self.datagram = datagram
 
-class FDMDataRequest(object):
+class SensorDataRequest(object):
     def __init__(self, host, port, command):
         self.host = host
         self.port = port
         self.command = command
 
     def __eq__(self, other):
-        if not isinstance(other, FDMDataRequest):
+        if not isinstance(other, SensorDataRequest):
             return False
 
         if self.host != other.host:
@@ -60,32 +60,33 @@ class FDMDataRequest(object):
 
         return True
 
-class FDMDataResponse(object):
-    def __init__(self, fdm_data_request, fdm_property_values):
-        self.fdm_data_request = fdm_data_request
-        self.fdm_property_values = fdm_property_values
+class SensorDataResponse(object):
+    def __init__(self, sensor_data_request, sensor_values):
+        self.sensor_data_request = sensor_data_request
+        self.sensor_values = sensor_values
 
     def encode_response(self):
-        fdm_property_values_count = len(self.fdm_property_values)
+        sensor_values_count = len(self.sensor_values)
 
-        encoded_response = struct.pack("!cc" + ("f" * fdm_property_values_count), chr(FDM_DATA_RESPONCE_OK),
-                                                                                  chr(self.fdm_data_request.command),
-                                                                                  *self.fdm_property_values)
+        encoded_response = struct.pack("!cc" + ("f" * sensor_values_count),
+                                       chr(SENSOR_DATA_RESPONCE_OK),
+                                       chr(self.sensor_data_request.command),
+                                       *self.sensor_values)
 
         return encoded_response
 
     def __eq__(self, other):
-        if not isinstance(other, FDMDataResponse):
+        if not isinstance(other, SensorDataResponse):
             return False
 
-        if self.fdm_data_request != other.fdm_data_request:
+        if self.sensor_data_request != other.sensor_data_request:
             return False
-        elif self.fdm_property_values != other.fdm_property_values:
+        elif self.sensor_values != other.sensor_values:
             return False
 
         return True
 
-class FDMDataProtocol(DatagramProtocol):
+class SensorDataProtocol(DatagramProtocol):
     def __init__(self, aircraft):
         self.aircraft = aircraft
 
@@ -104,10 +105,10 @@ class FDMDataProtocol(DatagramProtocol):
         try:
             command = struct.unpack("!c", datagram)
         except:
-            raise InvalidFDMDataRequestDatagram()
+            raise InvalidSensorDataRequestDatagram()
 
         command = ord(command[0])
-        return FDMDataRequest(host, port, command)
+        return SensorDataRequest(host, port, command)
 
     def create_gps_data_response(self, request):
         gps_values = [
@@ -118,7 +119,7 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.gps.heading
         ]
 
-        return FDMDataResponse(request, gps_values)
+        return SensorDataResponse(request, gps_values)
 
     def create_accelerometer_data_response(self, request):
         accelerometer_values = [
@@ -127,7 +128,7 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.accelerometer.z_acceleration
         ]
 
-        return FDMDataResponse(request, accelerometer_values)
+        return SensorDataResponse(request, accelerometer_values)
 
     def create_gyroscope_data_response(self, request):
         gyroscope_data = [
@@ -136,21 +137,21 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.gyroscope.yaw_rate
         ]
 
-        return FDMDataResponse(request, gyroscope_data)
+        return SensorDataResponse(request, gyroscope_data)
 
     def create_magnetometer_data_response(self, request):
-        return FDMDataResponse(request, [0.0, 0.0, 0.0])
+        return SensorDataResponse(request, [0.0, 0.0, 0.0])
 
     def create_thermometer_data_response(self, request):
-        return FDMDataResponse(request,
-                               [self.aircraft.thermometer.temperature])
+        return SensorDataResponse(request,
+                                  [self.aircraft.thermometer.temperature])
 
     def create_pitot_tube_data_response(self, request):
-        return FDMDataResponse(request, [self.aircraft.pitot_tube.pressure])
+        return SensorDataResponse(request, [self.aircraft.pitot_tube.pressure])
 
     def create_static_pressure_data_response(self, request):
-        return FDMDataResponse(request,
-                               [self.aircraft.pressure_sensor.pressure])
+        return SensorDataResponse(request,
+                                  [self.aircraft.pressure_sensor.pressure])
 
     def create_ins_data_response(self, request):
         ins_data = [
@@ -163,7 +164,7 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.inertial_navigation_system.altitude,
         ]
 
-        return FDMDataResponse(request, ins_data)
+        return SensorDataResponse(request, ins_data)
 
     def get_request_processor(self, command):
         return self.request_processors.get(command, None)
@@ -207,7 +208,7 @@ class FDMDataProtocol(DatagramProtocol):
             request = self.decode_request(datagram, host, port)
 
             self.process_request(request)
-        except InvalidFDMDataRequestDatagram:
+        except InvalidSensorDataRequestDatagram:
             print("Failed to parse fdm data command datagram")
             logging.error("Failed to parse fdm data command datagram")
             self.transmit_error_code(ERROR_CODE, host, port)

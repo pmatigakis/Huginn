@@ -14,7 +14,7 @@ from huginn.http import Index, GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl
-from huginn.protocols import FDMDataProtocol, ControlsProtocol,\
+from huginn.protocols import SensorDataProtocol, ControlsProtocol,\
                              TelemetryFactory
 
 class Simulator(object):
@@ -33,15 +33,15 @@ class Simulator(object):
     def shutdown(self):
         logging.info("Shutting down the simulator")
 
-        reactor.callFromThread(reactor.stop)
+        reactor.callFromThread(reactor.stop)  # @UndefinedVariable
 
     def add_fdm_server(self, fdm_server_port):
         logging.info("Adding a flight dynamics model server at port %d",
                      fdm_server_port)
 
-        fdm_protocol = FDMDataProtocol(self.aircraft)
+        fdm_protocol = SensorDataProtocol(self.aircraft)
 
-        reactor.listenUDP(fdm_server_port, fdm_protocol)
+        reactor.listenUDP(fdm_server_port, fdm_protocol) # @UndefinedVariable
 
     def add_controls_server(self, controls_server_port):
         logging.info("Adding an aircraft controls server at port %d",
@@ -49,14 +49,14 @@ class Simulator(object):
 
         controls_protocol = ControlsProtocol(self.aircraft)
 
-        reactor.listenUDP(controls_server_port, controls_protocol)
+        reactor.listenUDP(controls_server_port, controls_protocol) # @UndefinedVariable
 
     def add_telemetry_server(self, telemetry_port, dt):
         logging.info("Adding a telemetry server at port %d", telemetry_port)
 
         telemetry_factory = TelemetryFactory(self.fdm_model, self.aircraft)
 
-        reactor.listenTCP(telemetry_port, telemetry_factory)
+        reactor.listenTCP(telemetry_port, telemetry_factory) # @UndefinedVariable
 
         telemetry_updater = LoopingCall(telemetry_factory.update_clients)
         telemetry_updater.start(dt)
@@ -79,7 +79,7 @@ class Simulator(object):
 
         frontend = server.Site(index_page)
 
-        reactor.listenTCP(http_port, frontend)
+        reactor.listenTCP(http_port, frontend) # @UndefinedVariable
 
     def run(self):
         logging.info("Starting the simulator")
@@ -90,7 +90,7 @@ class Simulator(object):
         self.fdm_model.pause()
 
         logging.debug("Starting the event loop")
-        reactor.run()
+        reactor.run() # @UndefinedVariable
         logging.info("The simulator has shut down")
 
         return True
