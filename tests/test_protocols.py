@@ -10,7 +10,7 @@ from huginn.protocols import SensorDataProtocol, SensorDataRequest,  SensorDataR
     ACCELEROMETER_DATA_REQUEST, GYROSCOPE_DATA_REQUEST,\
     MAGNETOMETER_DATA_REQUEST, THERMOMETER_DATA_REQUEST, PITOT_TUBE_DATA_REQUEST,\
     STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST,\
-    TelemetryFactory, TelemetryProtocol
+    TelemetryFactory, TelemetryProtocol, FDMDataProtocol
 from huginn.aircraft import Aircraft
 
 from mockObjects import MockFDMModel
@@ -262,9 +262,9 @@ class TestControlsProtocol(TestCase):
 class TestTelemetryFactory(TestCase):
     def test_get_telemetry_data(self):
         fdm_model = MockFDMModel()
-        
+
         aircraft = Aircraft(fdm_model)
-        
+
         factory = TelemetryFactory(fdm_model, aircraft)
         protocol = TelemetryProtocol(factory)
 
@@ -300,3 +300,41 @@ class TestTelemetryFactory(TestCase):
         self.assertAlmostEqual(telemetry_data["elevator"], aircraft.controls.elevator, 3)
         self.assertAlmostEqual(telemetry_data["rudder"], aircraft.controls.rudder, 3)
         self.assertAlmostEqual(telemetry_data["throttle"], aircraft.engine.throttle, 3)
+
+class TestFDMDataProtocol(TestCase):
+    def test_get_fdm_data(self):
+        fdm_model = MockFDMModel()
+
+        aircraft = Aircraft(fdm_model)
+
+        fdm_data_protocol = FDMDataProtocol(fdm_model, aircraft,
+                                            "127.0.0.1", 12345)
+
+        fdm_data = fdm_data_protocol.get_fdm_data()
+
+        self.assertEqual(len(fdm_data), 24)
+
+        self.assertAlmostEqual(fdm_data[0], fdm_model.get_property_value("simulation/sim-time-sec"), 3)
+        self.assertAlmostEqual(fdm_data[1], aircraft.gps.latitude, 3)
+        self.assertAlmostEqual(fdm_data[2], aircraft.gps.longitude, 3)
+        self.assertAlmostEqual(fdm_data[3], aircraft.gps.altitude, 3)
+        self.assertAlmostEqual(fdm_data[4], aircraft.gps.airspeed, 3)
+        self.assertAlmostEqual(fdm_data[5], aircraft.gps.heading, 3)
+        self.assertAlmostEqual(fdm_data[6], aircraft.accelerometer.x_acceleration, 3)
+        self.assertAlmostEqual(fdm_data[7], aircraft.accelerometer.y_acceleration, 3)
+        self.assertAlmostEqual(fdm_data[8], aircraft.accelerometer.z_acceleration, 3)
+        self.assertAlmostEqual(fdm_data[9], aircraft.gyroscope.roll_rate, 3)
+        self.assertAlmostEqual(fdm_data[10], aircraft.gyroscope.pitch_rate, 3)
+        self.assertAlmostEqual(fdm_data[11], aircraft.gyroscope.yaw_rate, 3)
+        self.assertAlmostEqual(fdm_data[12], aircraft.thermometer.temperature, 3)
+        self.assertAlmostEqual(fdm_data[13], aircraft.pressure_sensor.pressure, 3)
+        self.assertAlmostEqual(fdm_data[14], aircraft.pitot_tube.pressure, 3)
+        self.assertAlmostEqual(fdm_data[15], aircraft.inertial_navigation_system.roll, 3)
+        self.assertAlmostEqual(fdm_data[16], aircraft.inertial_navigation_system.pitch, 3)
+        self.assertAlmostEqual(fdm_data[17], aircraft.engine.rpm, 3)
+        self.assertAlmostEqual(fdm_data[18], aircraft.engine.thrust, 3)
+        self.assertAlmostEqual(fdm_data[19], aircraft.engine.power, 3)
+        self.assertAlmostEqual(fdm_data[20], aircraft.controls.aileron, 3)
+        self.assertAlmostEqual(fdm_data[21], aircraft.controls.elevator, 3)
+        self.assertAlmostEqual(fdm_data[22], aircraft.controls.rudder, 3)
+        self.assertAlmostEqual(fdm_data[23], aircraft.engine.throttle, 3)

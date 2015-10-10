@@ -36,8 +36,8 @@ Index  Variable          Unit
 18     engine rpm        rounds per minute
 19     engine thrust     newton
 20     engine power      hp
-21     aileron           float
-22     elevator          float
-23     rudder            float
-24     throttle          float
+21     aileron           -1.0 to 1.0
+22     elevator          -1.0 to 1.0
+23     rudder            -1.0 to 1.0
+24     throttle          0.0 to 1.0
 =====  ================  =================

@@ -190,28 +190,25 @@ class AutopilotProtocol(DatagramProtocol):
         print("rudder %f" % self.autopilot.rudder)
         print("throttle %f" % self.autopilot.throttle)
         print("")
-        
-    def request_fdm_data(self):
-        request = struct.pack("!c", chr(0x07))
-        
-        self.transport.write(request, ("127.0.0.1", 10300))  
-    
+            
     def datagramReceived(self, datagram, addr):
-        data = struct.unpack("!cc" + ("f" * 7), datagram)
+        data = struct.unpack("f" * 24, datagram)
         
-        data = data[2:]
-        
-        self.autopilot.heading = data[2]
-        self.autopilot.latitude = data[3]
-        self.autopilot.longitude = data[4]
-        self.autopilot.airspeed = data[5]
-        self.autopilot.altitude = data[6]
-                
-        self.autopilot.roll = data[0]
-        self.autopilot.pitch = data[1]
-        
+        self.autopilot.latitude = data[1]
+        self.autopilot.longitude = data[2]
+        self.autopilot.altitude = data[3]
+        self.autopilot.airspeed = data[4]
+        self.autopilot.heading = data[5]
+
+        self.autopilot.roll = data[15]
+        self.autopilot.pitch = data[16]
+
+    def run_autopilot(self):
         self.autopilot.run()
-        
+
+        self.send_controls()
+    
+    def send_controls(self):
         controls_datagram = struct.pack("!ffff", 
                                         self.autopilot.aileron,
                                         self.autopilot.elevator,
@@ -222,9 +219,9 @@ class AutopilotProtocol(DatagramProtocol):
 
 autopilot_protocol = AutopilotProtocol()
 
-reactor.listenUDP(0, autopilot_protocol)
+reactor.listenUDP(10302, autopilot_protocol)
 
-autopilot_updater = task.LoopingCall(autopilot_protocol.request_fdm_data)
+autopilot_updater = task.LoopingCall(autopilot_protocol.run_autopilot)
 autopilot_updater.start(0.1)
 
 log_updater = task.LoopingCall(autopilot_protocol.print_log)

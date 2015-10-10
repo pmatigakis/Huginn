@@ -4,6 +4,8 @@ from abc import ABCMeta, abstractmethod
 
 from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.protocols.basic import LineReceiver
+from twisted.internet.task import LoopingCall
+from twisted.internet import reactor
 
 #Declare the available commands supported by the fdm data protocol
 GPS_DATA_REQUEST = 0x00
@@ -343,3 +345,48 @@ class TelemetryClientFactory(Factory):
 
     def buildProtocol(self, addr):
         return TelemetryClient(self.output_file)
+
+class FDMDataProtocol(DatagramProtocol):
+    def __init__(self, fdm_model, aircraft, remote_host, port):
+        self.fdm_model = fdm_model
+        self.aircraft = aircraft
+        self.remote_host = remote_host
+        self.port = port
+
+    def get_fdm_data(self):
+        fdm_data = [
+            self.fdm_model.get_property_value("simulation/sim-time-sec"),
+            self.aircraft.gps.latitude,
+            self.aircraft.gps.longitude,
+            self.aircraft.gps.altitude,
+            self.aircraft.gps.airspeed,
+            self.aircraft.gps.heading,
+            self.aircraft.accelerometer.x_acceleration,
+            self.aircraft.accelerometer.y_acceleration,
+            self.aircraft.accelerometer.z_acceleration,
+            self.aircraft.gyroscope.roll_rate,
+            self.aircraft.gyroscope.pitch_rate,
+            self.aircraft.gyroscope.yaw_rate,
+            self.aircraft.thermometer.temperature,
+            self.aircraft.pressure_sensor.pressure,
+            self.aircraft.pitot_tube.pressure,
+            self.aircraft.inertial_navigation_system.roll,
+            self.aircraft.inertial_navigation_system.pitch,
+            self.aircraft.engine.rpm,
+            self.aircraft.engine.thrust,
+            self.aircraft.engine.power,
+            self.aircraft.controls.aileron,
+            self.aircraft.controls.elevator,
+            self.aircraft.controls.rudder,
+            self.aircraft.engine.throttle,
+        ]
+
+        return fdm_data
+
+    def send_fdm_data(self):        
+        fdm_data = self.get_fdm_data()
+
+        datagram = struct.pack("f" * len(fdm_data),
+                               *fdm_data)
+
+        self.transport.write(datagram, (self.remote_host, self.port))

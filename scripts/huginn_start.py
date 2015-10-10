@@ -14,7 +14,10 @@ def get_arguments():
     parser.add_argument("--telemetry", action="store", default=configuration.TELEMETRY_PORT, help="The telemetry port")
     parser.add_argument("--telemetry_dt", action="store", default=configuration.TELEMETRY_UPDATE_RATE, help="The telemetry update rate")
     parser.add_argument("--http", action="store", default=configuration.WEB_SERVER_PORT, help="The web server port")
-    parser.add_argument("--fdm", action="store", default=configuration.FDM_PORT, help="The fdm data port")
+    parser.add_argument("--sensors", action="store", default=configuration.SENSORS_PORT, help="The sensors data port")
+    parser.add_argument("--fdm_host", action="store", default=configuration.FDM_HOST, help="The fdm data host")
+    parser.add_argument("--fdm_port", action="store", default=configuration.FDM_PORT, help="The fdm data port")
+    parser.add_argument("--fdm_dt", action="store", default=configuration.FDM_DT, help="The fdm data dt")
     parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
 
     return parser.parse_args()
@@ -53,7 +56,8 @@ def main():
         print("Failed to create simulator object")
         exit(-1)
 
-    simulator.add_fdm_server(args.fdm)
+    simulator.add_fdm_client(args.fdm_host, args.fdm_port, args.fdm_dt)
+    simulator.add_sensors_server(args.sensors)
     simulator.add_controls_server(args.controls)
     simulator.add_web_server(args.http)
     simulator.add_telemetry_server(args.telemetry, args.telemetry_dt)

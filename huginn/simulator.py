@@ -15,7 +15,7 @@ from huginn.http import Index, GPSData, AccelerometerData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl
 from huginn.protocols import SensorDataProtocol, ControlsProtocol,\
-                             TelemetryFactory
+                             TelemetryFactory, FDMDataProtocol
 
 class Simulator(object):
     def __init__(self, fdm_model):
@@ -35,13 +35,13 @@ class Simulator(object):
 
         reactor.callFromThread(reactor.stop)  # @UndefinedVariable
 
-    def add_fdm_server(self, fdm_server_port):
-        logging.info("Adding a flight dynamics model server at port %d",
-                     fdm_server_port)
+    def add_sensors_server(self, sensors_server_port):
+        logging.info("Adding a sensors server at port %d",
+                     sensors_server_port)
 
-        fdm_protocol = SensorDataProtocol(self.aircraft)
+        sensors_data_protocol = SensorDataProtocol(self.aircraft)
 
-        reactor.listenUDP(fdm_server_port, fdm_protocol) # @UndefinedVariable
+        reactor.listenUDP(sensors_server_port, sensors_data_protocol) # @UndefinedVariable
 
     def add_controls_server(self, controls_server_port):
         logging.info("Adding an aircraft controls server at port %d",
@@ -80,6 +80,14 @@ class Simulator(object):
         frontend = server.Site(index_page)
 
         reactor.listenTCP(http_port, frontend) # @UndefinedVariable
+
+    def add_fdm_client(self, host, port, dt):
+        fdm_data_protocol = FDMDataProtocol(self.fdm_model, self.aircraft, host, port)
+                
+        reactor.listenUDP(0, fdm_data_protocol) # @UndefinedVariable
+
+        fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data) # @UndefinedVariable
+        fdm_data_updater.start(dt)
 
     def run(self):
         logging.info("Starting the simulator")
