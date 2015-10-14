@@ -1,10 +1,8 @@
 import struct
 import logging
-from abc import ABCMeta, abstractmethod
 
 from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.protocols.basic import LineReceiver
-from twisted.internet.task import LoopingCall
 from twisted.internet import reactor
 
 #Declare the available commands supported by the fdm data protocol
@@ -333,18 +331,45 @@ class TelemetryFactory(Factory):
             client.transmit_telemetry_data(telemetry_data)
 
 class TelemetryClient(LineReceiver):
-    def __init__(self, output_file):
-        self.output_file = output_file
+    def __init__(self):
+        self.header_received = False
 
     def lineReceived(self, line):
-        self.output_file.write(line + "\n")
+        data = line.strip().split(",")
+
+        if self.header_received:
+            self.write_telemetry_data(data)
+        else:
+            self.header_received = True
+            self.write_variable_names(data)
+
+    def connectionLost(self, reason):
+        reactor.callFromThread(reactor.stop)  # @UndefinedVariable
+
+    def write_variable_names(self, variable_names):
+        self.factory.write_variable_names(variable_names)
+
+    def write_telemetry_data(self, telemetry_data):
+        self.factory.write_telemetry_data(telemetry_data)
 
 class TelemetryClientFactory(Factory):
-    def __init__(self, output_file):
-        self.output_file = output_file
+    def __init__(self, csv_writer):
+        self.csv_writer = csv_writer
+        self.protocol = TelemetryClient
+        self.header_written = False
 
-    def buildProtocol(self, addr):
-        return TelemetryClient(self.output_file)
+    def write_variable_names(self, variable_names):
+        if not self.header_written:
+            self.csv_writer.writerow(variable_names)
+            self.header_written = True
+        else:
+            logging.debug("Ignoring request to write header")
+
+    def write_telemetry_data(self, telemetry_data):
+        if self.header_written:
+            self.csv_writer.writerow(telemetry_data)
+        else:
+            logging.debug("Ignoring request to write data without having written a header first")
 
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, fdm_model, aircraft, remote_host, port):

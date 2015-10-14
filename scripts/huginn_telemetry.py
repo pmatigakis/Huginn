@@ -1,3 +1,4 @@
+import csv
 from argparse import ArgumentParser
 
 from twisted.internet import reactor
@@ -18,17 +19,16 @@ def get_arguments():
 def main():
     args = get_arguments()
 
-    output_file = open(args.output, "w")
+    with open(args.output, "w") as output_file:
+        endpoint = TCP4ClientEndpoint(reactor, args.host, args.port)
 
-    endpoint = TCP4ClientEndpoint(reactor, args.host, args.port)
+        csv_writer = csv.writer(output_file, delimiter=",")
 
-    factory = TelemetryClientFactory(output_file)
+        factory = TelemetryClientFactory(csv_writer)
 
-    endpoint.connect(factory)
+        endpoint.connect(factory)
 
-    reactor.run()
-
-    output_file.close()
+        reactor.run()  # @UndefinedVariable
 
 if __name__ == "__main__":
     main()
