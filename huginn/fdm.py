@@ -1,5 +1,5 @@
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 from huginn_jsbsim import FGFDMExec
 
@@ -74,28 +74,46 @@ controls_properties = [
 ]
 
 class FDMModel(object):
+    """The FDMModel class is the base that defined the methods that must be
+    implemented by a flight dynamics model."""
+
+    @abstractmethod
     def run(self):
+        """Run the flight dynamics model for one step"""
         pass
-    
+
+    @abstractmethod
     def reset(self):
+        """Reset the flight dynamics model"""
         pass
 
+    @abstractmethod
     def pause(self):
+        """Pause the flight dynamics model"""
         pass
 
+    @abstractmethod
     def resume(self):
+        """Resume simulation"""
         pass
 
+    @abstractmethod
     def get_property_value(self, property_name):
+        """Get a flight dynamics model property"""
         pass
 
+    @abstractmethod
     def set_property_value(self, property_name, value):
+        """Set a flight dynamics model property"""
         pass
 
+    @abstractproperty
     def dt(self):
+        """Get the simulation timestep"""
         pass 
 
-class JSBSimFDMModel(FDMModel):
+class JSBSimFDMModelAdapter(FDMModel):
+    """This class is a wrapper around JSBSim"""
     def __init__(self, fdmexec):
         FDMModel.__init__(self)
 
@@ -152,6 +170,7 @@ class JSBSimFDMModel(FDMModel):
     def set_property_value(self, property_name, value):
         self.fdmexec.set_property_value(property_name, value)
 
+    @property
     def dt(self):
         return self.fdmexec.get_dt()
 
@@ -241,7 +260,7 @@ class JSBSimFDMModelCreator(FDMModelCreator):
             logging.error("Failed to trim the aircraft")
             return None
 
-        return JSBSimFDMModel(fdmexec)
+        return JSBSimFDMModelAdapter(fdmexec)
 
 class Model(object):
     __metaclass__ = ABCMeta

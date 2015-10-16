@@ -23,7 +23,7 @@ class TestJSBSimFDMModelCreator(TestCase):
 
         self.assertIsNotNone(fdm_model)
 
-class TestJSBSimFDMModel(TestCase):
+class TestJSBSimFDMModelAdapter(TestCase):
     def test_run(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 

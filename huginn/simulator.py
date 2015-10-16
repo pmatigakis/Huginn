@@ -93,7 +93,7 @@ class Simulator(object):
         logging.info("Starting the simulator")
 
         fdm_updater = LoopingCall(self._update_fdm)
-        fdm_updater.start(self.fdm_model.dt())
+        fdm_updater.start(self.fdm_model.dt)
 
         self.fdm_model.pause()
 
