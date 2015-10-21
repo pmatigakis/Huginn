@@ -11,7 +11,7 @@ function init_map(){
 	}).addTo(map);
 	
 	var aircraftIcon = L.icon({
-	    iconUrl: 'static/images/32px-Airplane_silhouette.png',
+	    iconUrl: 'images/32px-Airplane_silhouette.png',
 
 	    iconSize:     [32, 32],
 	    iconAnchor:   [16, 16]
@@ -46,14 +46,14 @@ function update_map(latitude, longitude, altitude, airspeed, heading){
 
 function start_data_update(){
 	setInterval(function(){
-		$.getJSON("data", function(data){
-			var roll = data.fdm_data["roll"];
-			var pitch = data.fdm_data["pitch"];
-			var airspeed = data.fdm_data["airspeed"];
-			var altitude = data.fdm_data["altitude"];
-			var heading = data.fdm_data["heading"];
-			var latitude = data.fdm_data["latitude"];
-			var longitude = data.fdm_data["longitude"];
+		$.getJSON("ins", function(data){
+			var roll = data["roll"];
+			var pitch = data["pitch"];
+			var airspeed = data["airspeed"];
+			var altitude = data["altitude"];
+			var heading = data["heading"];
+			var latitude = data["latitude"];
+			var longitude = data["longitude"];
 			
 			update_hud(altitude, airspeed, heading, roll, pitch);
 			update_map(latitude, longitude, altitude, airspeed, heading);

@@ -4,13 +4,15 @@ simulation
 """
 
 import logging
+import pkg_resources
 
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from twisted.web import server
+from twisted.web.static import File
 
 from huginn.aircraft import Aircraft
-from huginn.http import Index, GPSData, AccelerometerData,\
+from huginn.http import GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl
@@ -64,20 +66,20 @@ class Simulator(object):
     def add_web_server(self, http_port):
         logging.info("Starting a web server at port %d", http_port)
 
-        index_page = Index(self.fdm_model)
+        root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
 
-        index_page.putChild("gps", GPSData(self.aircraft))
-        index_page.putChild("accelerometer", AccelerometerData(self.aircraft))
-        index_page.putChild("gyroscope", GyroscopeData(self.aircraft))
-        index_page.putChild("thermometer", ThermometerData(self.aircraft))
-        index_page.putChild("pressure_sensor", PressureSensorData(self.aircraft))
-        index_page.putChild("pitot_tube", PitotTubeData(self.aircraft))
-        index_page.putChild("ins", InertialNavigationSystemData(self.aircraft))
-        index_page.putChild("engine", EngineData(self.aircraft))
-        index_page.putChild("flight_controls", FlightControlsData(self.aircraft))
-        index_page.putChild("simulator", SimulatorControl(self.fdm_model))
+        root.putChild("gps", GPSData(self.aircraft))
+        root.putChild("accelerometer", AccelerometerData(self.aircraft))
+        root.putChild("gyroscope", GyroscopeData(self.aircraft))
+        root.putChild("thermometer", ThermometerData(self.aircraft))
+        root.putChild("pressure_sensor", PressureSensorData(self.aircraft))
+        root.putChild("pitot_tube", PitotTubeData(self.aircraft))
+        root.putChild("ins", InertialNavigationSystemData(self.aircraft))
+        root.putChild("engine", EngineData(self.aircraft))
+        root.putChild("flight_controls", FlightControlsData(self.aircraft))
+        root.putChild("simulator", SimulatorControl(self.fdm_model))
 
-        frontend = server.Site(index_page)
+        frontend = server.Site(root)
 
         reactor.listenTCP(http_port, frontend) # @UndefinedVariable
 

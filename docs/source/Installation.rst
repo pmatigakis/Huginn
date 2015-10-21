@@ -4,7 +4,6 @@ Requirements
 ------------
 Huginn requires the following Python packages to be installed on your system.
 
-- Flask >= 0.10.1
 - requests >= 2.7.0
 - Twisted >= 15.3.0
 
@@ -26,6 +25,7 @@ In order to run the tests you will also need to install the following packages.
 - coverage >= 3.7.1
 - nose >= 1.3.7
 - mock >= 1.3.0
+- PyHamcrest >= 1.8.5
 
 Go to the source code directory and run the tests with the following command.
 
