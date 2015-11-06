@@ -1,3 +1,229 @@
+from huginn.fdm import FDMModel
+
+class MockFDMModel(FDMModel):
+    def __init__(self):
+        self._dt = 0.01
+        self._time = 0.0
+        self._paused = True
+
+    def run(self):
+        """Run the flight dynamics model for one step"""
+        if not self._paused:
+            self._time += self._dt
+
+    def reset(self):
+        """Reset the flight dynamics model"""
+        self._time = 0.0
+
+    def pause(self):
+        """Pause the flight dynamics model"""
+        self._paused = True
+
+    def resume(self):
+        """Resume simulation"""
+        self._paused = False
+
+    def get_aircraft(self):
+        """Get the simulated aircraft model"""
+        pass
+
+    @property
+    def dt(self):
+        """Get the simulation timestep"""
+        return self._dt
+
+    @property
+    def sim_time(self):
+        """Get the current simulation time"""
+        return self._time 
+
+class MockAuxiliary(object):
+    def __init__(self):
+        self.v_true = 375.453302
+        self.total_pressure = 12233.2
+        self.euler_rates = [1.1, 2.2, 3.3]
+        self.accelerations = [0.1, 0.2, 0.3]
+
+    def GetVtrueFPS(self):
+        return self.v_true
+
+    def GetTotalPressure(self):
+        return self.total_pressure
+
+    def GetEulerRates(self, index):
+        return self.euler_rates[index-1]
+
+    def GetPilotAccel(self, index):
+        return self.accelerations[index-1]
+
+class MockEuler(object):
+    def __init__(self):
+        self.entries = [0.1, 0.2, 0.3]
+
+    def Entry(self, index):
+        return self.entries[index-1]
+
+class MockPropagate(object):
+    def __init__(self):
+        self.latitude = 37.34567
+        self.longitude = 21.63457
+        self.altitude = 10000.0
+        self.euler = MockEuler()
+
+    def GetLatitudeDeg(self):
+        return self.latitude
+
+    def GetLongitudeDeg(self):
+        return self.longitude
+
+    def GetAltitudeASLmeters(self):
+        return self.altitude
+
+    def GetEuler(self):
+        return self.euler
+
+class MockFCS(object):
+    def __init__(self):
+        self.aileron_cmd = 0.55
+        self.elevator_cmd = 0.23
+        self.rudder_cmd = 0.7
+        self.throttle_cmd  = 0.86
+
+    def GetDaCmd(self):
+        return self.aileron_cmd
+
+    def GetDeCmd(self):
+        return self.elevator_cmd
+
+    def GetDrCmd(self):
+        return self.rudder_cmd
+
+    def GetThrottleCmd(self, index):
+        return self.throttle_cmd
+
+    def SetThrottleCmd(self, idex, throttle_cmd):
+        self.throttle_cmd = throttle_cmd
+
+    def SetDeCmd(self, elevator):
+        self.elevator = elevator
+
+    def SetDrCmd(self, rudder_cmd):
+        self.rudder_cmd = rudder_cmd
+
+    def SetDaCmd(self, aileron_cmd):
+        self.aileron_cmd = aileron_cmd
+
+class MockAtmosphere(object):
+    def __init__(self):
+        self.temperature = 567.32
+        self.pressure = 456.39
+
+    def GetTemperature(self):
+        return self.temperature
+
+    def GetPressure(self):
+        return self.pressure
+
+class MockThruster(object):
+    def __init__(self):
+        self.thrust = 3452.87
+
+    def GetThrust(self):
+        return self.thrust
+
+class MockEngine(object):
+    def __init__(self):
+        self.thruster = MockThruster()
+        self.throttle = 0.48
+
+    def GetThruster(self):
+        return self.thruster
+
+class MockPropulsion(object):
+    def __init__(self):
+        self.engine = MockEngine()
+
+    def GetEngine(self, index):
+        return self.engine 
+
+    def GetNumEngines(self):
+        return 1
+
+class MockFDMExec(object):
+    def __init__(self):
+        self.propagate = MockPropagate()
+        self.auxiliary = MockAuxiliary()
+        self.fcs = MockFCS()
+        self.atmosphere = MockAtmosphere()
+        self.propulsion = MockPropulsion()
+        self.sim_time = 32.45
+        self.dt = 1.0 / 60.0
+
+        self.properties = {
+            "simulation/sim-time-sec": self.sim_time,
+            "atmosphere/P-psf": 456.39,
+            "atmosphere/T-R": 567.32,
+            "aero/qbar-psf": 12233.2,
+            "velocities/p-rad_sec": 1.1,
+            "velocities/q-rad_sec": 2.2,
+            "velocities/r-rad_sec": 3.3,
+            "attitude/heading-true-rad": 0.3,
+            "position/long-gc-deg": 21.63457,
+            "position/lat-gc-deg": 37.34567,
+            "position/h-sl-ft": 32808.4,
+            "velocities/vtrue-kts": 222.45,
+            "propulsion/engine/thrust-lbs": 3452.87,
+            "fcs/throttle-cmd-norm": 0.86,
+            "fcs/rudder-cmd-norm": 0.7,
+            "fcs/elevator-cmd-norm": 0.23,
+            "fcs/aileron-cmd-norm": 0.55,
+            "accelerations/a-pilot-x-ft_sec2": 0.1,
+            "accelerations/a-pilot-y-ft_sec2": 0.2,
+            "accelerations/a-pilot-z-ft_sec2": 0.3
+        }
+
+    def GetPropulsion(self):
+        return self.propulsion
+
+    def GetAtmosphere(self):
+        return self.atmosphere
+
+    def GetAuxiliary(self):
+        return self.auxiliary
+
+    def GetPropagate(self):
+        return self.propagate
+
+    def GetSimTime(self):
+        return self.sim_time
+
+    def GetDeltaT(self):
+        return self.dt
+
+    def GetFCS(self):
+        return self.fcs
+
+    def Resume(self):
+        pass
+
+    def RunIC(self):
+        return True
+
+    def Run(self):
+        return True
+
+    def ProcessMessage(self):
+        pass
+
+    def CheckIncrementalHold(self):
+        pass
+
+    def Hold(self):
+        pass
+
+    def GetPropertyValue(self, property_name):
+        return self.properties[property_name]
+
 class MockFDMModel(object):
     def __init__(self):
         self.properties = {"fcs/aileron-cmd-norm": 0.5555,

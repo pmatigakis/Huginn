@@ -11,6 +11,10 @@ Huginn also requires that you have installed the JSBsim flight dynamics model li
 from http://jsbsim.sourceforge.net/. After you install JSBsim you must create an environment variable
 named JSBSIM_HOME that points to the directory of the JSBSim source code.
 
+You also need to download and install the JSBSim Python binding from the following Github page
+
+https://github.com/pmatigakis/PyJSBSim
+
 The simulator can be installed by downloading the source code and running the following commands on the console.
 
 .. code-block:: bash

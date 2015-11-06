@@ -1,7 +1,9 @@
 import logging
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-from huginn_jsbsim import FGFDMExec
+from PyJSBSim import FGFDMExec, FGTrim, tFull
+
+from huginn.aircraft import Aircraft
 
 fdm_properties = [
     "simulation/sim-time-sec",
@@ -76,6 +78,7 @@ controls_properties = [
 class FDMModel(object):
     """The FDMModel class is the base that defined the methods that must be
     implemented by a flight dynamics model."""
+    __metaclass__ = ABCMeta
 
     @abstractmethod
     def run(self):
@@ -98,81 +101,87 @@ class FDMModel(object):
         pass
 
     @abstractmethod
-    def get_property_value(self, property_name):
-        """Get a flight dynamics model property"""
-        pass
-
-    @abstractmethod
-    def set_property_value(self, property_name, value):
-        """Set a flight dynamics model property"""
+    def get_aircraft(self):
+        """Get the simulated aircraft model"""
         pass
 
     @abstractproperty
     def dt(self):
         """Get the simulation timestep"""
+        pass
+
+    @abstractproperty
+    def sim_time(self):
+        """Get the current simulation time"""
         pass 
 
-class JSBSimFDMModelAdapter(FDMModel):
+class JSBSimFDMModel(FDMModel):
     """This class is a wrapper around JSBSim"""
     def __init__(self, fdmexec):
         FDMModel.__init__(self)
 
         self.fdmexec = fdmexec
+        self.aircraft = Aircraft(fdmexec)
         
     def run(self):
-        self.fdmexec.process_message()
-        self.fdmexec.check_incremental_hold()
+        self.fdmexec.ProcessMessage()
+        self.fdmexec.CheckIncrementalHold()
     
-        return self.fdmexec.run()
+        #print "engine 11 ", self.fdmexec.GetPropulsion().GetEngine(0).GetThrust()
+        #print "engine 22 ", self.fdmexec.GetPropulsion().GetEngine(1).GetThrust()
+    
+        return self.fdmexec.Run()
     
     def reset(self):
         #TODO: The reset procedure needs to be refactored
         logging.debug("Reseting the simulator")
         
         #resume simulation just in case the simulator was paused
-        self.fdmexec.resume()
+        self.fdmexec.Resume()
         
-        if not self.fdmexec.run_ic():
+        if not self.fdmexec.RunIC():
             logging.error("Failed to run initial condition")
             return
 
-        if not self.fdmexec.run():
+        if not self.fdmexec.Run():
             logging.error("Failed to make initial run")
             return
 
         running = True
-        while running and self.fdmexec.get_sim_time() < 0.1:
-            self.fdmexec.process_message()
-            self.fdmexec.check_incremental_hold()
+        while running and self.fdmexec.GetSimTime() < 0.1:
+            self.fdmexec.ProcessMessage()
+            self.fdmexec.CheckIncrementalHold()
 
-            running = self.fdmexec.run()
+            running = self.fdmexec.Run()
 
         if running:
             logging.debug("Trimming the aircraft")
             
-            trim_result = self.fdmexec.trim()
+            trimmer = FGTrim(self.fdmexec, tFull) 
+            trim_result = trimmer.DoTrim()
             
-            self.fdmexec.hold()
+            self.fdmexec.Hold()
             
             return trim_result
         else:
             logging.error("Failed to run up to 0.1 sec")
 
     def pause(self):        
-        self.fdmexec.hold()
+        self.fdmexec.Hold()
 
     def resume(self):
-        self.fdmexec.resume()
+        self.fdmexec.Resume()
     
-    def get_property_value(self, property_name):
-        return self.fdmexec.get_property_value(property_name)
-    
-    def set_property_value(self, property_name, value):
-        self.fdmexec.set_property_value(property_name, value)
+    def get_aircraft(self):
+        return self.aircraft
 
     @property
     def dt(self):
-        return self.fdmexec.get_dt()
+        return self.fdmexec.GetDeltaT()
+
+    @property
+    def sim_time(self):
+        return self.fdmexec.GetSimTime()
 
 class FDMModelCreator(object):
     def __init__(self, dt, latitude, longitude, altitude, airspeed, heading):
@@ -193,28 +202,23 @@ class JSBSimFDMModelCreator(FDMModelCreator):
 
         self.jsbsim_root_path = jsbsim_root_path
 
-        self.aircraft_name = "c172p"
-        self.reset_file = "reset00"
+        self.aircraft_name = "737"
 
     def create_fdm_model(self):
         fdmexec = FGFDMExec()
     
         logging.debug("Using jsbsim data at %s", self.jsbsim_root_path)
     
-        fdmexec.set_root_dir(self.jsbsim_root_path)
-        fdmexec.set_aircraft_path("/aircraft")
-        fdmexec.set_engine_path("/engine")
-        fdmexec.set_systems_path("/systems")
+        fdmexec.SetRootDir(self.jsbsim_root_path)
+        fdmexec.SetAircraftPath("/aircraft")
+        fdmexec.SetEnginePath("/engine")
+        fdmexec.SetSystemsPath("/systems")
     
-        fdmexec.set_dt(self.dt)
+        fdmexec.Setdt(self.dt)
     
-        logging.debug("Will use aircraft %s with reset file %s",
-                      self.aircraft_name,
-                      self.reset_file)
+        logging.debug("Will use aircraft %s", self.aircraft_name)
 
-        fdmexec.load_model(self.aircraft_name)
-
-        fdmexec.load_ic(self.reset_file)
+        fdmexec.LoadModel(self.aircraft_name)
 
         logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
                       self.latitude,
@@ -223,51 +227,35 @@ class JSBSimFDMModelCreator(FDMModelCreator):
                       self.airspeed,
                       self.heading)
 
-        fdmexec.set_property_value("ic/lat-gc-deg", self.latitude)
-        fdmexec.set_property_value("ic/long-gc-deg", self.longitude)
-        fdmexec.set_property_value("ic/h-sl-ft", self.altitude)
-        fdmexec.set_property_value("ic/vt-kts", self.airspeed)
-        fdmexec.set_property_value("ic/psi-true-deg", self.heading)
+        #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
+        #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
 
-        #the following statements will make the aircraft to start it's engine
-        fdmexec.set_property_value("fcs/throttle-cmd-norm", 0.65)
-        fdmexec.set_property_value("fcs/mixture-cmd-norm", 0.87)
-        fdmexec.set_property_value("propulsion/magneto_cmd", 3.0)
-        fdmexec.set_property_value("propulsion/starter_cmd", 1.0)
+        num_engines = fdmexec.GetPropulsion().GetNumEngines()
+        for i in range(num_engines):
+            engine = fdmexec.GetPropulsion().GetEngine(i)
+            engine.SetRunning(True)
 
-        initial_condition_result = fdmexec.run_ic()
+        ic = fdmexec.GetIC()
+        
+        ic.SetVtrueKtsIC(self.airspeed)
+        ic.SetLatitudeDegIC(self.latitude)
+        ic.SetLongitudeDegIC(self.longitude)
+        ic.SetAltitudeASLFtIC(self.altitude)
+        ic.SetPsiDegIC(self.heading)
+
+        #fdmexec.SetPropertyValue("ic/lat-gc-deg", self.latitude)
+        #fdmexec.SetPropertyValue("ic/long-gc-deg", self.longitude)
+        #fdmexec.SetPropertyValue("ic/h-sl-ft", self.altitude)
+        #fdmexec.SetPropertyValue("ic/vt-kts", self.airspeed)
+        #fdmexec.SetPropertyValue("ic/psi-true-deg", self.heading)
+        fdmexec.SetPropertyValue("simulation/do_simple_trim", 1);
+
+        initial_condition_result = fdmexec.RunIC()
 
         if not initial_condition_result:
             logging.error("Failed to set the flight dynamics model's initial condition")
             return None
 
-        running = fdmexec.run()
+        #fdmexec.PrintPropertyCatalog()
 
-        if not running:
-            logging.error("Failed to make initial flight dynamics model run")
-            return None
-
-        #run the simulation for some time before we attempt to trim the aircraft
-        while running and fdmexec.get_sim_time() < 0.1:
-            fdmexec.process_message()
-            fdmexec.check_incremental_hold()
-
-            running = fdmexec.run()
-
-        #trim the aircraft
-        result = fdmexec.trim()
-        if not result:
-            logging.error("Failed to trim the aircraft")
-            return None
-
-        return JSBSimFDMModelAdapter(fdmexec)
-
-class Model(object):
-    __metaclass__ = ABCMeta
-
-    def __init__(self, fdm_model):
-        self.fdm_model = fdm_model
-
-    @abstractmethod
-    def run(self):
-        pass
+        return JSBSimFDMModel(fdmexec)

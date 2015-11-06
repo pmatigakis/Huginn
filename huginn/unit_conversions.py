@@ -18,3 +18,6 @@ def convert_psf_to_pascal(pressure):
 
 def convert_pounds_to_newtons(pounds):
     return pounds * 4.44822162
+
+def convert_libra_to_newtons(libra):
+    return libra * 3.16754795925

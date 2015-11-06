@@ -11,7 +11,6 @@ from twisted.internet.task import LoopingCall
 from twisted.web import server
 from twisted.web.static import File
 
-from huginn.aircraft import Aircraft
 from huginn.http import GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
@@ -22,7 +21,7 @@ from huginn.protocols import SensorDataProtocol, ControlsProtocol,\
 class Simulator(object):
     def __init__(self, fdm_model):
         self.fdm_model = fdm_model
-        self.aircraft = Aircraft(fdm_model)
+        self.aircraft = fdm_model.get_aircraft()
 
     def _update_fdm(self):
         #running = self.fdm_model.run()

@@ -33,11 +33,9 @@ Index  Variable          Unit
 15     dynamic pressure  pascal
 16     roll              degrees
 17     pitch             degrees
-18     engine rpm        rounds per minute
-19     engine thrust     newton
-20     engine power      hp
-21     aileron           -1.0 to 1.0
-22     elevator          -1.0 to 1.0
-23     rudder            -1.0 to 1.0
-24     throttle          0.0 to 1.0
+18     engine thrust     newton
+19     aileron           -1.0 to 1.0
+20     elevator          -1.0 to 1.0
+21     rudder            -1.0 to 1.0
+22     throttle          0.0 to 1.0
 =====  ================  =================

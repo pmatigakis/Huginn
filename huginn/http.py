@@ -2,10 +2,15 @@
 This module contains classes that are used by Huginn's web server
 """
 
+from math import degrees
 import json
 import logging
 
 from twisted.web.resource import Resource
+
+from PyJSBSim import FGTrim, tFull
+from huginn.unit_conversions import convert_feet_to_meters, convert_knots_to_meters_per_sec,\
+    convert_rankine_to_kelvin, convert_psf_to_pascal, convert_libra_to_newtons
 
 class Index(Resource):
     isLeaf = False
@@ -58,6 +63,12 @@ class GPSData(FlightDataResource):
             "airspeed": self.aircraft.gps.airspeed,
             "heading": self.aircraft.gps.heading
         }
+        
+        #print("latitude", gps_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
+        #print("longitude", gps_data["longitude"],  self.aircraft.fdmexec.GetPropertyValue("position/long-gc-deg"))
+        #print("airspeed", gps_data["airspeed"],  convert_knots_to_meters_per_sec(self.aircraft.fdmexec.GetPropertyValue("velocities/vtrue-kts")))
+        #print("altitude", gps_data["altitude"],  convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("position/h-sl-ft")))
+        #print("heading", gps_data["heading"],  degrees(self.aircraft.fdmexec.GetPropertyValue("attitude/heading-true-rad")))
 
         return gps_data
 
@@ -75,6 +86,10 @@ class AccelerometerData(FlightDataResource):
             "z_acceleration": self.aircraft.accelerometer.z_acceleration
         }
 
+        #print("x_acc", accelerometer_data["x_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-x-ft_sec2")))
+        #print("y_acc", accelerometer_data["y_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-y-ft_sec2")))
+        #print("z_acc", accelerometer_data["z_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-z-ft_sec2")))
+
         return accelerometer_data
 
 class GyroscopeData(FlightDataResource):
@@ -91,6 +106,10 @@ class GyroscopeData(FlightDataResource):
             "yaw_rate": self.aircraft.gyroscope.yaw_rate,
         }
 
+        #print("roll_rate", gyroscope_data["roll_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/p-rad_sec")))
+        #print("pitch_rate", gyroscope_data["pitch_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/q-rad_sec")))
+        #print("yaw_rate", gyroscope_data["yaw_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/r-rad_sec")))
+
         return gyroscope_data
 
 class ThermometerData(FlightDataResource):
@@ -104,6 +123,8 @@ class ThermometerData(FlightDataResource):
         thermometer_data = {
             "temperature": self.aircraft.thermometer.temperature,
         }
+
+        #print("temperature", thermometer_data["temperature"], convert_rankine_to_kelvin(self.aircraft.fdmexec.GetPropertyValue("atmosphere/T-R")))
 
         return thermometer_data
 
@@ -119,6 +140,8 @@ class PressureSensorData(FlightDataResource):
             "static_pressure": self.aircraft.pressure_sensor.pressure,
         }
 
+        #print("static_pressule", pressure_sensor_data["static_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("atmosphere/P-psf")))
+
         return pressure_sensor_data
 
 class PitotTubeData(FlightDataResource):
@@ -130,8 +153,10 @@ class PitotTubeData(FlightDataResource):
 
     def get_flight_data(self):
         pitot_tube_data = {
-            "dynamic_pressure": self.aircraft.pitot_tube.pressure,
+            "total_pressure": self.aircraft.pitot_tube.pressure,
         }
+
+        #print("total pressure", pitot_tube_data["total_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("aero/qbar-psf")))
 
         return pitot_tube_data
 
@@ -154,6 +179,14 @@ class InertialNavigationSystemData(FlightDataResource):
             "pitch": self.aircraft.inertial_navigation_system.pitch,
         }
 
+        #print("latitude", inertial_navigation_system_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
+        #print("longitude", inertial_navigation_system_data["longitude"], self.aircraft.fdmexec.GetPropertyValue("position/long-gc-deg"))
+        #print("airspeed", inertial_navigation_system_data["airspeed"],  convert_knots_to_meters_per_sec(self.aircraft.fdmexec.GetPropertyValue("velocities/vtrue-kts")))
+        #print("altitude", inertial_navigation_system_data["altitude"],  convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("position/h-sl-ft")))
+        #print("heading", inertial_navigation_system_data["heading"],  degrees(self.aircraft.fdmexec.GetPropertyValue("attitude/heading-true-rad")))
+        #print("roll", inertial_navigation_system_data["roll"], degrees(self.aircraft.fdmexec.GetPropertyValue("attitude/roll-rad")))
+        #print("pitch", inertial_navigation_system_data["pitch"], degrees(self.aircraft.fdmexec.GetPropertyValue("attitude/pitch-rad")))
+
         return inertial_navigation_system_data
 
 class EngineData(FlightDataResource):
@@ -165,10 +198,12 @@ class EngineData(FlightDataResource):
 
     def get_flight_data(self):
         engine_data = {
-            "engine_rpm": self.aircraft.engine.rpm,
-            "engine_thrust": self.aircraft.engine.thrust,
-            "engine_power": self.aircraft.engine.power,
+            "thrust": self.aircraft.engine.thrust,
+            "throttle": self.aircraft.engine.throttle,
         }
+
+        #print("thrust", engine_data["thrust"], convert_libra_to_newtons(self.aircraft.fdmexec.GetPropertyValue("propulsion/engine/thrust-lbs")))
+        #print("throttle", engine_data["throttle"], self.aircraft.fdmexec.GetPropertyValue("fcs/throttle-cmd-norm"))
 
         return engine_data
 

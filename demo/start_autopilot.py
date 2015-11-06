@@ -54,10 +54,10 @@ class PID(object):
 
 class Autopilot(object):
     def __init__(self):
-        self.waypoints = [[37.955676, 24.001882, 600.0, 40.0],
-                          [37.968399, 23.937509, 700.0, 40.0],
-                          [37.925487, 23.895108, 500.0, 40.0],
-                          [37.907746, 23.946778, 600.0, 40.0]]
+        self.waypoints = [[38.1157082, 24.0426869, 9000.0, 228.0],
+                          [38.2571486, 23.8332827, 9000.0, 228.0],
+                          [38.0710667, 23.3269388, 9000.0, 228.0],
+                          [37.8809147, 23.7118918, 9000.0, 228.0]]
         
         self.current_waypoint_index = 0
     
@@ -164,7 +164,7 @@ class Autopilot(object):
         self.rudder = 0.0
     
     def run(self):
-        if self.distance_from_target() < 100.0:
+        if self.distance_from_target() < 500.0:
             self.current_waypoint_index += 1
             self.current_waypoint_index %= 4
         
@@ -192,7 +192,7 @@ class AutopilotProtocol(DatagramProtocol):
         print("")
             
     def datagramReceived(self, datagram, addr):
-        data = struct.unpack("f" * 24, datagram)
+        data = struct.unpack("f" * 22, datagram)
         
         self.autopilot.latitude = data[1]
         self.autopilot.longitude = data[2]

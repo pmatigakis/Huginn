@@ -5,7 +5,7 @@ import signal
 
 from huginn import configuration
 from huginn.fdm import JSBSimFDMModelCreator
-from huginn.simulator import create_simulation
+from huginn.simulator import Simulator
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -41,15 +41,17 @@ def main():
         print("The JSBSIM_HOME environment variable is not set")
         exit(-1)
 
-    fdm_model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                              dt,
-                                              configuration.INITIAL_LATITUDE,
-                                              configuration.INITIAL_LONGITUDE,
-                                              configuration.INITIAL_ALTITUDE,
-                                              configuration.INITIAL_AIRSPEED,
-                                              configuration.INITIAL_HEADING)
+    model_creator = JSBSimFDMModelCreator(jsbsim_path,
+                                          dt,
+                                          configuration.INITIAL_LATITUDE,
+                                          configuration.INITIAL_LONGITUDE,
+                                          configuration.INITIAL_ALTITUDE,
+                                          configuration.INITIAL_AIRSPEED,
+                                          configuration.INITIAL_HEADING)
 
-    simulator = create_simulation(fdm_model_creator)
+    fdm_model = model_creator.create_fdm_model()
+
+    simulator = Simulator(fdm_model)
 
     if not simulator:
         logging.error("Failed to create simulator object")

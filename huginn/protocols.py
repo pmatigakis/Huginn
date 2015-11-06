@@ -261,8 +261,8 @@ class TelemetryProtocol(Protocol):
             "airspeed", "heading", "x_acceleration", "y_acceleration",
             "z_acceleration", "roll_rate", "pitch_rate", "yaw_rate",
             "temperature", "static_pressure", "dynamic_pressure",
-            "roll", "pitch", "engine_rpm", "engine_thrust",
-            "engine_power", "aileron", "elevator", "rudder", "throttle",
+            "roll", "pitch", "thrust",
+            "aileron", "elevator", "rudder", "throttle",
         ]
 
     def connectionMade(self):
@@ -297,8 +297,8 @@ class TelemetryFactory(Factory):
 
     def get_telemetry_data(self):
         return {
-            "time": self.fdm_model.get_property_value("simulation/sim-time-sec"),
-            "dt": self.fdm_model.get_property_value("simulation/dt"),
+            "time": self.fdm_model.sim_time,
+            "dt": self.fdm_model.dt,
             "latitude": self.aircraft.gps.latitude,
             "longitude": self.aircraft.gps.longitude,
             "altitude": self.aircraft.gps.altitude,
@@ -315,9 +315,7 @@ class TelemetryFactory(Factory):
             "dynamic_pressure": self.aircraft.pitot_tube.pressure,
             "roll": self.aircraft.inertial_navigation_system.roll,
             "pitch": self.aircraft.inertial_navigation_system.pitch,
-            "engine_rpm": self.aircraft.engine.rpm,
-            "engine_thrust": self.aircraft.engine.thrust,
-            "engine_power": self.aircraft.engine.power,
+            "thrust": self.aircraft.engine.thrust,
             "aileron": self.aircraft.controls.aileron,
             "elevator": self.aircraft.controls.elevator,
             "rudder": self.aircraft.controls.rudder,
@@ -380,7 +378,7 @@ class FDMDataProtocol(DatagramProtocol):
 
     def get_fdm_data(self):
         fdm_data = [
-            self.fdm_model.get_property_value("simulation/sim-time-sec"),
+            self.fdm_model.sim_time,
             self.aircraft.gps.latitude,
             self.aircraft.gps.longitude,
             self.aircraft.gps.altitude,
@@ -397,9 +395,7 @@ class FDMDataProtocol(DatagramProtocol):
             self.aircraft.pitot_tube.pressure,
             self.aircraft.inertial_navigation_system.roll,
             self.aircraft.inertial_navigation_system.pitch,
-            self.aircraft.engine.rpm,
             self.aircraft.engine.thrust,
-            self.aircraft.engine.power,
             self.aircraft.controls.aileron,
             self.aircraft.controls.elevator,
             self.aircraft.controls.rudder,

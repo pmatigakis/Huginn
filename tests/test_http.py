@@ -8,12 +8,12 @@ from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         InertialNavigationSystemData, EngineData,\
                         FlightControlsData, SimulatorControl
 
-from mockObjects import MockFDMModel, MockRequest
+from mockObjects import MockRequest, MockFDMExec, MockFDMModel
 
 class TestGPSData(TestCase):
     def test_get_gps_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = GPSData(aircraft)
 
@@ -27,8 +27,8 @@ class TestGPSData(TestCase):
 
 class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = AccelerometerData(aircraft)
 
@@ -40,8 +40,8 @@ class TestAccelerometerData(TestCase):
 
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = GyroscopeData(aircraft)
 
@@ -53,8 +53,8 @@ class TestGyroscopeData(TestCase):
 
 class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = ThermometerData(aircraft)
 
@@ -64,8 +64,8 @@ class TestThermometerData(TestCase):
 
 class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = PressureSensorData(aircraft)
 
@@ -75,19 +75,19 @@ class TestPressureSensorData(TestCase):
 
 class TestPitotTubeData(TestCase):
     def test_get_pitot_tube_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = PitotTubeData(aircraft)
 
         pitot_tube_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.pitot_tube.pressure, pitot_tube_data["dynamic_pressure"], 3)
+        self.assertAlmostEqual(aircraft.pitot_tube.pressure, pitot_tube_data["total_pressure"], 3)
 
 class TestInertialNavigationSystemData(TestCase):
     def test_get_inertial_navigation_system_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = InertialNavigationSystemData(aircraft)
 
@@ -103,21 +103,19 @@ class TestInertialNavigationSystemData(TestCase):
 
 class TestEngineData(TestCase):
     def test_get_engine_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = EngineData(aircraft)
 
         engine_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.engine.rpm, engine_data["engine_rpm"], 3)
-        self.assertAlmostEqual(aircraft.engine.thrust, engine_data["engine_thrust"], 3)
-        self.assertAlmostEqual(aircraft.engine.power, engine_data["engine_power"], 3)
+        self.assertAlmostEqual(aircraft.engine.thrust, engine_data["thrust"], 3)
 
 class TestFlightControlsData(TestCase):
     def test_get_flight_controls_data(self):
-        fdm_model = MockFDMModel()
-        aircraft = Aircraft(fdm_model)
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
 
         resource = FlightControlsData(aircraft)
 
@@ -181,9 +179,9 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_invalid_simulator_command(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
 
-        simulator_control_resource = SimulatorControl(fdm_model)
+        simulator_control_resource = SimulatorControl(fdmexec)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -199,9 +197,9 @@ class TestSimulatorControl(TestCase):
                                                                           "reason": "invalid simulator command"})
 
     def test_invalid_simulator_request(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
 
-        simulator_control_resource = SimulatorControl(fdm_model)
+        simulator_control_resource = SimulatorControl(fdmexec)
 
         simulator_control_resource.send_response = MagicMock()
 

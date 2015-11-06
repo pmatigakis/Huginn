@@ -1,18 +1,4 @@
-from setuptools import setup, Extension
-
-jsbsim_wrapper_extension = Extension("_huginn_jsbsim",
-                                     include_dirs=["jsbsim_wrapper", 
-                                                   "/usr/local/include", 
-                                                   "/usr/local/include/JSBSim",
-                                                   "/usr/include",
-                                                   "/usr/include/JSBSim"],
-                                     sources=["huginn_jsbsim.i", 
-                                              "jsbsim_wrapper/FGFDMExec.cpp"],
-                                     library_dirs=["/usr/local/lib",
-                                                   "/usr/lib"],
-                                     libraries=["JSBSim"],
-                                     swig_opts=['-c++']
-                                     )
+from setuptools import setup
 
 setup(name="huginn",
       version = '0.0.1',
@@ -24,8 +10,13 @@ setup(name="huginn",
                "scripts/huginn_data.py",
                "scripts/huginn_telemetry.py"],
       packages=["huginn"],
-      package_data={'huginn': ['templates/*.html',
+      package_data={'huginn': ['static/*.html',
                                'static/css/*.css',
-                               'static/js/*.js']},
-      ext_modules=[jsbsim_wrapper_extension],
-      py_modules=["huginn_jsbsim"])
+                               'static/js/*.js',
+                               'static/images/*.png',
+                               'static/fonts/*.eot',
+                               'static/fonts/*.woff',
+                               'static/fonts/*.svg]',
+                               'static/fonts/*.woff2',
+                               'static/fonts/*.ttf']}
+      )

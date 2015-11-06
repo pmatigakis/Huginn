@@ -23,7 +23,7 @@ class TestJSBSimFDMModelCreator(TestCase):
 
         self.assertIsNotNone(fdm_model)
 
-class TestJSBSimFDMModelAdapter(TestCase):
+class TestJSBSimFDMModelRun(TestCase):
     def test_run(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 
@@ -45,13 +45,13 @@ class TestJSBSimFDMModelAdapter(TestCase):
         run_result = fdm_model.run()
         self.assertTrue(run_result)
 
-        start_time = fdm_model.get_property_value("simulation/sim-time-sec")
+        start_time = fdm_model.sim_time
 
         self.assertAlmostEqual(start_time, configuration.DT, 6)
 
         run_result = fdm_model.run()
         self.assertTrue(run_result)
 
-        self.assertAlmostEqual(fdm_model.get_property_value("simulation/sim-time-sec"),
+        self.assertAlmostEqual(fdm_model.sim_time,
                                start_time + configuration.DT,
                                6)
