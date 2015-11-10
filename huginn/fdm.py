@@ -81,6 +81,10 @@ class FDMModel(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
+    def load_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):
+        pass
+
+    @abstractmethod
     def run(self):
         """Run the flight dynamics model for one step"""
         pass
@@ -122,6 +126,61 @@ class JSBSimFDMModel(FDMModel):
 
         self.fdmexec = fdmexec
         self.aircraft = Aircraft(fdmexec)
+
+    def load_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):        
+        ic = self.fdmexec.GetIC()
+        
+        ic.SetVtrueKtsIC(airspeed)
+        ic.SetLatitudeDegIC(latitude)
+        ic.SetLongitudeDegIC(longitude)
+        ic.SetAltitudeASLFtIC(altitude)
+        ic.SetPsiDegIC(heading)
+
+        logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
+                      latitude,
+                      longitude,
+                      altitude,
+                      airspeed,
+                      heading)
+
+        return self._reset_fdmexec()
+
+    def _reset_fdmexec(self):
+        #resume simulation just in case the simulator was paused
+        self.fdmexec.Resume()
+        
+        num_engines = self.fdmexec.GetPropulsion().GetNumEngines()
+        for i in range(num_engines):
+            engine = self.fdmexec.GetPropulsion().GetEngine(i)
+            engine.SetRunning(True)
+            
+        initial_condition_result = self.fdmexec.RunIC()
+
+        if not initial_condition_result:
+            logging.error("Failed to set the flight dynamics model's initial condition")
+            return False
+
+        if not self.fdmexec.Run():
+            logging.error("Failed to make initial run")
+            return False
+
+        running = True
+        while running and self.fdmexec.GetSimTime() < 0.1:
+            self.fdmexec.ProcessMessage()
+            self.fdmexec.CheckIncrementalHold()
+
+            running = self.fdmexec.Run()
+
+        if running:
+            trimmer = FGTrim(self.fdmexec, tFull) 
+            trim_result = trimmer.DoTrim()
+            
+            self.fdmexec.Hold()
+            
+            if not trim_result:
+                logging.error("Failed to trim the aircraft")
+            
+            return trim_result
         
     def run(self):
         self.fdmexec.ProcessMessage()
@@ -136,35 +195,7 @@ class JSBSimFDMModel(FDMModel):
         #TODO: The reset procedure needs to be refactored
         logging.debug("Reseting the simulator")
         
-        #resume simulation just in case the simulator was paused
-        self.fdmexec.Resume()
-        
-        if not self.fdmexec.RunIC():
-            logging.error("Failed to run initial condition")
-            return
-
-        if not self.fdmexec.Run():
-            logging.error("Failed to make initial run")
-            return
-
-        running = True
-        while running and self.fdmexec.GetSimTime() < 0.1:
-            self.fdmexec.ProcessMessage()
-            self.fdmexec.CheckIncrementalHold()
-
-            running = self.fdmexec.Run()
-
-        if running:
-            logging.debug("Trimming the aircraft")
-            
-            trimmer = FGTrim(self.fdmexec, tFull) 
-            trim_result = trimmer.DoTrim()
-            
-            self.fdmexec.Hold()
-            
-            return trim_result
-        else:
-            logging.error("Failed to run up to 0.1 sec")
+        return self._reset_fdmexec()
 
     def pause(self):        
         self.fdmexec.Hold()
@@ -184,23 +215,16 @@ class JSBSimFDMModel(FDMModel):
         return self.fdmexec.GetSimTime()
 
 class FDMModelCreator(object):
-    def __init__(self, dt, latitude, longitude, altitude, airspeed, heading):
-        self.dt = dt
+    __metaclass__ = ABCMeta
 
-        self.latitude = latitude
-        self.longitude = longitude
-        self.altitude = altitude
-        self.airspeed = airspeed
-        self.heading = heading
-
-    def create_fdm_model(self, latitude, longitude, altitude, airspeed, heading):
-        return None
+    @abstractmethod
+    def create_fdm_model(self):
+        pass
 
 class JSBSimFDMModelCreator(FDMModelCreator):
-    def __init__(self, jsbsim_root_path, dt, latitude, longitude, altitude, airspeed, heading):
-        FDMModelCreator.__init__(self, dt, latitude, longitude, altitude, airspeed, heading)
-
+    def __init__(self, jsbsim_root_path, dt):
         self.jsbsim_root_path = jsbsim_root_path
+        self.dt = dt
 
         self.aircraft_name = "737"
 
@@ -220,42 +244,7 @@ class JSBSimFDMModelCreator(FDMModelCreator):
 
         fdmexec.LoadModel(self.aircraft_name)
 
-        logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
-                      self.latitude,
-                      self.longitude,
-                      self.altitude,
-                      self.airspeed,
-                      self.heading)
-
         #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
         #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
-
-        num_engines = fdmexec.GetPropulsion().GetNumEngines()
-        for i in range(num_engines):
-            engine = fdmexec.GetPropulsion().GetEngine(i)
-            engine.SetRunning(True)
-
-        ic = fdmexec.GetIC()
-        
-        ic.SetVtrueKtsIC(self.airspeed)
-        ic.SetLatitudeDegIC(self.latitude)
-        ic.SetLongitudeDegIC(self.longitude)
-        ic.SetAltitudeASLFtIC(self.altitude)
-        ic.SetPsiDegIC(self.heading)
-
-        #fdmexec.SetPropertyValue("ic/lat-gc-deg", self.latitude)
-        #fdmexec.SetPropertyValue("ic/long-gc-deg", self.longitude)
-        #fdmexec.SetPropertyValue("ic/h-sl-ft", self.altitude)
-        #fdmexec.SetPropertyValue("ic/vt-kts", self.airspeed)
-        #fdmexec.SetPropertyValue("ic/psi-true-deg", self.heading)
-        fdmexec.SetPropertyValue("simulation/do_simple_trim", 1);
-
-        initial_condition_result = fdmexec.RunIC()
-
-        if not initial_condition_result:
-            logging.error("Failed to set the flight dynamics model's initial condition")
-            return None
-
-        #fdmexec.PrintPropertyCatalog()
 
         return JSBSimFDMModel(fdmexec)

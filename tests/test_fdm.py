@@ -12,12 +12,7 @@ class TestJSBSimFDMModelCreator(TestCase):
             self.fail("Environment variable JSBSIM_HOME is not set")
 
         fdm_model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                                  configuration.DT,
-                                                  configuration.INITIAL_LATITUDE,
-                                                  configuration.INITIAL_LONGITUDE,
-                                                  configuration.INITIAL_ALTITUDE,
-                                                  configuration.INITIAL_AIRSPEED,
-                                                  configuration.INITIAL_HEADING)
+                                                  configuration.DT)
 
         fdm_model = fdm_model_creator.create_fdm_model()
 
@@ -31,24 +26,26 @@ class TestJSBSimFDMModelRun(TestCase):
             self.fail("Environment variable JSBSIM_HOME is not set")
 
         fdm_model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                                  configuration.DT,
-                                                  configuration.INITIAL_LATITUDE,
-                                                  configuration.INITIAL_LONGITUDE,
-                                                  configuration.INITIAL_ALTITUDE,
-                                                  configuration.INITIAL_AIRSPEED,
-                                                  configuration.INITIAL_HEADING)
+                                                  configuration.DT)
 
         fdm_model = fdm_model_creator.create_fdm_model()
 
         self.assertIsNotNone(fdm_model)
 
-        run_result = fdm_model.run()
-        self.assertTrue(run_result)
+        initialization_result = fdm_model.load_initial_conditions(configuration.INITIAL_LATITUDE,
+                                                                  configuration.INITIAL_LONGITUDE,
+                                                                  configuration.INITIAL_ALTITUDE,
+                                                                  configuration.INITIAL_AIRSPEED,
+                                                                  configuration.INITIAL_HEADING)
+
+        self.assertTrue(initialization_result)
 
         start_time = fdm_model.sim_time
 
-        self.assertAlmostEqual(start_time, configuration.DT, 6)
+        self.assertAlmostEqual(start_time, 0.1, 6)
 
+        fdm_model.resume()
+        
         run_result = fdm_model.run()
         self.assertTrue(run_result)
 

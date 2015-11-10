@@ -19,9 +19,27 @@ def get_arguments():
     parser.add_argument("--fdm_port", action="store", default=configuration.FDM_PORT, help="The fdm data port")
     parser.add_argument("--fdm_dt", action="store", default=configuration.FDM_DT, help="The fdm data dt")
     parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
+    parser.add_argument("--fdmmodel", action="store", default="jsbsim", help="The flight dynamics model to use")
 
     return parser.parse_args()
 
+def get_fdm_creator(args):
+    fdm_name = args.fdmmodel
+    
+    if fdm_name == "jsbsim":
+        dt = args.dt
+
+        jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+
+        if not jsbsim_path:
+            logging.error("The JSBSIM_HOME environment variable is not set")
+            print("The JSBSIM_HOME environment variable is not set")
+            return None
+
+        return JSBSimFDMModelCreator(jsbsim_path, dt)
+    else:
+        return None
+    
 def main():
     logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
                         filename="huginn.log",
@@ -32,31 +50,27 @@ def main():
 
     args = get_arguments()
 
-    dt = args.dt
+    fdm_model_creator = get_fdm_creator(args)
 
-    jsbsim_path = os.environ.get("JSBSIM_HOME", None)
-
-    if not jsbsim_path:
-        logging.error("The JSBSIM_HOME environment variable is not set")
-        print("The JSBSIM_HOME environment variable is not set")
+    if not fdm_model_creator:
+        logging.error("Failed to create flight model with name %s", args.fdmmodel)
+        print("Failed to create flight model with name %s" % args.fdmmodel)
         exit(-1)
 
-    model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                          dt,
-                                          configuration.INITIAL_LATITUDE,
-                                          configuration.INITIAL_LONGITUDE,
-                                          configuration.INITIAL_ALTITUDE,
-                                          configuration.INITIAL_AIRSPEED,
-                                          configuration.INITIAL_HEADING)
+    fdm_model = fdm_model_creator.create_fdm_model()
 
-    fdm_model = model_creator.create_fdm_model()
+    initialization_result = fdm_model.load_initial_conditions(configuration.INITIAL_LATITUDE,
+                                                              configuration.INITIAL_LONGITUDE,
+                                                              configuration.INITIAL_ALTITUDE,
+                                                              configuration.INITIAL_AIRSPEED,
+                                                              configuration.INITIAL_HEADING)
+
+    if not initialization_result:
+        logging.error("Failed to create flight model with requested initial conditions")
+        print("Failed to create flight model with requested initial conditions")
+        exit(-1)
 
     simulator = Simulator(fdm_model)
-
-    if not simulator:
-        logging.error("Failed to create simulator object")
-        print("Failed to create simulator object")
-        exit(-1)
 
     simulator.add_fdm_client(args.fdm_host, args.fdm_port, args.fdm_dt)
     simulator.add_sensors_server(args.sensors)
