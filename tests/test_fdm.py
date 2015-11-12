@@ -1,20 +1,17 @@
 from unittest import TestCase
 import os
 
-from huginn.fdm import JSBSimFDMModelCreator
+from huginn.fdm import create_jsbsim_fdm_model
 from huginn import configuration
 
-class TestJSBSimFDMModelCreator(TestCase):
-    def test_create_fdm_model(self):
+class TestJSBSimModelCreation(TestCase):
+    def test_create_jsbsim_fdm_model(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 
         if not jsbsim_path:
             self.fail("Environment variable JSBSIM_HOME is not set")
 
-        fdm_model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                                  configuration.DT)
-
-        fdm_model = fdm_model_creator.create_fdm_model()
+        fdm_model = create_jsbsim_fdm_model(jsbsim_path, configuration.DT, "737")
 
         self.assertIsNotNone(fdm_model)
 
@@ -25,11 +22,7 @@ class TestJSBSimFDMModelRun(TestCase):
         if not jsbsim_path:
             self.fail("Environment variable JSBSIM_HOME is not set")
 
-        fdm_model_creator = JSBSimFDMModelCreator(jsbsim_path,
-                                                  configuration.DT)
-
-        fdm_model = fdm_model_creator.create_fdm_model()
-
+        fdm_model = create_jsbsim_fdm_model(jsbsim_path, configuration.DT, "737")
         self.assertIsNotNone(fdm_model)
 
         initialization_result = fdm_model.load_initial_conditions(configuration.INITIAL_LATITUDE,

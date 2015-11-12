@@ -1,4 +1,5 @@
 import logging
+import os
 from abc import ABCMeta, abstractmethod, abstractproperty
 
 from PyJSBSim import FGFDMExec, FGTrim, tFull
@@ -90,6 +91,11 @@ class FDMModel(object):
         pass
 
     @abstractmethod
+    def trim(self):
+        """Trim the aircraft"""
+        pass
+
+    @abstractmethod
     def reset(self):
         """Reset the flight dynamics model"""
         pass
@@ -145,6 +151,17 @@ class JSBSimFDMModel(FDMModel):
 
         return self._reset_fdmexec()
 
+    def trim(self):
+        trimmer = FGTrim(self.fdmexec, tFull) 
+        trim_result = trimmer.DoTrim()
+        
+        self.fdmexec.Hold()
+        
+        if not trim_result:
+            logging.error("Failed to trim the aircraft")
+        
+        return trim_result
+
     def _reset_fdmexec(self):
         #resume simulation just in case the simulator was paused
         self.fdmexec.Resume()
@@ -171,16 +188,7 @@ class JSBSimFDMModel(FDMModel):
 
             running = self.fdmexec.Run()
 
-        if running:
-            trimmer = FGTrim(self.fdmexec, tFull) 
-            trim_result = trimmer.DoTrim()
-            
-            self.fdmexec.Hold()
-            
-            if not trim_result:
-                logging.error("Failed to trim the aircraft")
-            
-            return trim_result
+        return running
         
     def run(self):
         self.fdmexec.ProcessMessage()
@@ -195,7 +203,12 @@ class JSBSimFDMModel(FDMModel):
         #TODO: The reset procedure needs to be refactored
         logging.debug("Reseting the simulator")
         
-        return self._reset_fdmexec()
+        reset_result = self._reset_fdmexec()
+        
+        if reset_result:
+            return self.trim()
+        else:
+            return False
 
     def pause(self):        
         self.fdmexec.Hold()
@@ -214,37 +227,31 @@ class JSBSimFDMModel(FDMModel):
     def sim_time(self):
         return self.fdmexec.GetSimTime()
 
-class FDMModelCreator(object):
-    __metaclass__ = ABCMeta
+def create_jsbsim_fdm_model(jsbsim_path, dt, aircraft_name):
+    fdmexec = FGFDMExec()
 
-    @abstractmethod
-    def create_fdm_model(self):
-        pass
+    logging.debug("Using jsbsim data at %s", jsbsim_path)
 
-class JSBSimFDMModelCreator(FDMModelCreator):
-    def __init__(self, jsbsim_root_path, dt):
-        self.jsbsim_root_path = jsbsim_root_path
-        self.dt = dt
+    fdmexec.SetRootDir(jsbsim_path)
+    fdmexec.SetAircraftPath("/aircraft")
+    fdmexec.SetEnginePath("/engine")
+    fdmexec.SetSystemsPath("/systems")
 
-        self.aircraft_name = "737"
+    fdmexec.Setdt(dt)
 
-    def create_fdm_model(self):
-        fdmexec = FGFDMExec()
-    
-        logging.debug("Using jsbsim data at %s", self.jsbsim_root_path)
-    
-        fdmexec.SetRootDir(self.jsbsim_root_path)
-        fdmexec.SetAircraftPath("/aircraft")
-        fdmexec.SetEnginePath("/engine")
-        fdmexec.SetSystemsPath("/systems")
-    
-        fdmexec.Setdt(self.dt)
-    
-        logging.debug("Will use aircraft %s", self.aircraft_name)
+    logging.debug("Will use aircraft %s", aircraft_name)
 
-        fdmexec.LoadModel(self.aircraft_name)
+    fdmexec.LoadModel(aircraft_name)
 
-        #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
-        #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
+    #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
+    #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
 
-        return JSBSimFDMModel(fdmexec)
+    return JSBSimFDMModel(fdmexec)
+
+def create_fdmmodel(fdm_model_name, aircraft_name, dt):    
+    if fdm_model_name == "jsbsim":
+        jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+        
+        return create_jsbsim_fdm_model(jsbsim_path, dt, aircraft_name) 
+    else:
+        return None
