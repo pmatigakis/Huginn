@@ -1,12 +1,12 @@
 from argparse import ArgumentParser
 
-from huginn.configuration import HUGINN_HOST, WEB_SERVER_PORT
+from huginn.configuration import WEB_SERVER_PORT
 from huginn.control import SimulatorControlClient
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator control")
     
-    parser.add_argument("--host", action="store", default=HUGINN_HOST, help="the simulator ip address")
+    parser.add_argument("--host", action="store", default="127.0.0.1", help="the simulator ip address")
     parser.add_argument("--port", action="store", default=WEB_SERVER_PORT, type=int, help="the flight dynamics RPC port")
     parser.add_argument("command", action="store",
                         choices=["pause", "resume", "reset"], 

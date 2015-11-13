@@ -6,12 +6,15 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 
 from huginn import configuration 
 from huginn.protocols import TelemetryClientFactory
+from huginn.validators import telemetry_endpoint
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn telemetry capturin utility")
 
-    parser.add_argument("--host", default=configuration.HUGINN_HOST, help="Huginn simulator address")
-    parser.add_argument("--port", default=configuration.TELEMETRY_PORT, help="Telemetry port")
+    telemetry_port, telemetry_update_rate = telemetry_endpoint(configuration.TELEMETRY_ENDPOINT)
+
+    parser.add_argument("--host", default="127.0.0.1", help="Huginn simulator address")
+    parser.add_argument("--port", default=telemetry_port, help="Telemetry port")
     parser.add_argument("output", help="the output file")
 
     return parser.parse_args()

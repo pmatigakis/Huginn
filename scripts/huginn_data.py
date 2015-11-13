@@ -2,12 +2,12 @@ from argparse import ArgumentParser
 import requests
 import json
 
-from huginn.configuration import WEB_SERVER_PORT, HUGINN_HOST
+from huginn.configuration import WEB_SERVER_PORT
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator data viewer")
 
-    parser.add_argument("--host", action="store", default=HUGINN_HOST, help="the simulator ip address")
+    parser.add_argument("--host", action="store", default="127.0.0.1", help="the simulator ip address")
     parser.add_argument("--port", action="store", default=WEB_SERVER_PORT, type=int, help="the flight dynamics model http port")
 
     return parser.parse_args()

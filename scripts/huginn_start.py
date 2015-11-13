@@ -5,22 +5,20 @@ import signal
 from huginn import configuration
 from huginn.fdm import create_fdmmodel
 from huginn.simulator import Simulator
+from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
 
     parser.add_argument("--dt", action="store", type=float, default=configuration.DT, help="The simulation timestep")
-    parser.add_argument("--telemetry", action="store", default=configuration.TELEMETRY_PORT, help="The telemetry port")
-    parser.add_argument("--telemetry_dt", action="store", type=float, default=configuration.TELEMETRY_UPDATE_RATE, help="The telemetry update rate")
-    parser.add_argument("--http", action="store", default=configuration.WEB_SERVER_PORT, help="The web server port")
-    parser.add_argument("--sensors", action="store", default=configuration.SENSORS_PORT, help="The sensors data port")
-    parser.add_argument("--fdm_host", action="store", default=configuration.FDM_HOST, help="The fdm data host")
-    parser.add_argument("--fdm_port", action="store", default=configuration.FDM_PORT, help="The fdm data port")
-    parser.add_argument("--fdm_dt", action="store", type=float, default=configuration.FDM_DT, help="The fdm data dt")
-    parser.add_argument("--controls", action="store", default=configuration.CONTROLS_PORT, help="The controls port")
+    parser.add_argument("--telemetry", action="store", type=telemetry_endpoint, default=configuration.TELEMETRY_ENDPOINT, help="The telemetry endpoint")
+    parser.add_argument("--http", action="store", type=port_number, default=configuration.WEB_SERVER_PORT, help="The web server port")
+    parser.add_argument("--sensors", action="store", type=port_number, default=configuration.SENSORS_PORT, help="The sensors data port")
+    parser.add_argument("--fdm", action="store", type=fdm_data_endpoint, default=configuration.FDM_ENDPOINT, help="The fdm data endpoint")
+    parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
     parser.add_argument("--fdmmodel", action="store", default="jsbsim", help="The flight dynamics model to use")
     parser.add_argument("--aircraft", action="store", default="737", help="The aircraft model to use")
-    parser.add_argument("--latitude", action="store", default=configuration.INITIAL_LATITUDE, help="The starting latitude")
+    parser.add_argument("--latitude", action="store", type=float, default=configuration.INITIAL_LATITUDE, help="The starting latitude")
     parser.add_argument("--longitude", action="store", type=float, default=configuration.INITIAL_LONGITUDE, help="The starting longitude")
     parser.add_argument("--altitude", action="store", type=float, default=configuration.INITIAL_ALTITUDE, help="The starting altitude")
     parser.add_argument("--airspeed", action="store", type=float, default=configuration.INITIAL_AIRSPEED, help="The starting airspeed")
@@ -65,11 +63,44 @@ def main():
 
     simulator = Simulator(fdm_model)
 
-    simulator.add_fdm_client(args.fdm_host, args.fdm_port, args.fdm_dt)
+    used_ports = set()
+
+    fdm_host, fdm_port, fdm_dt = args.fdm 
+    simulator.add_fdm_client(fdm_host, fdm_port, fdm_dt)
+    used_ports.add(fdm_port)
+
+    if args.sensors in used_ports:
+        logging.error("Sensor port %d is already used", args.sensors)
+        print("Sensor port %d is already used" % args.sensors)
+        exit(-1)
+
     simulator.add_sensors_server(args.sensors)
+    used_ports.add(args.sensors)
+
+    if args.controls in used_ports:
+        logging.error("Controls port %d is already used", args.controls)
+        print("Controls port %d is already used" % args.controls)
+        exit(-1)
+
     simulator.add_controls_server(args.controls)
+    used_ports.add(args.controls)
+
+    if args.http in used_ports:
+        logging.error("Http port %d is already used", args.http)
+        print("Http port %d is already used" % args.http)
+        exit(-1)
+
     simulator.add_web_server(args.http)
-    simulator.add_telemetry_server(args.telemetry, args.telemetry_dt)
+    used_ports.add(args.http)
+
+    telemetry_port, telemetry_update_rate = args.telemetry
+    
+    if telemetry_port in used_ports:
+        logging.error("Telemetry port %d is already used", telemetry_port)
+        print("Telemetry port %d is already used" % telemetry_port)
+        exit(-1)
+
+    simulator.add_telemetry_server(telemetry_port, telemetry_update_rate)
 
     signal.signal(signal.SIGTERM, simulator.shutdown)
 
