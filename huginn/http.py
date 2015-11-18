@@ -266,6 +266,7 @@ class SimulatorControl(Resource):
         elif simulator_command == "reset":
             logging.debug("Reseting the simulator")
             self.fdm_model.reset()
+            self.fdm_model.pause()
         else:
             logging.error("Invalid simulator command %s", simulator_command)
             return self.invalid_command(request, simulator_command)

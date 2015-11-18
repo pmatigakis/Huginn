@@ -17,11 +17,11 @@ def get_arguments():
     parser.add_argument("--fdm", action="store", type=fdm_data_endpoint, default=configuration.FDM_ENDPOINT, help="The fdm data endpoint")
     parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
     parser.add_argument("--fdmmodel", action="store", default="jsbsim", help="The flight dynamics model to use")
-    parser.add_argument("--aircraft", action="store", default="737", help="The aircraft model to use")
+    parser.add_argument("--aircraft", action="store", default="c172p", help="The aircraft model to use")
     parser.add_argument("--latitude", action="store", type=float, default=configuration.INITIAL_LATITUDE, help="The starting latitude")
     parser.add_argument("--longitude", action="store", type=float, default=configuration.INITIAL_LONGITUDE, help="The starting longitude")
-    parser.add_argument("--altitude", action="store", type=float, default=configuration.INITIAL_ALTITUDE, help="The starting altitude")
-    parser.add_argument("--airspeed", action="store", type=float, default=configuration.INITIAL_AIRSPEED, help="The starting airspeed")
+    parser.add_argument("--altitude", action="store", type=float, required=True, help="The starting altitude")
+    parser.add_argument("--airspeed", action="store", type=float, required=True, help="The starting airspeed")
     parser.add_argument("--heading", action="store", type=float, default=configuration.INITIAL_HEADING, help="The starting heading")
 
     return parser.parse_args()
@@ -53,12 +53,12 @@ def main():
         logging.error("Failed to create flight model with requested initial conditions")
         print("Failed to create flight model with requested initial conditions")
         exit(-1)
-
-    trim_result = fdm_model.trim()
+        
+    reset_result = fdm_model.reset()
     
-    if not trim_result:
-        logging.error("Failed to trim the aircraft")
-        print("Failed to trim the aircraft")
+    if not reset_result:
+        logging.error("Failed to reset the simulation")
+        print("Failed to reset the simulation")
         exit(-1)
 
     simulator = Simulator(fdm_model)

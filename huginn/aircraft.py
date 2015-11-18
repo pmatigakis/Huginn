@@ -6,6 +6,8 @@ from abc import ABCMeta, abstractmethod
 import logging
 from math import degrees
 
+from PyJSBSim import tFull, FGTrim
+
 from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_rankine_to_kelvin,
                                      convert_psf_to_pascal,
@@ -256,6 +258,9 @@ class Engine(Model):
 class Aircraft(Model):
     """The Aircraft class is a wrapper around jsbsim that contains data about
     the aircraft state."""
+    
+    __metaclass__ = ABCMeta
+    
     def __init__(self, fdmexec):
         Model.__init__(self, fdmexec)
 
@@ -285,3 +290,64 @@ class Aircraft(Model):
             logging.error("Failed to update the fdm model")
 
         return run_result
+
+    @abstractmethod
+    def start_engines(self):
+        pass
+
+    @abstractmethod
+    def trim(self):
+        pass
+
+class C172P(Aircraft):
+    def __init__(self, fdmexec):
+        Aircraft.__init__(self, fdmexec)
+
+    def start_engines(self):
+        engine = self.fdmexec.GetPropulsion().GetEngine(0)
+        engine.SetRunning(True)
+        
+        self.fdmexec.SetPropertyValue("fcs/throttle-cmd-norm", 0.5)
+        self.fdmexec.SetPropertyValue("fcs/mixture-cmd-norm", 1.0)
+        self.fdmexec.SetPropertyValue("propulsion/magneto_cmd", 3.0)
+        self.fdmexec.SetPropertyValue("propulsion/starter_cmd", 1.0)
+
+        start_time = self.fdmexec.GetSimTime()
+        engine_start_delay = 5.0
+
+        running = True
+        while running and self.fdmexec.GetSimTime() < start_time + engine_start_delay:
+            running = self.run()
+
+        if self.engine.thrust > 0.0:
+            return running
+        else:
+            #return False
+            return True
+
+    def trim(self):
+        self.fdmexec.DoSimplexTrim(tFull)
+
+        return True
+
+class Boing737(Aircraft):
+    def __init__(self, fdmexec):
+        Aircraft.__init__(self, fdmexec)
+
+    def start_engines(self):
+        num_engines = self.fdmexec.GetPropulsion().GetNumEngines()
+        for i in range(num_engines):
+            engine = self.fdmexec.GetPropulsion().GetEngine(i)
+            engine.SetRunning(True)
+
+    def trim(self):
+        trimmer = FGTrim(self.fdmexec, tFull)
+        trim_result = trimmer.DoTrim()
+
+        if not trim_result:
+            logging.error("Failed to trim the aircraft")
+
+        trimmer.Report()
+
+        return trim_result
+

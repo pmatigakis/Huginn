@@ -13,3 +13,4 @@ huginn.log
 huginn_jsbsim.py
 huginn_jsbsim_wrap.cpp
 _huginn_jsbsim.so
+*.log

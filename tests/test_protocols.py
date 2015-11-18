@@ -11,7 +11,7 @@ from huginn.protocols import SensorDataProtocol, SensorDataRequest,  SensorDataR
     MAGNETOMETER_DATA_REQUEST, THERMOMETER_DATA_REQUEST, PITOT_TUBE_DATA_REQUEST,\
     STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST,\
     TelemetryFactory, TelemetryProtocol, FDMDataProtocol
-from huginn.aircraft import Aircraft
+from huginn.aircraft import C172P
 
 from mockObjects import MockFDMModel, MockFDMExec
 
@@ -19,7 +19,7 @@ class TestSensorDataProtocol(TestCase):
     def test_decode_request(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         sensor_data_protocol = SensorDataProtocol(aircraft)
 
@@ -37,7 +37,7 @@ class TestSensorDataProtocol(TestCase):
     def test_return_error_code_on_invalid_request_datagram(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         sensor_data_protocol = SensorDataProtocol(aircraft)
 
@@ -54,7 +54,7 @@ class TestSensorDataProtocol(TestCase):
     def test_return_error_code_on_invalid_request_command(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         sensor_data_protocol = SensorDataProtocol(aircraft)
             
@@ -71,7 +71,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_gps_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, GPS_DATA_REQUEST)
 
@@ -91,7 +91,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_accelerometer_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, ACCELEROMETER_DATA_REQUEST)
 
@@ -109,7 +109,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_gyroscope_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, GYROSCOPE_DATA_REQUEST)
 
@@ -127,7 +127,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_magnetometer_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, MAGNETOMETER_DATA_REQUEST)
 
@@ -145,7 +145,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_thermometer_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, THERMOMETER_DATA_REQUEST)
 
@@ -161,7 +161,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_pitot_tube_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, PITOT_TUBE_DATA_REQUEST)
 
@@ -177,7 +177,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_static_pressure_data_response(self):
         fdm_model = MockFDMModel()
 
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
 
         request = SensorDataRequest("127.0.0.1", 12345, STATIC_PRESSURE_DATA_REQUEST)
 
@@ -193,7 +193,7 @@ class TestSensorDataProtocol(TestCase):
     def test_create_ins_data_response(self):
         fdm_model = MockFDMModel()
         
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
             
         request = SensorDataRequest("127.0.0.1", 12345, INS_DATA_REQUEST)
             
@@ -237,7 +237,7 @@ class TestControlsProtocol(TestCase):
     def test_datagram_received(self):
         fdm_model = MockFDMModel()
         
-        aircraft = Aircraft(fdm_model)
+        aircraft = C172P(fdm_model)
         
         controls_protocol = ControlsProtocol(aircraft)
         controls_protocol.update_aircraft_controls = MagicMock()
@@ -263,7 +263,7 @@ class TestTelemetryFactory(TestCase):
     def test_get_telemetry_data(self):
         fdmexec = MockFDMExec()
 
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         factory = TelemetryFactory(fdmexec, aircraft)
         protocol = TelemetryProtocol(factory)
@@ -303,7 +303,7 @@ class TestFDMDataProtocol(TestCase):
     def test_get_fdm_data(self):
         fdmexec = MockFDMExec()
 
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         fdm_data_protocol = FDMDataProtocol(fdmexec, aircraft,
                                             "127.0.0.1", 12345)

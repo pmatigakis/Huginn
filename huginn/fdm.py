@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 
 from PyJSBSim import FGFDMExec, FGTrim, tFull
 
-from huginn.aircraft import Aircraft
+from huginn.aircraft import Aircraft, C172P, Boing737
 
 fdm_properties = [
     "simulation/sim-time-sec",
@@ -91,11 +91,6 @@ class FDMModel(object):
         pass
 
     @abstractmethod
-    def trim(self):
-        """Trim the aircraft"""
-        pass
-
-    @abstractmethod
     def reset(self):
         """Reset the flight dynamics model"""
         pass
@@ -127,16 +122,20 @@ class FDMModel(object):
 
 class JSBSimFDMModel(FDMModel):
     """This class is a wrapper around JSBSim"""
-    def __init__(self, fdmexec):
+    def __init__(self, fdmexec, aircraft):
         FDMModel.__init__(self)
 
         self.fdmexec = fdmexec
-        self.aircraft = Aircraft(fdmexec)
+        self.aircraft = aircraft
+
+    def get_aircraft(self):
+        return self.aircraft
 
     def load_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):        
         ic = self.fdmexec.GetIC()
         
-        ic.SetVtrueKtsIC(airspeed)
+        #ic.SetVtrueKtsIC(airspeed)
+        ic.SetVcalibratedKtsIC(airspeed)
         ic.SetLatitudeDegIC(latitude)
         ic.SetLongitudeDegIC(longitude)
         ic.SetAltitudeASLFtIC(altitude)
@@ -151,25 +150,9 @@ class JSBSimFDMModel(FDMModel):
 
         return self._reset_fdmexec()
 
-    def trim(self):
-        trimmer = FGTrim(self.fdmexec, tFull) 
-        trim_result = trimmer.DoTrim()
-        
-        self.fdmexec.Hold()
-        
-        if not trim_result:
-            logging.error("Failed to trim the aircraft")
-        
-        return trim_result
-
     def _reset_fdmexec(self):
         #resume simulation just in case the simulator was paused
         self.fdmexec.Resume()
-        
-        num_engines = self.fdmexec.GetPropulsion().GetNumEngines()
-        for i in range(num_engines):
-            engine = self.fdmexec.GetPropulsion().GetEngine(i)
-            engine.SetRunning(True)
             
         initial_condition_result = self.fdmexec.RunIC()
 
@@ -193,31 +176,36 @@ class JSBSimFDMModel(FDMModel):
     def run(self):
         self.fdmexec.ProcessMessage()
         self.fdmexec.CheckIncrementalHold()
-    
-        #print "engine 11 ", self.fdmexec.GetPropulsion().GetEngine(0).GetThrust()
-        #print "engine 22 ", self.fdmexec.GetPropulsion().GetEngine(1).GetThrust()
-    
+        
         return self.fdmexec.Run()
-    
-    def reset(self):
-        #TODO: The reset procedure needs to be refactored
-        logging.debug("Reseting the simulator")
-        
-        reset_result = self._reset_fdmexec()
-        
-        if reset_result:
-            return self.trim()
-        else:
-            return False
 
-    def pause(self):        
+    def pause(self):
         self.fdmexec.Hold()
 
     def resume(self):
         self.fdmexec.Resume()
-    
-    def get_aircraft(self):
-        return self.aircraft
+
+    def reset(self):
+        logging.debug("Reseting the simulator")
+        
+        reset_result = self._reset_fdmexec()
+        
+        if not reset_result:
+            return False
+
+        engines_started = self.aircraft.start_engines()
+
+        if not engines_started:
+            logging.debug("Failed to start the engines")
+            return False
+
+        trim_result = self.aircraft.trim()
+        
+        if not trim_result:
+            logging.debug("Failed to trim the aircraft")
+        
+        return trim_result
+
 
     @property
     def dt(self):
@@ -243,10 +231,17 @@ def create_jsbsim_fdm_model(jsbsim_path, dt, aircraft_name):
 
     fdmexec.LoadModel(aircraft_name)
 
+    if aircraft_name == "c172p":
+        aircraft = C172P(fdmexec)
+    elif aircraft_name == "737":
+        aircraft = Boing737(fdmexec)
+    else:
+        return None
+
     #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
     #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
 
-    return JSBSimFDMModel(fdmexec)
+    return JSBSimFDMModel(fdmexec, aircraft)
 
 def create_fdmmodel(fdm_model_name, aircraft_name, dt):    
     if fdm_model_name == "jsbsim":

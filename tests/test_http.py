@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from mock import MagicMock, ANY
 
-from huginn.aircraft import Aircraft
+from huginn.aircraft import C172P
 from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
                         InertialNavigationSystemData, EngineData,\
@@ -13,7 +13,7 @@ from mockObjects import MockRequest, MockFDMExec, MockFDMModel
 class TestGPSData(TestCase):
     def test_get_gps_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = GPSData(aircraft)
 
@@ -28,7 +28,7 @@ class TestGPSData(TestCase):
 class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = AccelerometerData(aircraft)
 
@@ -41,7 +41,7 @@ class TestAccelerometerData(TestCase):
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = GyroscopeData(aircraft)
 
@@ -54,7 +54,7 @@ class TestGyroscopeData(TestCase):
 class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = ThermometerData(aircraft)
 
@@ -65,7 +65,7 @@ class TestThermometerData(TestCase):
 class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = PressureSensorData(aircraft)
 
@@ -76,7 +76,7 @@ class TestPressureSensorData(TestCase):
 class TestPitotTubeData(TestCase):
     def test_get_pitot_tube_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = PitotTubeData(aircraft)
 
@@ -87,7 +87,7 @@ class TestPitotTubeData(TestCase):
 class TestInertialNavigationSystemData(TestCase):
     def test_get_inertial_navigation_system_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = InertialNavigationSystemData(aircraft)
 
@@ -104,7 +104,7 @@ class TestInertialNavigationSystemData(TestCase):
 class TestEngineData(TestCase):
     def test_get_engine_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = EngineData(aircraft)
 
@@ -115,7 +115,7 @@ class TestEngineData(TestCase):
 class TestFlightControlsData(TestCase):
     def test_get_flight_controls_data(self):
         fdmexec = MockFDMExec()
-        aircraft = Aircraft(fdmexec)
+        aircraft = C172P(fdmexec)
 
         resource = FlightControlsData(aircraft)
 

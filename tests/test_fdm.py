@@ -35,8 +35,6 @@ class TestJSBSimFDMModelRun(TestCase):
 
         start_time = fdm_model.sim_time
 
-        self.assertAlmostEqual(start_time, 0.1, 6)
-
         fdm_model.resume()
         
         run_result = fdm_model.run()
