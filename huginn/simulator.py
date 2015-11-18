@@ -14,7 +14,8 @@ from twisted.web.static import File
 from huginn.http import GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
-                        EngineData, FlightControlsData, SimulatorControl
+                        EngineData, FlightControlsData, SimulatorControl,\
+                        FDMData
 from huginn.protocols import SensorDataProtocol, ControlsProtocol,\
                              TelemetryFactory, FDMDataProtocol
 
@@ -76,6 +77,7 @@ class Simulator(object):
         root.putChild("ins", InertialNavigationSystemData(self.aircraft))
         root.putChild("engine", EngineData(self.aircraft))
         root.putChild("flight_controls", FlightControlsData(self.aircraft))
+        root.putChild("fdm", FDMData(self.aircraft))
         root.putChild("simulator", SimulatorControl(self.fdm_model))
 
         frontend = server.Site(root)

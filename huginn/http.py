@@ -224,6 +224,38 @@ class FlightControlsData(FlightDataResource):
 
         return flight_controls_data
 
+class FDMData(FlightDataResource):
+    isLeaf = True
+    def __init__(self, aircraft):
+        FlightDataResource.__init__(self, aircraft)
+
+    def get_flight_data(self):
+        flight_data = {
+            "latitude": self.aircraft.gps.latitude,
+            "longitude": self.aircraft.gps.longitude,
+            "altitude": self.aircraft.gps.altitude,
+            "airspeed": self.aircraft.gps.airspeed,
+            "heading": self.aircraft.gps.heading,
+            "x_acceleration": self.aircraft.accelerometer.x_acceleration,
+            "y_acceleration": self.aircraft.accelerometer.y_acceleration,
+            "z_acceleration": self.aircraft.accelerometer.z_acceleration,
+            "roll_rate": self.aircraft.gyroscope.roll_rate,
+            "pitch_rate": self.aircraft.gyroscope.pitch_rate,
+            "yaw_rate": self.aircraft.gyroscope.yaw_rate,
+            "temperature": self.aircraft.thermometer.temperature,
+            "static_pressure": self.aircraft.pressure_sensor.pressure,
+            "total_pressure": self.aircraft.pitot_tube.pressure,
+            "roll": self.aircraft.inertial_navigation_system.roll,
+            "pitch": self.aircraft.inertial_navigation_system.pitch,
+            "thrust": self.aircraft.engine.thrust,
+            "aileron": self.aircraft.controls.aileron,
+            "elevator": self.aircraft.controls.elevator,
+            "rudder": self.aircraft.controls.rudder,
+            "throttle": self.aircraft.engine.throttle,
+        }
+
+        return flight_data
+
 class SimulatorControl(Resource):
     isLeaf = True
 
