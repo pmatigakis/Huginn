@@ -2,15 +2,10 @@
 This module contains classes that are used by Huginn's web server
 """
 
-from math import degrees
 import json
 import logging
 
 from twisted.web.resource import Resource
-
-from PyJSBSim import FGTrim, tFull
-from huginn.unit_conversions import convert_feet_to_meters, convert_knots_to_meters_per_sec,\
-    convert_rankine_to_kelvin, convert_psf_to_pascal, convert_libra_to_newtons
 
 class Index(Resource):
     isLeaf = False

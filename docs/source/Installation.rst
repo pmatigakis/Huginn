@@ -19,7 +19,6 @@ The simulator can be installed by downloading the source code and running the fo
 
 .. code-block:: bash
 
-    python setup.py build_ext
     python setup.py install
 
 Testing
