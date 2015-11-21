@@ -280,14 +280,13 @@ class TelemetryProtocol(Protocol):
             self.have_sent_header = True
 
         telemetry_string = ','.join([str(telemetry_data[value]) for value in self.telemetry_items])
-        
+
         telemetry_string += "\r\n"
-        
+
         self.transport.write(telemetry_string)
 
 class TelemetryFactory(Factory):
-    def __init__(self, fdm_model, aircraft):
-        self.fdm_model = fdm_model
+    def __init__(self, aircraft):
         self.aircraft = aircraft
 
         self.clients = set()
@@ -297,8 +296,8 @@ class TelemetryFactory(Factory):
 
     def get_telemetry_data(self):
         return {
-            "time": self.fdm_model.sim_time,
-            "dt": self.fdm_model.dt,
+            "time": self.aircraft.fdmexec.GetSimTime(),
+            "dt": self.aircraft.fdmexec.GetDeltaT(),
             "latitude": self.aircraft.gps.latitude,
             "longitude": self.aircraft.gps.longitude,
             "altitude": self.aircraft.gps.altitude,
@@ -324,7 +323,7 @@ class TelemetryFactory(Factory):
 
     def update_clients(self):
         telemetry_data = self.get_telemetry_data()
-    
+
         for client in self.clients:
             client.transmit_telemetry_data(telemetry_data)
 
@@ -370,15 +369,14 @@ class TelemetryClientFactory(Factory):
             logging.debug("Ignoring request to write data without having written a header first")
 
 class FDMDataProtocol(DatagramProtocol):
-    def __init__(self, fdm_model, aircraft, remote_host, port):
-        self.fdm_model = fdm_model
+    def __init__(self, aircraft, remote_host, port):
         self.aircraft = aircraft
         self.remote_host = remote_host
         self.port = port
 
     def get_fdm_data(self):
         fdm_data = [
-            self.fdm_model.sim_time,
+            self.aircraft.fdmexec.GetSimTime(),
             self.aircraft.gps.latitude,
             self.aircraft.gps.longitude,
             self.aircraft.gps.altitude,
@@ -404,7 +402,7 @@ class FDMDataProtocol(DatagramProtocol):
 
         return fdm_data
 
-    def send_fdm_data(self):        
+    def send_fdm_data(self):
         fdm_data = self.get_fdm_data()
 
         datagram = struct.pack("f" * len(fdm_data),

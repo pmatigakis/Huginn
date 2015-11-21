@@ -1,68 +1,47 @@
 from unittest import TestCase
 import os
 
-from huginn.fdm import create_jsbsim_fdm_model, create_fdmmodel
+from huginn.fdm import create_aircraft_model
 from huginn import configuration
 
 class TestCreateFDMModel(TestCase):
     def test_fail_to_create_fdm_model_with_unknown_name(self):
-        fdm_model = create_fdmmodel("unknown fdm model", "unknown aircraft", 0.01)
+        fdm_model = create_aircraft_model("unknown fdm model", "unknown aircraft", 0.01)
 
         self.assertIsNone(fdm_model)
 
 class TestJSBSimModelCreation(TestCase):
-    def test_create_jsbsim_fdm_model(self):
+    def test_create_jsbsim_aircraft_model(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 
         if not jsbsim_path:
             self.fail("Environment variable JSBSIM_HOME is not set")
 
-        fdm_model = create_jsbsim_fdm_model(jsbsim_path, configuration.DT, "737")
+        aircraft = create_aircraft_model(jsbsim_path, "737", configuration.DT)
 
-        self.assertIsNotNone(fdm_model)
+        self.assertIsNotNone(aircraft)
 
-class TestJSBSimFDMModel(TestCase):
-    def test_load_initial_conditions(self):
-        jsbsim_path = os.environ.get("JSBSIM_HOME", None)
-
-        if not jsbsim_path:
-            self.fail("Environment variable JSBSIM_HOME is not set")
-
-        fdm_model = create_jsbsim_fdm_model(jsbsim_path, configuration.DT, "737")
-        self.assertIsNotNone(fdm_model)
-
-        initialization_result = fdm_model.load_initial_conditions(configuration.INITIAL_LATITUDE,
-                                                                  configuration.INITIAL_LONGITUDE,
-                                                                  configuration.INITIAL_ALTITUDE,
-                                                                  configuration.INITIAL_AIRSPEED,
-                                                                  configuration.INITIAL_HEADING)
-
-        self.assertTrue(initialization_result)
- 
+class TestJSBSimFDMModel(TestCase): 
     def test_run(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 
         if not jsbsim_path:
             self.fail("Environment variable JSBSIM_HOME is not set")
 
-        fdm_model = create_jsbsim_fdm_model(jsbsim_path, configuration.DT, "737")
-        self.assertIsNotNone(fdm_model)
+        aircraft = create_aircraft_model(jsbsim_path, "737", configuration.DT)
+        self.assertIsNotNone(aircraft)
 
-        initialization_result = fdm_model.load_initial_conditions(configuration.INITIAL_LATITUDE,
-                                                                  configuration.INITIAL_LONGITUDE,
-                                                                  configuration.INITIAL_ALTITUDE,
-                                                                  configuration.INITIAL_AIRSPEED,
-                                                                  configuration.INITIAL_HEADING)
+        aircraft.set_initial_conditions(configuration.INITIAL_LATITUDE,
+                                         configuration.INITIAL_LONGITUDE,
+                                         10000.0,
+                                         200.0,
+                                         configuration.INITIAL_HEADING)
 
-        self.assertTrue(initialization_result)
-
-        start_time = fdm_model.sim_time
-
-        fdm_model.resume()
+        start_time = aircraft.fdmexec.GetSimTime()
         
-        run_result = fdm_model.run()
+        run_result = aircraft.run()
         self.assertTrue(run_result)
 
-        self.assertAlmostEqual(fdm_model.sim_time,
+        self.assertAlmostEqual(aircraft.fdmexec.GetSimTime(),
                                start_time + configuration.DT,
                                6)

@@ -58,7 +58,7 @@ class GPSData(FlightDataResource):
             "airspeed": self.aircraft.gps.airspeed,
             "heading": self.aircraft.gps.heading
         }
-        
+
         #print("latitude", gps_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
         #print("longitude", gps_data["longitude"],  self.aircraft.fdmexec.GetPropertyValue("position/long-gc-deg"))
         #print("airspeed", gps_data["airspeed"],  convert_knots_to_meters_per_sec(self.aircraft.fdmexec.GetPropertyValue("velocities/vtrue-kts")))
@@ -254,9 +254,9 @@ class FDMData(FlightDataResource):
 class SimulatorControl(Resource):
     isLeaf = True
 
-    def __init__(self, fdm_model):
+    def __init__(self, simulator):
         Resource.__init__(self)
-        self.fdm_model = fdm_model
+        self.simulator = simulator
 
     def invalid_request(self, request):
         response_data = {"result": "error",
@@ -286,14 +286,14 @@ class SimulatorControl(Resource):
 
         if simulator_command == "pause":
             logging.debug("Pausing the simulator")
-            self.fdm_model.pause()
+            self.simulator.pause()
         elif simulator_command == "resume":
             logging.debug("Resuming simulation")
-            self.fdm_model.resume()
+            self.simulator.resume()
         elif simulator_command == "reset":
             logging.debug("Reseting the simulator")
-            self.fdm_model.reset()
-            self.fdm_model.pause()
+            self.simulator.reset()
+            self.simulator.pause()
         else:
             logging.error("Invalid simulator command %s", simulator_command)
             return self.invalid_command(request, simulator_command)

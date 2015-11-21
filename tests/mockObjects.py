@@ -1,41 +1,4 @@
-from huginn.fdm import FDMModel
 
-class MockFDMModel(FDMModel):
-    def __init__(self):
-        self._dt = 0.01
-        self._time = 0.0
-        self._paused = True
-
-    def run(self):
-        """Run the flight dynamics model for one step"""
-        if not self._paused:
-            self._time += self._dt
-
-    def reset(self):
-        """Reset the flight dynamics model"""
-        self._time = 0.0
-
-    def pause(self):
-        """Pause the flight dynamics model"""
-        self._paused = True
-
-    def resume(self):
-        """Resume simulation"""
-        self._paused = False
-
-    def get_aircraft(self):
-        """Get the simulated aircraft model"""
-        pass
-
-    @property
-    def dt(self):
-        """Get the simulation timestep"""
-        return self._dt
-
-    @property
-    def sim_time(self):
-        """Get the current simulation time"""
-        return self._time 
 
 class MockAuxiliary(object):
     def __init__(self):

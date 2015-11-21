@@ -105,10 +105,8 @@ class TestEngine(TestCase):
     def test_thrust(self):
         fdmexec = MockFDMExec()        
 
-        engine = Engine(fdmexec)
-        result = engine.run()
-        
-        self.assertTrue(result)
+        engine = Engine()
+        engine.update_from_fdmexec(fdmexec)
 
         thrust = engine.thrust 
 
@@ -119,10 +117,8 @@ class TestEngine(TestCase):
     def test_get_throttle(self):
         fdmexec = MockFDMExec()
 
-        engine = Engine(fdmexec)
-        result = engine.run()
-        
-        self.assertTrue(result)
+        engine = Engine()
+        engine.update_from_fdmexec(fdmexec)
 
         throttle = engine.throttle
 
@@ -134,10 +130,8 @@ class TestGPS(TestCase):
     def test_gps_latitude(self):
         fdmexec = MockFDMExec()
 
-        gps = GPS(fdmexec)
-        result = gps.run()
-
-        self.assertTrue(result)
+        gps = GPS()
+        gps.update_from_fdmexec(fdmexec)
 
         latitude = gps.latitude
 
@@ -148,10 +142,8 @@ class TestGPS(TestCase):
     def test_gps_longitude(self):
         fdmexec = MockFDMExec()
 
-        gps = GPS(fdmexec)
-        result = gps.run()
-
-        self.assertTrue(result)
+        gps = GPS()
+        gps.update_from_fdmexec(fdmexec)
 
         longitude = gps.longitude
 
@@ -162,10 +154,8 @@ class TestGPS(TestCase):
     def test_airspeed(self):
         fdmexec = MockFDMExec()
 
-        gps = GPS(fdmexec)
-        result = gps.run()
-
-        self.assertTrue(result)
+        gps = GPS()
+        gps.update_from_fdmexec(fdmexec)
 
         airspeed = gps.airspeed
 
@@ -177,10 +167,8 @@ class TestGPS(TestCase):
     def test_altitude(self):
         fdmexec = MockFDMExec()
 
-        gps = GPS(fdmexec)
-        result = gps.run()
-
-        self.assertTrue(result)
+        gps = GPS()
+        gps.update_from_fdmexec(fdmexec)
 
         altitude = gps.altitude
 
@@ -191,10 +179,8 @@ class TestGPS(TestCase):
     def test_heading(self):        
         fdmexec = MockFDMExec()
 
-        gps = GPS(fdmexec)
-        result = gps.run()
-
-        self.assertTrue(result)
+        gps = GPS()
+        gps.update_from_fdmexec(fdmexec)
 
         heading = gps.heading
 
@@ -207,10 +193,8 @@ class TestAccelerometer(TestCase):
     def test_x_acceleration(self):        
         fdmexec = MockFDMExec()
 
-        accelerometer = Accelerometer(fdmexec)
-        result = accelerometer.run()
-
-        self.assertTrue(result)
+        accelerometer = Accelerometer()
+        accelerometer.update_from_fdmexec(fdmexec)
 
         acceleration = accelerometer.x_acceleration
 
@@ -222,10 +206,8 @@ class TestAccelerometer(TestCase):
     def test_y_acceleration(self):
         fdmexec = MockFDMExec()
 
-        accelerometer = Accelerometer(fdmexec)
-        result = accelerometer.run()
-
-        self.assertTrue(result)
+        accelerometer = Accelerometer()
+        accelerometer.update_from_fdmexec(fdmexec)
         
         acceleration = accelerometer.y_acceleration
         
@@ -237,10 +219,8 @@ class TestAccelerometer(TestCase):
     def test_z_acceleration(self):
         fdmexec = MockFDMExec()
 
-        accelerometer = Accelerometer(fdmexec)
-        result = accelerometer.run()
-
-        self.assertTrue(result)
+        accelerometer = Accelerometer()
+        accelerometer.update_from_fdmexec(fdmexec)
 
         acceleration = accelerometer.z_acceleration
 
@@ -253,10 +233,8 @@ class TestGyroscope(TestCase):
     def test_roll_rate(self):        
         fdmexec = MockFDMExec()
 
-        gyroscope = Gyroscope(fdmexec)
-        result = gyroscope.run() 
-
-        self.assertTrue(result)
+        gyroscope = Gyroscope()
+        gyroscope.update_from_fdmexec(fdmexec)
 
         roll_rate = gyroscope.roll_rate
 
@@ -268,10 +246,8 @@ class TestGyroscope(TestCase):
     def test_pitch_rate(self):
         fdmexec = MockFDMExec()
 
-        gyroscope = Gyroscope(fdmexec)
-        result = gyroscope.run() 
-
-        self.assertTrue(result)
+        gyroscope = Gyroscope()
+        gyroscope.update_from_fdmexec(fdmexec)
 
         pitch_rate = gyroscope.pitch_rate
 
@@ -283,10 +259,8 @@ class TestGyroscope(TestCase):
     def test_yaw_rate(self):
         fdmexec = MockFDMExec()
 
-        gyroscope = Gyroscope(fdmexec)
-        result = gyroscope.run() 
-
-        self.assertTrue(result)
+        gyroscope = Gyroscope()
+        gyroscope.update_from_fdmexec(fdmexec) 
         
         yaw_rate = gyroscope.yaw_rate
         
@@ -299,11 +273,9 @@ class TestThermometer(TestCase):
     def test_temperature(self):
         fdmexec = MockFDMExec()
 
-        thermometer = Thermometer(fdmexec)
-        run_result = thermometer.run()
+        thermometer = Thermometer()
+        thermometer.update_from_fdmexec(fdmexec)
         
-        self.assertTrue(run_result)
-
         temperature = thermometer.temperature
 
         expected_temperature_in_rankine = 567.32
@@ -316,10 +288,8 @@ class TestPressureSensor(TestCase):
     def test_pressure(self):
         fdmexec = MockFDMExec()
 
-        pressure_sensor = PressureSensor(fdmexec)
-        result = pressure_sensor.run()
-        
-        self.assertTrue(result)
+        pressure_sensor = PressureSensor()
+        pressure_sensor.update_from_fdmexec(fdmexec)
         
         pressure = pressure_sensor.pressure
         
@@ -333,10 +303,8 @@ class TestPitotTube(TestCase):
     def test_pressure(self):
         fdmexec = MockFDMExec()
 
-        pitot_tube = PitotTube(fdmexec)
-        result = pitot_tube.run()
-        
-        self.assertTrue(result)
+        pitot_tube = PitotTube()
+        pitot_tube.update_from_fdmexec(fdmexec)
         
         pressure = pitot_tube.pressure
 

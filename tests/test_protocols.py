@@ -265,7 +265,7 @@ class TestTelemetryFactory(TestCase):
 
         aircraft = C172P(fdmexec)
 
-        factory = TelemetryFactory(fdmexec, aircraft)
+        factory = TelemetryFactory(aircraft)
         protocol = TelemetryProtocol(factory)
 
         telemetry_data = factory.get_telemetry_data()
@@ -305,8 +305,7 @@ class TestFDMDataProtocol(TestCase):
 
         aircraft = C172P(fdmexec)
 
-        fdm_data_protocol = FDMDataProtocol(fdmexec, aircraft,
-                                            "127.0.0.1", 12345)
+        fdm_data_protocol = FDMDataProtocol(aircraft, "127.0.0.1", 12345)
 
         fdm_data = fdm_data_protocol.get_fdm_data()
 
