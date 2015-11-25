@@ -1,3 +1,8 @@
+"""
+The huginn.control module contains classes an objects that can be used to
+control the state of the simulator (pause, resume etc)
+"""
+
 import json
 
 import requests

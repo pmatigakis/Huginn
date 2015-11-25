@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import signal
 import os
 
+from twisted.internet.error import CannotListenError
 from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 
@@ -90,41 +91,27 @@ def main():
     fdm_client_address, fdm_client_port, fdm_client_update_rate = args.fdm 
 
     fdm_data_server = FDMDataServer(aircraft, fdm_client_address, fdm_client_port, fdm_client_update_rate)
-    fdm_data_server.start()
-
-    used_ports = set()
     
     sensors_server = SensorsServer(aircraft, args.sensors)
-    sensors_server.start()
-    used_ports.add(args.sensors)
-
-    if args.controls in used_ports:
-        logging.error("Controls port %d is already used", args.controls)
-        print("Controls port %d is already used" % args.controls)
-        exit(-1)
-
+        
     controls_server = ControlsServer(aircraft, args.controls)
-    controls_server.start()
-    used_ports.add(args.controls)
-
-    if args.http in used_ports:
-        logging.error("Http port %d is already used", args.http)
-        print("Http port %d is already used" % args.http)
-        exit(-1)
 
     web_server = WebServer(simulator, aircraft, args.http) 
-    web_server.start()
-    used_ports.add(args.http)
 
     telemetry_port, telemetry_update_rate = args.telemetry
     
-    if telemetry_port in used_ports:
-        logging.error("Telemetry port %d is already used", telemetry_port)
-        print("Telemetry port %d is already used" % telemetry_port)
-        exit(-1)
-
     telemetry_server = TelemetryServer(aircraft, telemetry_port, telemetry_update_rate)
-    telemetry_server.start()
+
+    try:
+        fdm_data_server.start()
+        sensors_server.start()
+        controls_server.start()
+        web_server.start()
+        telemetry_server.start()
+    except CannotListenError as e:
+        logging.error("Failed to listen on port %d", e.port)
+        print("Failed to listen on port %d" % e.port)
+        exit(-1)
 
     signal.signal(signal.SIGTERM, shutdown)
 

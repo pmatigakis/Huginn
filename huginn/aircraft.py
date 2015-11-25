@@ -1,7 +1,8 @@
 """
 The huginn.aircraft module contains classes that wrap the jsbsim object and
-return data about the simulation.
+and provide access to the simulated components of the aircraft.
 """
+
 from abc import ABCMeta, abstractmethod
 import logging
 from math import degrees
@@ -14,10 +15,13 @@ from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_libra_to_newtons)
 
 class Component(object):
+    """The Component class is the base for every part that simulates a part
+    of an aircraft."""
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim.""" 
         pass
 
 class GPS(Component):
@@ -32,6 +36,7 @@ class GPS(Component):
         self.heading = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         propagate = fdmexec.GetPropagate()
 
         self.latitude = propagate.GetLatitudeDeg()
@@ -56,6 +61,7 @@ class Accelerometer(Component):
         self.z_acceleration = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         auxiliary = fdmexec.GetAuxiliary()
 
         self.x_acceleration = convert_feet_to_meters(auxiliary.GetPilotAccel(1))
@@ -74,6 +80,7 @@ class Gyroscope(Component):
         self.yaw_rate = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""        
         auxiliary = fdmexec.GetAuxiliary()
         
         self.roll_rate = degrees(auxiliary.GetEulerRates(1))
@@ -91,6 +98,7 @@ class Thermometer(Component):
         self.temperature = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         #self.temperature = self.fdmexec.GetAuxiliary().GetTAT_C()
         self.temperature = convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature())
 
@@ -103,6 +111,7 @@ class PressureSensor(Component):
         self.pressure = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         self.pressure = convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure())
 
 class PitotTube(Component):
@@ -113,6 +122,7 @@ class PitotTube(Component):
         self.pressure = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         self.pressure = convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure())
 
 class InertialNavigationSystem(Component):
@@ -130,6 +140,7 @@ class InertialNavigationSystem(Component):
         self.heading = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         propagate = fdmexec.GetPropagate()
 
         euler_angles = propagate.GetEulerDeg()
@@ -230,6 +241,7 @@ class Engine(Component):
         self.throttle = 0.0
 
     def update_from_fdmexec(self, fdmexec):
+        """Update the component using data from JSBSim."""
         engine = fdmexec.GetPropulsion().GetEngine(0)
 
         self.thrust = convert_libra_to_newtons(engine.GetThruster().GetThrust())
@@ -269,6 +281,7 @@ class Aircraft(object):
         self.engine.update_from_fdmexec(fdmexec)
 
     def set_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):
+        """Set the initial aircraft conditions"""
         ic = self.fdmexec.GetIC()
 
         #ic.SetVtrueKtsIC(airspeed)
@@ -286,6 +299,7 @@ class Aircraft(object):
                       heading)
 
     def run(self):
+        """Run the simulation"""
         fdmexec = self.fdmexec
 
         fdmexec.ProcessMessage()
@@ -301,11 +315,17 @@ class Aircraft(object):
         return run_result
 
     def reset(self):
+        """Reset the aircraft"""
         ic_result = self.fdmexec.RunIC()
         
         if not ic_result:
             logging.error("Failed to run initial condition")
             return False
+
+        self.controls.aileron = 0.0
+        self.controls.elevator = 0.0
+        self.controls.rudder = 0.0
+        self.controls.throttle = 0.0
 
         running = True
         while running and self.fdmexec.GetSimTime() < self.fdmexec.GetDeltaT() * 10:
@@ -336,17 +356,21 @@ class Aircraft(object):
 
     @abstractmethod
     def start_engines(self):
+        """Start the aircraft's engines"""
         pass
 
     @abstractmethod
     def trim(self):
+        """Trim the aircraft"""
         pass
 
 class C172P(Aircraft):
+    """The C172P class is used to simulate an Cessna 172P"""
     def __init__(self, fdmexec):
         Aircraft.__init__(self, fdmexec)
 
     def start_engines(self):
+        """Start the engines"""
         engine = self.fdmexec.GetPropulsion().GetEngine(0)
         engine.SetRunning(True)
 
@@ -369,21 +393,25 @@ class C172P(Aircraft):
             return True
 
     def trim(self):
+        """Trim the aircraft"""
         self.fdmexec.DoSimplexTrim(tFull)
 
         return True
 
 class Boing737(Aircraft):
+    """The Boing737 is used to simulate an Boing 737"""
     def __init__(self, fdmexec):
         Aircraft.__init__(self, fdmexec)
 
     def start_engines(self):
+        """Start the engines"""
         num_engines = self.fdmexec.GetPropulsion().GetNumEngines()
         for i in range(num_engines):
             engine = self.fdmexec.GetPropulsion().GetEngine(i)
             engine.SetRunning(True)
 
     def trim(self):
+        """Trim the aircraft"""
         trimmer = FGTrim(self.fdmexec, tFull)
         trim_result = trimmer.DoTrim()
 
