@@ -1,7 +1,6 @@
 import csv
 from argparse import ArgumentParser
 
-from twisted.internet.error import ConnectionRefusedError
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ClientEndpoint
 
