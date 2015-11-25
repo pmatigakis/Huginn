@@ -1,7 +1,8 @@
 """
-This module contains classes that are used by Huginn's web server
+This module contains classes that are used by Huginn's web server and web clients
 """
 
+import requests
 import json
 import logging
 
@@ -301,3 +302,47 @@ class SimulatorControl(Resource):
         response_data = {"command": simulator_command, "result": "ok"}
 
         return self.send_response(request, response_data)
+
+class WebClient(object):
+    """The WebClient is used to retrieve flight data from Huginn's web
+    server"""
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def _get_host_url(self, page):
+        return "http://%s:%d/%s" % (self.host, self.port, page)
+
+    def _get_json_data_from_endpoint(self, endpoint):
+        response = requests.get(self._get_host_url(endpoint))
+
+        data = json.loads(response.text)
+
+        return data
+
+    def get_gps_data(self):
+        return self._get_json_data_from_endpoint("gps")
+
+    def get_accelerometer_data(self):
+        return self._get_json_data_from_endpoint("accelerometer")
+
+    def get_gyroscope_data(self):
+        return self._get_json_data_from_endpoint("gyroscope")
+
+    def get_thermometer_data(self):
+        return self._get_json_data_from_endpoint("thermometer")
+
+    def get_pressure_sensor_data(self):
+        return self._get_json_data_from_endpoint("pressure_sensor")
+
+    def get_pitot_tube_data(self):
+        return self._get_json_data_from_endpoint("pitot_tube")
+
+    def get_ins_data(self):
+        return self._get_json_data_from_endpoint("ins")
+
+    def get_engine_data(self):
+        return self._get_json_data_from_endpoint("engine")
+
+    def get_flight_controls(self):
+        return self._get_json_data_from_endpoint("flight_controls")

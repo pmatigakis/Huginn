@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
-import requests
-import json
+from requests import ConnectionError
 
 from huginn.configuration import WEB_SERVER_PORT
+from huginn.http import WebClient
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator data viewer")
@@ -12,10 +12,8 @@ def get_arguments():
 
     return parser.parse_args()
 
-def print_gps_data(host, port):
-    response = requests.get("http://%s:%d/gps" % (host, port))
-
-    data = json.loads(response.text)
+def print_gps_data(web_client):
+    data = web_client.get_gps_data()
 
     print("GPS data")
     print("========")
@@ -25,10 +23,8 @@ def print_gps_data(host, port):
 
     print("")
 
-def print_accelerometer_data(host, port):
-    response = requests.get("http://%s:%d/accelerometer" % (host, port))
-
-    data = json.loads(response.text)
+def print_accelerometer_data(web_client):
+    data = web_client.get_accelerometer_data()
 
     print("Accelerometer data")
     print("========")
@@ -38,10 +34,8 @@ def print_accelerometer_data(host, port):
 
     print("")
 
-def print_gyroscope_data(host, port):
-    response = requests.get("http://%s:%d/gyroscope" % (host, port))
-
-    data = json.loads(response.text)
+def print_gyroscope_data(web_client):
+    data = web_client.get_gyroscope_data()
 
     print("Gyroscope data")
     print("========")
@@ -51,10 +45,8 @@ def print_gyroscope_data(host, port):
 
     print("")
 
-def print_thermometer_data(host, port):
-    response = requests.get("http://%s:%d/thermometer" % (host, port))
-
-    data = json.loads(response.text)
+def print_thermometer_data(web_client):
+    data = web_client.get_thermometer_data()
 
     print("Thermometer data")
     print("========")
@@ -64,10 +56,8 @@ def print_thermometer_data(host, port):
 
     print("")
 
-def print_pressure_sensor_data(host, port):
-    response = requests.get("http://%s:%d/pressure_sensor" % (host, port))
-
-    data = json.loads(response.text)
+def print_pressure_sensor_data(web_client):
+    data = web_client.get_pressure_sensor_data()
 
     print("Pressure sensor data")
     print("========")
@@ -77,10 +67,8 @@ def print_pressure_sensor_data(host, port):
 
     print("")
 
-def print_pitot_tube_data(host, port):
-    response = requests.get("http://%s:%d/pitot_tube" % (host, port))
-
-    data = json.loads(response.text)
+def print_pitot_tube_data(web_client):
+    data = web_client.get_pitot_tube_data()
 
     print("Pitot tube data")
     print("========")
@@ -90,10 +78,8 @@ def print_pitot_tube_data(host, port):
 
     print("")
 
-def print_ins_data(host, port):
-    response = requests.get("http://%s:%d/ins" % (host, port))
-
-    data = json.loads(response.text)
+def print_ins_data(web_client):
+    data = web_client.get_ins_data()
 
     print("Inertial navigation system data")
     print("========")
@@ -103,10 +89,8 @@ def print_ins_data(host, port):
 
     print("")
 
-def print_engine_data(host, port):
-    response = requests.get("http://%s:%d/engine" % (host, port))
-
-    data = json.loads(response.text)
+def print_engine_data(web_client):
+    data = web_client.get_engine_data()
 
     print("Engine data")
     print("========")
@@ -116,10 +100,8 @@ def print_engine_data(host, port):
 
     print("")
 
-def print_flight_controls_data(host, port):
-    response = requests.get("http://%s:%d/flight_controls" % (host, port))
-
-    data = json.loads(response.text)
+def print_flight_controls_data(web_client):
+    data = web_client.get_flight_controls()
 
     print("Flight controls data")
     print("========")
@@ -132,15 +114,20 @@ def print_flight_controls_data(host, port):
 def main():
     args = get_arguments()
 
-    print_gps_data(args.host, args.port)
-    print_accelerometer_data(args.host, args.port)
-    print_gyroscope_data(args.host, args.port)
-    print_thermometer_data(args.host, args.port)
-    print_pressure_sensor_data(args.host, args.port)
-    print_pitot_tube_data(args.host, args.port)
-    print_ins_data(args.host, args.port)
-    print_engine_data(args.host, args.port)
-    print_flight_controls_data(args.host, args.port)
+    web_client = WebClient(args.host, args.port)
+
+    try:
+        print_gps_data(web_client)
+        print_accelerometer_data(web_client)
+        print_gyroscope_data(web_client)
+        print_thermometer_data(web_client)
+        print_pressure_sensor_data(web_client)
+        print_pitot_tube_data(web_client)
+        print_ins_data(web_client)
+        print_engine_data(web_client)
+        print_flight_controls_data(web_client)
+    except ConnectionError:
+        print("Failed to connect to Huginn's web server")
 
 if __name__ == "__main__":
     main()
