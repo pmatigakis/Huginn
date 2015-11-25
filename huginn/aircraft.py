@@ -280,24 +280,6 @@ class Aircraft(object):
         self.inertial_navigation_system.update_from_fdmexec(fdmexec)
         self.engine.update_from_fdmexec(fdmexec)
 
-    def set_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):
-        """Set the initial aircraft conditions"""
-        ic = self.fdmexec.GetIC()
-
-        #ic.SetVtrueKtsIC(airspeed)
-        ic.SetVcalibratedKtsIC(airspeed)
-        ic.SetLatitudeDegIC(latitude)
-        ic.SetLongitudeDegIC(longitude)
-        ic.SetAltitudeASLFtIC(altitude)
-        ic.SetPsiDegIC(heading)
-
-        logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
-                      latitude,
-                      longitude,
-                      altitude,
-                      airspeed,
-                      heading)
-
     def run(self):
         """Run the simulation"""
         fdmexec = self.fdmexec

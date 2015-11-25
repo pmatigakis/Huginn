@@ -1,3 +1,9 @@
+"""
+The huginn.fdm module contains classes and functions that can be used to
+initialize the flight dynamics model and create a model for a simulated
+aircraft
+"""
+
 import logging
 
 from PyJSBSim import FGFDMExec
@@ -74,7 +80,7 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]  
 
-def create_aircraft_model(jsbsim_path, aircraft_name, dt):
+def create_fdmexec(jsbsim_path, dt):
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
@@ -86,6 +92,9 @@ def create_aircraft_model(jsbsim_path, aircraft_name, dt):
 
     fdmexec.Setdt(dt)
 
+    return fdmexec
+
+def create_aircraft_model(fdmexec, aircraft_name):
     logging.debug("Will use aircraft %s", aircraft_name)
 
     fdmexec.LoadModel(aircraft_name)

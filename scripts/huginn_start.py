@@ -10,8 +10,10 @@ from twisted.internet.task import LoopingCall
 from huginn import configuration
 from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
-from huginn.fdm import create_aircraft_model
-from huginn.network import WebServer, TelemetryServer, SensorsServer, ControlsServer, FDMDataServer
+from huginn.fdm import create_aircraft_model, create_fdmexec
+from huginn.network import initialize_controls_server, initialize_fdm_data_server,\
+                           initialize_sensors_server, initialize_telemetry_server,\
+                           initialize_web_server
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -66,23 +68,25 @@ def main():
 
     args = get_arguments()
 
-    aircraft = create_aircraft_model(jsbsim_path, args.aircraft, args.dt)
+    fdmexec = create_fdmexec(jsbsim_path, args.dt)
+
+    aircraft = create_aircraft_model(fdmexec, args.aircraft)
 
     if not aircraft:
         logging.error("Failed to create flight model with name %s using the aircraft %s", args.fdmmodel, args.aircraft)
         print("Failed to create flight model with name %s using the aircraft %s" % args.fdmmodel, args.aircraft)
         exit(-1)
 
-    aircraft.set_initial_conditions(args.latitude,
-                                    args.longitude,
-                                    args.altitude,
-                                    args.airspeed,
-                                    args.heading)
-
     simulator = Simulator(aircraft)
 
+    simulator.set_initial_conditions(args.latitude,
+                                     args.longitude,
+                                     args.altitude,
+                                     args.airspeed,
+                                     args.heading)
+
     reset_result = simulator.reset()
-    
+
     if not reset_result:
         logging.error("Failed to reset the simulation")
         print("Failed to reset the simulation")
@@ -90,24 +94,14 @@ def main():
 
     fdm_client_address, fdm_client_port, fdm_client_update_rate = args.fdm 
 
-    fdm_data_server = FDMDataServer(aircraft, fdm_client_address, fdm_client_port, fdm_client_update_rate)
-    
-    sensors_server = SensorsServer(aircraft, args.sensors)
-        
-    controls_server = ControlsServer(aircraft, args.controls)
-
-    web_server = WebServer(simulator, aircraft, args.http) 
-
     telemetry_port, telemetry_update_rate = args.telemetry
-    
-    telemetry_server = TelemetryServer(aircraft, telemetry_port, telemetry_update_rate)
 
     try:
-        fdm_data_server.start()
-        sensors_server.start()
-        controls_server.start()
-        web_server.start()
-        telemetry_server.start()
+        initialize_fdm_data_server(aircraft, fdm_client_address, fdm_client_port, fdm_client_update_rate)
+        initialize_sensors_server(aircraft, args.sensors)
+        initialize_controls_server(aircraft, args.controls)
+        initialize_web_server(simulator, aircraft, args.http)
+        initialize_telemetry_server(aircraft, telemetry_port, telemetry_update_rate)
     except CannotListenError as e:
         logging.error("Failed to listen on port %d", e.port)
         print("Failed to listen on port %d" % e.port)
