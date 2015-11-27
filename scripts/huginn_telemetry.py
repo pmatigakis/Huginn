@@ -1,4 +1,3 @@
-import csv
 from argparse import ArgumentParser
 
 from twisted.internet import reactor
@@ -6,6 +5,7 @@ from twisted.internet.endpoints import TCP4ClientEndpoint
 
 from huginn import configuration 
 from huginn.protocols import TelemetryClientFactory
+from huginn.io import CSVTelemetryWriter, TelemetryPrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn telemetry capturin utility")
@@ -19,14 +19,22 @@ def get_arguments():
 def main():
     args = get_arguments()
 
-    with open(args.output, "w") as output_file:
-        endpoint = TCP4ClientEndpoint(reactor, args.host, args.port)
+    endpoint = TCP4ClientEndpoint(reactor, args.host, args.port)
 
-        csv_writer = csv.writer(output_file, delimiter=",")
+    factory = TelemetryClientFactory()
 
-        factory = TelemetryClientFactory(csv_writer)
+    endpoint.connect(factory)
 
-        endpoint.connect(factory)
+    with open(args.output, "w") as output_file:    
+        csv_telemetry_writer = CSVTelemetryWriter(output_file)
+        factory.add_telemetry_listener(csv_telemetry_writer)
+
+        telemetry_printer = TelemetryPrinter(
+            variables=["time", "latitude", "longitude", "altitude", "airspeed",
+                       "heading"]
+        )
+
+        factory.add_telemetry_listener(telemetry_printer)
 
         reactor.run()  # @UndefinedVariable
 

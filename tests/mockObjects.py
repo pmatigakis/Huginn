@@ -1,4 +1,4 @@
-
+from huginn.protocols import TelemetryDataListener
 
 class MockAuxiliary(object):
     def __init__(self):
@@ -236,3 +236,13 @@ class MockFDMModel(object):
 class MockRequest(object):
     def __init__(self):
         self.args = {}
+
+class MockTelemetryDataListener(TelemetryDataListener):
+    def __init__(self):
+        TelemetryDataListener.__init__(self)
+
+    def received_telemetry_header(self, header):
+        pass
+
+    def received_telemetry_data(self, data):
+        pass

@@ -4,16 +4,17 @@ from unittest import TestCase
 from mock import MagicMock, ANY
 from hamcrest import close_to
 from hamcrest.library.integration import match_equality
+from twisted.test.proto_helpers import StringTransport
 
 from huginn.protocols import SensorDataProtocol, SensorDataRequest,  SensorDataResponse,  ERROR_CODE,\
     SENSOR_DATA_RESPONCE_OK, ControlsProtocol, GPS_DATA_REQUEST,\
     ACCELEROMETER_DATA_REQUEST, GYROSCOPE_DATA_REQUEST,\
     MAGNETOMETER_DATA_REQUEST, THERMOMETER_DATA_REQUEST, PITOT_TUBE_DATA_REQUEST,\
     STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST,\
-    TelemetryFactory, TelemetryProtocol, FDMDataProtocol
+    TelemetryFactory, TelemetryProtocol, FDMDataProtocol, TelemetryClientFactory
 from huginn.aircraft import C172P
 
-from mockObjects import MockFDMModel, MockFDMExec
+from mockObjects import MockFDMModel, MockFDMExec, MockTelemetryDataListener
 
 class TestSensorDataProtocol(TestCase):
     def test_decode_request(self):
@@ -333,3 +334,37 @@ class TestFDMDataProtocol(TestCase):
         self.assertAlmostEqual(fdm_data[19], aircraft.controls.elevator, 3)
         self.assertAlmostEqual(fdm_data[20], aircraft.controls.rudder, 3)
         self.assertAlmostEqual(fdm_data[21], aircraft.engine.throttle, 3)
+
+class TestTelemetryClientfactory(TestCase):
+    def test_notify_listeners_on_telemetry_data_reception(self):
+        factory = TelemetryClientFactory()
+        protocol = factory.buildProtocol(("127.0.0.1", 0))
+        transport = StringTransport()
+
+        mock_telemetry_data_listener_1 = MockTelemetryDataListener()
+        factory.add_telemetry_listener(mock_telemetry_data_listener_1)
+
+        mock_telemetry_data_listener_2 = MockTelemetryDataListener()
+        factory.add_telemetry_listener(mock_telemetry_data_listener_2)
+
+        protocol.makeConnection(transport)
+
+        mock_telemetry_data_listener_1.received_telemetry_header = MagicMock()
+        mock_telemetry_data_listener_1.received_telemetry_data = MagicMock()
+
+        mock_telemetry_data_listener_2.received_telemetry_header = MagicMock()
+        mock_telemetry_data_listener_2.received_telemetry_data = MagicMock()
+
+        protocol.lineReceived("time,dt,latitude,longitude,altitude,airspeed,heading")
+        protocol.lineReceived("10.0,0.001,35.00000,24.00000,1000.0,50.0,132.12")
+
+        mock_telemetry_data_listener_1.received_telemetry_data.assert_called_with(["10.0", "0.001", "35.00000", "24.00000", "1000.0", "50.0", "132.12"])
+        mock_telemetry_data_listener_2.received_telemetry_data.assert_called_with(["10.0", "0.001", "35.00000", "24.00000", "1000.0", "50.0", "132.12"])
+
+        protocol.lineReceived("10.001,0.001,35.00001,24.00001,1000.1,50.1,132.13")
+
+        mock_telemetry_data_listener_1.received_telemetry_data.assert_called_with(["10.001", "0.001", "35.00001", "24.00001", "1000.1", "50.1", "132.13"])
+        mock_telemetry_data_listener_2.received_telemetry_data.assert_called_with(["10.001", "0.001", "35.00001", "24.00001", "1000.1", "50.1", "132.13"])
+
+        mock_telemetry_data_listener_1.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])
+        mock_telemetry_data_listener_2.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])

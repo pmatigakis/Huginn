@@ -1,9 +1,9 @@
 import struct
 import logging
+from abc import ABCMeta, abstractmethod
 
 from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.protocols.basic import LineReceiver
-from twisted.internet import reactor
 
 #Declare the available commands supported by the fdm data protocol
 GPS_DATA_REQUEST = 0x00
@@ -251,6 +251,8 @@ class ControlsProtocol(DatagramProtocol):
         self.update_aircraft_controls(aileron, elevator, rudder, throttle)
 
 class TelemetryProtocol(Protocol):
+    """The TelemetryProtocol is used to transmit telemetry data on a TCP
+    connection"""
     def __init__(self, factory):
         self.factory = factory
 
@@ -275,7 +277,7 @@ class TelemetryProtocol(Protocol):
         if not self.have_sent_header:
             telemetry_header = ','.join(self.telemetry_items)
             telemetry_header += "\r\n"
-            
+
             self.transport.write(telemetry_header)
             self.have_sent_header = True
 
@@ -286,6 +288,8 @@ class TelemetryProtocol(Protocol):
         self.transport.write(telemetry_string)
 
 class TelemetryFactory(Factory):
+    """The TelemetryFactory class is responsible for the creation of telemetry
+    protocol clients"""
     def __init__(self, aircraft):
         self.aircraft = aircraft
 
@@ -327,7 +331,21 @@ class TelemetryFactory(Factory):
         for client in self.clients:
             client.transmit_telemetry_data(telemetry_data)
 
+class TelemetryDataListener(object):
+    """The TelemetryDataListener class must be subclassed by any object that
+    needs to be notified about the reception of telemetry data"""
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def received_telemetry_header(self, header):
+        pass
+
+    @abstractmethod
+    def received_telemetry_data(self, data):
+        pass
+
 class TelemetryClient(LineReceiver):
+    """The TelemetryClient is used to receive telemetry data"""
     def __init__(self):
         self.header_received = False
 
@@ -335,38 +353,31 @@ class TelemetryClient(LineReceiver):
         data = line.strip().split(",")
 
         if self.header_received:
-            self.write_telemetry_data(data)
+            self.factory.received_telemetry_data(data)
         else:
             self.header_received = True
-            self.write_variable_names(data)
-
-    def connectionLost(self, reason):
-        reactor.callFromThread(reactor.stop)  # @UndefinedVariable
-
-    def write_variable_names(self, variable_names):
-        self.factory.write_variable_names(variable_names)
-
-    def write_telemetry_data(self, telemetry_data):
-        self.factory.write_telemetry_data(telemetry_data)
+            self.factory.received_telemetry_header(data)
 
 class TelemetryClientFactory(Factory):
-    def __init__(self, csv_writer):
-        self.csv_writer = csv_writer
+    """The TelemetryClientFactory is used to create a connection to the
+    telemetry server"""
+    def __init__(self):
         self.protocol = TelemetryClient
-        self.header_written = False
+        self.listeners = []
 
-    def write_variable_names(self, variable_names):
-        if not self.header_written:
-            self.csv_writer.writerow(variable_names)
-            self.header_written = True
-        else:
-            logging.debug("Ignoring request to write header")
+    def add_telemetry_listener(self, listener):
+        self.listeners.append(listener)
 
-    def write_telemetry_data(self, telemetry_data):
-        if self.header_written:
-            self.csv_writer.writerow(telemetry_data)
-        else:
-            logging.debug("Ignoring request to write data without having written a header first")
+    def remove_telemetry_listener(self, listener):
+        self.listeners.remove(listener)
+
+    def received_telemetry_header(self, variable_names):
+        for listener in self.listeners:
+            listener.received_telemetry_header(variable_names)
+
+    def received_telemetry_data(self, telemetry_data):
+        for listener in self.listeners:
+            listener.received_telemetry_data(telemetry_data)
 
 class FDMDataProtocol(DatagramProtocol):
     def __init__(self, aircraft, remote_host, port):
