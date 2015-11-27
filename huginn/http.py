@@ -6,10 +6,7 @@ import requests
 import json
 import logging
 
-from twisted.internet.task import deferLater
 from twisted.web.resource import Resource
-from twisted.web.server import NOT_DONE_YET
-from twisted.internet import reactor
 
 class Index(Resource):
     isLeaf = False
@@ -39,19 +36,13 @@ class FlightDataResource(Resource):
         dictionary containing the requested flight data"""
         pass
 
-    def _return_flight_data(self, flight_data, request):
-        request.responseHeaders.addRawHeader("content-type", "application/json")
-
-        request.write(json.dumps(flight_data))
-
-        request.finish()
-
     def render_GET(self, request):
         """Return the response with the flight data"""
-        d = deferLater(reactor, 0.0, lambda: self.get_flight_data())
-        d.addCallback(self._return_flight_data, request)
+        request.responseHeaders.addRawHeader("content-type", "application/json")
 
-        return NOT_DONE_YET
+        flight_data = self.get_flight_data()
+
+        return json.dumps(flight_data)
 
 class GPSData(FlightDataResource):
     """This resource class will return the gps data in json format"""
