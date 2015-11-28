@@ -1,8 +1,6 @@
-import struct
 from math import radians, sin, cos, asin, sqrt, atan2, pi, fmod, degrees
 
 from twisted.internet import reactor, task
-from twisted.internet.protocol import DatagramProtocol
 
 from huginn.protocols import FDMDataClient, FDMDataListener, ControlsClient 
 
@@ -12,10 +10,10 @@ def haversine_distance(latitude1, longitude1, latitude2, longitude2):
     dLon = radians(longitude2 - longitude1)
     lat1 = radians(latitude1)
     lat2 = radians(latitude2)
- 
+
     a = sin(dLat/2.0)**2.0 + cos(lat1)*cos(lat2)*sin(dLon/2.0)**2.0
     c = 2.0*asin(sqrt(a))
- 
+
     return 1000.0 * (R * c)
 
 def bearing(latitude1, longitude1, latitude2, longitude2):
@@ -25,7 +23,7 @@ def bearing(latitude1, longitude1, latitude2, longitude2):
 
     a = sin(dLon) * cos(lat2)
     b = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
-    
+
     return degrees(fmod(atan2(a, b), 2.0 * pi))
 
 class PID(object):
@@ -35,23 +33,23 @@ class PID(object):
         self.kd = kd
         self.dt = dt
         self.max_error = max_error
-        
+
         self.last_error = 0.0
         self.error_sum = 0.0
 
     def run(self, error):
         self.error_sum += error
-        
+
         if self.error_sum > self.max_error:
             self.error_sum = self.max_error
-        
+
         if self.error_sum < -self.max_error:
             self.error_sum = -self.max_error
-        
+
         result =  error * self.kp + self.ki * self.error_sum * self.dt + self.kd * self.last_error / self.dt;
-        
+
         self.last_error = error
-        
+
         return result
 
 class Autopilot(FDMDataListener):
@@ -62,9 +60,9 @@ class Autopilot(FDMDataListener):
                           [38.2571486, 23.8332827, 9000.0, 228.0],
                           [38.0710667, 23.3269388, 9000.0, 228.0],
                           [37.8809147, 23.7118918, 9000.0, 228.0]]
-        
+
         self.current_waypoint_index = 0
-    
+
         self.latitude = 0.0
         self.longitude = 0.0
         self.altitude = 0.0
@@ -72,46 +70,46 @@ class Autopilot(FDMDataListener):
         self.heading = 0.0
         self.roll = 0.0
         self.pitch = 0.0
-        
+
         self.aileron = 0.0
         self.elevator = 0.0
         self.rudder = 0.0
         self.throttle = 0.0
-        
+
         self.throttle_pid = PID(0.1, 0.05, 0.01, 0.1, 10.0)
         self.pitch_pid = PID(1.0, 0.0, 0.0, 0.1, 50.0)
         self.elevator_pid = PID(0.001, 0.0005, 0.005, 0.1, 10.0) 
         self.roll_pid = PID(1.0, 0.0, 0.0, 0.1, 50.0)
         self.aileron_pid = PID(0.001, 0.0005, 0.005, 0.1, 10.0)
-        
+
     def set_target(self, latitude, longitude, altitude, airspeed):
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude
         self.airspeed = airspeed
-    
+
     def distance_from_target(self):
         target_latitude, target_longitude, target_altitude, target_airspeed = self.waypoints[self.current_waypoint_index]
-        
+
         return haversine_distance(self.latitude, self.longitude, target_latitude, target_longitude)
-    
+
     def bearing_to_waypoint(self):
         target_latitude, target_longitude, target_altitude, target_airspeed = self.waypoints[self.current_waypoint_index]
-        
+
         return bearing(self.latitude, self.longitude, target_latitude, target_longitude)
-    
+
     def update_throttle(self):
         target_airspeed = self.waypoints[self.current_waypoint_index][3]
-        
+
         airspeed_error = target_airspeed - self.airspeed
-        
+
         self.throttle = self.throttle_pid.run(airspeed_error)
-        
+
         if self.throttle > 1.0:
             self.throttle = 1.0
         elif self.throttle < 0.0:
             self.throttle = 0.0 
-    
+
     def update_aileron(self):
         target_bearing = self.bearing_to_waypoint()
 
@@ -119,54 +117,54 @@ class Autopilot(FDMDataListener):
             target_heading = target_bearing
         else:
             target_heading = 360 + target_bearing
-        
+
         #heading_error = target_bearing - self.heading
         heading_error = target_heading - self.heading
-        
+
         #FIXME: this is ugly
         if heading_error > 180.0:
             heading_error = -(heading_error - 180.0 + self.heading)
-        
+
         target_roll = self.roll_pid.run(heading_error)
-        
+
         if target_roll > 20.0:
             target_roll = 20.0
         elif target_roll < -20.0:
             target_roll = -20.0
-        
+
         roll_error = target_roll - self.roll
-        
+
         self.aileron = self.aileron_pid.run(roll_error)
-        
+
         if self.aileron > 1.0:
             self.aileron = 1.0
         elif self.aileron < -1.0:
             self.aileron = -1.0
-            
+
     def update_elevator(self):
         target_altitude = self.waypoints[self.current_waypoint_index][2]
-        
+
         altitude_error = target_altitude - self.altitude 
-        
+
         target_pitch = self.pitch_pid.run(altitude_error)
-        
+
         if target_pitch > 20.0:
             target_pitch = 20.0
         elif target_pitch < -20.0:
             target_pitch = -20.0
 
         pitch_error = target_pitch - self.pitch 
-    
+
         self.elevator = -self.elevator_pid.run(pitch_error)
-        
+
         if self.elevator > 1.0:
             self.elevator = 1.0
         elif self.elevator < -1.0:
             self.elevator = -1.0
-    
+
     def update_rudder(self):
         self.rudder = 0.0
-    
+
     def run(self):
         if self.distance_from_target() < 500.0:
             self.current_waypoint_index += 1
@@ -179,7 +177,7 @@ class Autopilot(FDMDataListener):
 
     def print_log(self):
         waypoint = self.waypoints[self.current_waypoint_index]
-        
+
         print("Going to %f %f" % (waypoint[0], waypoint[1]))
         print("waypoint index %d" % self.current_waypoint_index)
         print("distance from waypoint %f" % self.distance_from_target())

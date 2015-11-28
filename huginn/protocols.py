@@ -422,6 +422,8 @@ class FDMDataProtocol(DatagramProtocol):
         self.transport.write(datagram, (self.remote_host, self.port))
 
 class FDMDataListener(object):
+    """The methods of the FDMDataListener class must be implemented by any
+    object that wants to handle the fdm data received from Huginn"""
     __metaclass = ABCMeta
 
     @abstractmethod
@@ -429,6 +431,7 @@ class FDMDataListener(object):
         pass
 
 class FDMDataClient(DatagramProtocol):
+    """The FDMDataClient is used to receive fdm data from Huginn"""
     def __init__(self):
         self.listeners = []
 
@@ -440,14 +443,38 @@ class FDMDataClient(DatagramProtocol):
 
     def _notify_fdm_data_listeners(self, fdm_data):
         for fdm_data_listener in self.listeners:
-            fdm_data_listener.fdm_data_received(fdm_data)        
+            fdm_data_listener.fdm_data_received(fdm_data)
 
     def datagramReceived(self, datagram, addr):
         fdm_data = decode_fdm_data_datagram(datagram)
 
         self._notify_fdm_data_listeners(fdm_data)
 
+class ControlsClient(DatagramProtocol):
+    """The ControlsClient is used to transmit the updated aircraft controls
+    to Huginn"""
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def startProtocol(self):
+        self.transport.connect(self.host, self.port)
+
+    def send_datagram(self, datagram):
+        self.transport.write(datagram)
+
+    def transmit_controls(self, aileron, elevator, rudder, throttle):
+        """Send the aircraft controls to Huginn"""
+        controls_datagram = struct.pack("!ffff",
+                                        aileron,
+                                        elevator,
+                                        rudder,
+                                        throttle)
+
+        self.send_datagram(controls_datagram)
+
 def decode_fdm_data_datagram(datagram):
+    """Decode a datagram packet that contains the fdm data"""
     data = struct.unpack("f" * 22, datagram)
 
     fdm_data = {
@@ -476,23 +503,3 @@ def decode_fdm_data_datagram(datagram):
     }
 
     return fdm_data
-
-class ControlsClient(DatagramProtocol):
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port        
-
-    def startProtocol(self):
-        self.transport.connect(self.host, self.port)
-
-    def send_datagram(self, datagram):
-        self.transport.write(datagram)
-
-    def transmit_controls(self, aileron, elevator, rudder, throttle):
-        controls_datagram = struct.pack("!ffff", 
-                                        aileron,
-                                        elevator,
-                                        rudder,
-                                        throttle)
-
-        self.send_datagram(controls_datagram)
