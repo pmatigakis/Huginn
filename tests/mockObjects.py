@@ -1,4 +1,6 @@
-from huginn.protocols import TelemetryDataListener
+import struct
+
+from huginn.protocols import TelemetryDataListener, FDMDataListener
 
 class MockAuxiliary(object):
     def __init__(self):
@@ -245,4 +247,93 @@ class MockTelemetryDataListener(TelemetryDataListener):
         pass
 
     def received_telemetry_data(self, data):
+        pass
+
+class MockFDMDataDatagram(object):
+    def __init__(self):
+        self.simulation_time = 10.234
+        self.latitude = 35.00000
+        self.longitude = 24.00000
+        self.altitude = 1000.0
+        self.airspeed = 40.0
+        self.heading = 160.0
+        self.x_acceleration = 0.2
+        self.y_acceleration = 0.1
+        self.z_acceleration = 9.0
+        self.roll_rate = 0.5
+        self.pitch_rate = 1.0
+        self.yaw_rate = 0.3
+        self.temperature = 200.0
+        self.static_pressure = 90000.0
+        self.total_pressure = 91000.0
+        self.roll = 12.0
+        self.pitch = 15.0
+        self.thrust = 600.0
+        self.aileron = 0.6
+        self.elevator = 0.7
+        self.rudder = 0.8
+        self.throttle = 0.9
+
+    def create_datagram(self):
+        fdm_data = [
+            self.simulation_time,
+            self.latitude,
+            self.longitude,
+            self.altitude,
+            self.airspeed,
+            self.heading,
+            self.x_acceleration,
+            self.y_acceleration,
+            self.z_acceleration,
+            self.roll_rate,
+            self.pitch_rate,
+            self.yaw_rate,
+            self.temperature,
+            self.static_pressure,
+            self.total_pressure,
+            self.roll,
+            self.pitch,
+            self.thrust,
+            self.aileron,
+            self.elevator,
+            self.rudder,
+            self.throttle,
+        ]
+
+        return struct.pack("f" * len(fdm_data), *fdm_data)
+
+    def create_invalid_datagram(self):
+        fdm_data = [
+            self.simulation_time,
+            self.latitude,
+            self.longitude,
+            self.altitude,
+            self.airspeed,
+            self.heading,
+            self.x_acceleration,
+            self.y_acceleration,
+            self.z_acceleration,
+            self.roll_rate,
+            self.pitch_rate,
+            self.yaw_rate,
+            self.temperature,
+            self.static_pressure,
+            self.total_pressure,
+            self.roll,
+            self.pitch,
+            self.thrust,
+            self.aileron,
+            self.elevator,
+            self.rudder,
+            self.throttle,
+            0.0
+        ]
+
+        return struct.pack("f" * len(fdm_data), *fdm_data)
+
+class MockFDMDataListener(FDMDataListener):
+    def __init__(self):
+        FDMDataListener.__init__(self)
+
+    def fdm_data_received(self, fdm_data):
         pass

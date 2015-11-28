@@ -4,6 +4,8 @@ from math import radians, sin, cos, asin, sqrt, atan2, pi, fmod, degrees
 from twisted.internet import reactor, task
 from twisted.internet.protocol import DatagramProtocol
 
+from huginn.protocols import FDMDataClient, FDMDataListener, ControlsClient 
+
 def haversine_distance(latitude1, longitude1, latitude2, longitude2):
     R = 6372.8 # Earth radius in kilometers
     dLat = radians(latitude2 - latitude1)
@@ -52,8 +54,10 @@ class PID(object):
         
         return result
 
-class Autopilot(object):
-    def __init__(self):
+class Autopilot(FDMDataListener):
+    def __init__(self, controls_client):
+        self.controls_client = controls_client
+
         self.waypoints = [[38.1157082, 24.0426869, 9000.0, 228.0],
                           [38.2571486, 23.8332827, 9000.0, 228.0],
                           [38.0710667, 23.3269388, 9000.0, 228.0],
@@ -173,58 +177,47 @@ class Autopilot(object):
         self.update_aileron()
         self.update_rudder()
 
-class AutopilotProtocol(DatagramProtocol):
-    def __init__(self):
-        self.autopilot = Autopilot()
-    
     def print_log(self):
-        waypoint = self.autopilot.waypoints[self.autopilot.current_waypoint_index]
+        waypoint = self.waypoints[self.current_waypoint_index]
         
         print("Going to %f %f" % (waypoint[0], waypoint[1]))
-        print("waypoint index %d" % self.autopilot.current_waypoint_index)
-        print("distance from waypoint %f" % self.autopilot.distance_from_target())
-        print("bearing to target %f" % self.autopilot.bearing_to_waypoint())
-        print("course %f" % self.autopilot.heading)
-        print("aIleron %f" % self.autopilot.aileron)
-        print("elevator %f" % self.autopilot.elevator)
-        print("rudder %f" % self.autopilot.rudder)
-        print("throttle %f" % self.autopilot.throttle)
+        print("waypoint index %d" % self.current_waypoint_index)
+        print("distance from waypoint %f" % self.distance_from_target())
+        print("bearing to target %f" % self.bearing_to_waypoint())
+        print("course %f" % self.heading)
+        print("aIleron %f" % self.aileron)
+        print("elevator %f" % self.elevator)
+        print("rudder %f" % self.rudder)
+        print("throttle %f" % self.throttle)
         print("")
-            
-    def datagramReceived(self, datagram, addr):
-        data = struct.unpack("f" * 22, datagram)
-        
-        self.autopilot.latitude = data[1]
-        self.autopilot.longitude = data[2]
-        self.autopilot.altitude = data[3]
-        self.autopilot.airspeed = data[4]
-        self.autopilot.heading = data[5]
 
-        self.autopilot.roll = data[15]
-        self.autopilot.pitch = data[16]
+    def fdm_data_received(self, fdm_data):
+        self.latitude = fdm_data["latitude"]
+        self.longitude = fdm_data["longitude"]
+        self.altitude = fdm_data["altitude"]
+        self.airspeed = fdm_data["airspeed"]
+        self.heading = fdm_data["heading"]
 
-    def run_autopilot(self):
-        self.autopilot.run()
+        self.roll = fdm_data["roll"]
+        self.pitch = fdm_data["pitch"]
 
-        self.send_controls()
-    
-    def send_controls(self):
-        controls_datagram = struct.pack("!ffff", 
-                                        self.autopilot.aileron,
-                                        self.autopilot.elevator,
-                                        self.autopilot.rudder,
-                                        self.autopilot.throttle)
+        self.run()
 
-        self.transport.write(controls_datagram, ("127.0.0.1", 10301))
+        self.controls_client.transmit_controls(self.aileron,
+                                               self.elevator,
+                                               self.rudder,
+                                               self.throttle)
 
-autopilot_protocol = AutopilotProtocol()
+controls_client = ControlsClient("127.0.0.1", 10301)
+reactor.listenUDP(0, controls_client)
 
-reactor.listenUDP(10302, autopilot_protocol)
+autopilot = Autopilot(controls_client)
 
-autopilot_updater = task.LoopingCall(autopilot_protocol.run_autopilot)
-autopilot_updater.start(0.1)
+fdm_data_client = FDMDataClient()
+fdm_data_client.add_fdm_data_listener(autopilot)
+reactor.listenUDP(10302, fdm_data_client)
 
-log_updater = task.LoopingCall(autopilot_protocol.print_log)
+log_updater = task.LoopingCall(autopilot.print_log)
 log_updater.start(1.0)
 
 reactor.run()

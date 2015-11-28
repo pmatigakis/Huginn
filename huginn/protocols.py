@@ -420,3 +420,79 @@ class FDMDataProtocol(DatagramProtocol):
                                *fdm_data)
 
         self.transport.write(datagram, (self.remote_host, self.port))
+
+class FDMDataListener(object):
+    __metaclass = ABCMeta
+
+    @abstractmethod
+    def fdm_data_received(self, fdm_data):
+        pass
+
+class FDMDataClient(DatagramProtocol):
+    def __init__(self):
+        self.listeners = []
+
+    def add_fdm_data_listener(self, listener):
+        self.listeners.append(listener)
+
+    def remove_fdm_data_listener(self, listener):
+        self.listeners.remove(listener)
+
+    def _notify_fdm_data_listeners(self, fdm_data):
+        for fdm_data_listener in self.listeners:
+            fdm_data_listener.fdm_data_received(fdm_data)        
+
+    def datagramReceived(self, datagram, addr):
+        fdm_data = decode_fdm_data_datagram(datagram)
+
+        self._notify_fdm_data_listeners(fdm_data)
+
+def decode_fdm_data_datagram(datagram):
+    data = struct.unpack("f" * 22, datagram)
+
+    fdm_data = {
+        "time": data[0],
+        "latitude": data[1],
+        "longitude": data[2],
+        "altitude": data[3],
+        "airspeed": data[4],
+        "heading": data[5],
+        "x_acceleration": data[6],
+        "y_acceleration": data[7],
+        "z_acceleration": data[8],
+        "roll_rate": data[9],
+        "pitch_rate": data[10],
+        "yaw_rate": data[11],
+        "temperature": data[12],
+        "static_pressure": data[13],
+        "total_pressure": data[14],
+        "roll": data[15],
+        "pitch": data[16],
+        "thrust": data[17],
+        "aileron": data[18],
+        "elevator": data[19],
+        "rudder": data[20],
+        "throttle": data[21]
+    }
+
+    return fdm_data
+
+class ControlsClient(DatagramProtocol):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port        
+
+    def startProtocol(self):
+        self.transport.connect(self.host, self.port)
+
+    def send_datagram(self, datagram):
+        self.transport.write(datagram)
+
+    def transmit_controls(self, aileron, elevator, rudder, throttle):
+        controls_datagram = struct.pack("!ffff", 
+                                        aileron,
+                                        elevator,
+                                        rudder,
+                                        throttle)
+
+        self.send_datagram(controls_datagram)

@@ -1,20 +1,23 @@
 import struct
 from unittest import TestCase
+import math
 
-from mock import MagicMock, ANY
+from mock import MagicMock
 from hamcrest import close_to
 from hamcrest.library.integration import match_equality
-from twisted.test.proto_helpers import StringTransport
+from twisted.test.proto_helpers import StringTransport, FakeDatagramTransport
 
 from huginn.protocols import SensorDataProtocol, SensorDataRequest,  SensorDataResponse,  ERROR_CODE,\
     SENSOR_DATA_RESPONCE_OK, ControlsProtocol, GPS_DATA_REQUEST,\
     ACCELEROMETER_DATA_REQUEST, GYROSCOPE_DATA_REQUEST,\
     MAGNETOMETER_DATA_REQUEST, THERMOMETER_DATA_REQUEST, PITOT_TUBE_DATA_REQUEST,\
     STATIC_PRESSURE_DATA_REQUEST, INS_DATA_REQUEST,\
-    TelemetryFactory, TelemetryProtocol, FDMDataProtocol, TelemetryClientFactory
+    TelemetryFactory, TelemetryProtocol, FDMDataProtocol, TelemetryClientFactory,\
+    decode_fdm_data_datagram, FDMDataClient, ControlsClient
 from huginn.aircraft import C172P
 
-from mockObjects import MockFDMModel, MockFDMExec, MockTelemetryDataListener
+from mockObjects import MockFDMModel, MockFDMExec, MockTelemetryDataListener,\
+                        MockFDMDataDatagram, MockFDMDataListener
 
 class TestSensorDataProtocol(TestCase):
     def test_decode_request(self):
@@ -60,13 +63,13 @@ class TestSensorDataProtocol(TestCase):
         sensor_data_protocol = SensorDataProtocol(aircraft)
             
         sensor_data_protocol.transmit_error_code = MagicMock()
-            
+
         request_datagram = struct.pack("!cc", chr(0x50), chr(0x00))
         host = "127.0.0.1"
         port = 12345
-            
+    
         sensor_data_protocol.datagramReceived(request_datagram, (host, port))
-            
+
         sensor_data_protocol.transmit_error_code.assert_called_once_with(ERROR_CODE, host, port)
 
     def test_create_gps_data_response(self):
@@ -368,3 +371,195 @@ class TestTelemetryClientfactory(TestCase):
 
         mock_telemetry_data_listener_1.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])
         mock_telemetry_data_listener_2.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])
+
+class TestDecodeFDMDataDatagram(TestCase):
+    def test_raise_exception_on_invalid_datagram(self):
+        mock_fdm_datagram = MockFDMDataDatagram()
+
+        fdm_data_datagram = mock_fdm_datagram.create_invalid_datagram()
+
+        self.assertRaises(struct.error, decode_fdm_data_datagram, fdm_data_datagram)
+
+    def test_decode_fdm_data_datagram(self):
+        mock_fdm_datagram = MockFDMDataDatagram()
+
+        fdm_data_datagram = mock_fdm_datagram.create_datagram()
+
+        fdm_data = decode_fdm_data_datagram(fdm_data_datagram)
+
+        self.assertEquals(len(fdm_data), 22)
+        
+        self.assertTrue(fdm_data.has_key("time"))
+        self.assertAlmostEqual(fdm_data["time"], mock_fdm_datagram.simulation_time, 3)
+
+        self.assertTrue(fdm_data.has_key("latitude"))
+        self.assertAlmostEqual(fdm_data["latitude"], mock_fdm_datagram.latitude, 3)
+
+        self.assertTrue(fdm_data.has_key("longitude"))
+        self.assertAlmostEqual(fdm_data["longitude"], mock_fdm_datagram.longitude, 3)
+
+        self.assertTrue(fdm_data.has_key("altitude"))
+        self.assertAlmostEqual(fdm_data["altitude"], mock_fdm_datagram.altitude, 3)
+
+        self.assertTrue(fdm_data.has_key("airspeed"))
+        self.assertAlmostEqual(fdm_data["airspeed"], mock_fdm_datagram.airspeed, 3)
+
+        self.assertTrue(fdm_data.has_key("heading"))
+        self.assertAlmostEqual(fdm_data["heading"], mock_fdm_datagram.heading, 3)
+
+        self.assertTrue(fdm_data.has_key("x_acceleration"))
+        self.assertAlmostEqual(fdm_data["x_acceleration"], mock_fdm_datagram.x_acceleration, 3)
+
+        self.assertTrue(fdm_data.has_key("y_acceleration"))
+        self.assertAlmostEqual(fdm_data["y_acceleration"], mock_fdm_datagram.y_acceleration, 3)
+
+        self.assertTrue(fdm_data.has_key("z_acceleration"))
+        self.assertAlmostEqual(fdm_data["z_acceleration"], mock_fdm_datagram.z_acceleration, 3)
+
+        self.assertTrue(fdm_data.has_key("roll_rate"))
+        self.assertAlmostEqual(fdm_data["roll_rate"], mock_fdm_datagram.roll_rate, 3)
+
+        self.assertTrue(fdm_data.has_key("pitch_rate"))
+        self.assertAlmostEqual(fdm_data["pitch_rate"], mock_fdm_datagram.pitch_rate, 3)
+
+        self.assertTrue(fdm_data.has_key("yaw_rate"))
+        self.assertAlmostEqual(fdm_data["yaw_rate"], mock_fdm_datagram.yaw_rate, 3)
+
+        self.assertTrue(fdm_data.has_key("temperature"))
+        self.assertAlmostEqual(fdm_data["temperature"], mock_fdm_datagram.temperature, 3)
+
+        self.assertTrue(fdm_data.has_key("static_pressure"))
+        self.assertAlmostEqual(fdm_data["static_pressure"], mock_fdm_datagram.static_pressure, 3)
+
+        self.assertTrue(fdm_data.has_key("total_pressure"))
+        self.assertAlmostEqual(fdm_data["total_pressure"], mock_fdm_datagram.total_pressure, 3)
+
+        self.assertTrue(fdm_data.has_key("roll"))
+        self.assertAlmostEqual(fdm_data["roll"], mock_fdm_datagram.roll, 3)
+
+        self.assertTrue(fdm_data.has_key("pitch"))
+        self.assertAlmostEqual(fdm_data["pitch"], mock_fdm_datagram.pitch, 3)
+
+        self.assertTrue(fdm_data.has_key("thrust"))
+        self.assertAlmostEqual(fdm_data["thrust"], mock_fdm_datagram.thrust, 3)
+
+        self.assertTrue(fdm_data.has_key("aileron"))
+        self.assertAlmostEqual(fdm_data["aileron"], mock_fdm_datagram.aileron, 3)
+
+        self.assertTrue(fdm_data.has_key("elevator"))
+        self.assertAlmostEqual(fdm_data["elevator"], mock_fdm_datagram.elevator, 3)
+
+        self.assertTrue(fdm_data.has_key("rudder"))
+        self.assertAlmostEqual(fdm_data["rudder"], mock_fdm_datagram.rudder, 3)
+
+        self.assertTrue(fdm_data.has_key("throttle"))
+        self.assertAlmostEqual(fdm_data["throttle"], mock_fdm_datagram.throttle, 3)
+
+def isclose(number_1, number_2, tolerance):
+    d = math.fabs(number_1 - number_2)
+    
+    if d > tolerance:
+        return False
+    
+    return True
+
+class FDMDataMatcher(object):
+    def __eq__(self, fdm_data):
+        mock_fdm_data_datagram = MockFDMDataDatagram()
+
+        if len(fdm_data) != 22:
+            return False
+
+        if not fdm_data.has_key("time"): return False
+        if not isclose(fdm_data["time"], mock_fdm_data_datagram.simulation_time, 0.001): return False
+
+        if not fdm_data.has_key("latitude"): return False
+        if not isclose(fdm_data["latitude"], mock_fdm_data_datagram.latitude, 0.001): return False
+
+        if not fdm_data.has_key("longitude"): return False
+        if not isclose(fdm_data["longitude"], mock_fdm_data_datagram.longitude, 0.001): return False
+
+        if not fdm_data.has_key("altitude"): return False
+        if not isclose(fdm_data["altitude"], mock_fdm_data_datagram.altitude, 0.001): return False
+
+        if not fdm_data.has_key("airspeed"): return False
+        if not isclose(fdm_data["airspeed"], mock_fdm_data_datagram.airspeed, 0.001): return False
+
+        if not fdm_data.has_key("heading"): return False
+        if not isclose(fdm_data["heading"], mock_fdm_data_datagram.heading, 0.001): return False
+
+        if not fdm_data.has_key("x_acceleration"): return False
+        if not isclose(fdm_data["x_acceleration"], mock_fdm_data_datagram.x_acceleration, 0.001): return False
+
+        if not fdm_data.has_key("y_acceleration"): return False
+        if not isclose(fdm_data["y_acceleration"], mock_fdm_data_datagram.y_acceleration, 0.001): return False
+
+        if not fdm_data.has_key("z_acceleration"): return False
+        if not isclose(fdm_data["z_acceleration"], mock_fdm_data_datagram.z_acceleration, 0.001): return False
+
+        if not fdm_data.has_key("roll_rate"): return False
+        if not isclose(fdm_data["roll_rate"], mock_fdm_data_datagram.roll_rate, 0.001): return False
+
+        if not fdm_data.has_key("pitch_rate"): return False
+        if not isclose(fdm_data["pitch_rate"], mock_fdm_data_datagram.pitch_rate, 0.001): return False
+
+        if not fdm_data.has_key("yaw_rate"): return False
+        if not isclose(fdm_data["yaw_rate"], mock_fdm_data_datagram.yaw_rate, 0.001): return False
+
+        if not fdm_data.has_key("temperature"): return False
+        if not isclose(fdm_data["temperature"], mock_fdm_data_datagram.temperature, 0.001): return False
+
+        if not fdm_data.has_key("static_pressure"): return False
+        if not isclose(fdm_data["static_pressure"], mock_fdm_data_datagram.static_pressure, 0.001): return False
+
+        if not fdm_data.has_key("total_pressure"): return False
+        if not isclose(fdm_data["total_pressure"], mock_fdm_data_datagram.total_pressure, 0.001): return False
+
+        if not fdm_data.has_key("roll"): return False
+        if not isclose(fdm_data["roll"], mock_fdm_data_datagram.roll, 0.001): return False
+
+        if not fdm_data.has_key("pitch"): return False
+        if not isclose(fdm_data["pitch"], mock_fdm_data_datagram.pitch, 0.001): return False
+
+        if not fdm_data.has_key("thrust"): return False
+        if not isclose(fdm_data["thrust"], mock_fdm_data_datagram.thrust, 0.001): return False
+
+        if not fdm_data.has_key("aileron"): return False
+        if not isclose(fdm_data["aileron"], mock_fdm_data_datagram.aileron, 0.001): return False
+
+        if not fdm_data.has_key("elevator"): return False
+        if not isclose(fdm_data["elevator"], mock_fdm_data_datagram.elevator, 0.001): return False
+
+        if not fdm_data.has_key("rudder"): return False
+        if not isclose(fdm_data["rudder"], mock_fdm_data_datagram.rudder, 0.001): return False
+
+        if not fdm_data.has_key("throttle"): return False
+        if not isclose(fdm_data["throttle"], mock_fdm_data_datagram.throttle, 0.001): return False
+
+        return True
+
+class TestFDMDataClient(TestCase):
+    def test_received_fdm_data_datagram(self):
+        fdm_data_client = FDMDataClient()
+
+        mock_fdm_data_listener = MockFDMDataListener()
+        mock_fdm_data_listener.fdm_data_received = MagicMock()
+
+        fdm_data_client.add_fdm_data_listener(mock_fdm_data_listener)
+
+        mock_fdm_data_datagram = MockFDMDataDatagram().create_datagram()
+
+        fdm_data_client.datagramReceived(mock_fdm_data_datagram, ("127.0.0.1", 12345))
+
+        mock_fdm_data_listener.fdm_data_received.assert_called_once_with(FDMDataMatcher())
+
+class TestControlsClient(TestCase):
+    def test_transmit_controls(self):
+        protocol = ControlsClient("127.0.0.1", 12345)
+        protocol.send_datagram = MagicMock(0)
+
+        protocol.transmit_controls(0.1, 0.2, 0.3, 0.4)
+
+        expected_datagram = struct.pack("!ffff", 0.1, 0.2, 0.3, 0.4)
+
+        protocol.send_datagram.assert_called_once_with(expected_datagram)
