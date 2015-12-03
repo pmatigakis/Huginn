@@ -16,7 +16,7 @@ from huginn.http import GPSData, AccelerometerData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl,\
                         FDMData
-from huginn.protocols import TelemetryFactory, SensorDataProtocol, ControlsProtocol, FDMDataProtocol
+from huginn.protocols import TelemetryFactory, ControlsProtocol, FDMDataProtocol
 
 def initialize_web_server(simulator, aircraft, web_server_port):
     """Initialize the web server"""
@@ -50,15 +50,6 @@ def initialize_telemetry_server(aircraft, telemetry_port, telemetry_update_rate)
 
     telemetry_updater = LoopingCall(telemetry_factory.update_clients)
     telemetry_updater.start(telemetry_update_rate)
-
-def initialize_sensors_server(aircraft, sensors_port):
-    """Initialize the sonsors server"""
-    logging.info("Adding a sensors server at port %d",
-                 sensors_port)
-
-    sensors_data_protocol = SensorDataProtocol(aircraft)
-
-    reactor.listenUDP(sensors_port, sensors_data_protocol)  # @UndefinedVariable
 
 def initialize_controls_server(aircraft, controls_port):
     """Initialize the controls server"""

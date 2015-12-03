@@ -12,8 +12,7 @@ from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
 from huginn.fdm import create_aircraft_model, create_fdmexec
 from huginn.network import initialize_controls_server, initialize_fdm_data_server,\
-                           initialize_sensors_server, initialize_telemetry_server,\
-                           initialize_web_server
+                           initialize_telemetry_server, initialize_web_server
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -28,7 +27,6 @@ def get_arguments():
                         help="The telemetry endpoint")
     
     parser.add_argument("--http", action="store", type=port_number, default=configuration.WEB_SERVER_PORT, help="The web server port")
-    parser.add_argument("--sensors", action="store", type=port_number, default=configuration.SENSORS_PORT, help="The sensors data port")
     
     parser.add_argument("--fdm",
                         action="store",
@@ -98,7 +96,6 @@ def main():
 
     try:
         initialize_fdm_data_server(aircraft, fdm_client_address, fdm_client_port, fdm_client_update_rate)
-        initialize_sensors_server(aircraft, args.sensors)
         initialize_controls_server(aircraft, args.controls)
         initialize_web_server(simulator, aircraft, args.http)
         initialize_telemetry_server(aircraft, telemetry_port, telemetry_update_rate)
