@@ -15,7 +15,7 @@ from huginn.http import GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl,\
-                        FDMData
+                        FDMData, AircraftIndex
 from huginn.protocols import TelemetryFactory, ControlsProtocol, FDMDataProtocol
 
 def initialize_web_server(simulator, aircraft, web_server_port):
@@ -24,17 +24,23 @@ def initialize_web_server(simulator, aircraft, web_server_port):
 
     root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
 
-    root.putChild("gps", GPSData(aircraft))
-    root.putChild("accelerometer", AccelerometerData(aircraft))
-    root.putChild("gyroscope", GyroscopeData(aircraft))
-    root.putChild("thermometer", ThermometerData(aircraft))
-    root.putChild("pressure_sensor", PressureSensorData(aircraft))
-    root.putChild("pitot_tube", PitotTubeData(aircraft))
-    root.putChild("ins", InertialNavigationSystemData(aircraft))
-    root.putChild("engine", EngineData(aircraft))
-    root.putChild("flight_controls", FlightControlsData(aircraft))
-    root.putChild("fdm", FDMData(aircraft))
+    aircraft_root = AircraftIndex()
+
+    aircraft_root.putChild("gps", GPSData(aircraft))
+    aircraft_root.putChild("accelerometer", AccelerometerData(aircraft))
+    aircraft_root.putChild("gyroscope", GyroscopeData(aircraft))
+    aircraft_root.putChild("thermometer", ThermometerData(aircraft))
+    aircraft_root.putChild("pressure_sensor", PressureSensorData(aircraft))
+    aircraft_root.putChild("pitot_tube", PitotTubeData(aircraft))
+    aircraft_root.putChild("ins", InertialNavigationSystemData(aircraft))
+    aircraft_root.putChild("engine", EngineData(aircraft))
+    aircraft_root.putChild("flight_controls", FlightControlsData(aircraft))
+
+    root.putChild("aircraft", aircraft_root)
+
     root.putChild("simulator", SimulatorControl(simulator))
+
+    root.putChild("fdm", FDMData(aircraft))
 
     frontend = server.Site(root)
 

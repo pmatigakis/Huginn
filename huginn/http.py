@@ -8,21 +8,19 @@ import logging
 
 from twisted.web.resource import Resource
 
-class Index(Resource):
+class AircraftIndex(Resource):
     isLeaf = False
 
-    def __init__(self, fdmexec):
+    def __init__(self):
         Resource.__init__(self)
-
-        self.fdmexec = fdmexec
 
     def getChild(self, name, request):
         if name == '':
             return self
         return Resource.getChild(self, name, request)
 
-    def render_GET(self, request):
-        return "Huginn is running"
+#    def render_GET(self, request):
+#        return "Huginn is running"
 
 class FlightDataResource(Resource):
     """This is the base class that can be used to create resource subclasses
@@ -277,6 +275,15 @@ class SimulatorControl(Resource):
 
         return json.dumps(response_data)
 
+    def render_GET(self, request):
+        simulator_state = {
+            "time": self.simulator.simulation_time,
+            "dt": self.simulator.dt,
+            "running": not self.simulator.paused
+        }
+
+        return self.send_response(request, simulator_state)
+
     def render_POST(self, request):
         if not request.args.has_key("command"):
             logging.error("Invalid simulator control request")
@@ -311,7 +318,7 @@ class WebClient(object):
         self.port = port
 
     def _get_host_url(self, page):
-        return "http://%s:%d/%s" % (self.host, self.port, page)
+        return "http://%s:%d/aircraft/%s" % (self.host, self.port, page)
 
     def _get_json_data_from_endpoint(self, endpoint):
         response = requests.get(self._get_host_url(endpoint))
