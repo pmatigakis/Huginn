@@ -78,7 +78,7 @@ controls_properties = [
     "fcs/aileron-cmd-norm",
     "fcs/rudder-cmd-norm",
     "fcs/throttle-cmd-norm"
-]  
+]
 
 def create_fdmexec(jsbsim_path, dt):
     fdmexec = FGFDMExec()
@@ -90,6 +90,7 @@ def create_fdmexec(jsbsim_path, dt):
     fdmexec.SetEnginePath("/engine")
     fdmexec.SetSystemsPath("/systems")
 
+    logging.debug("JSBSim dt is %f", dt)
     fdmexec.Setdt(dt)
 
     return fdmexec
@@ -105,8 +106,5 @@ def create_aircraft_model(fdmexec, aircraft_name):
         aircraft = Boing737(fdmexec)
     else:
         return None
-
-    #fdmexec.SetPropertyValue("propulsion/engine/set-running", 1.0)
-    #fdmexec.SetPropertyValue("propulsion/engine[1]/set-running", 1.0)
 
     return aircraft

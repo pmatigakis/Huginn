@@ -13,6 +13,7 @@ from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
 from huginn.fdm import create_aircraft_model, create_fdmexec
 from huginn.network import initialize_controls_server, initialize_fdm_data_server,\
                            initialize_telemetry_server, initialize_web_server
+from huginn.console import SimulatorStatePrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -82,6 +83,9 @@ def main():
                                      args.altitude,
                                      args.airspeed,
                                      args.heading)
+
+    simulator_state_printer = SimulatorStatePrinter()
+    simulator.add_simulator_event_listener(simulator_state_printer)
 
     reset_result = simulator.reset()
 

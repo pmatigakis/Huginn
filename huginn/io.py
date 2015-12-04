@@ -1,3 +1,8 @@
+"""
+The huginn.io module contains classes and functions that are used by the
+simulator in order to perform io operations
+"""
+
 from huginn.protocols import TelemetryDataListener
 
 import csv
@@ -7,7 +12,7 @@ class CSVTelemetryWriter(TelemetryDataListener):
     in csv format"""
     def __init__(self, output_file):
         TelemetryDataListener.__init__(self)
-        
+
         self.output_file = output_file
         self.csv_writer = csv.writer(self.output_file, delimiter=",")
 
@@ -21,7 +26,7 @@ class TelemetryPrinter(TelemetryDataListener):
     """The TelemetryPrinter prints to the console the telemetry data that have
     been received"""
     def __init__(self, variables=None):
-        self.variables=variables
+        self.variables = variables
         self.data = {}
         self.variable_indexes = {}
         self.inverted_variable_indexes = {}

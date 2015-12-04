@@ -20,7 +20,7 @@ from huginn.protocols import TelemetryFactory, ControlsProtocol, FDMDataProtocol
 
 def initialize_web_server(simulator, aircraft, web_server_port):
     """Initialize the web server"""
-    logging.info("Starting a web server at port %d", web_server_port)
+    logging.debug("Starting web server at port %d", web_server_port)
 
     root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
 
@@ -42,7 +42,7 @@ def initialize_web_server(simulator, aircraft, web_server_port):
 
 def initialize_telemetry_server(aircraft, telemetry_port, telemetry_update_rate):
     """Initialize the telemetry server"""
-    logging.info("Adding a telemetry server at port %d", telemetry_port)
+    logging.debug("Starting telemetry server at port %d", telemetry_port)
 
     telemetry_factory = TelemetryFactory(aircraft)
 
@@ -53,7 +53,7 @@ def initialize_telemetry_server(aircraft, telemetry_port, telemetry_update_rate)
 
 def initialize_controls_server(aircraft, controls_port):
     """Initialize the controls server"""
-    logging.info("Adding an aircraft controls server at port %d",
+    logging.debug("Starting aircraft controls server at port %d",
                  controls_port)
 
     controls_protocol = ControlsProtocol(aircraft)
@@ -62,6 +62,8 @@ def initialize_controls_server(aircraft, controls_port):
 
 def initialize_fdm_data_server(aircraft, fdm_client_address, fdm_client_port, fdm_client_update_rate):
     """Initialize the fdm data server"""
+    logging.debug("Sending fdm data to %s:%d" % (fdm_client_address, fdm_client_port))
+
     fdm_data_protocol = FDMDataProtocol(aircraft, fdm_client_address, fdm_client_port)
 
     reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable

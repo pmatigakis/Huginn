@@ -5,7 +5,7 @@ def convert_knots_to_meters_per_sec(knots):
     return knots * 0.514444
 
 def convert_feet_sec_squared_to_meters_sec_squared(feet_sec_squared):
-    return feet_sec_squared * 0.3048000000012 
+    return feet_sec_squared * 0.3048000000012
 
 def convert_radians_sec_to_degrees_sec(radians_sec):
     return radians_sec * 57.2957795

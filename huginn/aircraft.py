@@ -21,7 +21,7 @@ class Component(object):
 
     @abstractmethod
     def update_from_fdmexec(self, fdmexec):
-        """Update the component using data from JSBSim.""" 
+        """Update the component using data from JSBSim."""
         pass
 
 class GPS(Component):
@@ -80,9 +80,9 @@ class Gyroscope(Component):
         self.yaw_rate = 0.0
 
     def update_from_fdmexec(self, fdmexec):
-        """Update the component using data from JSBSim."""        
+        """Update the component using data from JSBSim."""
         auxiliary = fdmexec.GetAuxiliary()
-        
+
         self.roll_rate = degrees(auxiliary.GetEulerRates(1))
 
         self.pitch_rate = degrees(auxiliary.GetEulerRates(2))
@@ -298,8 +298,10 @@ class Aircraft(object):
 
     def reset(self):
         """Reset the aircraft"""
+        logging.debug("Reseting the aircraft")
+
         ic_result = self.fdmexec.RunIC()
-        
+
         if not ic_result:
             logging.error("Failed to run initial condition")
             return False
@@ -333,6 +335,15 @@ class Aircraft(object):
             return False
 
         self._update_components()
+
+        logging.debug("Trimmed aircraft controls: aileron %f, elevator %f, rudder: %f, throttle: %f",
+                      self.controls.aileron, self.controls.elevator,
+                      self.controls.rudder, self.controls.throttle)
+
+        logging.debug("Trimmed aircraft state: roll: %f, pitch: %f, throttle: %f",
+                      self.inertial_navigation_system.roll,
+                      self.inertial_navigation_system.pitch,
+                      self.engine.thrust)
 
         return True
 
