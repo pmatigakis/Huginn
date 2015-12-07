@@ -17,7 +17,7 @@ class TestSimulator(TestCase):
         aircraft = create_aircraft_model(fdmexec, "737")
         self.assertIsNotNone(aircraft)
 
-        simulator = Simulator(aircraft)
+        simulator = Simulator(fdmexec, aircraft)
 
         simulator.set_initial_conditions(configuration.INITIAL_LATITUDE,
                                          configuration.INITIAL_LONGITUDE,
@@ -26,8 +26,11 @@ class TestSimulator(TestCase):
                                          configuration.INITIAL_HEADING)
 
         start_time = simulator.simulation_time
+
+        simulator.resume()
         
-        run_result = aircraft.run()
+        #run_result = aircraft.run()
+        run_result = simulator.run()
         self.assertTrue(run_result)
 
         self.assertAlmostEqual(simulator.simulation_time,

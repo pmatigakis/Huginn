@@ -76,7 +76,7 @@ def main():
         print("Failed to create flight model with name %s using the aircraft %s" % args.fdmmodel, args.aircraft)
         exit(-1)
 
-    simulator = Simulator(aircraft)
+    simulator = Simulator(fdmexec, aircraft)
 
     simulator.set_initial_conditions(args.latitude,
                                      args.longitude,

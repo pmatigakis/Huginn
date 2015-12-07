@@ -268,7 +268,8 @@ class Aircraft(object):
         self.engine = Engine()
         self.controls = Controls(fdmexec)
 
-    def _update_components(self):
+    def run(self):
+        """Run the simulation"""
         fdmexec = self.fdmexec
 
         self.gps.update_from_fdmexec(fdmexec)
@@ -279,73 +280,6 @@ class Aircraft(object):
         self.pitot_tube.update_from_fdmexec(fdmexec)
         self.inertial_navigation_system.update_from_fdmexec(fdmexec)
         self.engine.update_from_fdmexec(fdmexec)
-
-    def run(self):
-        """Run the simulation"""
-        fdmexec = self.fdmexec
-
-        fdmexec.ProcessMessage()
-        fdmexec.CheckIncrementalHold()
-
-        run_result = fdmexec.Run()
-
-        if run_result:
-            self._update_components()
-        else:
-            logging.error("Failed to update the fdm model")
-
-        return run_result
-
-    def reset(self):
-        """Reset the aircraft"""
-        logging.debug("Reseting the aircraft")
-
-        ic_result = self.fdmexec.RunIC()
-
-        if not ic_result:
-            logging.error("Failed to run initial condition")
-            return False
-
-        self.controls.aileron = 0.0
-        self.controls.elevator = 0.0
-        self.controls.rudder = 0.0
-        self.controls.throttle = 0.0
-
-        running = True
-        while running and self.fdmexec.GetSimTime() < self.fdmexec.GetDeltaT() * 10:
-            self.fdmexec.ProcessMessage()
-            self.fdmexec.CheckIncrementalHold()
-
-            running = self.fdmexec.Run()
-
-        if not running:
-            logging.error("Failed to execute initial run")
-            return False
-
-        engine_start = self.start_engines()
-
-        if not engine_start:
-            logging.error("Failed to start the engines")
-            return False
-
-        trim_result = self.trim()
-
-        if not trim_result:
-            logging.error("Failed to trim the aircraft")
-            return False
-
-        self._update_components()
-
-        logging.debug("Trimmed aircraft controls: aileron %f, elevator %f, rudder: %f, throttle: %f",
-                      self.controls.aileron, self.controls.elevator,
-                      self.controls.rudder, self.controls.throttle)
-
-        logging.debug("Trimmed aircraft state: roll: %f, pitch: %f, throttle: %f",
-                      self.inertial_navigation_system.roll,
-                      self.inertial_navigation_system.pitch,
-                      self.engine.thrust)
-
-        return True
 
     @abstractmethod
     def start_engines(self):
@@ -364,6 +298,8 @@ class C172P(Aircraft):
 
     def start_engines(self):
         """Start the engines"""
+        logging.debug("Starting the engine of C172p")
+
         engine = self.fdmexec.GetPropulsion().GetEngine(0)
         engine.SetRunning(True)
 
@@ -377,13 +313,15 @@ class C172P(Aircraft):
 
         running = True
         while running and self.fdmexec.GetSimTime() < start_time + engine_start_delay:
-            running = self.run()
+            running = self.fdmexec.Run()
+            self.run()
 
-        if self.engine.thrust > 0.0:
-            return running
-        else:
-            #return False
+        logging.debug("Engine thrust after startup: %f", self.engine.thrust)
+
+        if self.engine.thrust > 0.0 and running:
             return True
+        else:
+            return False
 
     def trim(self):
         """Trim the aircraft"""
@@ -402,6 +340,8 @@ class Boing737(Aircraft):
         for i in range(num_engines):
             engine = self.fdmexec.GetPropulsion().GetEngine(i)
             engine.SetRunning(True)
+
+        return True
 
     def trim(self):
         """Trim the aircraft"""
