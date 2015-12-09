@@ -316,12 +316,14 @@ class C172P(Aircraft):
             running = self.fdmexec.Run()
             self.run()
 
-        logging.debug("Engine thrust after startup: %f", self.engine.thrust)
+        if running:
+            logging.debug("Engine thrust after startup: %f", self.engine.thrust)
 
-        if self.engine.thrust > 0.0 and running:
             return True
-        else:
-            return False
+
+        logging.debug("The simulator failed to run during engine startup")
+
+        return False
 
     def trim(self):
         """Trim the aircraft"""
