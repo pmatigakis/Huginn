@@ -50,6 +50,36 @@ def shutdown(self):
 
     reactor.callFromThread(reactor.stop)  # @UndefinedVariable
 
+def validate_initial_condition_valid(args):
+    initial_condition_valid = True
+
+    if args.altitude <= 0.0:
+        logging.error("The altitude must be greater than 0 feet")
+        print("The altitude must be greater than 0 feet")
+        initial_condition_valid = False
+
+    if args.airspeed < 0.0:
+        logging.error("The airspeed must be greater than 0 knots")
+        print("The airspeed must be greater than 0 knots")
+        initial_condition_valid = False
+
+    if args.heading < 0.0 or args.heading >= 360.0:
+        logging.error("The heading must be between 0.0 and 360.0 degrees")
+        print("The heading must be between 0.0 and 360.0 degrees")
+        initial_condition_valid = False
+
+    if args.latitude < -90.0 or args.latitude > 90.0:
+        logging.error("The latitude must be between -90.0 and 90.0 degrees")
+        print("The latitude must be between -90.0 and 90.0 degrees")
+        initial_condition_valid = False
+
+    if args.longitude < -180.0 or args.longitude > 180.0:
+        logging.error("The longitude must be between -180.0 and 180.0 degrees")
+        print("The longitude must be between -180.0 and 180.0 degrees")
+        initial_condition_valid = False
+
+    return initial_condition_valid
+
 def main():
     logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
                         filename="huginn.log",
@@ -66,6 +96,12 @@ def main():
         exit(-1)
 
     args = get_arguments()
+
+    initial_condition_valid = validate_initial_condition_valid(args)
+    
+    if not initial_condition_valid:
+        logging.error("Invalid initial condition")
+        exit(-1)
 
     fdmexec = create_fdmexec(jsbsim_path, args.dt)
 
