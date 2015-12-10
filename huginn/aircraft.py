@@ -248,6 +248,29 @@ class Engine(Component):
 
         self.throttle = fdmexec.GetFCS().GetThrottleCmd(0)
 
+class TrimRequirements(object):
+    """The TrimRequirements holds the range of airspeed and altitude values
+    that allow for the aircraft model to be trimmed."""
+    def __init__(self):
+        self.min_airspeed = 0.0
+        self.max_airspeed = 0.0
+        self.min_altitude = 0.0
+        self.max_altitude = 0.0
+
+    def is_valid_airspeed(self, airspeed):
+        """Check if the given airspeed is within the limits of the aircraft model."""
+        if airspeed < self.min_airspeed or airspeed > self.max_airspeed:
+            return False
+
+        return True
+
+    def is_valid_altitude(self, altitude):
+        """Check if the given altitude is within the limits of the aircraft model."""
+        if altitude < self.min_altitude or altitude > self.max_altitude:
+            return False
+
+        return True
+
 class Aircraft(object):
     """The Aircraft class is a wrapper around jsbsim that contains data about
     the aircraft state."""
@@ -267,6 +290,8 @@ class Aircraft(object):
         self.inertial_navigation_system = InertialNavigationSystem()
         self.engine = Engine()
         self.controls = Controls(fdmexec)
+
+        self.trim_requirements = TrimRequirements()
 
     def run(self):
         """Run the simulation"""
@@ -295,6 +320,12 @@ class C172P(Aircraft):
     """The C172P class is used to simulate an Cessna 172P"""
     def __init__(self, fdmexec):
         Aircraft.__init__(self, fdmexec)
+        
+        self.trim_requirements.min_airspeed = 36.0
+        self.trim_requirements.max_airspeed = 56.0
+
+        self.trim_requirements.min_altitude = 30.0
+        self.trim_requirements.max_altitude = 914.0
 
     def start_engines(self):
         """Start the engines"""
@@ -332,7 +363,10 @@ class C172P(Aircraft):
         return True
 
 class Boing737(Aircraft):
-    """The Boing737 is used to simulate an Boing 737"""
+    """The Boing737 is used to simulate an Boing 737
+    
+    TODO: this model is not operational yet
+    """
     def __init__(self, fdmexec):
         Aircraft.__init__(self, fdmexec)
 

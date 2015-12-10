@@ -1,1 +1,1 @@
-huginn_start.py --aircraft c172p --altitude 2000 --airspeed 90
+huginn_start.py --aircraft c172p --altitude 600.0 --airspeed 46.0

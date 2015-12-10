@@ -1,8 +1,14 @@
 def convert_feet_to_meters(feet):
     return feet * 0.3048
 
+def convert_meters_to_feet(meters):
+    return meters / 0.3048
+
 def convert_knots_to_meters_per_sec(knots):
     return knots * 0.514444
+
+def convert_meters_per_sec_to_knots(mps):
+    return mps / 0.514444
 
 def convert_feet_sec_squared_to_meters_sec_squared(feet_sec_squared):
     return feet_sec_squared * 0.3048000000012

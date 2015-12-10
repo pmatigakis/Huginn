@@ -3,7 +3,7 @@ from unittest import TestCase
 from huginn.unit_conversions import convert_feet_to_meters, convert_knots_to_meters_per_sec
 from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared, convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
-from huginn.unit_conversions import convert_pounds_to_newtons
+from huginn.unit_conversions import convert_pounds_to_newtons, convert_meters_per_sec_to_knots, convert_meters_to_feet
 
 class TestConvertFeetToMeters(TestCase):
     def test_convert_feet_to_meters(self):
@@ -74,3 +74,23 @@ class TestConvertPoundsToNewtons(TestCase):
         expected_force_in_newtons = 56.4924
         
         self.assertAlmostEqual(force_in_newtons, expected_force_in_newtons, 3)
+
+class TestConvertMetersPerSecondToKnots(TestCase):
+    def test_convert_meters_per_sec_to_knots(self):
+        meters_per_sec = 50.0
+
+        expected_knots = 97.1922
+
+        knots = convert_meters_per_sec_to_knots(meters_per_sec)
+
+        self.assertAlmostEqual(knots, expected_knots, 3)
+
+class TestConvertMetersToFeet(TestCase):
+    def test_convert_meters_to_feet(self):
+        meters = 120.0
+
+        expected_feet = 393.701
+
+        feet = convert_meters_to_feet(meters)
+
+        self.assertAlmostEqual(feet, expected_feet, 3)

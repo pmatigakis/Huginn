@@ -6,6 +6,8 @@ simulation
 import logging
 
 from huginn import configuration
+from huginn.unit_conversions import convert_meters_per_sec_to_knots,\
+    convert_meters_to_feet
 
 class SimulatorEventListener(object):
     def simulator_reset(self, simulator):
@@ -67,11 +69,14 @@ class Simulator(object):
         """Set the initial aircraft conditions"""
         ic = self.fdmexec.GetIC()
 
+        airspeed_in_knots = convert_meters_per_sec_to_knots(airspeed)
+        altitude_in_feet = convert_meters_to_feet(altitude)
+
         #ic.SetVtrueKtsIC(airspeed)
-        ic.SetVcalibratedKtsIC(airspeed)
+        ic.SetVcalibratedKtsIC(airspeed_in_knots)
         ic.SetLatitudeDegIC(latitude)
         ic.SetLongitudeDegIC(longitude)
-        ic.SetAltitudeASLFtIC(altitude)
+        ic.SetAltitudeASLFtIC(altitude_in_feet)
         ic.SetPsiDegIC(heading)
 
         logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
