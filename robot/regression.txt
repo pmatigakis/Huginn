@@ -1,0 +1,29 @@
+*** Settings ***
+Suite Setup    Start Huginn
+Suite Teardown    Stop Huginn
+Library    Process
+Library    Collections
+Library    RequestsLibrary
+
+*** Variables ***
+${HUGINN_URL}    http://localhost:8090
+
+*** Keywords ***
+Start Huginn
+    ${huginn_process_id} =    Start Process    huginn_start.py --aircraft c172p --altitude 600.0 --airspeed 46.0    shell=true
+    Process Should Be Running    ${huginn_process_id}
+    Create Session    huginn_web_server    ${HUGINN_URL}
+    Wait Until Keyword Succeeds    1 min    5 sec    Get Request    huginn_web_server    /
+    
+Stop Huginn
+    Terminate All Processes
+
+*** Test Cases ***
+Front-end is ready
+    [Documentation]    This test checks if the front end is displayed when you connect to the web server
+    [Tags]    frontend
+    Create Session    huginn_web_server    ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server    /
+    Should be Equal As Strings    ${resp.status_code}    200
+    Should Contain    ${resp.text}    Flight simulator data viewer
+    Should Contain    ${resp.text}    Flight data

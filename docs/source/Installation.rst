@@ -36,6 +36,13 @@ Go to the source code directory and run the tests with the following command.
 
     ./run_tests.sh
 
+A Robot test suite also exists. This can be run by entering the robot directory and
+using the following command.
+
+.. code-block:: bash
+
+    pybot regression.txt
+
 Documentation
 -------------
 The documentation can be build using Sphinx. Go to the *docs* directory and run the following command to create 
