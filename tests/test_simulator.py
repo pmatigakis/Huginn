@@ -14,16 +14,18 @@ class TestSimulator(TestCase):
 
         fdmexec = create_fdmexec(jsbsim_path, configuration.DT)
 
-        aircraft = create_aircraft_model(fdmexec, "737")
+        aircraft = create_aircraft_model(fdmexec, "c172p")
         self.assertIsNotNone(aircraft)
 
         simulator = Simulator(fdmexec, aircraft)
 
-        simulator.set_initial_conditions(configuration.INITIAL_LATITUDE,
-                                         configuration.INITIAL_LONGITUDE,
-                                         10000.0,
-                                         200.0,
-                                         configuration.INITIAL_HEADING)
+        initial_condition_valid = simulator.set_initial_conditions(configuration.INITIAL_LATITUDE,
+                                                                   configuration.INITIAL_LONGITUDE,
+                                                                   600.0,
+                                                                   46.0,
+                                                                   configuration.INITIAL_HEADING)
+
+        self.assertTrue(initial_condition_valid)
 
         start_time = simulator.simulation_time
 

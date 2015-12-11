@@ -50,58 +50,6 @@ def shutdown(self):
 
     reactor.callFromThread(reactor.stop)  # @UndefinedVariable
 
-def validate_initial_position(args):
-    initial_position_valid = True
-
-    if args.altitude <= 0.0:
-        logging.error("The altitude must be greater than 0 feet")
-        print("The altitude must be greater than 0 feet")
-        initial_position_valid = False
-
-    if args.heading < 0.0 or args.heading >= 360.0:
-        logging.error("The heading must be between 0.0 and 360.0 degrees")
-        print("The heading must be between 0.0 and 360.0 degrees")
-        initial_position_valid = False
-
-    if args.latitude < -90.0 or args.latitude > 90.0:
-        logging.error("The latitude must be between -90.0 and 90.0 degrees")
-        print("The latitude must be between -90.0 and 90.0 degrees")
-        initial_position_valid = False
-
-    if args.longitude < -180.0 or args.longitude > 180.0:
-        logging.error("The longitude must be between -180.0 and 180.0 degrees")
-        print("The longitude must be between -180.0 and 180.0 degrees")
-        initial_position_valid = False
-
-    return initial_position_valid
-
-def validate_aircraft_initial_condition(args, aircraft):
-    if not aircraft.trim_requirements.is_valid_altitude(args.altitude):
-        logging.error("The given altitude was %f, The aircraft model requires an altitude between %f-%f meters",
-                      args.altitude, aircraft.trim_requirements.min_altitude, aircraft.trim_requirements.max_altitude)
-
-        print("The given altitude was %f, The aircraft model requires an altitude between %f-%f meters" % (
-                      args.altitude,
-                      aircraft.trim_requirements.min_altitude,
-                      aircraft.trim_requirements.max_altitude)
-        )
-
-        return False
-
-    if not aircraft.trim_requirements.is_valid_airspeed(args.airspeed):
-        logging.error("The given airspeed was %f, The aircraft model requires an airspeed between %f-%f meters per second",
-                      args.airspeed, aircraft.trim_requirements.min_airspeed, aircraft.trim_requirements.max_airspeed)
-
-        print("The given airspeed was %f, The aircraft model requires an airspeed between %f-%f meters per second" % (
-                      args.airspeed,
-                      aircraft.trim_requirements.min_airspeed,
-                      aircraft.trim_requirements.max_airspeed)
-        )
-
-        return False
-
-    return True
-
 def main():
     logging.basicConfig(format="%(asctime)s - %(module)s:%(levelname)s:%(message)s",
                         filename="huginn.log",
@@ -117,13 +65,7 @@ def main():
         print("The environment variable JSBSIM_HOME doesn't exist")
         exit(-1)
 
-    args = get_arguments()
-
-    initial_condition_valid = validate_initial_position(args)
-    
-    if not initial_condition_valid:
-        logging.error("Invalid initial position")
-        exit(-1)
+    args = get_arguments() 
 
     fdmexec = create_fdmexec(jsbsim_path, args.dt)
 
@@ -134,19 +76,23 @@ def main():
         print("Failed to create flight model with name %s using the aircraft %s" % args.fdmmodel, args.aircraft)
         exit(-1)
 
-    aircraft_initial_condition_valid = validate_aircraft_initial_condition(args, aircraft)
-
-    if not aircraft_initial_condition_valid:
-        logging.error("Invalid aircraft initial condition")
-        exit(-1)
-
     simulator = Simulator(fdmexec, aircraft)
 
-    simulator.set_initial_conditions(args.latitude,
-                                     args.longitude,
-                                     args.altitude,
-                                     args.airspeed,
-                                     args.heading)
+    initial_conditions_valid = simulator.set_initial_conditions(args.latitude,
+                                                                args.longitude,
+                                                                args.altitude,
+                                                                args.airspeed,
+                                                                args.heading)
+
+    if not initial_conditions_valid:
+        logging.debug("Invalid Initial conditions: latitude=%f degrees, longitude=%f degrees, altitude=%f meters, airspeed=%f meters/second, heading=%f degrees",
+                      args.latitude,
+                      args.longitude,
+                      args.altitude,
+                      args.airspeed,
+                      args.heading)
+        print("Failed to set initial conditions")
+        exit(-1)
 
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)

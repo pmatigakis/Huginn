@@ -67,6 +67,27 @@ class Simulator(object):
 
     def set_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):
         """Set the initial aircraft conditions"""
+        if (not self.aircraft.trim_requirements.is_valid_airspeed(airspeed) or
+            not self.aircraft.trim_requirements.is_valid_altitude(altitude)):
+            logging.error("Invalid aircraft initial condition: airspeed %f meters/second, altitude %f meters", airspeed, altitude)
+            return False
+
+        if altitude <= 0.0:
+            logging.error("Invalid initial altitude: %f meters", altitude)
+            return False
+    
+        if heading < 0.0 or heading >= 360.0:
+            logging.error("Invalid initial heading: %f degrees", heading)
+            return False
+    
+        if latitude < -90.0 or latitude > 90.0:
+            logging.error("Invalid initial latitude: %f degrees", latitude)
+            return False
+    
+        if longitude < -180.0 or longitude > 180.0:
+            logging.error("Invalid initial longitude: %f degrees")
+            return False
+
         ic = self.fdmexec.GetIC()
 
         airspeed_in_knots = convert_meters_per_sec_to_knots(airspeed)
@@ -79,12 +100,14 @@ class Simulator(object):
         ic.SetAltitudeASLFtIC(altitude_in_feet)
         ic.SetPsiDegIC(heading)
 
-        logging.debug("Initial conditions: latitude=%f, longitude=%f, altitude=%f, airspeed=%f, heading=%f",
+        logging.debug("Initial conditions: latitude=%f degrees, longitude=%f degrees, altitude=%f meters, airspeed=%f meters/second, heading=%f degrees",
                       latitude,
                       longitude,
                       altitude,
                       airspeed,
                       heading)
+
+        return True
 
     def pause(self):
         self.paused = True
