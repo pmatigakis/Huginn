@@ -10,7 +10,8 @@ from twisted.internet.task import LoopingCall
 from huginn import configuration
 from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
-from huginn.fdm import create_aircraft_model, create_fdmexec
+from huginn.fdm import create_fdmexec
+from huginn.aircraft import Aircraft
 from huginn.network import initialize_controls_server, initialize_fdm_data_server,\
                            initialize_telemetry_server, initialize_web_server
 from huginn.console import SimulatorStatePrinter
@@ -36,12 +37,8 @@ def get_arguments():
                         help="The fdm data endpoint")
     
     parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
-    parser.add_argument("--aircraft", action="store", default="c172p", help="The aircraft model to use")
-    parser.add_argument("--latitude", action="store", type=float, default=configuration.INITIAL_LATITUDE, help="The starting latitude")
-    parser.add_argument("--longitude", action="store", type=float, default=configuration.INITIAL_LONGITUDE, help="The starting longitude")
-    parser.add_argument("--altitude", action="store", type=float, required=True, help="The starting altitude")
-    parser.add_argument("--airspeed", action="store", type=float, required=True, help="The starting airspeed")
-    parser.add_argument("--heading", action="store", type=float, default=configuration.INITIAL_HEADING, help="The starting heading")
+    parser.add_argument("--script", action="store", default="/scripts/737_cruise.xml", help="The script to load")
+    parser.add_argument("--jsbsim", action="store", required=False, help="The path to jsbsim source code")
 
     return parser.parse_args()
 
@@ -58,51 +55,31 @@ def main():
 
     logging.info("Starting the Huginn flight simulator")
 
-    jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+    args = get_arguments()
 
-    if not jsbsim_path:
-        logging.error("The environment variable JSBSIM_HOME doesn't exist")
-        print("The environment variable JSBSIM_HOME doesn't exist")
+    if args.jsbsim:
+        jsbsim_path = args.jsbsim
+    else:
+        jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+
+        if not jsbsim_path:
+            logging.error("The environment variable JSBSIM_HOME doesn't exist")
+            print("The environment variable JSBSIM_HOME doesn't exist")
+            exit(-1) 
+
+    fdmexec = create_fdmexec(jsbsim_path, args.script, args.dt)
+
+    if not fdmexec:
+        logging.error("Failed to create flight model")
+        print("Failed to create flight model")
         exit(-1)
 
-    args = get_arguments() 
-
-    fdmexec = create_fdmexec(jsbsim_path, args.dt)
-
-    aircraft = create_aircraft_model(fdmexec, args.aircraft)
-
-    if not aircraft:
-        logging.error("Failed to create flight model with name %s using the aircraft %s", args.fdmmodel, args.aircraft)
-        print("Failed to create flight model with name %s using the aircraft %s" % args.fdmmodel, args.aircraft)
-        exit(-1)
+    aircraft = Aircraft(fdmexec)
 
     simulator = Simulator(fdmexec, aircraft)
 
-    initial_conditions_valid = simulator.set_initial_conditions(args.latitude,
-                                                                args.longitude,
-                                                                args.altitude,
-                                                                args.airspeed,
-                                                                args.heading)
-
-    if not initial_conditions_valid:
-        logging.debug("Invalid Initial conditions: latitude=%f degrees, longitude=%f degrees, altitude=%f meters, airspeed=%f meters/second, heading=%f degrees",
-                      args.latitude,
-                      args.longitude,
-                      args.altitude,
-                      args.airspeed,
-                      args.heading)
-        print("Failed to set initial conditions")
-        exit(-1)
-
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)
-
-    reset_result = simulator.reset()
-
-    if not reset_result:
-        logging.error("Failed to reset the simulation")
-        print("Failed to reset the simulation")
-        exit(-1)
 
     fdm_client_address, fdm_client_port, fdm_client_update_rate = args.fdm 
 

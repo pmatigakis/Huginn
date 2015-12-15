@@ -1,8 +1,9 @@
 from unittest import TestCase
 import os
 
+from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
-from huginn.fdm import create_aircraft_model, create_fdmexec
+from huginn.fdm import create_fdmexec
 from huginn import configuration
 
 class TestSimulator(TestCase):
@@ -12,29 +13,21 @@ class TestSimulator(TestCase):
         if not jsbsim_path:
             self.fail("Environment variable JSBSIM_HOME is not set")
 
-        fdmexec = create_fdmexec(jsbsim_path, configuration.DT)
+        fdmexec = create_fdmexec(jsbsim_path, "/scripts/737_cruise.xml", configuration.DT)
 
-        aircraft = create_aircraft_model(fdmexec, "c172p")
-        self.assertIsNotNone(aircraft)
+        aircraft = Aircraft(fdmexec)
+
+        self.assertIsNotNone(fdmexec)
 
         simulator = Simulator(fdmexec, aircraft)
-
-        initial_condition_valid = simulator.set_initial_conditions(configuration.INITIAL_LATITUDE,
-                                                                   configuration.INITIAL_LONGITUDE,
-                                                                   600.0,
-                                                                   46.0,
-                                                                   configuration.INITIAL_HEADING)
-
-        self.assertTrue(initial_condition_valid)
 
         start_time = simulator.simulation_time
 
         simulator.resume()
         
         #run_result = aircraft.run()
-        run_result = simulator.run()
-        self.assertTrue(run_result)
+        simulator.run()
 
         self.assertAlmostEqual(simulator.simulation_time,
-                               start_time + configuration.DT,
+                               start_time + fdmexec.GetDeltaT(),
                                6)

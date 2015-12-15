@@ -8,8 +8,6 @@ import logging
 
 from PyJSBSim import FGFDMExec
 
-from huginn.aircraft import Boing737, C172P
-
 fdm_properties = [
     "simulation/sim-time-sec",
     "simulation/dt",
@@ -80,7 +78,7 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-def create_fdmexec(jsbsim_path, dt):
+def create_fdmexec(jsbsim_path, script, dt):
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
@@ -93,18 +91,18 @@ def create_fdmexec(jsbsim_path, dt):
     logging.debug("JSBSim dt is %f", dt)
     fdmexec.Setdt(dt)
 
-    return fdmexec
+    fdmexec.LoadScript(script)
 
-def create_aircraft_model(fdmexec, aircraft_name):
-    logging.debug("Will use aircraft %s", aircraft_name)
+    ic_result = fdmexec.RunIC()
 
-    fdmexec.LoadModel(aircraft_name)
-
-    if aircraft_name == "c172p":
-        aircraft = C172P(fdmexec)
-    elif aircraft_name == "737":
-        aircraft = Boing737(fdmexec)
-    else:
+    if not ic_result:
+        logging.error("Failed to run initial condition")
         return None
 
-    return aircraft
+    running = fdmexec.Run()
+
+    if not running:
+        logging.error("Failed to execute initial run")
+        return None
+
+    return fdmexec

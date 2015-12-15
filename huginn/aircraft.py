@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 import logging
 from math import degrees
 
-from PyJSBSim import tFull, FGTrim
+from PyJSBSim import tFull, FGTrim, tGround
 
 from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_rankine_to_kelvin,
@@ -248,34 +248,9 @@ class Engine(Component):
 
         self.throttle = fdmexec.GetFCS().GetThrottleCmd(0)
 
-class TrimRequirements(object):
-    """The TrimRequirements holds the range of airspeed and altitude values
-    that allow for the aircraft model to be trimmed."""
-    def __init__(self):
-        self.min_airspeed = 0.0
-        self.max_airspeed = 0.0
-        self.min_altitude = 0.0
-        self.max_altitude = 0.0
-
-    def is_valid_airspeed(self, airspeed):
-        """Check if the given airspeed is within the limits of the aircraft model."""
-        if airspeed < self.min_airspeed or airspeed > self.max_airspeed:
-            return False
-
-        return True
-
-    def is_valid_altitude(self, altitude):
-        """Check if the given altitude is within the limits of the aircraft model."""
-        if altitude < self.min_altitude or altitude > self.max_altitude:
-            return False
-
-        return True
-
 class Aircraft(object):
     """The Aircraft class is a wrapper around jsbsim that contains data about
     the aircraft state."""
-    __metaclass__ = ABCMeta
-
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
 
@@ -291,8 +266,6 @@ class Aircraft(object):
         self.engine = Engine()
         self.controls = Controls(fdmexec)
 
-        self.trim_requirements = TrimRequirements()
-
     def run(self):
         """Run the simulation"""
         fdmexec = self.fdmexec
@@ -305,88 +278,3 @@ class Aircraft(object):
         self.pitot_tube.update_from_fdmexec(fdmexec)
         self.inertial_navigation_system.update_from_fdmexec(fdmexec)
         self.engine.update_from_fdmexec(fdmexec)
-
-    @abstractmethod
-    def start_engines(self):
-        """Start the aircraft's engines"""
-        pass
-
-    @abstractmethod
-    def trim(self):
-        """Trim the aircraft"""
-        pass
-
-class C172P(Aircraft):
-    """The C172P class is used to simulate an Cessna 172P"""
-    def __init__(self, fdmexec):
-        Aircraft.__init__(self, fdmexec)
-        
-        self.trim_requirements.min_airspeed = 36.0
-        self.trim_requirements.max_airspeed = 56.0
-
-        self.trim_requirements.min_altitude = 30.0
-        self.trim_requirements.max_altitude = 914.0
-
-    def start_engines(self):
-        """Start the engines"""
-        logging.debug("Starting the engine of C172p")
-
-        engine = self.fdmexec.GetPropulsion().GetEngine(0)
-        engine.SetRunning(True)
-
-        self.fdmexec.SetPropertyValue("fcs/throttle-cmd-norm", 0.5)
-        self.fdmexec.SetPropertyValue("fcs/mixture-cmd-norm", 1.0)
-        self.fdmexec.SetPropertyValue("propulsion/magneto_cmd", 3.0)
-        self.fdmexec.SetPropertyValue("propulsion/starter_cmd", 1.0)
-
-        start_time = self.fdmexec.GetSimTime()
-        engine_start_delay = 5.0
-
-        running = True
-        while running and self.fdmexec.GetSimTime() < start_time + engine_start_delay:
-            running = self.fdmexec.Run()
-            self.run()
-
-        if running:
-            logging.debug("Engine thrust after startup: %f", self.engine.thrust)
-
-            return True
-
-        logging.debug("The simulator failed to run during engine startup")
-
-        return False
-
-    def trim(self):
-        """Trim the aircraft"""
-        self.fdmexec.DoSimplexTrim(tFull)
-
-        return True
-
-class Boing737(Aircraft):
-    """The Boing737 is used to simulate an Boing 737
-    
-    TODO: this model is not operational yet
-    """
-    def __init__(self, fdmexec):
-        Aircraft.__init__(self, fdmexec)
-
-    def start_engines(self):
-        """Start the engines"""
-        num_engines = self.fdmexec.GetPropulsion().GetNumEngines()
-        for i in range(num_engines):
-            engine = self.fdmexec.GetPropulsion().GetEngine(i)
-            engine.SetRunning(True)
-
-        return True
-
-    def trim(self):
-        """Trim the aircraft"""
-        trimmer = FGTrim(self.fdmexec, tFull)
-        trim_result = trimmer.DoTrim()
-
-        if not trim_result:
-            logging.error("Failed to trim the aircraft")
-
-        trimmer.Report()
-
-        return trim_result

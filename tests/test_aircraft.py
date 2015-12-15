@@ -2,7 +2,7 @@ from unittest import TestCase
 import math
 
 from huginn.aircraft import Controls, Engine, GPS, Accelerometer, Gyroscope,\
-                            Thermometer, PressureSensor, PitotTube, TrimRequirements
+                            Thermometer, PressureSensor, PitotTube
 from huginn.unit_conversions import convert_feet_to_meters 
 from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squared,\
                                     convert_radians_sec_to_degrees_sec
@@ -313,52 +313,3 @@ class TestPitotTube(TestCase):
         expected_pressure_in_pascal = convert_psf_to_pascal(expected_pressure_in_psf)
 
         self.assertAlmostEqual(pressure, expected_pressure_in_pascal, 3)
-
-class TestTrimRequirements(TestCase):
-    def test_is_valid_airspeed(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_airspeed = 10.0
-        trim_requirements.max_airspeed = 20.0
-
-        self.assertTrue(trim_requirements.is_valid_airspeed(15.0))
-
-    def test_below_minimum_airspeed_is_invalid(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_airspeed = 10.0
-        trim_requirements.max_airspeed = 20.0
-
-        self.assertFalse(trim_requirements.is_valid_airspeed(5.0))
-
-    def test_over_maximum_airspeed_is_invalid(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_airspeed = 10.0
-        trim_requirements.max_airspeed = 20.0
-
-        self.assertFalse(trim_requirements.is_valid_airspeed(25.0))
-
-    def test_is_valid_altitude(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_altitude = 1000.0
-        trim_requirements.max_altitude = 2000.0
-
-        self.assertTrue(trim_requirements.is_valid_altitude(1500.0))
-
-    def test_below_minimum_altitude_is_invalid(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_altitude = 1000.0
-        trim_requirements.max_altitude = 2000.0
-
-        self.assertFalse(trim_requirements.is_valid_altitude(500.0))
-
-    def test_over_maximum_altitude_is_invalid(self):
-        trim_requirements = TrimRequirements()
-
-        trim_requirements.min_altitude = 1000.0
-        trim_requirements.max_altitude = 2000.0
-
-        self.assertFalse(trim_requirements.is_valid_altitude(2500.0))

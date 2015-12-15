@@ -5,6 +5,8 @@ simulation
 
 import logging
 
+from twisted.internet import reactor
+
 from huginn import configuration
 from huginn.unit_conversions import convert_meters_per_sec_to_knots,\
     convert_meters_to_feet
@@ -65,50 +67,6 @@ class Simulator(object):
         for listener in self.listeners:
             listener.simulator_state_update(self)
 
-    def set_initial_conditions(self, latitude, longitude, altitude, airspeed, heading):
-        """Set the initial aircraft conditions"""
-        if (not self.aircraft.trim_requirements.is_valid_airspeed(airspeed) or
-            not self.aircraft.trim_requirements.is_valid_altitude(altitude)):
-            logging.error("Invalid aircraft initial condition: airspeed %f meters/second, altitude %f meters", airspeed, altitude)
-            return False
-
-        if altitude <= 0.0:
-            logging.error("Invalid initial altitude: %f meters", altitude)
-            return False
-    
-        if heading < 0.0 or heading >= 360.0:
-            logging.error("Invalid initial heading: %f degrees", heading)
-            return False
-    
-        if latitude < -90.0 or latitude > 90.0:
-            logging.error("Invalid initial latitude: %f degrees", latitude)
-            return False
-    
-        if longitude < -180.0 or longitude > 180.0:
-            logging.error("Invalid initial longitude: %f degrees")
-            return False
-
-        ic = self.fdmexec.GetIC()
-
-        airspeed_in_knots = convert_meters_per_sec_to_knots(airspeed)
-        altitude_in_feet = convert_meters_to_feet(altitude)
-
-        #ic.SetVtrueKtsIC(airspeed)
-        ic.SetVcalibratedKtsIC(airspeed_in_knots)
-        ic.SetLatitudeDegIC(latitude)
-        ic.SetLongitudeDegIC(longitude)
-        ic.SetAltitudeASLFtIC(altitude_in_feet)
-        ic.SetPsiDegIC(heading)
-
-        logging.debug("Initial conditions: latitude=%f degrees, longitude=%f degrees, altitude=%f meters, airspeed=%f meters/second, heading=%f degrees",
-                      latitude,
-                      longitude,
-                      altitude,
-                      airspeed,
-                      heading)
-
-        return True
-
     def pause(self):
         self.paused = True
 
@@ -121,59 +79,18 @@ class Simulator(object):
 
     def reset(self):
         logging.debug("Reseting the aircraft")
-        
         self.fdmexec.Resume()
 
-        ic_result = self.fdmexec.RunIC()
-
-        if not ic_result:
-            logging.error("Failed to run initial condition")
-            return False
+        self.fdmexec.ResetToInitialConditions(0)
 
         self.aircraft.controls.aileron = 0.0
         self.aircraft.controls.elevator = 0.0
         self.aircraft.controls.rudder = 0.0
         self.aircraft.controls.throttle = 0.0
 
-        running = True
-        while running and self.fdmexec.GetSimTime() < self.fdmexec.GetDeltaT() * 10:
-            self.fdmexec.ProcessMessage()
-            self.fdmexec.CheckIncrementalHold()
-
-            running = self.fdmexec.Run()
-
-        if not running:
-            logging.error("Failed to execute initial run")
-            return False
-
-        engine_start = self.aircraft.start_engines()
-
-        if not engine_start:
-            logging.error("Failed to start the engines")
-            return False
-
-        trim_result = self.aircraft.trim()
-
-        if not trim_result:
-            logging.error("Failed to trim the aircraft")
-            return False
-
-        self.aircraft.run()
-
-        logging.debug("Trimmed aircraft controls: aileron %f, elevator %f, rudder: %f, throttle: %f",
-                      self.aircraft.controls.aileron, self.aircraft.controls.elevator,
-                      self.aircraft.controls.rudder, self.aircraft.controls.throttle)
-
-        logging.debug("Trimmed aircraft state: roll: %f, pitch: %f, throttle: %f",
-                      self.aircraft.inertial_navigation_system.roll,
-                      self.aircraft.inertial_navigation_system.pitch,
-                      self.aircraft.engine.thrust)
-
         self._simulator_has_reset()
 
         self.paused = True
-
-        return True
 
     def run(self):
         if not self.paused:
@@ -184,11 +101,7 @@ class Simulator(object):
 
             if run_result:
                 self.aircraft.run()
+
+                self._simulator_has_updated()
             else:
-                logging.error("Failed to update the fdm model")
-
-            self._simulator_has_updated()
-
-            return run_result
-
-        return True
+                reactor.stop()

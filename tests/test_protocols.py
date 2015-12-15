@@ -11,7 +11,7 @@ from huginn.protocols import ControlsProtocol, TelemetryFactory, TelemetryProtoc
                              FDMDataProtocol, TelemetryClientFactory,\
                              decode_fdm_data_datagram, FDMDataClient,\
                              ControlsClient
-from huginn.aircraft import C172P
+from huginn.aircraft import Aircraft
 
 from mockObjects import MockFDMModel, MockFDMExec, MockTelemetryDataListener,\
                         MockFDMDataDatagram, MockFDMDataListener
@@ -20,7 +20,7 @@ class TestControlsProtocol(TestCase):
     def test_datagram_received(self):
         fdm_model = MockFDMModel()
         
-        aircraft = C172P(fdm_model)
+        aircraft = Aircraft(fdm_model)
         
         controls_protocol = ControlsProtocol(aircraft)
         controls_protocol.update_aircraft_controls = MagicMock()
@@ -46,7 +46,7 @@ class TestTelemetryFactory(TestCase):
     def test_get_telemetry_data(self):
         fdmexec = MockFDMExec()
 
-        aircraft = C172P(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = TelemetryFactory(aircraft)
         protocol = TelemetryProtocol(factory)
@@ -86,7 +86,7 @@ class TestFDMDataProtocol(TestCase):
     def test_get_fdm_data(self):
         fdmexec = MockFDMExec()
 
-        aircraft = C172P(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         fdm_data_protocol = FDMDataProtocol(aircraft, "127.0.0.1", 12345)
 

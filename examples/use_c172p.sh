@@ -1,1 +1,1 @@
-huginn_start.py --aircraft c172p --altitude 600.0 --airspeed 46.0
+huginn_start.py --jsbsim /home/panagiotis/development/projects/jsbsim/jsbsim/jsbsim-code/ --script scripts/737_cruise.xml

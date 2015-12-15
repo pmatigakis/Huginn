@@ -3,8 +3,6 @@ import os
 
 from PyJSBSim import FGFDMExec
 
-from huginn.aircraft import C172P, Boing737
-
 #interface settings
 SIMULATOR_CONTROL_PORT = 10500
 WEB_SERVER_PORT = 8090
