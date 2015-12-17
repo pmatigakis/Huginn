@@ -10,7 +10,7 @@ ${HUGINN_URL}    http://localhost:8090
 
 *** Keywords ***
 Start Huginn
-    ${huginn_process_id} =    Start Process    huginn_start.py --aircraft c172p --altitude 600.0 --airspeed 46.0    shell=true
+    ${huginn_process_id} =    Start Process    huginn_start.py /home/panagiotis/development/projects/jsbsim/jsbsim/jsbsim-code/ scripts/737_cruise.xml    shell=true
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    5 sec    Get Request    huginn_web_server    /
