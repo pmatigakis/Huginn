@@ -5,6 +5,7 @@ aircraft
 """
 
 import logging
+import inspect
 
 from PyJSBSim import FGFDMExec
 
@@ -80,24 +81,29 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-def create_fdmexec(jsbsim_path, dt):
+def create_fdmexec(jsbsim_path, aircraft_name, dt):
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
 
     fdmexec.SetRootDir(jsbsim_path)
-    fdmexec.SetAircraftPath("/aircraft")
-    fdmexec.SetEnginePath("/engine")
-    fdmexec.SetSystemsPath("/systems")
+    fdmexec.SetAircraftPath("")
+    fdmexec.SetEnginePath("/%s/Engines" % aircraft_name)
+    fdmexec.SetSystemsPath("/%s/Systems" % aircraft_name)
 
     logging.debug("JSBSim dt is %f", dt)
     fdmexec.Setdt(dt)
 
-    fdmexec.LoadModel("c172p")
+    fdmexec.LoadModel(aircraft_name)
+    
+    engine = fdmexec.GetPropulsion().GetEngine(0)
+    engine.SetRunning(True)
+
+    fdmexec.GetFCS().SetThrottleCmd(0, 0.2)
     
     ic = fdmexec.GetIC()
     
-    ic.Load("reset00")
+    ic.Load("reset")
     ic.SetLatitudeDegIC(configuration.INITIAL_LATITUDE)
     ic.SetLongitudeDegIC(configuration.INITIAL_LONGITUDE)
     ic.SetPsiDegIC(configuration.INITIAL_HEADING)
@@ -120,23 +126,10 @@ def create_fdmexec(jsbsim_path, dt):
 
     logging.debug("Starting the engine of C172p")
 
-    engine = fdmexec.GetPropulsion().GetEngine(0)
-    engine.SetRunning(True)
-
-    fdmexec.SetPropertyValue("fcs/throttle-cmd-norm", 0.0)
-    fdmexec.SetPropertyValue("fcs/mixture-cmd-norm", 1.0)
-    fdmexec.SetPropertyValue("propulsion/magneto_cmd", 3.0)
-    fdmexec.SetPropertyValue("propulsion/starter_cmd", 1.0)
-
-    start_time = fdmexec.GetSimTime()
-    engine_start_delay = 10.0
-
-    running = True
-    while running and fdmexec.GetSimTime() < start_time + engine_start_delay:
-        running = fdmexec.Run()
+    running = fdmexec.Run()
 
     if not running:
-        logging.debug("Failed to run simulation during engine startup")
+        logging.debug("Failed to make initial simulator run")
         return None
 
     return fdmexec

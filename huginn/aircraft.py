@@ -4,10 +4,7 @@ and provide access to the simulated components of the aircraft.
 """
 
 from abc import ABCMeta, abstractmethod
-import logging
 from math import degrees
-
-from PyJSBSim import tFull, FGTrim, tGround
 
 from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_rankine_to_kelvin,

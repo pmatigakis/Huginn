@@ -1,6 +1,8 @@
 from unittest import TestCase
-import os
+import inspect
+from os import path
 
+import huginn
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.fdm import create_fdmexec
@@ -8,12 +10,10 @@ from huginn import configuration
 
 class TestSimulator(TestCase):
     def test_run(self):
-        jsbsim_path = os.environ.get("JSBSIM_HOME", None)
+        huginn_path = inspect.getfile(huginn)
+        huginn_data_path = path.join(path.dirname(huginn_path), "data")
 
-        if not jsbsim_path:
-            self.fail("Environment variable JSBSIM_HOME is not set")
-
-        fdmexec = create_fdmexec(jsbsim_path, "/scripts/737_cruise.xml", configuration.DT)
+        fdmexec = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
 
         aircraft = Aircraft(fdmexec)
 

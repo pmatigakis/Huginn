@@ -1,12 +1,11 @@
+#!/usr/bin/env python
+
 import logging
 from argparse import ArgumentParser
-import signal
-import os
+import inspect
+from os import path
 
-from twisted.internet.error import CannotListenError
-from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
-
+import huginn
 from huginn import configuration
 from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
@@ -36,7 +35,7 @@ def get_arguments():
                         help="The fdm data endpoint")
     
     parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
-    parser.add_argument("jsbsim", action="store", help="The path to jsbsim source code")
+    parser.add_argument("--aircraft", action="store", default="Rascal", help="The aircraft model that will be used")
 
     return parser.parse_args()
 
@@ -50,9 +49,10 @@ def main():
 
     args = get_arguments()
 
-    jsbsim_path = args.jsbsim
+    huginn_path = inspect.getfile(huginn)
+    huginn_data_path = path.join(path.dirname(huginn_path), "data")
 
-    fdmexec = create_fdmexec(jsbsim_path, args.dt)
+    fdmexec = create_fdmexec(huginn_data_path, args.aircraft, args.dt)
 
     if not fdmexec:
         logging.error("Failed to create flight model")

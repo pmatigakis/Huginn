@@ -1,12 +1,13 @@
 Starting the simulator
 ======================
-The simulator is started using the huginn_start.py script and passing to it the path
-to the source code of JSBSim as well as the name of the script to run. The
-following command will start the simulator using the 737 cruise script of JSBSim
+The simulator is started using the huginn_start.py script and passing to it the
+name of the aircraft you want to use. The simulator supports two aircraft. The
+easystar and the Rascal. The following command will start the simulator using 
+the Rascal aircraft
 
 .. code-block:: bash
 
-    huginn_start.py --jsbsim /home/panagiotis/jsbsim/ --script scripts/737_cruise.xml
+    huginn_start.py --aircraft Rascal
     
 By default the simulator will start paused. The fdm data and controls interfaces will use 
 udp ports 10300 and 10301 respectively. The simulator control server will run on port 10500 

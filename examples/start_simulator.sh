@@ -1,1 +1,1 @@
-huginn_start.py /home/panagiotis/development/projects/jsbsim/jsbsim/jsbsim-code/
+huginn_start.py

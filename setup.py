@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(name="huginn",
       version = '0.0.1',
@@ -18,5 +18,12 @@ setup(name="huginn",
                                'static/fonts/*.woff',
                                'static/fonts/*.svg]',
                                'static/fonts/*.woff2',
-                               'static/fonts/*.ttf']}
+                               'static/fonts/*.ttf',
+                               'data/easystar/*.xml',
+                               'data/easystar/Engines/*.xml',
+                               'data/easystar/Systems/*.xml',
+                               'data/Rascal/*.xml',
+                               'data/Rascal/Engines/*.xml',
+                               'data/Rascal/Systems/*.xml',
+                               'data/Rascal/Systems/*.nas']}
       )

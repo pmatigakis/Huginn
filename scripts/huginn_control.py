@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from argparse import ArgumentParser
 
 from huginn.configuration import WEB_SERVER_PORT
