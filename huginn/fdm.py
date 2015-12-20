@@ -8,6 +8,8 @@ import logging
 
 from PyJSBSim import FGFDMExec
 
+from huginn import configuration
+
 fdm_properties = [
     "simulation/sim-time-sec",
     "simulation/dt",
@@ -78,7 +80,7 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-def create_fdmexec(jsbsim_path, script, dt):
+def create_fdmexec(jsbsim_path, dt):
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
@@ -91,7 +93,14 @@ def create_fdmexec(jsbsim_path, script, dt):
     logging.debug("JSBSim dt is %f", dt)
     fdmexec.Setdt(dt)
 
-    fdmexec.LoadScript(script)
+    fdmexec.LoadModel("c172p")
+    
+    ic = fdmexec.GetIC()
+    
+    ic.Load("reset00")
+    ic.SetLatitudeDegIC(configuration.INITIAL_LATITUDE)
+    ic.SetLongitudeDegIC(configuration.INITIAL_LONGITUDE)
+    ic.SetPsiDegIC(configuration.INITIAL_HEADING)
 
     ic_result = fdmexec.RunIC()
 
@@ -99,10 +108,35 @@ def create_fdmexec(jsbsim_path, script, dt):
         logging.error("Failed to run initial condition")
         return None
 
+    fdmexec.PrintSimulationConfiguration()
+    
+    fdmexec.GetPropagate().DumpState()
+
     running = fdmexec.Run()
 
     if not running:
         logging.error("Failed to execute initial run")
+        return None
+
+    logging.debug("Starting the engine of C172p")
+
+    engine = fdmexec.GetPropulsion().GetEngine(0)
+    engine.SetRunning(True)
+
+    fdmexec.SetPropertyValue("fcs/throttle-cmd-norm", 0.0)
+    fdmexec.SetPropertyValue("fcs/mixture-cmd-norm", 1.0)
+    fdmexec.SetPropertyValue("propulsion/magneto_cmd", 3.0)
+    fdmexec.SetPropertyValue("propulsion/starter_cmd", 1.0)
+
+    start_time = fdmexec.GetSimTime()
+    engine_start_delay = 10.0
+
+    running = True
+    while running and fdmexec.GetSimTime() < start_time + engine_start_delay:
+        running = fdmexec.Run()
+
+    if not running:
+        logging.debug("Failed to run simulation during engine startup")
         return None
 
     return fdmexec

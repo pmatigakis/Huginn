@@ -8,6 +8,6 @@ class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
         jsbsim_path = os.environ.get("JSBSIM_HOME", None)
 
-        fdmexec = create_fdmexec(jsbsim_path, "/scripts/737_cruise.xml", configuration.DT)
+        fdmexec = create_fdmexec(jsbsim_path, configuration.DT)
 
         self.assertIsNotNone(fdmexec)

@@ -37,7 +37,6 @@ def get_arguments():
     
     parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
     parser.add_argument("jsbsim", action="store", help="The path to jsbsim source code")
-    parser.add_argument("script", action="store", help="The script to load")
 
     return parser.parse_args()
 
@@ -53,7 +52,7 @@ def main():
 
     jsbsim_path = args.jsbsim
 
-    fdmexec = create_fdmexec(jsbsim_path, args.script, args.dt)
+    fdmexec = create_fdmexec(jsbsim_path, args.dt)
 
     if not fdmexec:
         logging.error("Failed to create flight model")
@@ -61,6 +60,8 @@ def main():
         exit(-1)
 
     aircraft = Aircraft(fdmexec)
+
+    aircraft.run()
 
     simulator = Simulator(fdmexec, aircraft)
 

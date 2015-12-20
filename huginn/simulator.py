@@ -92,7 +92,7 @@ class Simulator(object):
 
         self.paused = True
 
-    def run(self):
+    def run(self):            
         if not self.paused:
             self.fdmexec.ProcessMessage()
             self.fdmexec.CheckIncrementalHold()
