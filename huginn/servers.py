@@ -105,7 +105,7 @@ class SimulationServer(object):
         logging.info("Starting the simulator server")
         reactor.run()  # @UndefinedVariable
         logging.info("The simulator server has stopped")
-    
+
     def stop(self):
         logging.info("Shutting down the simulator server")
         reactor.stop()  # @UndefinedVariable

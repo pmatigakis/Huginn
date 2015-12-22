@@ -77,7 +77,7 @@ function start_data_update(){
 			update_map(latitude, longitude);
 			update_fdm_data_table(data);
 		});
-	}, 1000);
+	}, 250);
 }
 
 $(document).ready(function(){

@@ -16,8 +16,6 @@ from huginn.console import SimulatorStatePrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
-
-    parser.add_argument("--dt", action="store", type=float, default=configuration.DT, help="The simulation timestep")
     
     parser.add_argument("--telemetry", 
                         action="store", 
@@ -49,19 +47,27 @@ def main():
 
     args = get_arguments()
 
+    #make sure the user is using a model we support
+    if args.aircraft != "Rascal" and args.aircraft != "easystar":
+        logging.error("%s is not a supported aircraft", args.aircraft)
+        print("%s is not a supported aircraft" % args.aircraft)
+        exit(-1)
+
     huginn_path = inspect.getfile(huginn)
     huginn_data_path = path.join(path.dirname(huginn_path), "data")
 
-    fdmexec = create_fdmexec(huginn_data_path, args.aircraft, args.dt)
+    fdmexec = create_fdmexec(huginn_data_path, args.aircraft, configuration.DT)
 
     if not fdmexec:
-        logging.error("Failed to create flight model")
-        print("Failed to create flight model")
+        logging.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
+        print("Failed to create flight model using the aircraft model '%s'" % args.aircraft)
         exit(-1)
 
     aircraft = Aircraft(fdmexec)
 
     aircraft.run()
+
+    logging.debug("Engine thrust after simulation start %f", aircraft.engine.thrust)
 
     simulator = Simulator(fdmexec, aircraft)
 
