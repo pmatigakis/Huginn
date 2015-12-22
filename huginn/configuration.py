@@ -1,8 +1,3 @@
-import logging
-import os
-
-from PyJSBSim import FGFDMExec
-
 #interface settings
 SIMULATOR_CONTROL_PORT = 10500
 WEB_SERVER_PORT = 8090
@@ -16,8 +11,3 @@ TELEMETRY_DT = 1.0
 
 #simulation settings
 DT = 1.0/160.0
-
-#initial condition
-INITIAL_LATITUDE = 37.9232547
-INITIAL_LONGITUDE = 23.921773
-INITIAL_HEADING = 45.0 #degrees

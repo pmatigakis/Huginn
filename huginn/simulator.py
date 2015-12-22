@@ -86,13 +86,27 @@ class Simulator(object):
         self.aircraft.controls.aileron = 0.0
         self.aircraft.controls.elevator = 0.0
         self.aircraft.controls.rudder = 0.0
-        self.aircraft.controls.throttle = 0.0
+        self.aircraft.controls.throttle = 0.2
+
+        self.fdmexec.PrintSimulationConfiguration()
+
+        self.fdmexec.GetPropagate().DumpState()
+
+        running = self.fdmexec.Run()
+
+        if not running:
+            logging.error("Failed to reset the simulator")
+            reactor.stop()  # @UndefinedVariable
+
+        self.aircraft.run()
+
+        logging.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
 
         self._simulator_has_reset()
 
         self.paused = True
 
-    def run(self):            
+    def run(self):
         if not self.paused:
             self.fdmexec.ProcessMessage()
             self.fdmexec.CheckIncrementalHold()
@@ -104,4 +118,4 @@ class Simulator(object):
 
                 self._simulator_has_updated()
             else:
-                reactor.stop()
+                reactor.stop()  # @UndefinedVariable

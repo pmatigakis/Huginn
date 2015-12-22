@@ -85,6 +85,7 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
+    logging.debug("Using aircraft %s", aircraft_name)
 
     fdmexec.SetRootDir(jsbsim_path)
     fdmexec.SetAircraftPath("")
@@ -95,18 +96,15 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     fdmexec.Setdt(dt)
 
     fdmexec.LoadModel(aircraft_name)
-    
+
     engine = fdmexec.GetPropulsion().GetEngine(0)
     engine.SetRunning(True)
 
     fdmexec.GetFCS().SetThrottleCmd(0, 0.2)
-    
+
     ic = fdmexec.GetIC()
-    
+
     ic.Load("reset")
-    ic.SetLatitudeDegIC(configuration.INITIAL_LATITUDE)
-    ic.SetLongitudeDegIC(configuration.INITIAL_LONGITUDE)
-    ic.SetPsiDegIC(configuration.INITIAL_HEADING)
 
     ic_result = fdmexec.RunIC()
 
@@ -115,21 +113,13 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
         return None
 
     fdmexec.PrintSimulationConfiguration()
-    
+
     fdmexec.GetPropagate().DumpState()
 
     running = fdmexec.Run()
 
     if not running:
         logging.error("Failed to execute initial run")
-        return None
-
-    logging.debug("Starting the engine of C172p")
-
-    running = fdmexec.Run()
-
-    if not running:
-        logging.debug("Failed to make initial simulator run")
         return None
 
     return fdmexec
