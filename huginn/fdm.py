@@ -5,11 +5,8 @@ aircraft
 """
 
 import logging
-import inspect
 
 from PyJSBSim import FGFDMExec
-
-from huginn import configuration
 
 fdm_properties = [
     "simulation/sim-time-sec",
@@ -82,6 +79,10 @@ controls_properties = [
 ]
 
 def create_fdmexec(jsbsim_path, aircraft_name, dt):
+    """
+    Initialize JSBSim and create an FGFDMExec object that will be used for
+    the simulation
+    """
     fdmexec = FGFDMExec()
 
     logging.debug("Using jsbsim data at %s", jsbsim_path)
@@ -111,10 +112,6 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     if not ic_result:
         logging.error("Failed to run initial condition")
         return None
-
-    fdmexec.PrintSimulationConfiguration()
-
-    fdmexec.GetPropagate().DumpState()
 
     running = fdmexec.Run()
 

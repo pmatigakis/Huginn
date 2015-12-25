@@ -1,1 +1,1 @@
-huginn_start.py
+huginn_start.py --debug --aircraft Rascal

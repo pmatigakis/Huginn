@@ -8,8 +8,6 @@ import logging
 from twisted.internet import reactor
 
 from huginn import configuration
-from huginn.unit_conversions import convert_meters_per_sec_to_knots,\
-    convert_meters_to_feet
 
 class SimulatorEventListener(object):
     def simulator_reset(self, simulator):
