@@ -83,6 +83,8 @@ def main():
 
     logging.debug("Engine thrust after simulation start %f", aircraft.engine.thrust)
 
+    #start the simulator paused
+    fdmexec.Hold()
     simulator = Simulator(fdmexec, aircraft)
 
     simulator_state_printer = SimulatorStatePrinter()

@@ -301,6 +301,7 @@ class SimulatorControl(Resource):
         elif simulator_command == "reset":
             logging.debug("Reseting the simulator")
             self.simulator.reset()
+            logging.debug("Pausing the simulator")
             self.simulator.pause()
         else:
             logging.error("Invalid simulator command %s", simulator_command)

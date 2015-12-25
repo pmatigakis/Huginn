@@ -23,6 +23,7 @@ class SimulatorEventListener(object):
         pass
 
 class Simulator(object):
+    """The Simulator class is used to perform the simulation of an aircraft"""
     def __init__(self, fdmexec, aircraft):
         self.aircraft = aircraft
         self.fdmexec = fdmexec
@@ -33,15 +34,20 @@ class Simulator(object):
         self.fdm_client_dt = configuration.FDM_CLIENT_DT
         self.listeners = []
 
-        self.paused = True
-
     @property
     def dt(self):
+        """The simulation time step"""
         return self.fdmexec.GetDeltaT()
 
     @property
     def simulation_time(self):
+        """The current simulation time"""
         return self.fdmexec.GetSimTime()
+
+    @property
+    def paused(self):
+        """Returns true if the simulator is paused"""
+        return self.fdmexec.Holding()
 
     def add_simulator_event_listener(self, listener):
         self.listeners.append(listener)
@@ -66,16 +72,19 @@ class Simulator(object):
             listener.simulator_state_update(self)
 
     def pause(self):
-        self.paused = True
+        """Pause the simulator"""
+        self.fdmexec.Hold()
 
         self._simulator_has_paused()
 
     def resume(self):
-        self.paused = False
+        """Resume the simulation"""
+        self.fdmexec.Resume()
 
         self._simulator_has_resumed()
 
     def reset(self):
+        """Reset the simulation"""
         logging.debug("Reseting the aircraft")
         self.fdmexec.Resume()
 
@@ -102,18 +111,17 @@ class Simulator(object):
 
         self._simulator_has_reset()
 
-        self.paused = True
-
     def run(self):
-        if not self.paused:
-            self.fdmexec.ProcessMessage()
-            self.fdmexec.CheckIncrementalHold()
+        """Run the simulation"""
+        self.fdmexec.ProcessMessage()
+        self.fdmexec.CheckIncrementalHold()
 
-            run_result = self.fdmexec.Run()
+        run_result = self.fdmexec.Run()
 
-            if run_result:
-                self.aircraft.run()
+        if run_result:
+            self.aircraft.run()
 
-                self._simulator_has_updated()
-            else:
-                reactor.stop()  # @UndefinedVariable
+            self._simulator_has_updated()
+        else:
+            logging.error("The simulator has failed to run")
+            reactor.stop()  # @UndefinedVariable
