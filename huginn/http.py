@@ -9,6 +9,7 @@ import logging
 from twisted.web.resource import Resource
 
 class AircraftIndex(Resource):
+    """This class server as the root for the aircraft web resources."""
     isLeaf = False
 
     def __init__(self):
@@ -19,9 +20,6 @@ class AircraftIndex(Resource):
             return self
         return Resource.getChild(self, name, request)
 
-#    def render_GET(self, request):
-#        return "Huginn is running"
-
 class FlightDataResource(Resource):
     """This is the base class that can be used to create resource subclasses
     that return flight data"""
@@ -30,13 +28,14 @@ class FlightDataResource(Resource):
         self.aircraft = aircraft
 
     def get_flight_data(self):
-        """This method must be overidden by the subclass. It should return a
+        """This method must be overridden by the subclass. It should return a
         dictionary containing the requested flight data"""
         pass
 
     def render_GET(self, request):
         """Return the response with the flight data"""
-        request.responseHeaders.addRawHeader("content-type", "application/json")
+        request.responseHeaders.addRawHeader("content-type",
+                                             "application/json")
 
         flight_data = self.get_flight_data()
 
@@ -123,7 +122,8 @@ class ThermometerData(FlightDataResource):
         return thermometer_data
 
 class PressureSensorData(FlightDataResource):
-    """This resource class will return the pressure sensor data in json format"""
+    """This resource class will return the pressure sensor data in json
+    format"""
     isLeaf = True
 
     def __init__(self, aircraft):
@@ -202,7 +202,8 @@ class EngineData(FlightDataResource):
         return engine_data
 
 class FlightControlsData(FlightDataResource):
-    """This resource class will return the flight controls data in json format"""
+    """This resource class will return the flight controls data in json
+    format"""
     isLeaf = True
 
     def __init__(self, aircraft):
@@ -219,6 +220,7 @@ class FlightControlsData(FlightDataResource):
         return flight_controls_data
 
 class FDMData(FlightDataResource):
+    """The FDMData resource returns data relative to the simulation"""
     isLeaf = True
     def __init__(self, aircraft):
         FlightDataResource.__init__(self, aircraft)
@@ -251,6 +253,8 @@ class FDMData(FlightDataResource):
         return flight_data
 
 class SimulatorControl(Resource):
+    """The SimulatorControl resource is used to control the simulator.
+    For the moment it is possible to pause, resume and reset the simulator"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -271,20 +275,26 @@ class SimulatorControl(Resource):
         return self.send_response(request, response_data)
 
     def send_response(self, request, response_data):
-        request.responseHeaders.addRawHeader("content-type", "application/json")
+        request.responseHeaders.addRawHeader("content-type",
+                                             "application/json")
 
         return json.dumps(response_data)
 
     def render_GET(self, request):
+        """The GET http method simply returns the state of the simulator in
+        json format"""
         simulator_state = {
             "time": self.simulator.simulation_time,
             "dt": self.simulator.dt,
-            "running": not self.simulator.paused
+            "running": not self.simulator.fdmexec.Holding()
         }
 
         return self.send_response(request, simulator_state)
 
     def render_POST(self, request):
+        """The POST http method is used to control the simulator.
+        The request must contain a command argument with the name of the action
+        to be performed"""
         if not request.args.has_key("command"):
             logging.error("Invalid simulator control request")
 
@@ -329,28 +339,46 @@ class WebClient(object):
         return data
 
     def get_gps_data(self):
+        """Get the gps data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("gps")
 
     def get_accelerometer_data(self):
+        """Get the accelerometer data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("accelerometer")
 
     def get_gyroscope_data(self):
+        """Get the gyroscope data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("gyroscope")
 
     def get_thermometer_data(self):
+        """Get the temperature data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("thermometer")
 
     def get_pressure_sensor_data(self):
+        """Get the atmospheric pressure data from the simulator and return
+        them as a dictionary"""
         return self._get_json_data_from_endpoint("pressure_sensor")
 
     def get_pitot_tube_data(self):
+        """Get the pitot tube data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("pitot_tube")
 
     def get_ins_data(self):
+        """Get the inertial navigation system  data from the simulator and
+        return them as a dictionary"""
         return self._get_json_data_from_endpoint("ins")
 
     def get_engine_data(self):
+        """Get the engine data from the simulator and return them as a
+        dictionary"""
         return self._get_json_data_from_endpoint("engine")
 
     def get_flight_controls(self):
+        """Get the flight controls data from the simulator and return them as
+        a dictionary"""
         return self._get_json_data_from_endpoint("flight_controls")

@@ -6,7 +6,7 @@ aircraft
 
 import logging
 
-from PyJSBSim import FGFDMExec
+from PyJSBSim import FGFDMExec  # @UnresolvedImport
 
 fdm_properties = [
     "simulation/sim-time-sec",

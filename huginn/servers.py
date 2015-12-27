@@ -16,9 +16,13 @@ from huginn.http import GPSData, AccelerometerData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl,\
                         FDMData, AircraftIndex
-from huginn.protocols import TelemetryFactory, ControlsProtocol, FDMDataProtocol
+from huginn.protocols import TelemetryFactory, ControlsProtocol,\
+                             FDMDataProtocol
 
 class SimulationServer(object):
+    """This class is the network front-end for the simulator. It will create
+    and initialize the interfaces that can be used to control and receive
+    simulation data."""
     def __init__(self, simulator):
         self.simulator = simulator
         self.fdmexec = simulator.fdmexec
@@ -51,9 +55,7 @@ class SimulationServer(object):
         aircraft_root.putChild("flight_controls", FlightControlsData(self.aircraft))
 
         root.putChild("aircraft", aircraft_root)
-
         root.putChild("simulator", SimulatorControl(self.simulator))
-
         root.putChild("fdm", FDMData(self.aircraft))
 
         frontend = server.Site(root)
@@ -82,7 +84,7 @@ class SimulationServer(object):
 
     def _initialize_fdm_data_server(self):
         """Initialize the fdm data server"""
-        logging.debug("Sending fdm data to %s:%d" % (self.fdm_client_address, self.fdm_client_port))
+        logging.debug("Sending fdm data to %s:%d", self.fdm_client_address, self.fdm_client_port)
 
         fdm_data_protocol = FDMDataProtocol(self.aircraft, self.fdm_client_address, self.fdm_client_port)
 
@@ -96,6 +98,7 @@ class SimulationServer(object):
         fdm_updater.start(self.dt)
 
     def start(self):
+        """Start the simulator server"""
         self._initialize_controls_server()
         self._initialize_fdm_data_server()
         self._initialize_telemetry_server()
@@ -107,5 +110,6 @@ class SimulationServer(object):
         logging.info("The simulator server has stopped")
 
     def stop(self):
+        """Stop the simulator server"""
         logging.info("Shutting down the simulator server")
         reactor.stop()  # @UndefinedVariable

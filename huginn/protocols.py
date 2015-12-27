@@ -1,3 +1,8 @@
+"""
+The huginn.protocols module contains classes that are used by twisted in order
+to transmit and receive simulation data.
+"""
+
 import struct
 import logging
 from abc import ABCMeta, abstractmethod
@@ -14,10 +19,13 @@ class InvalidFDMDataRequestCommand(Exception):
         self.command = command
 
 class ControlsProtocol(DatagramProtocol):
+    """The ControlsProtocol is used to receive and update tha aircraft's
+    controls"""
     def __init__(self, aircraft):
         self.aircraft = aircraft
 
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):
+        """Set the new aircraft controls values"""
         self.aircraft.controls.aileron = aileron
         self.aircraft.controls.elevator = elevator
         self.aircraft.controls.rudder = rudder
@@ -70,6 +78,7 @@ class TelemetryProtocol(Protocol):
         self.factory.clients.remove(self)
 
     def transmit_telemetry_data(self, telemetry_data):
+        """Send the telemetry data"""
         if not self.have_sent_header:
             telemetry_header = ','.join(self.telemetry_items)
             telemetry_header += "\r\n"
@@ -122,6 +131,7 @@ class TelemetryFactory(Factory):
         }
 
     def update_clients(self):
+        """Send the telemetry data to the connected clients"""
         telemetry_data = self.get_telemetry_data()
 
         for client in self.clients:
@@ -168,14 +178,20 @@ class TelemetryClientFactory(Factory):
         self.listeners.remove(listener)
 
     def received_telemetry_header(self, variable_names):
+        """Called by the telemetry client when the telemetry header has been
+        received"""
         for listener in self.listeners:
             listener.received_telemetry_header(variable_names)
 
     def received_telemetry_data(self, telemetry_data):
+        """Called by the telemetry client when telemetry data have been
+        received"""
         for listener in self.listeners:
             listener.received_telemetry_data(telemetry_data)
 
 class FDMDataProtocol(DatagramProtocol):
+    """The FDMDataProtocol class is used to transmit the flight dynamics model
+    data to the client"""
     def __init__(self, aircraft, remote_host, port):
         self.aircraft = aircraft
         self.remote_host = remote_host
