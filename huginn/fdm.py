@@ -83,17 +83,19 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     Initialize JSBSim and create an FGFDMExec object that will be used for
     the simulation
     """
+    logger = logging.getLogger("huginn")
+
     fdmexec = FGFDMExec()
 
-    logging.debug("Using jsbsim data at %s", jsbsim_path)
-    logging.debug("Using aircraft %s", aircraft_name)
+    logger.debug("Using jsbsim data at %s", jsbsim_path)
+    logger.debug("Using aircraft %s", aircraft_name)
 
     fdmexec.SetRootDir(jsbsim_path)
     fdmexec.SetAircraftPath("")
     fdmexec.SetEnginePath("/%s/Engines" % aircraft_name)
     fdmexec.SetSystemsPath("/%s/Systems" % aircraft_name)
 
-    logging.debug("JSBSim dt is %f", dt)
+    logger.debug("JSBSim dt is %f", dt)
     fdmexec.Setdt(dt)
 
     fdmexec.LoadModel(aircraft_name)
@@ -110,13 +112,13 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     ic_result = fdmexec.RunIC()
 
     if not ic_result:
-        logging.error("Failed to run initial condition")
+        logger.error("Failed to run initial condition")
         return None
 
     running = fdmexec.Run()
 
     if not running:
-        logging.error("Failed to execute initial run")
+        logger.error("Failed to execute initial run")
         return None
 
     return fdmexec

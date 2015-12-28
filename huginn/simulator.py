@@ -33,6 +33,7 @@ class Simulator(object):
         self.fdm_client_port = configuration.FDM_CLIENT_PORT
         self.fdm_client_dt = configuration.FDM_CLIENT_DT
         self.listeners = []
+        self.logger = logging.getLogger("huginn")
 
     @property
     def dt(self):
@@ -85,7 +86,7 @@ class Simulator(object):
 
     def reset(self):
         """Reset the simulation"""
-        logging.debug("Reseting the aircraft")
+        self.logger.debug("Reseting the aircraft")
         self.fdmexec.Resume()
 
         self.fdmexec.ResetToInitialConditions(0)
@@ -102,12 +103,12 @@ class Simulator(object):
         running = self.fdmexec.Run()
 
         if not running:
-            logging.error("Failed to reset the simulator")
+            self.logger.error("Failed to reset the simulator")
             reactor.stop()  # @UndefinedVariable
 
         self.aircraft.run()
 
-        logging.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
+        self.logger.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
 
         self._simulator_has_reset()
 
@@ -123,5 +124,5 @@ class Simulator(object):
 
             self._simulator_has_updated()
         else:
-            logging.error("The simulator has failed to run")
+            self.logger.error("The simulator has failed to run")
             reactor.stop()  # @UndefinedVariable

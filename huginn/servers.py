@@ -35,10 +35,11 @@ class SimulationServer(object):
         self.web_server_port = configuration.WEB_SERVER_PORT
         self.telemetry_port = configuration.TELEMETRY_PORT
         self.telemetry_update_rate = configuration.TELEMETRY_DT
+        self.logger = logging.getLogger("huginn")
 
     def _initialize_web_server(self):
         """Initialize the web server"""
-        logging.debug("Starting web server at port %d", self.web_server_port)
+        self.logger.debug("Starting web server at port %d", self.web_server_port)
 
         root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
 
@@ -64,7 +65,7 @@ class SimulationServer(object):
 
     def _initialize_telemetry_server(self):
         """Initialize the telemetry server"""
-        logging.debug("Starting telemetry server at port %d", self.telemetry_port)
+        self.logger.debug("Starting telemetry server at port %d", self.telemetry_port)
 
         telemetry_factory = TelemetryFactory(self.aircraft)
 
@@ -75,7 +76,7 @@ class SimulationServer(object):
 
     def _initialize_controls_server(self):
         """Initialize the controls server"""
-        logging.debug("Starting aircraft controls server at port %d",
+        self.logger.debug("Starting aircraft controls server at port %d",
                      self.controls_port)
 
         controls_protocol = ControlsProtocol(self.aircraft)
@@ -84,7 +85,7 @@ class SimulationServer(object):
 
     def _initialize_fdm_data_server(self):
         """Initialize the fdm data server"""
-        logging.debug("Sending fdm data to %s:%d", self.fdm_client_address, self.fdm_client_port)
+        self.logger.debug("Sending fdm data to %s:%d", self.fdm_client_address, self.fdm_client_port)
 
         fdm_data_protocol = FDMDataProtocol(self.aircraft, self.fdm_client_address, self.fdm_client_port)
 
@@ -105,11 +106,11 @@ class SimulationServer(object):
         self._initialize_web_server()
         self._initialize_simulator_updater()
 
-        logging.info("Starting the simulator server")
+        self.logger.info("Starting the simulator server")
         reactor.run()  # @UndefinedVariable
-        logging.info("The simulator server has stopped")
+        self.logger.info("The simulator server has stopped")
 
     def stop(self):
         """Stop the simulator server"""
-        logging.info("Shutting down the simulator server")
+        self.logger.info("Shutting down the simulator server")
         reactor.stop()  # @UndefinedVariable

@@ -260,6 +260,7 @@ class SimulatorControl(Resource):
     def __init__(self, simulator):
         Resource.__init__(self)
         self.simulator = simulator
+        self.logger = logging.getLogger("huginn")
 
     def invalid_request(self, request):
         response_data = {"result": "error",
@@ -296,25 +297,25 @@ class SimulatorControl(Resource):
         The request must contain a command argument with the name of the action
         to be performed"""
         if not request.args.has_key("command"):
-            logging.error("Invalid simulator control request")
+            self.logger.error("Invalid simulator control request")
 
             return self.invalid_request(request)
 
         simulator_command = request.args["command"][0]
 
         if simulator_command == "pause":
-            logging.debug("Pausing the simulator")
+            self.logger.debug("Pausing the simulator")
             self.simulator.pause()
         elif simulator_command == "resume":
-            logging.debug("Resuming simulation")
+            self.logger.debug("Resuming simulation")
             self.simulator.resume()
         elif simulator_command == "reset":
-            logging.debug("Reseting the simulator")
+            self.logger.debug("Reseting the simulator")
             self.simulator.reset()
-            logging.debug("Pausing the simulator")
+            self.logger.debug("Pausing the simulator")
             self.simulator.pause()
         else:
-            logging.error("Invalid simulator command %s", simulator_command)
+            self.logger.error("Invalid simulator command %s", simulator_command)
             return self.invalid_command(request, simulator_command)
 
         response_data = {"command": simulator_command, "result": "ok"}
