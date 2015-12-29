@@ -1,162 +1,180 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/leaflet.css">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css">
-    <title>Flight simulator data viewer</title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12">
-          <h1>Flight simulator data viewer</h1>
-        </div>
-      </div>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/leaflet.css">
+<link rel="stylesheet" href="css/bootstrap.css">
+<link rel="stylesheet" href="css/style.css">
+<style>
+@import url(js/Cesium/Widgets/widgets.css);
 
-      <div class="row">
-        <div class="col-lg-6">
-          <canvas id="primary_flight_diplay" width="400" height="400">
-            This browser doesn't support the canvas element
-          </canvas>
-        </div>
-  
-        <div class="col-lg-6">
-          <div id="map"></div>
-          <input id="follow_aircraft" name="follow_aircraft" type="checkbox" value="Follow aircraft" checked>Follow aircraft</input>
-        </div>
-      </div>
-      
-        
-      <div class="row">
-        <div class="col-lg-12">
-          <table id="fdm-data" class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Flight data</th>
-                <th>Value</th>
-                <th>Unit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Longitude</td>
-                <td class="longitude">0.0</td>
-                <td>Degrees</td>
-              </tr>
-              <tr>
-                <td>Latitude</td>
-                <td class="latitude">0.0</td>
-                <td>Degrees</td>
-              </tr>
-              <tr>
-                <td>Altitude</td>
-                <td class="altitude">0.0</td>
-                <td>Meters</td>
-              </tr>
-              <tr>
-                <td>Airspeed</td>
-                <td class="airspeed">0.0</td>
-                <td>Meters/Sec</td>
-              </tr>
-              <tr>
-                <td>Heading</td>
-                <td class="heading">0.0</td>
-                <td>Degrees</td>
-              </tr>
-              <tr>
-                <td>X acceleration</td>
-                <td class="x-acceleration">0.0</td>
-                <td>meters/sec^2</td>
-              </tr>
-              <tr>
-                <td>Y acceleration</td>
-                <td class="y-acceleration">0.0</td>
-                <td>meters/sec^2</td>
-              </tr>
-              <tr>
-                <td>Z acceleration</td>
-                <td class="z-acceleration">0.0</td>
-                <td>meters/sec^2</td>
-              </tr>
-              <tr>
-                <td>Roll rate</td>
-                <td class="roll-rate">0.0</td>
-                <td>degrees/sec</td>
-              </tr>
-              <tr>
-                <td>Pitch rate</td>
-                <td class="pitch-rate">0.0</td>
-                <td>degrees/sec</td>
-              </tr>
-              <tr>
-                <td>Yaw rate</td>
-                <td class="yaw-rate">0.0</td>
-                <td>degrees/sec</td>
-              </tr>
-              <tr>
-                <td>Temperature</td>
-                <td class="temperature">0.0</td>
-                <td>Kelvin</td>
-              </tr>
-              <tr>
-                <td>Static pressure</td>
-                <td class="static-pressure">0.0</td>
-                <td>pascal</td>
-              </tr>
-              <tr>
-                <td>Total pressure</td>
-                <td class="total-pressure">0.0</td>
-                <td>pascal</td>
-              </tr>
-              <tr>
-                <td>Roll</td>
-                <td class="roll">0.0</td>
-                <td>degrees</td>
-              </tr>
-              <tr>
-                <td>Pitch</td>
-                <td class="pitch">0.0</td>
-                <td>degrees</td>
-              </tr>
-              <tr>
-                <td>Thrust</td>
-                <td class="thrust">0.0</td>
-                <td>newtons</td>
-              </tr>
-              <tr>
-                <td>Aileron</td>
-                <td class="aileron">0.0</td>
-                <td>Normalized value</td>
-              </tr>
-              <tr>
-                <td>Elevator</td>
-                <td class="elevator">0.0</td>
-                <td>Normalized value</td>
-              </tr>
-              <tr>
-                <td>Rudder</td>
-                <td class="rudder">0.0</td>
-                <td>Normalized value</td>
-              </tr>
-              <tr>
-                <td>Throttle</td>
-                <td class="throttle">0.0</td>
-                <td>Normalized value</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    
-    <script src="js/leaflet.js" type="text/javascript"></script>
-    <script src="js/jquery-1.11.3.js" type="text/javascript"></script>
-    <script src="js/bootstrap.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="js/avionics.js"></script>
-    <script type="text/javascript" src="js/app.js"></script>
-  </body>
+#cesiumContainer {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+</style>
+<title>Flight simulator data viewer</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<h1>Flight simulator data viewer</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-8">
+				<div id="cesiumContainer"></div>
+			</div>
+			
+			<div class="col-md-4">
+                <canvas id="primary_flight_diplay" width="320" height="320">
+                    This browser doesn't support the canvas element
+                  </canvas>
+            </div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div id="map"></div>
+				<input id="follow_aircraft" name="follow_aircraft" type="checkbox"
+					value="Follow aircraft" checked>Follow aircraft</input>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<table id="fdm-data" class="table table-bordered">
+					<thead>
+						<tr>
+							<th>Flight data</th>
+							<th>Value</th>
+							<th>Unit</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Longitude</td>
+							<td class="longitude">0.0</td>
+							<td>Degrees</td>
+						</tr>
+						<tr>
+							<td>Latitude</td>
+							<td class="latitude">0.0</td>
+							<td>Degrees</td>
+						</tr>
+						<tr>
+							<td>Altitude</td>
+							<td class="altitude">0.0</td>
+							<td>Meters</td>
+						</tr>
+						<tr>
+							<td>Airspeed</td>
+							<td class="airspeed">0.0</td>
+							<td>Meters/Sec</td>
+						</tr>
+						<tr>
+							<td>Heading</td>
+							<td class="heading">0.0</td>
+							<td>Degrees</td>
+						</tr>
+						<tr>
+							<td>X acceleration</td>
+							<td class="x-acceleration">0.0</td>
+							<td>meters/sec^2</td>
+						</tr>
+						<tr>
+							<td>Y acceleration</td>
+							<td class="y-acceleration">0.0</td>
+							<td>meters/sec^2</td>
+						</tr>
+						<tr>
+							<td>Z acceleration</td>
+							<td class="z-acceleration">0.0</td>
+							<td>meters/sec^2</td>
+						</tr>
+						<tr>
+							<td>Roll rate</td>
+							<td class="roll-rate">0.0</td>
+							<td>degrees/sec</td>
+						</tr>
+						<tr>
+							<td>Pitch rate</td>
+							<td class="pitch-rate">0.0</td>
+							<td>degrees/sec</td>
+						</tr>
+						<tr>
+							<td>Yaw rate</td>
+							<td class="yaw-rate">0.0</td>
+							<td>degrees/sec</td>
+						</tr>
+						<tr>
+							<td>Temperature</td>
+							<td class="temperature">0.0</td>
+							<td>Kelvin</td>
+						</tr>
+						<tr>
+							<td>Static pressure</td>
+							<td class="static-pressure">0.0</td>
+							<td>pascal</td>
+						</tr>
+						<tr>
+							<td>Total pressure</td>
+							<td class="total-pressure">0.0</td>
+							<td>pascal</td>
+						</tr>
+						<tr>
+							<td>Roll</td>
+							<td class="roll">0.0</td>
+							<td>degrees</td>
+						</tr>
+						<tr>
+							<td>Pitch</td>
+							<td class="pitch">0.0</td>
+							<td>degrees</td>
+						</tr>
+						<tr>
+							<td>Thrust</td>
+							<td class="thrust">0.0</td>
+							<td>newtons</td>
+						</tr>
+						<tr>
+							<td>Aileron</td>
+							<td class="aileron">0.0</td>
+							<td>Normalized value</td>
+						</tr>
+						<tr>
+							<td>Elevator</td>
+							<td class="elevator">0.0</td>
+							<td>Normalized value</td>
+						</tr>
+						<tr>
+							<td>Rudder</td>
+							<td class="rudder">0.0</td>
+							<td>Normalized value</td>
+						</tr>
+						<tr>
+							<td>Throttle</td>
+							<td class="throttle">0.0</td>
+							<td>Normalized value</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="js/leaflet.js" type="text/javascript"></script>
+	<script src="js/jquery-1.11.3.js" type="text/javascript"></script>
+	<script src="js/bootstrap.min.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/avionics.js"></script>
+	<script src="js/Cesium/Cesium.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
+</body>
 </html>

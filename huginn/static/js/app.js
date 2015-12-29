@@ -2,6 +2,7 @@ var map;
 var follow_aircraft;
 var aircraft_marker;
 var myhud;
+var entity;
 
 function init_map(){
 	map = L.map('map').setView([51.0, 0.0], 13);
@@ -62,6 +63,17 @@ function update_fdm_data_table(data){
 	$("#fdm-data .throttle").text(data["throttle"]);
 }
 
+function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pitch){
+	var position = Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude);
+	var heading_in_radians = Cesium.Math.toRadians(heading);
+	var roll_in_radians = Cesium.Math.toRadians(roll);
+	var pitch_in_radians = Cesium.Math.toRadians(pitch);
+    var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, heading_in_radians, pitch_in_radians, roll_in_radians);
+    
+    entity.position = position;
+    entity.orientation = orientation;
+}
+
 function start_data_update(){
 	setInterval(function(){
 		$.getJSON("fdm", function(data){
@@ -76,6 +88,9 @@ function start_data_update(){
 			update_hud(altitude, airspeed, heading, roll, pitch);
 			update_map(latitude, longitude);
 			update_fdm_data_table(data);
+			
+			//the -90 is required because the model is facing east
+			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
 		});
 	}, 250);
 }
@@ -102,4 +117,25 @@ $(document).ready(function(){
 	$("#follow_aircraft").click(function(){
 		follow_aircraft = this.checked;
 	});
+	
+	var viewer = new Cesium.Viewer('cesiumContainer');
+	
+	var position = Cesium.Cartesian3.fromDegrees(-123.0744619, 44.0503706, 5000.0);
+	var heading = Cesium.Math.toRadians(135);
+	var pitch = 0;
+	var roll = 0;
+	var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, heading, pitch, roll);
+
+	entity = viewer.entities.add({
+	        name : "aircraft",
+	        position : position,
+	        orientation : orientation,
+	        model : {
+	            uri : "models/Cesium_Air.glb",
+	            minimumPixelSize : 128,
+	            maximumScale : 20000
+	        }
+	});
+	
+	viewer.trackedEntity = entity;
 })

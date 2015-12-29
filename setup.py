@@ -1,4 +1,22 @@
+from os import walk, path, chdir
 from distutils.core import setup
+
+def get_package_data():
+    chdir("huginn")
+    package_data = []
+    for dirname, dirnames, filenames in walk("static"):
+        for filename in filenames:
+            filepath = path.join(dirname, filename)
+            package_data.append(filepath)
+    
+    for dirname, dirnames, filenames in walk("data"):
+        for filename in filenames:
+            filepath = path.join(dirname, filename)
+            package_data.append(filepath)
+        
+    chdir("..")
+    
+    return package_data
 
 setup(name="huginn",
       version = '0.0.1',
@@ -10,20 +28,5 @@ setup(name="huginn",
                "scripts/huginn_data.py",
                "scripts/huginn_telemetry.py"],
       packages=["huginn"],
-      package_data={'huginn': ['static/*.html',
-                               'static/css/*.css',
-                               'static/js/*.js',
-                               'static/images/*.png',
-                               'static/fonts/*.eot',
-                               'static/fonts/*.woff',
-                               'static/fonts/*.svg]',
-                               'static/fonts/*.woff2',
-                               'static/fonts/*.ttf',
-                               'data/easystar/*.xml',
-                               'data/easystar/Engines/*.xml',
-                               'data/easystar/Systems/*.xml',
-                               'data/Rascal/*.xml',
-                               'data/Rascal/Engines/*.xml',
-                               'data/Rascal/Systems/*.xml',
-                               'data/Rascal/Systems/*.nas']}
+      package_data={'huginn': get_package_data()}
       )
