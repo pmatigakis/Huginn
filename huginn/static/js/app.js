@@ -4,6 +4,36 @@ var aircraft_marker;
 var myhud;
 var entity;
 
+var aircraft_info = L.control();
+
+aircraft_info.onAdd = function(map){
+	this._div = L.DomUtil.create("div", "aircraft-info");
+	this.update();
+	return this._div;
+}
+
+aircraft_info.update = function(data){
+	var contents;
+	
+	if(data){
+		var airspeed = data["airspeed"];
+		var altitude = data["altitude"];
+		var heading = data["heading"];
+		var latitude = data["latitude"];
+		var longitude = data["longitude"];
+		
+		contents = "<b>Latitude:</b> " + latitude.toFixed(5) + " degrees<br>" + 
+		           "<b>Longitude:</b> " + longitude.toFixed(5) +" degrees<br>" +
+		           "<b>Altitude:</b> " + altitude.toFixed(1) + " meters<br>" +
+		           "<b>Heading:</b> " + heading.toFixed(1) + " degrees<br>" +
+		           "<b>Airspeed:</b> " + airspeed.toFixed(1) + " meters/sec";
+	}else{
+		contents = "no data";
+	}
+	
+	this._div.innerHTML = contents;
+}
+
 function init_map(){
 	map = L.map('map').setView([51.0, 0.0], 13);
 	
@@ -11,6 +41,7 @@ function init_map(){
 		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 	}).addTo(map);
 	
+	/*
 	var aircraftIcon = L.icon({
 	    iconUrl: 'images/32px-Airplane_silhouette.png',
 
@@ -19,6 +50,10 @@ function init_map(){
 	});
 	
 	aircraft_marker = L.marker([51.0, 0.0], {icon: aircraftIcon}).addTo(map);
+	*/
+	aircraft_marker = L.marker([51.0, 0.0]).addTo(map);
+	
+	aircraft_info.addTo(map);
 } 
 
 function update_hud(altitude, airspeed, heading, roll, pitch){
@@ -88,6 +123,7 @@ function start_data_update(){
 			update_hud(altitude, airspeed, heading, roll, pitch);
 			update_map(latitude, longitude);
 			update_fdm_data_table(data);
+			aircraft_info.update(data);
 			
 			//the -90 is required because the model is facing east
 			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
