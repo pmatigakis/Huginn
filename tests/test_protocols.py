@@ -13,17 +13,16 @@ from huginn.protocols import ControlsProtocol, TelemetryFactory, TelemetryProtoc
                              ControlsClient
 from huginn.aircraft import Aircraft
 
-from mockObjects import MockFDMModel, MockFDMExec, MockTelemetryDataListener,\
+from mockObjects import MockFDMExec, MockTelemetryDataListener,\
                         MockFDMDataDatagram, MockFDMDataListener
 
 class TestControlsProtocol(TestCase):                
     def test_datagram_received(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
         
-        aircraft = Aircraft(fdm_model)
+        aircraft = Aircraft(fdmexec)
         
         controls_protocol = ControlsProtocol(aircraft)
-        controls_protocol.update_aircraft_controls = MagicMock()
              
         aileron = 0.1
         elevator = 0.2
@@ -37,10 +36,10 @@ class TestControlsProtocol(TestCase):
              
         controls_protocol.datagramReceived(controls_datagram, (host, port))
         
-        controls_protocol.update_aircraft_controls.assert_called_once_with(match_equality(close_to(aileron, 0.001)),
-                                                                           match_equality(close_to(elevator, 0.001)),
-                                                                           match_equality(close_to(rudder, 0.001)),
-                                                                           match_equality(close_to(throttle, 0.001)))
+        self.assertAlmostEqual(aircraft.controls.aileron, aileron, 3)
+        self.assertAlmostEqual(aircraft.controls.elevator, elevator, 3)
+        self.assertAlmostEqual(aircraft.controls.rudder, rudder, 3)
+        self.assertAlmostEqual(aircraft.controls.throttle, throttle, 3)
 
 class TestTelemetryFactory(TestCase):
     def test_get_telemetry_data(self):

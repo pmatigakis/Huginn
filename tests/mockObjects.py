@@ -1,4 +1,5 @@
 import struct
+from math import degrees
 
 from huginn.protocols import TelemetryDataListener, FDMDataListener
 
@@ -33,7 +34,7 @@ class MockPropagate(object):
         self.latitude = 37.34567
         self.longitude = 21.63457
         self.altitude = 10000.0
-        self.euler = MockEuler()
+        self.euler = MockEuler() 
 
     def GetLatitudeDeg(self):
         return self.latitude
@@ -46,6 +47,17 @@ class MockPropagate(object):
 
     def GetEuler(self):
         return self.euler
+
+    def GetEulerDeg(self):
+        mock_euler_deg = MockEuler()
+        mock_euler_deg.entries[0] = degrees(self.euler.entries[0])
+        mock_euler_deg.entries[1] = degrees(self.euler.entries[1])
+        mock_euler_deg.entries[2] = degrees(self.euler.entries[2])
+        
+        return mock_euler_deg
+
+    def DumpState(self):
+        pass
 
 class MockFCS(object):
     def __init__(self):
@@ -70,7 +82,7 @@ class MockFCS(object):
         self.throttle_cmd = throttle_cmd
 
     def SetDeCmd(self, elevator):
-        self.elevator = elevator
+        self.elevator_cmd = elevator
 
     def SetDrCmd(self, rudder_cmd):
         self.rudder_cmd = rudder_cmd
@@ -188,6 +200,12 @@ class MockFDMExec(object):
 
     def GetPropertyValue(self, property_name):
         return self.properties[property_name]
+
+    def ResetToInitialConditions(self, mode):
+        pass
+    
+    def PrintSimulationConfiguration(self):
+        pass
 
 class MockFDMModel(object):
     def __init__(self):
