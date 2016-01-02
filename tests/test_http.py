@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from mock import MagicMock, ANY
 
+from huginn.simulator import Simulator
 from huginn.aircraft import Aircraft
 from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
@@ -128,9 +129,11 @@ class TestFlightControlsData(TestCase):
 
 class TestSimulatorControl(TestCase):
     def test_pause_simulator(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
 
-        simulator_control_resource = SimulatorControl(fdm_model)
+        simulator_control_resource = SimulatorControl(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -145,9 +148,11 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_reset_simulator(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
 
-        simulator_control_resource = SimulatorControl(fdm_model)
+        simulator_control_resource = SimulatorControl(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -162,9 +167,11 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_resume_simulator(self):
-        fdm_model = MockFDMModel()
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
 
-        simulator_control_resource = SimulatorControl(fdm_model)
+        simulator_control_resource = SimulatorControl(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -180,8 +187,10 @@ class TestSimulatorControl(TestCase):
 
     def test_invalid_simulator_command(self):
         fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
 
-        simulator_control_resource = SimulatorControl(fdmexec)
+        simulator_control_resource = SimulatorControl(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -198,8 +207,10 @@ class TestSimulatorControl(TestCase):
 
     def test_invalid_simulator_request(self):
         fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
 
-        simulator_control_resource = SimulatorControl(fdmexec)
+        simulator_control_resource = SimulatorControl(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -212,6 +223,47 @@ class TestSimulatorControl(TestCase):
         simulator_control_resource.send_response.assert_called_once_with(ANY, 
                                                                          {"result": "error",
                                                                           "reason": "invalid simulator command request"})
+
+    def test_step_simulator(self):
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
+
+        simulator_control_resource = SimulatorControl(simulator)
+
+        simulator_control_resource.send_response = MagicMock()
+
+        request = MockRequest()
+
+        request.args = {"command": ["step"]}
+
+        simulator_control_resource.render_POST(request)
+        
+        simulator_control_resource.send_response.assert_called_once_with(ANY, 
+                                                                         {"command": "step",
+                                                                          "result": "ok"})
+
+    def test_run_for_simulator(self):
+        fdmexec = MockFDMExec()
+        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec, aircraft)
+        simulator.run_for = MagicMock()
+
+        simulator_control_resource = SimulatorControl(simulator)
+
+        simulator_control_resource.send_response = MagicMock()
+
+        request = MockRequest()
+
+        time_to_run = 1.0
+        request.args = {"command": ["run_for"], "time_to_run": [time_to_run]}
+
+        simulator_control_resource.render_POST(request)
+
+        simulator.run_for.assert_called_once_with(time_to_run)
+        simulator_control_resource.send_response.assert_called_once_with(ANY, 
+                                                                         {"command": "run_for",
+                                                                          "result": "ok"})
 
 class TestFDMData(TestCase):
     def test_get_fdm_data(self):

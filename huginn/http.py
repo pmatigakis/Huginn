@@ -254,7 +254,8 @@ class FDMData(FlightDataResource):
 
 class SimulatorControl(Resource):
     """The SimulatorControl resource is used to control the simulator.
-    For the moment it is possible to pause, resume and reset the simulator"""
+    For the moment it is possible to pause, resume, reset and run a
+    single time the simulator"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -287,7 +288,7 @@ class SimulatorControl(Resource):
         simulator_state = {
             "time": self.simulator.simulation_time,
             "dt": self.simulator.dt,
-            "running": not self.simulator.fdmexec.Holding()
+            "running": not self.simulator.paused
         }
 
         return self.send_response(request, simulator_state)
@@ -303,22 +304,34 @@ class SimulatorControl(Resource):
 
         simulator_command = request.args["command"][0]
 
-        if simulator_command == "pause":
-            self.logger.debug("Pausing the simulator")
-            self.simulator.pause()
-        elif simulator_command == "resume":
-            self.logger.debug("Resuming simulation")
-            self.simulator.resume()
-        elif simulator_command == "reset":
-            self.logger.debug("Reseting the simulator")
-            self.simulator.reset()
-            self.logger.debug("Pausing the simulator")
-            self.simulator.pause()
-        else:
-            self.logger.error("Invalid simulator command %s", simulator_command)
-            return self.invalid_command(request, simulator_command)
-
         response_data = {"command": simulator_command, "result": "ok"}
+        try:
+            if simulator_command == "pause":
+                self.logger.debug("Pausing the simulator")
+                self.simulator.pause()
+            elif simulator_command == "resume":
+                self.logger.debug("Resuming simulation")
+                self.simulator.resume()
+            elif simulator_command == "reset":
+                self.logger.debug("Reseting the simulator")
+                self.simulator.reset()
+                self.logger.debug("Pausing the simulator")
+                self.simulator.pause()
+            elif simulator_command == "step":
+                self.simulator.step()
+            elif simulator_command == "run_for":
+                time_to_run = float(request.args["time_to_run"][0])
+                self.logger.debug("Running simulator for %f seconds", time_to_run)
+                self.simulator.run_for(time_to_run)
+            else:
+                self.logger.error("Invalid simulator command %s", simulator_command)
+                response_data = {"result": "error",
+                                 "reason": "invalid simulator command",
+                                 "command": simulator_command}
+        except:
+            #TODO: add better exception handling here
+            self.logger.exception("An error occurred while executing simulator request command %s", simulator_command)
+            response_data = {"command": simulator_command, "result": "error"}
 
         return self.send_response(request, response_data)
 

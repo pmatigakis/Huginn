@@ -17,3 +17,4 @@ _huginn_jsbsim.so
 robot/*.html
 robot/*.xml
 *.*~
+pylint.html

@@ -134,7 +134,7 @@ class MockFDMExec(object):
         self.atmosphere = MockAtmosphere()
         self.propulsion = MockPropulsion()
         self.sim_time = 32.45
-        self.dt = 1.0 / 60.0
+        self.dt = 1.0 / 160.0
 
         self.properties = {
             "simulation/sim-time-sec": self.sim_time,
@@ -187,6 +187,10 @@ class MockFDMExec(object):
         return True
 
     def Run(self):
+        self.sim_time += self.dt
+        
+        self.properties["simulation/sim-time-sec"] = self.sim_time
+        
         return True
 
     def ProcessMessage(self):

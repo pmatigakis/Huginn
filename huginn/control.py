@@ -14,10 +14,16 @@ class SimulatorControlClient(object):
         self.huginn_host = huginn_host
         self.simulator_controls_port = simulator_control_port
 
-    def _send_command(self, command):
+    def _send_command(self, command, data=None):
+        command_data = {"command": command}
+
+        if data:
+            for key, value in data.items():
+                command_data[key] = value
+
         response = requests.post("http://%s:%d/simulator" % (self.huginn_host,
                                                              self.simulator_controls_port),
-                                 data={"command": command})
+                                 data=command_data)
 
         response_data = json.loads(response.text)
 
@@ -44,6 +50,24 @@ class SimulatorControlClient(object):
     def resume(self):
         """Resume the simulation"""
         response_data = self._send_command("resume")
+
+        if response_data["result"] != "ok":
+            return False
+
+        return True
+
+    def step(self):
+        """Run one simulation step"""
+        response_data = self._send_command("step")
+
+        if response_data["result"] != "ok":
+            return False
+
+        return True
+
+    def run_for(self, time_to_run):
+        """Run the simulation for the given time in seconds"""
+        response_data = self._send_command("run_for", data={"time_to_run": time_to_run})
 
         if response_data["result"] != "ok":
             return False

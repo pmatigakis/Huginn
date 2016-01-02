@@ -34,6 +34,7 @@ class Simulator(object):
         self.fdm_client_dt = configuration.FDM_CLIENT_DT
         self.listeners = []
         self.logger = logging.getLogger("huginn")
+        self.paused = False;
 
     @property
     def dt(self):
@@ -44,11 +45,6 @@ class Simulator(object):
     def simulation_time(self):
         """The current simulation time"""
         return self.fdmexec.GetSimTime()
-
-    @property
-    def paused(self):
-        """Returns true if the simulator is paused"""
-        return self.fdmexec.Holding()
 
     def add_simulator_event_listener(self, listener):
         self.listeners.append(listener)
@@ -74,13 +70,13 @@ class Simulator(object):
 
     def pause(self):
         """Pause the simulator"""
-        self.fdmexec.Hold()
+        self.paused = True
 
         self._simulator_has_paused()
 
     def resume(self):
         """Resume the simulation"""
-        self.fdmexec.Resume()
+        self.paused = False
 
         self._simulator_has_resumed()
 
@@ -112,8 +108,8 @@ class Simulator(object):
 
         self._simulator_has_reset()
 
-    def run(self):
-        """Run the simulation"""
+    def step(self):
+        """Run the simulation one time"""
         self.fdmexec.ProcessMessage()
         self.fdmexec.CheckIncrementalHold()
 
@@ -126,3 +122,16 @@ class Simulator(object):
         else:
             self.logger.error("The simulator has failed to run")
             reactor.stop()  # @UndefinedVariable
+
+    def run_for(self, time_to_run):
+        """Run the simulation for the given time in seconds"""
+        start_time = self.fdmexec.GetSimTime()
+        end_time = start_time + time_to_run
+
+        while self.fdmexec.GetSimTime() < end_time:
+            self.step()
+
+    def run(self):
+        """Run the simulation"""
+        if not self.paused:
+            self.step()

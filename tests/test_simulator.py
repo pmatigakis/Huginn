@@ -79,3 +79,44 @@ class TestSimulator(TestCase):
         self.assertAlmostEqual(aircraft.controls.rudder, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.throttle, 0.2, 3)
         self.assertAlmostEqual(aircraft.controls.elevator, 0.0, 3)
+
+    def test_step(self):
+        fdmexec = MockFDMExec()
+        fdmexec.ProcessMessage = MagicMock()
+        fdmexec.CheckIncrementalHold = MagicMock()
+        fdmexec.Run = MagicMock()
+        
+        aircraft = Aircraft(fdmexec)
+        aircraft.run = MagicMock()
+        
+        simulator = Simulator(fdmexec, aircraft)
+        
+        simulator.step()
+        
+        fdmexec.ProcessMessage.assert_called_once_with()
+        fdmexec.CheckIncrementalHold.assert_called_once_with()
+        fdmexec.Run.assert_called_once_with()
+        aircraft.run.assert_called_once_with()
+
+    def test_run_for(self):
+        fdmexec = MockFDMExec()
+        fdmexec.ProcessMessage = MagicMock()
+        fdmexec.CheckIncrementalHold = MagicMock()
+        
+        aircraft = Aircraft(fdmexec)
+        aircraft.run = MagicMock()
+        
+        simulator = Simulator(fdmexec, aircraft)
+        
+        time_to_run = 1.0
+        
+        start_time = simulator.simulation_time
+        expected_end_time = start_time + time_to_run
+        
+        simulator.run_for(time_to_run)
+        
+        self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 3)
+        
+        fdmexec.ProcessMessage.assert_any_call()
+        fdmexec.CheckIncrementalHold.assert_any_call()
+        aircraft.run.assert_any_call()

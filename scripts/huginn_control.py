@@ -11,8 +11,10 @@ def get_arguments():
     parser.add_argument("--host", action="store", default="127.0.0.1", help="the simulator ip address")
     parser.add_argument("--port", action="store", default=WEB_SERVER_PORT, type=int, help="the flight dynamics RPC port")
     parser.add_argument("command", action="store",
-                        choices=["pause", "resume", "reset"], 
+                        choices=["pause", "resume", "reset", "step", "run_for"], 
                         help="the simulator control command")
+
+    parser.add_argument("--time_to_run", action="store", default=0.1, help="The time in seconds to run the simulator")
 
     return parser.parse_args()
 
@@ -27,6 +29,10 @@ def main():
         result = simulator_control_client.pause()
     elif args.command == "resume":
         result = simulator_control_client.resume()
+    elif args.command == "step":
+        result = simulator_control_client.step()
+    elif args.command == "run_for": 
+        result = simulator_control_client.run_for(args.time_to_run)
     else:
         print("Invalid command %s" % args.command)
         exit(-1)
