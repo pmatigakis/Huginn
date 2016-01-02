@@ -1,3 +1,4 @@
+import csv
 from math import radians, sin, cos, asin, sqrt, atan2, pi, fmod, degrees
 
 from twisted.internet import reactor, task
@@ -53,13 +54,10 @@ class PID(object):
         return result
 
 class Autopilot(FDMDataListener):
-    def __init__(self, controls_client):
+    def __init__(self, controls_client, waypoints):
         self.controls_client = controls_client
 
-        self.waypoints = [[38.1157082, 24.0426869, 9000.0, 228.0],
-                          [38.2571486, 23.8332827, 9000.0, 228.0],
-                          [38.0710667, 23.3269388, 9000.0, 228.0],
-                          [37.8809147, 23.7118918, 9000.0, 228.0]]
+        self.waypoints = waypoints
 
         self.current_waypoint_index = 0
 
@@ -166,9 +164,9 @@ class Autopilot(FDMDataListener):
         self.rudder = 0.0
 
     def run(self):
-        if self.distance_from_target() < 500.0:
+        if self.distance_from_target() < 50.0:
             self.current_waypoint_index += 1
-            self.current_waypoint_index %= 4
+            self.current_waypoint_index %= len(self.waypoints)
         
         self.update_throttle()
         self.update_elevator()
@@ -209,7 +207,19 @@ class Autopilot(FDMDataListener):
 controls_client = ControlsClient("127.0.0.1", 10301)
 reactor.listenUDP(0, controls_client)
 
-autopilot = Autopilot(controls_client)
+altitude = 300.0
+airspeed = 30.0
+
+waypoints = []
+
+with open("waypoints.csv", "r") as f:
+    reader = csv.reader(f, delimiter=",")
+
+    for row in reader:
+        waypoint = [float(row[1]), float(row[2]), altitude, airspeed]
+        waypoints.append(waypoint)
+
+autopilot = Autopilot(controls_client, waypoints)
 
 fdm_data_client = FDMDataClient()
 fdm_data_client.add_fdm_data_listener(autopilot)
