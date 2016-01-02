@@ -15,7 +15,7 @@ from huginn.http import GPSData, AccelerometerData,\
                         GyroscopeData, ThermometerData, PressureSensorData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl,\
-                        FDMData, AircraftIndex
+                        FDMData, AircraftIndex, MapData
 from huginn.protocols import TelemetryFactory, ControlsProtocol,\
                              FDMDataProtocol
 
@@ -58,6 +58,7 @@ class SimulationServer(object):
         root.putChild("aircraft", aircraft_root)
         root.putChild("simulator", SimulatorControl(self.simulator))
         root.putChild("fdm", FDMData(self.aircraft))
+        root.putChild("map", MapData())
 
         frontend = server.Site(root)
 

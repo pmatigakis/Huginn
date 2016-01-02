@@ -3,6 +3,7 @@ var follow_aircraft;
 var aircraft_marker;
 var myhud;
 var entity;
+var markers = [];
 
 var aircraft_info = L.control();
 
@@ -41,7 +42,6 @@ function init_map(){
 		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 	}).addTo(map);
 	
-	/*
 	var aircraftIcon = L.icon({
 	    iconUrl: 'images/32px-Airplane_silhouette.png',
 
@@ -50,8 +50,8 @@ function init_map(){
 	});
 	
 	aircraft_marker = L.marker([51.0, 0.0], {icon: aircraftIcon}).addTo(map);
-	*/
-	aircraft_marker = L.marker([51.0, 0.0]).addTo(map);
+	
+	//aircraft_marker = L.marker([51.0, 0.0]).addTo(map);
 	
 	aircraft_info.addTo(map);
 } 
@@ -129,6 +129,24 @@ function start_data_update(){
 			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
 		});
 	}, 250);
+	
+	setInterval(function(){
+		$.getJSON("map", function(data){
+			for(var i = 0; i < markers.length; i++){
+				map.removeLayer(markers[i]);
+			}
+			
+			markers = [];
+			
+			for(var i = 0; i < data.length; i++){
+				var latitude = data[i].latitude;
+				var longitude = data[i].longitude;
+				var marker = L.marker([latitude, longitude]);
+				marker.addTo(map);
+				markers.push(marker);
+			}
+		});
+	}, 2000);
 }
 
 $(document).ready(function(){

@@ -396,3 +396,24 @@ class WebClient(object):
         """Get the flight controls data from the simulator and return them as
         a dictionary"""
         return self._get_json_data_from_endpoint("flight_controls")
+
+class MapData(Resource):
+    """The MapData resource returns the waypoints stored in the simulation
+    server"""
+    def __init__(self):
+        Resource.__init__(self)
+        self.waypoints = []
+
+    def render_GET(self, request):
+        request.responseHeaders.addRawHeader("content-type",
+                                             "application/json")
+
+        return json.dumps(self.waypoints)
+
+    def render_POST(self, request):
+        self.waypoints = json.loads(request.content.getvalue())
+
+        request.responseHeaders.addRawHeader("content-type",
+                                             "application/json")
+
+        return json.dumps({"result": "ok"})

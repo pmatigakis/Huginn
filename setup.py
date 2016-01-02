@@ -26,7 +26,8 @@ setup(name="huginn",
       scripts=["scripts/huginn_start.py",
                "scripts/huginn_control.py",
                "scripts/huginn_data.py",
-               "scripts/huginn_telemetry.py"],
+               "scripts/huginn_telemetry.py",
+               "scripts/huginn_load_waypoints.py"],
       packages=["huginn"],
       package_data={'huginn': get_package_data()}
       )

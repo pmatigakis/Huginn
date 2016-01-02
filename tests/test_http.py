@@ -1,4 +1,5 @@
 from unittest import TestCase
+import json
 
 from mock import MagicMock, ANY
 
@@ -7,7 +8,8 @@ from huginn.aircraft import Aircraft
 from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
                         InertialNavigationSystemData, EngineData,\
-                        FlightControlsData, SimulatorControl, FDMData
+                        FlightControlsData, SimulatorControl, FDMData,\
+                        MapData
 
 from mockObjects import MockRequest, MockFDMExec, MockFDMModel
 
