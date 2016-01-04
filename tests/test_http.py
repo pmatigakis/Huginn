@@ -8,8 +8,7 @@ from huginn.aircraft import Aircraft
 from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
                         InertialNavigationSystemData, EngineData,\
-                        FlightControlsData, SimulatorControl, FDMData,\
-                        MapData
+                        FlightControlsData, SimulatorControl, FDMData
 
 from mockObjects import MockRequest, MockFDMExec, MockFDMModel
 

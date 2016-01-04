@@ -302,9 +302,13 @@ class SimulatorControl(Resource):
 
             return self.invalid_request(request)
 
+        response_data = self.handleCommand(request)
+
+        return self.send_response(request, response_data)
+
+    def handleCommand(self, request):
         simulator_command = request.args["command"][0]
 
-        response_data = {"command": simulator_command, "result": "ok"}
         try:
             if simulator_command == "pause":
                 self.logger.debug("Pausing the simulator")
@@ -325,15 +329,15 @@ class SimulatorControl(Resource):
                 self.simulator.run_for(time_to_run)
             else:
                 self.logger.error("Invalid simulator command %s", simulator_command)
-                response_data = {"result": "error",
-                                 "reason": "invalid simulator command",
-                                 "command": simulator_command}
+                return {"result": "error",
+                        "reason": "invalid simulator command",
+                        "command": simulator_command}
         except:
             #TODO: add better exception handling here
             self.logger.exception("An error occurred while executing simulator request command %s", simulator_command)
-            response_data = {"command": simulator_command, "result": "error"}
+            return  {"command": simulator_command, "result": "error"}
 
-        return self.send_response(request, response_data)
+        return {"command": simulator_command, "result": "ok"}
 
 class WebClient(object):
     """The WebClient is used to retrieve flight data from Huginn's web
