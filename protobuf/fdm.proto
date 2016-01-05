@@ -1,0 +1,63 @@
+package huginn;
+
+message GPS{
+    required double latitude = 1;
+    required double longitude = 2;
+    required double altitude = 3;
+    required double airspeed = 4;
+    required double heading = 5;
+}
+
+message Accelerometer{
+    required double x_acceleration = 1;
+    required double y_acceleration = 2;
+    required double z_acceleration = 3;
+}
+
+message Gyroscope{
+    required double roll_rate = 1;
+    required double pitch_rate = 2;
+    required double yaw_rate = 3;
+}
+
+message Thermometer{
+    required double temperature = 1;
+}
+
+message PressureSensor{
+    required double pressure = 1;
+}
+
+message PitotTube{
+    required double pressure = 1;
+}
+
+message Engine{
+    required double thrust = 1;
+    required double throttle = 2;
+} 
+
+message Controls{
+    required double aileron = 1;
+    required double elevator = 2;
+    required double rudder = 3;
+    required double throttle = 4;
+}
+
+message INS{
+    required double roll = 1;
+    required double pitch = 2;
+}
+
+message FDMData{
+    required double time = 1;
+    required GPS gps = 2;
+    required Accelerometer accelerometer = 3;
+    required Gyroscope gyroscope = 4;
+    required Thermometer thermometer = 5;
+    required PressureSensor pressure_sensor = 6;
+    required PitotTube pitot_tube = 7;
+    required Engine engine = 8;
+    required Controls controls = 9;
+    required INS ins = 10; 
+}

@@ -10,6 +10,8 @@ from abc import ABCMeta, abstractmethod
 from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.protocols.basic import LineReceiver
 
+from huginn import fdm_pb2
+
 class InvalidControlsDatagram(Exception):
     pass
 
@@ -31,28 +33,17 @@ class ControlsProtocol(DatagramProtocol):
         self.aircraft.controls.rudder = rudder
         self.aircraft.controls.throttle = throttle
 
-    def decode_datagram(self, datagram):
-        try:
-            controls_data = struct.unpack("!ffff", datagram)
-
-            return controls_data
-        except ValueError:
-            raise InvalidControlsDatagram()
-
     def datagramReceived(self, datagram, addr):
+        controls = fdm_pb2.Controls()
+
         try:
-            controls = self.decode_datagram(datagram)
+            controls.ParseFromString(datagram)
         except InvalidControlsDatagram:
-            logging.error("Failed to parse control data")
+            logging.exception("Failed to parse control data")
             print("Failed to parse control data")
             return
 
-        aileron = controls[0]
-        elevator = controls[1]
-        rudder = controls[2]
-        throttle = controls[3]
-
-        self.update_aircraft_controls(aileron, elevator, rudder, throttle)
+        self.update_aircraft_controls(controls.aileron, controls.elevator, controls.rudder, controls.throttle)
 
 class TelemetryProtocol(Protocol):
     """The TelemetryProtocol is used to transmit telemetry data on a TCP
@@ -198,38 +189,46 @@ class FDMDataProtocol(DatagramProtocol):
         self.port = port
 
     def get_fdm_data(self):
-        fdm_data = [
-            self.aircraft.fdmexec.GetSimTime(),
-            self.aircraft.gps.latitude,
-            self.aircraft.gps.longitude,
-            self.aircraft.gps.altitude,
-            self.aircraft.gps.airspeed,
-            self.aircraft.gps.heading,
-            self.aircraft.accelerometer.x_acceleration,
-            self.aircraft.accelerometer.y_acceleration,
-            self.aircraft.accelerometer.z_acceleration,
-            self.aircraft.gyroscope.roll_rate,
-            self.aircraft.gyroscope.pitch_rate,
-            self.aircraft.gyroscope.yaw_rate,
-            self.aircraft.thermometer.temperature,
-            self.aircraft.pressure_sensor.pressure,
-            self.aircraft.pitot_tube.pressure,
-            self.aircraft.inertial_navigation_system.roll,
-            self.aircraft.inertial_navigation_system.pitch,
-            self.aircraft.engine.thrust,
-            self.aircraft.controls.aileron,
-            self.aircraft.controls.elevator,
-            self.aircraft.controls.rudder,
-            self.aircraft.engine.throttle,
-        ]
+        fdm_data = fdm_pb2.FDMData()
+
+        fdm_data.time = self.aircraft.fdmexec.GetSimTime()
+
+        fdm_data.gps.latitude = self.aircraft.gps.latitude
+        fdm_data.gps.longitude = self.aircraft.gps.longitude
+        fdm_data.gps.altitude = self.aircraft.gps.altitude
+        fdm_data.gps.airspeed = self.aircraft.gps.airspeed
+        fdm_data.gps.heading = self.aircraft.gps.heading
+
+        fdm_data.accelerometer.x_acceleration = self.aircraft.accelerometer.x_acceleration
+        fdm_data.accelerometer.y_acceleration = self.aircraft.accelerometer.y_acceleration
+        fdm_data.accelerometer.z_acceleration = self.aircraft.accelerometer.z_acceleration
+
+        fdm_data.gyroscope.roll_rate = self.aircraft.gyroscope.roll_rate
+        fdm_data.gyroscope.pitch_rate = self.aircraft.gyroscope.pitch_rate
+        fdm_data.gyroscope.yaw_rate = self.aircraft.gyroscope.yaw_rate
+
+        fdm_data.thermometer.temperature = self.aircraft.thermometer.temperature
+
+        fdm_data.pressure_sensor.pressure = self.aircraft.pressure_sensor.pressure
+        fdm_data.pitot_tube.pressure = self.aircraft.pitot_tube.pressure
+
+        fdm_data.engine.thrust = self.aircraft.engine.thrust
+        fdm_data.engine.throttle = self.aircraft.engine.throttle
+
+        fdm_data.controls.aileron = self.aircraft.controls.aileron
+        fdm_data.controls.elevator = self.aircraft.controls.elevator
+        fdm_data.controls.rudder = self.aircraft.controls.rudder
+        fdm_data.controls.throttle = self.aircraft.controls.throttle
+
+        fdm_data.ins.roll = self.aircraft.inertial_navigation_system.roll
+        fdm_data.ins.pitch = self.aircraft.inertial_navigation_system.pitch
 
         return fdm_data
 
     def send_fdm_data(self):
         fdm_data = self.get_fdm_data()
 
-        datagram = struct.pack("f" * len(fdm_data),
-                               *fdm_data)
+        datagram = fdm_data.SerializeToString()
 
         self.transport.write(datagram, (self.remote_host, self.port))
 
@@ -258,7 +257,9 @@ class FDMDataClient(DatagramProtocol):
             fdm_data_listener.fdm_data_received(fdm_data)
 
     def datagramReceived(self, datagram, addr):
-        fdm_data = decode_fdm_data_datagram(datagram)
+        fdm_data = fdm_pb2.FDMData()
+
+        fdm_data.ParseFromString(datagram)
 
         self._notify_fdm_data_listeners(fdm_data)
 
@@ -277,41 +278,10 @@ class ControlsClient(DatagramProtocol):
 
     def transmit_controls(self, aileron, elevator, rudder, throttle):
         """Send the aircraft controls to Huginn"""
-        controls_datagram = struct.pack("!ffff",
-                                        aileron,
-                                        elevator,
-                                        rudder,
-                                        throttle)
+        controls = fdm_pb2.Controls()
+        controls.aileron = aileron
+        controls.elevator = elevator
+        controls.rudder = rudder
+        controls.throttle = throttle
 
-        self.send_datagram(controls_datagram)
-
-def decode_fdm_data_datagram(datagram):
-    """Decode a datagram packet that contains the fdm data"""
-    data = struct.unpack("f" * 22, datagram)
-
-    fdm_data = {
-        "time": data[0],
-        "latitude": data[1],
-        "longitude": data[2],
-        "altitude": data[3],
-        "airspeed": data[4],
-        "heading": data[5],
-        "x_acceleration": data[6],
-        "y_acceleration": data[7],
-        "z_acceleration": data[8],
-        "roll_rate": data[9],
-        "pitch_rate": data[10],
-        "yaw_rate": data[11],
-        "temperature": data[12],
-        "static_pressure": data[13],
-        "total_pressure": data[14],
-        "roll": data[15],
-        "pitch": data[16],
-        "thrust": data[17],
-        "aileron": data[18],
-        "elevator": data[19],
-        "rudder": data[20],
-        "throttle": data[21]
-    }
-
-    return fdm_data
+        self.send_datagram(controls.SerializeToString())

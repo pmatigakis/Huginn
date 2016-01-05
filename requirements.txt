@@ -7,3 +7,4 @@ Twisted==15.3.0
 PyHamcrest==1.8.5
 robotframework==2.9.2
 robotframework-requests==0.3.9
+protobuf==2.6.1

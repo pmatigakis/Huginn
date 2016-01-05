@@ -2,6 +2,7 @@ import struct
 from math import degrees
 
 from huginn.protocols import TelemetryDataListener, FDMDataListener
+from huginn import fdm_pb2
 
 class MockAuxiliary(object):
     def __init__(self):
@@ -297,61 +298,33 @@ class MockFDMDataDatagram(object):
         self.throttle = 0.9
 
     def create_datagram(self):
-        fdm_data = [
-            self.simulation_time,
-            self.latitude,
-            self.longitude,
-            self.altitude,
-            self.airspeed,
-            self.heading,
-            self.x_acceleration,
-            self.y_acceleration,
-            self.z_acceleration,
-            self.roll_rate,
-            self.pitch_rate,
-            self.yaw_rate,
-            self.temperature,
-            self.static_pressure,
-            self.total_pressure,
-            self.roll,
-            self.pitch,
-            self.thrust,
-            self.aileron,
-            self.elevator,
-            self.rudder,
-            self.throttle,
-        ]
+        fdm_data = fdm_pb2.FDMData()
+        
+        fdm_data.time = self.simulation_time
+        fdm_data.gps.latitude = self.latitude
+        fdm_data.gps.longitude = self.longitude
+        fdm_data.gps.altitude = self.altitude
+        fdm_data.gps.airspeed = self.airspeed
+        fdm_data.gps.heading = self.heading
+        fdm_data.accelerometer.x_acceleration = self.x_acceleration
+        fdm_data.accelerometer.y_acceleration = self.y_acceleration
+        fdm_data.accelerometer.z_acceleration = self.z_acceleration
+        fdm_data.gyroscope.roll_rate = self.roll_rate
+        fdm_data.gyroscope.pitch_rate = self.pitch_rate
+        fdm_data.gyroscope.yaw_rate = self.yaw_rate
+        fdm_data.thermometer.temperature = self.temperature
+        fdm_data.pressure_sensor.pressure = self.static_pressure
+        fdm_data.pitot_tube.pressure = self.total_pressure
+        fdm_data.ins.roll = self.roll
+        fdm_data.ins.pitch = self.pitch
+        fdm_data.engine.thrust = self.thrust
+        fdm_data.engine.throttle = self.throttle
+        fdm_data.controls.aileron = self.aileron
+        fdm_data.controls.elevator = self.elevator
+        fdm_data.controls.rudder = self.rudder
+        fdm_data.controls.throttle = self.throttle
 
-        return struct.pack("f" * len(fdm_data), *fdm_data)
-
-    def create_invalid_datagram(self):
-        fdm_data = [
-            self.simulation_time,
-            self.latitude,
-            self.longitude,
-            self.altitude,
-            self.airspeed,
-            self.heading,
-            self.x_acceleration,
-            self.y_acceleration,
-            self.z_acceleration,
-            self.roll_rate,
-            self.pitch_rate,
-            self.yaw_rate,
-            self.temperature,
-            self.static_pressure,
-            self.total_pressure,
-            self.roll,
-            self.pitch,
-            self.thrust,
-            self.aileron,
-            self.elevator,
-            self.rudder,
-            self.throttle,
-            0.0
-        ]
-
-        return struct.pack("f" * len(fdm_data), *fdm_data)
+        return fdm_data.SerializeToString()
 
 class MockFDMDataListener(FDMDataListener):
     def __init__(self):

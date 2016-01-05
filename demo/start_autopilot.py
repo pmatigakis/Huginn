@@ -188,14 +188,14 @@ class Autopilot(FDMDataListener):
         print("")
 
     def fdm_data_received(self, fdm_data):
-        self.latitude = fdm_data["latitude"]
-        self.longitude = fdm_data["longitude"]
-        self.altitude = fdm_data["altitude"]
-        self.airspeed = fdm_data["airspeed"]
-        self.heading = fdm_data["heading"]
+        self.latitude = fdm_data.gps.latitude
+        self.longitude = fdm_data.gps.longitude
+        self.altitude = fdm_data.gps.altitude
+        self.airspeed = fdm_data.gps.airspeed
+        self.heading = fdm_data.gps.heading
 
-        self.roll = fdm_data["roll"]
-        self.pitch = fdm_data["pitch"]
+        self.roll = fdm_data.ins.roll
+        self.pitch = fdm_data.ins.pitch
 
         self.run()
 

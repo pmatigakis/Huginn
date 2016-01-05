@@ -14,7 +14,7 @@ class MapClient(object):
     def load_from_csv(self, waypoint_file):
         """Load waypoints from a csv file. Every row must be in the following
         format
-        
+
         waypoint_name,latitude,longitude
         """
         waypoints = []
