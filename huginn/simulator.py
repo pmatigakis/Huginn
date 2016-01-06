@@ -7,8 +7,6 @@ import logging
 
 from twisted.internet import reactor
 
-from huginn import configuration
-
 class SimulatorEventListener(object):
     def simulator_reset(self, simulator):
         pass
@@ -27,11 +25,6 @@ class Simulator(object):
     def __init__(self, fdmexec, aircraft):
         self.aircraft = aircraft
         self.fdmexec = fdmexec
-        self.sensors_port = configuration.SENSORS_PORT
-        self.controls_port = configuration.CONTROLS_PORT
-        self.fdm_client_address = configuration.FDM_CLIENT_ADDRESS
-        self.fdm_client_port = configuration.FDM_CLIENT_PORT
-        self.fdm_client_dt = configuration.FDM_CLIENT_DT
         self.listeners = []
         self.logger = logging.getLogger("huginn")
         self.paused = False;

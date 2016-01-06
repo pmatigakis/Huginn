@@ -17,6 +17,7 @@ hardware-in-the-loop simulations.
    Controlling the aircraft
    FDMData protocol
    Recording telemetry data
+   Sensors data
 
 Indices and tables
 ==================

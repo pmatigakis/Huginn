@@ -1,15 +1,13 @@
-import struct
 from unittest import TestCase
 import math
 
 from mock import MagicMock
-from hamcrest import close_to
-from hamcrest.library.integration import match_equality
 from twisted.test.proto_helpers import StringTransport
 
 from huginn.protocols import ControlsProtocol, TelemetryFactory, TelemetryProtocol,\
                              FDMDataProtocol, TelemetryClientFactory,\
-                             FDMDataClient, ControlsClient
+                             FDMDataClient, ControlsClient, SensorDataProtocol,\
+                             SensorDataFactory
 from huginn.aircraft import Aircraft
 from huginn import fdm_pb2
 
@@ -21,6 +19,7 @@ class TestControlsProtocol(TestCase):
         fdmexec = MockFDMExec()
         
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         
         controls_protocol = ControlsProtocol(aircraft)
              
@@ -52,6 +51,7 @@ class TestTelemetryFactory(TestCase):
         fdmexec = MockFDMExec()
 
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         factory = TelemetryFactory(aircraft)
         protocol = TelemetryProtocol(factory)
@@ -92,6 +92,7 @@ class TestFDMDataProtocol(TestCase):
         fdmexec = MockFDMExec()
 
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         fdm_data_protocol = FDMDataProtocol(aircraft, "127.0.0.1", 12345)
 
@@ -244,3 +245,215 @@ class TestControlsClient(TestCase):
         expected_datagram = controls_data.SerializeToString()
 
         protocol.send_datagram.assert_called_once_with(expected_datagram)
+
+class TestSensorDataProtocol(TestCase):
+    def test_fill_gps_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_gps_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.gps.latitude, aircraft.gps.latitude)
+        self.assertAlmostEqual(sensor_data_response.gps.longitude, aircraft.gps.longitude)
+        self.assertAlmostEqual(sensor_data_response.gps.altitude, aircraft.gps.altitude)
+        self.assertAlmostEqual(sensor_data_response.gps.airspeed, aircraft.gps.airspeed)
+        self.assertAlmostEqual(sensor_data_response.gps.heading, aircraft.gps.heading)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.GPS_REQUEST)
+
+    def test_fill_accelerometer_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_accelerometer_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.accelerometer.x_acceleration, aircraft.accelerometer.x_acceleration)
+        self.assertAlmostEqual(sensor_data_response.accelerometer.y_acceleration, aircraft.accelerometer.y_acceleration)
+        self.assertAlmostEqual(sensor_data_response.accelerometer.z_acceleration, aircraft.accelerometer.z_acceleration)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.ACCELEROMETER_REQUEST)
+
+    def test_fill_gyroscope_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_gyroscope_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.gyroscope.roll_rate, aircraft.gyroscope.roll_rate)
+        self.assertAlmostEqual(sensor_data_response.gyroscope.pitch_rate, aircraft.gyroscope.pitch_rate)
+        self.assertAlmostEqual(sensor_data_response.gyroscope.yaw_rate, aircraft.gyroscope.yaw_rate)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.GYROSCOPE_REQUEST)
+
+    def test_fill_thermometer_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_thermometer_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.thermometer.temperature, aircraft.thermometer.temperature)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.THERMOMETER_REQUEST)
+
+    def test_fill_pressure_sensor_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_pressure_sensor_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.pressure_sensor.pressure, aircraft.pressure_sensor.pressure)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.PRESSURE_SENSOR_REQUEST)
+
+    def test_fill_pitot_tube_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_pitot_tube_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.pitot_tube.pressure, aircraft.pitot_tube.pressure)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.PITOT_TUBE_REQUEST)
+
+    def test_fill_engine_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_engine_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.engine.thrust, aircraft.engine.thrust)
+        self.assertAlmostEqual(sensor_data_response.engine.throttle, aircraft.engine.throttle)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.ENGINE_REQUEST)
+
+    def test_fill_controls_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_controls_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.controls.aileron, aircraft.controls.aileron)
+        self.assertAlmostEqual(sensor_data_response.controls.elevator, aircraft.controls.elevator)
+        self.assertAlmostEqual(sensor_data_response.controls.rudder, aircraft.controls.rudder)
+        self.assertAlmostEqual(sensor_data_response.controls.throttle, aircraft.controls.throttle)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.CONTROLS_REQUEST)
+
+    def test_fill_ins_data(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+
+        sensor_data_response = fdm_pb2.SensorDataResponse()
+
+        protocol.fill_ins_data(sensor_data_response)
+
+        self.assertAlmostEqual(sensor_data_response.ins.roll, aircraft.inertial_navigation_system.roll)
+        self.assertAlmostEqual(sensor_data_response.ins.pitch, aircraft.inertial_navigation_system.pitch)
+
+        self.assertEqual(sensor_data_response.type, fdm_pb2.INS_REQUEST)
+
+    def test_handle_sensor_data_request(self):
+        fdmexec = MockFDMExec()
+
+        aircraft = Aircraft(fdmexec)
+        
+        aircraft.run()
+
+        factory = SensorDataFactory(aircraft)
+        
+        protocol = factory.buildProtocol(("127.0.0.1", 12345))
+        protocol.send_response_string = MagicMock()
+
+        sensor_data_request = fdm_pb2.SensorDataRequest()
+        sensor_data_request.type = fdm_pb2.GPS_REQUEST
+
+        protocol.handle_sensor_data_request(sensor_data_request)
+
+        expected_sensor_data_response = fdm_pb2.SensorDataResponse()
+        expected_sensor_data_response.type = fdm_pb2.GPS_REQUEST
+        expected_sensor_data_response.gps.latitude = aircraft.gps.latitude
+        expected_sensor_data_response.gps.longitude = aircraft.gps.longitude
+        expected_sensor_data_response.gps.altitude = aircraft.gps.altitude
+        expected_sensor_data_response.gps.airspeed = aircraft.gps.airspeed
+        expected_sensor_data_response.gps.heading = aircraft.gps.heading
+        
+        protocol.send_response_string.assert_called_once_with(expected_sensor_data_response.SerializeToString())

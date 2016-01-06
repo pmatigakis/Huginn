@@ -17,7 +17,7 @@ from huginn.http import GPSData, AccelerometerData,\
                         EngineData, FlightControlsData, SimulatorControl,\
                         FDMData, AircraftIndex, MapData
 from huginn.protocols import TelemetryFactory, ControlsProtocol,\
-                             FDMDataProtocol
+                             FDMDataProtocol, SensorDataFactory
 
 class SimulationServer(object):
     """This class is the network front-end for the simulator. It will create
@@ -35,6 +35,7 @@ class SimulationServer(object):
         self.web_server_port = configuration.WEB_SERVER_PORT
         self.telemetry_port = configuration.TELEMETRY_PORT
         self.telemetry_update_rate = configuration.TELEMETRY_DT
+        self.sensors_port = configuration.SENSORS_PORT
         self.logger = logging.getLogger("huginn")
 
     def _initialize_web_server(self):
@@ -99,12 +100,20 @@ class SimulationServer(object):
         fdm_updater = LoopingCall(self.simulator.run)
         fdm_updater.start(self.dt)
 
+    def _initialize_sensors_server(self):
+        self.logger.debug("Starting the sensor server at port %d", self.sensors_port)
+
+        sensor_data_factory = SensorDataFactory(self.aircraft)
+
+        reactor.listenTCP(self.sensors_port, sensor_data_factory)  # @UndefinedVariable
+
     def start(self):
         """Start the simulator server"""
         self._initialize_controls_server()
         self._initialize_fdm_data_server()
         self._initialize_telemetry_server()
         self._initialize_web_server()
+        self._initialize_sensors_server()
         self._initialize_simulator_updater()
 
         self.logger.info("Starting the simulator server")

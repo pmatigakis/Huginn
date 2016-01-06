@@ -61,3 +61,34 @@ message FDMData{
     required Controls controls = 9;
     required INS ins = 10; 
 }
+
+enum SensorDataRequestType{
+    INVALID_REQUEST = 0;
+    GPS_REQUEST = 1;
+    ACCELEROMETER_REQUEST = 2;
+    GYROSCOPE_REQUEST = 3;
+    THERMOMETER_REQUEST = 4;
+    PRESSURE_SENSOR_REQUEST = 5;
+    PITOT_TUBE_REQUEST = 6;
+    ENGINE_REQUEST = 7;
+    CONTROLS_REQUEST = 8;
+    INS_REQUEST = 9;
+}
+
+message SensorDataRequest{    
+    required SensorDataRequestType type = 1;
+}
+
+message SensorDataResponse{
+    required SensorDataRequestType type = 1;
+
+    optional GPS gps = 2;
+    optional Accelerometer accelerometer = 3;
+    optional Gyroscope gyroscope = 4;
+    optional Thermometer thermometer = 5;
+    optional PressureSensor pressure_sensor = 6;
+    optional PitotTube pitot_tube = 7;
+    optional Engine engine = 8;
+    optional Controls controls = 9;
+    optional INS ins = 10;
+}

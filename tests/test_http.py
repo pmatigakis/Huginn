@@ -16,6 +16,7 @@ class TestGPSData(TestCase):
     def test_get_gps_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = GPSData(aircraft)
 
@@ -31,6 +32,7 @@ class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = AccelerometerData(aircraft)
 
@@ -44,6 +46,7 @@ class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = GyroscopeData(aircraft)
 
@@ -57,6 +60,7 @@ class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = ThermometerData(aircraft)
 
@@ -68,6 +72,7 @@ class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = PressureSensorData(aircraft)
 
@@ -79,6 +84,7 @@ class TestPitotTubeData(TestCase):
     def test_get_pitot_tube_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = PitotTubeData(aircraft)
 
@@ -90,6 +96,7 @@ class TestInertialNavigationSystemData(TestCase):
     def test_get_inertial_navigation_system_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = InertialNavigationSystemData(aircraft)
 
@@ -107,6 +114,7 @@ class TestEngineData(TestCase):
     def test_get_engine_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = EngineData(aircraft)
 
@@ -118,6 +126,7 @@ class TestFlightControlsData(TestCase):
     def test_get_flight_controls_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = FlightControlsData(aircraft)
 
@@ -132,6 +141,7 @@ class TestSimulatorControl(TestCase):
     def test_pause_simulator(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -151,6 +161,7 @@ class TestSimulatorControl(TestCase):
     def test_reset_simulator(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -170,6 +181,7 @@ class TestSimulatorControl(TestCase):
     def test_resume_simulator(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -189,6 +201,7 @@ class TestSimulatorControl(TestCase):
     def test_invalid_simulator_command(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -209,6 +222,7 @@ class TestSimulatorControl(TestCase):
     def test_invalid_simulator_request(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -228,6 +242,7 @@ class TestSimulatorControl(TestCase):
     def test_step_simulator(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -247,6 +262,7 @@ class TestSimulatorControl(TestCase):
     def test_run_for_simulator(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
         simulator = Simulator(fdmexec, aircraft)
         simulator.run_for = MagicMock()
 
@@ -270,6 +286,7 @@ class TestFDMData(TestCase):
     def test_get_fdm_data(self):
         fdmexec = MockFDMExec()
         aircraft = Aircraft(fdmexec)
+        aircraft.run()
 
         resource = FDMData(aircraft)
 
