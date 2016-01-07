@@ -24,10 +24,7 @@ setup(name="huginn",
       author = 'Panagiotis Matigakis',
       author_email = 'pmatigakis@gmail.com',
       scripts=["scripts/huginn_start.py",
-               "scripts/huginn_control.py",
-               "scripts/huginn_data.py",
-               "scripts/huginn_telemetry.py",
-               "scripts/huginn_load_waypoints.py"],
+               "scripts/huginn_cli.py"],
       packages=["huginn"],
       package_data={'huginn': get_package_data()}
       )
