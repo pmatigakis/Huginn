@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pkg_resources
 import logging
 from argparse import ArgumentParser
 import inspect
@@ -70,8 +71,7 @@ def main():
         logger.error("%s is not a supported aircraft", args.aircraft)
         exit(1)
 
-    huginn_path = inspect.getfile(huginn)
-    huginn_data_path = path.join(path.dirname(huginn_path), "data")
+    huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
     if args.dt <= 0.0:
         logger.error("Invalid simulation timestep %f", args.dt)

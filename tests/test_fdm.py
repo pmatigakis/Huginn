@@ -1,3 +1,4 @@
+import pkg_resources
 from unittest import TestCase
 import inspect
 from os import path
@@ -8,8 +9,7 @@ from huginn import configuration
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
-        huginn_path = inspect.getfile(huginn)
-        huginn_data_path = path.join(path.dirname(huginn_path), "data")
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
         fdmexec = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
 

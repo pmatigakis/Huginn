@@ -1,3 +1,4 @@
+import pkg_resources
 from unittest import TestCase
 import inspect
 from os import path
@@ -14,8 +15,7 @@ from mockObjects import MockFDMExec
 
 class TestSimulator(TestCase):
     def test_run_with_real_fdmexec(self):
-        huginn_path = inspect.getfile(huginn)
-        huginn_data_path = path.join(path.dirname(huginn_path), "data")
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
         fdmexec = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
 
