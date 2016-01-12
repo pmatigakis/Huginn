@@ -288,10 +288,12 @@ class TestFDMData(TestCase):
         aircraft = Aircraft(fdmexec)
         aircraft.run()
 
-        resource = FDMData(aircraft)
+        resource = FDMData(fdmexec, aircraft)
 
         fdm_data = resource.get_flight_data()
 
+        self.assertAlmostEqual(fdmexec.GetSimTime(), fdm_data["time"], 3)
+        self.assertAlmostEqual(fdmexec.GetDeltaT(), fdm_data["dt"], 3)
         self.assertAlmostEqual(aircraft.gps.latitude, fdm_data["latitude"], 3)
         self.assertAlmostEqual(aircraft.gps.longitude, fdm_data["longitude"], 3)
         self.assertAlmostEqual(aircraft.gps.altitude, fdm_data["altitude"], 3)

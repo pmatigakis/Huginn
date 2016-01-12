@@ -58,7 +58,7 @@ class SimulationServer(object):
 
         root.putChild("aircraft", aircraft_root)
         root.putChild("simulator", SimulatorControl(self.simulator))
-        root.putChild("fdm", FDMData(self.aircraft))
+        root.putChild("fdm", FDMData(self.fdmexec, self.aircraft))
         root.putChild("map", MapData())
 
         frontend = server.Site(root)

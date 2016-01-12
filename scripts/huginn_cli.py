@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 
 from huginn.commands import DataCommand, ControlCommand, LoadWaypointsCommand,\
-                            TelemetryCommand
+                            RecordCommand
 from huginn import configuration
 
 def main():
@@ -23,8 +23,8 @@ def main():
     load_waypoints_command = LoadWaypointsCommand()
     load_waypoints_command.register_command(subparsers)
 
-    telemetry_command = TelemetryCommand()
-    telemetry_command.register_command(subparsers)
+    record_command = RecordCommand()
+    record_command.register_command(subparsers)
 
     args = parser.parse_args()
     args.func(args)
