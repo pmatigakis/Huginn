@@ -28,9 +28,9 @@ def get_arguments():
     parser.add_argument("--web", action="store", type=port_number, default=configuration.WEB_SERVER_PORT, help="The web server port")
     
     parser.add_argument("--fdm",
-                        action="store",
+                        action="append",
                         type=fdm_data_endpoint,
-                        default="%s,%d,%f" % (configuration.FDM_CLIENT_ADDRESS, configuration.FDM_CLIENT_PORT, configuration.FDM_CLIENT_DT), 
+                        default=[],
                         help="The fdm data endpoint")
     
     parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
@@ -99,15 +99,11 @@ def main():
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)
 
-    fdm_client_address, fdm_client_port, fdm_client_update_rate = args.fdm 
-
     telemetry_port, telemetry_update_rate = args.telemetry
 
     simulator_server = SimulationServer(simulator)
 
-    simulator_server.fdm_client_address = fdm_client_address
-    simulator_server.fdm_client_port = fdm_client_port
-    simulator_server.fdm_client_update_rate = fdm_client_update_rate
+    simulator_server.fdm_clients = args.fdm
 
     simulator_server.telemetry_port = telemetry_port
     simulator_server.telemetry_update_rate = telemetry_update_rate

@@ -29,9 +29,7 @@ class SimulationServer(object):
         self.aircraft = simulator.aircraft
         self.dt = simulator.fdmexec.GetDeltaT()
         self.controls_port = configuration.CONTROLS_PORT
-        self.fdm_client_address = configuration.FDM_CLIENT_ADDRESS
-        self.fdm_client_port = configuration.FDM_CLIENT_PORT
-        self.fdm_client_update_rate = configuration.FDM_CLIENT_DT
+        self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
         self.telemetry_port = configuration.TELEMETRY_PORT
         self.telemetry_update_rate = configuration.TELEMETRY_DT
@@ -87,14 +85,16 @@ class SimulationServer(object):
 
     def _initialize_fdm_data_server(self):
         """Initialize the fdm data server"""
-        self.logger.debug("Sending fdm data to %s:%d", self.fdm_client_address, self.fdm_client_port)
+        for fdm_client in self.fdm_clients:
+            client_address, client_port, dt = fdm_client
+            self.logger.debug("Sending fdm data to %s:%d", client_address, client_port)
 
-        fdm_data_protocol = FDMDataProtocol(self.aircraft, self.fdm_client_address, self.fdm_client_port)
+            fdm_data_protocol = FDMDataProtocol(self.aircraft, client_address, client_port)
 
-        reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable
+            reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable
 
-        fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data)
-        fdm_data_updater.start(self.fdm_client_update_rate)
+            fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data)
+            fdm_data_updater.start(dt)
 
     def _initialize_simulator_updater(self):
         fdm_updater = LoopingCall(self.simulator.run)

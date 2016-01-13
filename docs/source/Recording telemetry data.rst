@@ -7,7 +7,7 @@ The huginn_cli.py record command can be called from the console in the following
 
 .. code-block:: bash
 
-  huginn_cli record telemetry.csv
+  huginn_cli.py record telemetry.csv
 
 The telemetry data will be saved in csv format in *telemetry.csv*. This file
 will contain the following data.

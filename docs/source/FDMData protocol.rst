@@ -3,8 +3,13 @@ FDMData protocol
 
 Huginn can transmit data from the flight dynamics model to an external application
 that can be used to test an autopilot and any other application that can process
-flight data. By default Huginn will attempt to send data to UPD port 10302 at the
-localhost address.
+flight data.
+
+To send fdm data to an external application use the --fdm argument in hugin_start.py script
+
+.. code-block:: bash
+
+  huginn_start.py --aircraft Rascal --fdm 127.0.0.1,10302,0.1 
 
 The flight data will be encoded using Protocol Buffers. See the file
 protobuf/fdm.proto for the schema used.
