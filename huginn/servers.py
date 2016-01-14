@@ -16,8 +16,8 @@ from huginn.http import GPSData, AccelerometerData,\
                         PitotTubeData, InertialNavigationSystemData,\
                         EngineData, FlightControlsData, SimulatorControl,\
                         FDMData, AircraftIndex, MapData
-from huginn.protocols import TelemetryFactory, ControlsProtocol,\
-                             FDMDataProtocol, SensorDataFactory
+from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
+                             SensorDataFactory
 
 class SimulationServer(object):
     """This class is the network front-end for the simulator. It will create
@@ -31,8 +31,6 @@ class SimulationServer(object):
         self.controls_port = configuration.CONTROLS_PORT
         self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
-        self.telemetry_port = configuration.TELEMETRY_PORT
-        self.telemetry_update_rate = configuration.TELEMETRY_DT
         self.sensors_port = configuration.SENSORS_PORT
         self.logger = logging.getLogger("huginn")
 
@@ -62,17 +60,6 @@ class SimulationServer(object):
         frontend = server.Site(root)
 
         reactor.listenTCP(self.web_server_port, frontend)  # @UndefinedVariable
-
-    def _initialize_telemetry_server(self):
-        """Initialize the telemetry server"""
-        self.logger.debug("Starting telemetry server at port %d", self.telemetry_port)
-
-        telemetry_factory = TelemetryFactory(self.aircraft)
-
-        reactor.listenTCP(self.telemetry_port, telemetry_factory)  # @UndefinedVariable
-
-        telemetry_updater = LoopingCall(telemetry_factory.update_clients)
-        telemetry_updater.start(self.telemetry_update_rate)
 
     def _initialize_controls_server(self):
         """Initialize the controls server"""
@@ -111,7 +98,6 @@ class SimulationServer(object):
         """Start the simulator server"""
         self._initialize_controls_server()
         self._initialize_fdm_data_server()
-        self._initialize_telemetry_server()
         self._initialize_web_server()
         self._initialize_sensors_server()
         self._initialize_simulator_updater()

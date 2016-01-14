@@ -3,7 +3,6 @@ The huginn.protocols module contains classes that are used by twisted in order
 to transmit and receive simulation data.
 """
 
-import struct
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -11,14 +10,6 @@ from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
 from twisted.protocols.basic import LineReceiver, Int32StringReceiver
 
 from huginn import fdm_pb2
-
-class InvalidControlsDatagram(Exception):
-    pass
-
-class InvalidFDMDataRequestCommand(Exception):
-    def __init__(self, command):
-        Exception.__init__(self)
-        self.command = command
 
 class ControlsProtocol(DatagramProtocol):
     """The ControlsProtocol is used to receive and update tha aircraft's
@@ -38,147 +29,15 @@ class ControlsProtocol(DatagramProtocol):
 
         try:
             controls.ParseFromString(datagram)
-        except InvalidControlsDatagram:
+        except:
             logging.exception("Failed to parse control data")
             print("Failed to parse control data")
             return
 
-        self.update_aircraft_controls(controls.aileron, controls.elevator, controls.rudder, controls.throttle)
-
-class TelemetryProtocol(Protocol):
-    """The TelemetryProtocol is used to transmit telemetry data on a TCP
-    connection"""
-    def __init__(self, factory):
-        self.factory = factory
-
-        self.have_sent_header = False
-
-        self.telemetry_items = [
-            "time", "dt", "latitude", "longitude", "altitude",
-            "airspeed", "heading", "x_acceleration", "y_acceleration",
-            "z_acceleration", "roll_rate", "pitch_rate", "yaw_rate",
-            "temperature", "static_pressure", "dynamic_pressure",
-            "roll", "pitch", "thrust",
-            "aileron", "elevator", "rudder", "throttle",
-        ]
-
-    def connectionMade(self):
-        self.factory.clients.add(self)
-
-    def connectionLost(self, reason):
-        self.factory.clients.remove(self)
-
-    def transmit_telemetry_data(self, telemetry_data):
-        """Send the telemetry data"""
-        if not self.have_sent_header:
-            telemetry_header = ','.join(self.telemetry_items)
-            telemetry_header += "\r\n"
-
-            self.transport.write(telemetry_header)
-            self.have_sent_header = True
-
-        telemetry_string = ','.join([str(telemetry_data[value]) for value in self.telemetry_items])
-
-        telemetry_string += "\r\n"
-
-        self.transport.write(telemetry_string)
-
-class TelemetryFactory(Factory):
-    """The TelemetryFactory class is responsible for the creation of telemetry
-    protocol clients"""
-    def __init__(self, aircraft):
-        self.aircraft = aircraft
-
-        self.clients = set()
-
-    def buildProtocol(self, addr):
-        return TelemetryProtocol(self)
-
-    def get_telemetry_data(self):
-        return {
-            "time": self.aircraft.fdmexec.GetSimTime(),
-            "dt": self.aircraft.fdmexec.GetDeltaT(),
-            "latitude": self.aircraft.gps.latitude,
-            "longitude": self.aircraft.gps.longitude,
-            "altitude": self.aircraft.gps.altitude,
-            "airspeed": self.aircraft.gps.airspeed,
-            "heading": self.aircraft.gps.heading,
-            "x_acceleration": self.aircraft.accelerometer.x_acceleration,
-            "y_acceleration": self.aircraft.accelerometer.y_acceleration,
-            "z_acceleration": self.aircraft.accelerometer.z_acceleration,
-            "roll_rate": self.aircraft.gyroscope.roll_rate,
-            "pitch_rate": self.aircraft.gyroscope.pitch_rate,
-            "yaw_rate": self.aircraft.gyroscope.yaw_rate,
-            "temperature": self.aircraft.thermometer.temperature,
-            "static_pressure": self.aircraft.pressure_sensor.pressure,
-            "dynamic_pressure": self.aircraft.pitot_tube.pressure,
-            "roll": self.aircraft.inertial_navigation_system.roll,
-            "pitch": self.aircraft.inertial_navigation_system.pitch,
-            "thrust": self.aircraft.engine.thrust,
-            "aileron": self.aircraft.controls.aileron,
-            "elevator": self.aircraft.controls.elevator,
-            "rudder": self.aircraft.controls.rudder,
-            "throttle": self.aircraft.engine.throttle,
-        }
-
-    def update_clients(self):
-        """Send the telemetry data to the connected clients"""
-        telemetry_data = self.get_telemetry_data()
-
-        for client in self.clients:
-            client.transmit_telemetry_data(telemetry_data)
-
-class TelemetryDataListener(object):
-    """The TelemetryDataListener class must be subclassed by any object that
-    needs to be notified about the reception of telemetry data"""
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def received_telemetry_header(self, header):
-        pass
-
-    @abstractmethod
-    def received_telemetry_data(self, data):
-        pass
-
-class TelemetryClient(LineReceiver):
-    """The TelemetryClient is used to receive telemetry data"""
-    def __init__(self):
-        self.header_received = False
-
-    def lineReceived(self, line):
-        data = line.strip().split(",")
-
-        if self.header_received:
-            self.factory.received_telemetry_data(data)
-        else:
-            self.header_received = True
-            self.factory.received_telemetry_header(data)
-
-class TelemetryClientFactory(Factory):
-    """The TelemetryClientFactory is used to create a connection to the
-    telemetry server"""
-    def __init__(self):
-        self.protocol = TelemetryClient
-        self.listeners = []
-
-    def add_telemetry_listener(self, listener):
-        self.listeners.append(listener)
-
-    def remove_telemetry_listener(self, listener):
-        self.listeners.remove(listener)
-
-    def received_telemetry_header(self, variable_names):
-        """Called by the telemetry client when the telemetry header has been
-        received"""
-        for listener in self.listeners:
-            listener.received_telemetry_header(variable_names)
-
-    def received_telemetry_data(self, telemetry_data):
-        """Called by the telemetry client when telemetry data have been
-        received"""
-        for listener in self.listeners:
-            listener.received_telemetry_data(telemetry_data)
+        self.update_aircraft_controls(controls.aileron,
+                                      controls.elevator,
+                                      controls.rudder,
+                                      controls.throttle)
 
 class FDMDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
@@ -226,6 +85,7 @@ class FDMDataProtocol(DatagramProtocol):
         return fdm_data
 
     def send_fdm_data(self):
+        """Transmit the fdm data"""
         fdm_data = self.get_fdm_data()
 
         datagram = fdm_data.SerializeToString()
@@ -247,9 +107,11 @@ class FDMDataClient(DatagramProtocol):
         self.listeners = []
 
     def add_fdm_data_listener(self, listener):
+        """Add an fdm data listener"""
         self.listeners.append(listener)
 
     def remove_fdm_data_listener(self, listener):
+        """Remove an fdm data listener"""
         self.listeners.remove(listener)
 
     def _notify_fdm_data_listeners(self, fdm_data):

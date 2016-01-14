@@ -1,7 +1,13 @@
+"""
+the huginn.validators module contains functions that are using to validate
+input arguments 
+"""
+
 import re
 from argparse import ArgumentTypeError
 
 def port_number(value):
+    """Check if the given value is a valid port number"""
     try:
         parsed_port_number = int(value)
     except ValueError:
@@ -13,6 +19,7 @@ def port_number(value):
     return parsed_port_number
 
 def fdm_data_endpoint(value):
+    """Check if the given value if a valid fdm data endpoint address"""
     match = re.match(r"^(\d+\.\d+.\d+.\d+),(\d+),(\d+\.\d+)$", value.strip())
 
     if not match:
@@ -23,14 +30,3 @@ def fdm_data_endpoint(value):
     dt = float(match.group(3))
 
     return ip, port, dt
-
-def telemetry_endpoint(value):
-    match = re.match(r"^(\d+),(\d+\.\d+)$", value.strip())
-
-    if not match:
-        raise ArgumentTypeError("The telemetry endpoint must be in the form PORT,DT")
-
-    port = port_number(match.group(1))
-    dt = float(match.group(2))
-
-    return port, dt

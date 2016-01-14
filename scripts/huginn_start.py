@@ -9,7 +9,7 @@ from os import path
 import huginn
 from huginn import configuration
 from huginn.simulator import Simulator
-from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
+from huginn.validators import port_number, fdm_data_endpoint
 from huginn.fdm import create_fdmexec
 from huginn.aircraft import Aircraft
 from huginn.servers import SimulationServer
@@ -17,13 +17,6 @@ from huginn.console import SimulatorStatePrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
-    
-    parser.add_argument("--telemetry", 
-                        action="store", 
-                        type=telemetry_endpoint, 
-                        default="%s,%f" % (configuration.TELEMETRY_PORT,
-                                           configuration.TELEMETRY_DT),
-                        help="The telemetry endpoint")
     
     parser.add_argument("--web", action="store", type=port_number, default=configuration.WEB_SERVER_PORT, help="The web server port")
     
@@ -99,14 +92,9 @@ def main():
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)
 
-    telemetry_port, telemetry_update_rate = args.telemetry
-
     simulator_server = SimulationServer(simulator)
 
     simulator_server.fdm_clients = args.fdm
-
-    simulator_server.telemetry_port = telemetry_port
-    simulator_server.telemetry_update_rate = telemetry_update_rate
 
     simulator_server.controls_port = args.controls
     

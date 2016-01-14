@@ -265,6 +265,6 @@ class RecordCommand(Command):
         self.csv_telemetry_writer = CSVFDMDataWriter(self.variables, self.output_file)
         self.csv_telemetry_writer.write_header()
 
-        reactor.run()
+        reactor.run()  # @UndefinedVariable
 
         self.output_file.close()

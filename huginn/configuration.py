@@ -1,3 +1,7 @@
+"""
+The huginn.configuration module contains the default configuration values
+"""
+
 #interface settings
 SIMULATOR_CONTROL_PORT = 10500
 WEB_SERVER_PORT = 8090

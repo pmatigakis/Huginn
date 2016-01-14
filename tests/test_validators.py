@@ -1,7 +1,7 @@
 from unittest import TestCase
 from argparse import ArgumentTypeError
 
-from huginn.validators import port_number, fdm_data_endpoint, telemetry_endpoint
+from huginn.validators import port_number, fdm_data_endpoint
 
 class TestPortNumber(TestCase):
     def test_port_number(self):
@@ -50,27 +50,3 @@ class TestFDMDataEndpoint(TestCase):
         fdm_endpoint_string = "df2342,1234,0.01"
 
         self.assertRaises(ArgumentTypeError, fdm_data_endpoint, fdm_endpoint_string)
-
-class TestTelemetryEndpoint(TestCase):
-    def test_telemetry_endpoint(self):
-        telemetry_endpoint_string = "1234,0.01"
-
-        telemetry_port, telemetry_update_rate = telemetry_endpoint(telemetry_endpoint_string)
-
-        self.assertEqual(telemetry_port, 1234)
-        self.assertAlmostEqual(telemetry_update_rate, 0.01, 3)
-
-    def test_fail_to_parse_invalid_telemetry_endpoint(self):
-        telemetry_endpoint_string = "sdffsdf,sdfdsf"
-
-        self.assertRaises(ArgumentTypeError, telemetry_endpoint, telemetry_endpoint_string)
-
-    def test_fail_to_parse_invalid_fdm_endpoint_port(self):
-        telemetry_endpoint_string = "123456789,0.01"
-
-        self.assertRaises(ArgumentTypeError, telemetry_endpoint, telemetry_endpoint_string)
-
-    def test_fail_to_parse_invalid_fdm_endpoint_dt(self):
-        telemetry_endpoint_string = "1234,2342"
-
-        self.assertRaises(ArgumentTypeError, telemetry_endpoint, telemetry_endpoint_string)

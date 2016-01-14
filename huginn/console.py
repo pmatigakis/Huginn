@@ -8,7 +8,9 @@ from huginn.simulator import SimulatorEventListener
 class SimulatorStatePrinter(SimulatorEventListener):
     """The SimulatorStatePrinter class is used to print the state of the
     simulator to the console."""
+
     def print_simulator_state(self, simulator):
+        """Show the current state of the simulation"""
         print("Simulation state")
         print("================")
         print("Time: %f seconds" % simulator.simulation_time)
@@ -17,6 +19,7 @@ class SimulatorStatePrinter(SimulatorEventListener):
         print("")
 
     def print_aircraft_state(self, aircraft):
+        """Print the aircraft state"""
         print("Aircraft state")
         print("")
         print("Position")

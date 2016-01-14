@@ -8,26 +8,34 @@ import logging
 from twisted.internet import reactor
 
 class SimulatorEventListener(object):
+    """The SimulatorEventListener class must be implemented by any object
+    that has to notified when a simulation event is raised"""
+
     def simulator_reset(self, simulator):
+        """The simulator has reset"""
         pass
 
     def simulator_paused(self, simulator):
+        """The simulator has paused"""
         pass
 
     def simulator_resumed(self, simulator):
+        """The simulator has resumed execution"""
         pass
 
     def simulator_state_update(self, simulator):
+        """The simulator has run"""
         pass
 
 class Simulator(object):
     """The Simulator class is used to perform the simulation of an aircraft"""
+
     def __init__(self, fdmexec, aircraft):
         self.aircraft = aircraft
         self.fdmexec = fdmexec
         self.listeners = []
         self.logger = logging.getLogger("huginn")
-        self.paused = False;
+        self.paused = False
 
     @property
     def dt(self):
@@ -40,9 +48,11 @@ class Simulator(object):
         return self.fdmexec.GetSimTime()
 
     def add_simulator_event_listener(self, listener):
+        """Add a simulator event listener"""
         self.listeners.append(listener)
 
     def remove_simulator_event_listener(self, listener):
+        """Remove a simulator event listener"""
         self.listeners.remove(listener)
 
     def _simulator_has_reset(self):

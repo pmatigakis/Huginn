@@ -67,7 +67,8 @@ class SimulatorControlClient(object):
 
     def run_for(self, time_to_run):
         """Run the simulation for the given time in seconds"""
-        response_data = self._send_command("run_for", data={"time_to_run": time_to_run})
+        response_data = self._send_command("run_for",
+                                           data={"time_to_run": time_to_run})
 
         if response_data["result"] != "ok":
             return False
