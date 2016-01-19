@@ -1,7 +1,6 @@
-import struct
 from math import degrees
 
-from huginn.protocols import TelemetryDataListener, FDMDataListener
+from huginn.protocols import FDMDataListener
 from huginn import fdm_pb2
 
 class MockAuxiliary(object):
@@ -261,16 +260,6 @@ class MockFDMModel(object):
 class MockRequest(object):
     def __init__(self):
         self.args = {}
-
-class MockTelemetryDataListener(TelemetryDataListener):
-    def __init__(self):
-        TelemetryDataListener.__init__(self)
-
-    def received_telemetry_header(self, header):
-        pass
-
-    def received_telemetry_data(self, data):
-        pass
 
 class MockFDMDataDatagram(object):
     def __init__(self):

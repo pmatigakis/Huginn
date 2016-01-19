@@ -4,15 +4,13 @@ import math
 from mock import MagicMock
 from twisted.test.proto_helpers import StringTransport
 
-from huginn.protocols import ControlsProtocol, TelemetryFactory, TelemetryProtocol,\
-                             FDMDataProtocol, TelemetryClientFactory,\
+from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              FDMDataClient, ControlsClient, SensorDataProtocol,\
                              SensorDataFactory
 from huginn.aircraft import Aircraft
 from huginn import fdm_pb2
 
-from mockObjects import MockFDMExec, MockTelemetryDataListener,\
-                        MockFDMDataDatagram, MockFDMDataListener
+from mockObjects import MockFDMExec, MockFDMDataDatagram, MockFDMDataListener
 
 class TestControlsProtocol(TestCase):                
     def test_datagram_received(self):
@@ -45,47 +43,6 @@ class TestControlsProtocol(TestCase):
         self.assertAlmostEqual(aircraft.controls.elevator, elevator, 3)
         self.assertAlmostEqual(aircraft.controls.rudder, rudder, 3)
         self.assertAlmostEqual(aircraft.controls.throttle, throttle, 3)
-
-class TestTelemetryFactory(TestCase):
-    def test_get_telemetry_data(self):
-        fdmexec = MockFDMExec()
-
-        aircraft = Aircraft(fdmexec)
-        aircraft.run()
-
-        factory = TelemetryFactory(aircraft)
-        protocol = TelemetryProtocol(factory)
-
-        telemetry_data = factory.get_telemetry_data()
-
-        self.assertEqual(len(telemetry_data), len(protocol.telemetry_items))
-
-        for item in protocol.telemetry_items:
-            self.assertTrue(telemetry_data.has_key(item))
-
-        self.assertAlmostEqual(telemetry_data["time"], fdmexec.GetSimTime(), 3)
-        self.assertAlmostEqual(telemetry_data["dt"], fdmexec.GetDeltaT(), 3)
-        self.assertAlmostEqual(telemetry_data["latitude"], aircraft.gps.latitude, 3)
-        self.assertAlmostEqual(telemetry_data["longitude"], aircraft.gps.longitude, 3)
-        self.assertAlmostEqual(telemetry_data["altitude"], aircraft.gps.altitude, 3)
-        self.assertAlmostEqual(telemetry_data["airspeed"], aircraft.gps.airspeed, 3)
-        self.assertAlmostEqual(telemetry_data["heading"], aircraft.gps.heading, 3)
-        self.assertAlmostEqual(telemetry_data["x_acceleration"], aircraft.accelerometer.x_acceleration, 3)
-        self.assertAlmostEqual(telemetry_data["y_acceleration"], aircraft.accelerometer.y_acceleration, 3)
-        self.assertAlmostEqual(telemetry_data["z_acceleration"], aircraft.accelerometer.z_acceleration, 3)
-        self.assertAlmostEqual(telemetry_data["roll_rate"], aircraft.gyroscope.roll_rate, 3)
-        self.assertAlmostEqual(telemetry_data["pitch_rate"], aircraft.gyroscope.pitch_rate, 3)
-        self.assertAlmostEqual(telemetry_data["yaw_rate"], aircraft.gyroscope.yaw_rate, 3)
-        self.assertAlmostEqual(telemetry_data["temperature"], aircraft.thermometer.temperature, 3)
-        self.assertAlmostEqual(telemetry_data["static_pressure"], aircraft.pressure_sensor.pressure, 3)
-        self.assertAlmostEqual(telemetry_data["dynamic_pressure"], aircraft.pitot_tube.pressure, 3)
-        self.assertAlmostEqual(telemetry_data["roll"], aircraft.inertial_navigation_system.roll, 3)
-        self.assertAlmostEqual(telemetry_data["pitch"], aircraft.inertial_navigation_system.pitch, 3)
-        self.assertAlmostEqual(telemetry_data["thrust"], aircraft.engine.thrust, 3)
-        self.assertAlmostEqual(telemetry_data["aileron"], aircraft.controls.aileron, 3)
-        self.assertAlmostEqual(telemetry_data["elevator"], aircraft.controls.elevator, 3)
-        self.assertAlmostEqual(telemetry_data["rudder"], aircraft.controls.rudder, 3)
-        self.assertAlmostEqual(telemetry_data["throttle"], aircraft.engine.throttle, 3)
 
 class TestFDMDataProtocol(TestCase):
     def test_get_fdm_data(self):
@@ -121,40 +78,6 @@ class TestFDMDataProtocol(TestCase):
         self.assertAlmostEqual(fdm_data.controls.elevator, aircraft.controls.elevator, 3)
         self.assertAlmostEqual(fdm_data.controls.rudder, aircraft.controls.rudder, 3)
         self.assertAlmostEqual(fdm_data.controls.throttle, aircraft.controls.throttle, 3)
-
-class TestTelemetryClientfactory(TestCase):
-    def test_notify_listeners_on_telemetry_data_reception(self):
-        factory = TelemetryClientFactory()
-        protocol = factory.buildProtocol(("127.0.0.1", 0))
-        transport = StringTransport()
-
-        mock_telemetry_data_listener_1 = MockTelemetryDataListener()
-        factory.add_telemetry_listener(mock_telemetry_data_listener_1)
-
-        mock_telemetry_data_listener_2 = MockTelemetryDataListener()
-        factory.add_telemetry_listener(mock_telemetry_data_listener_2)
-
-        protocol.makeConnection(transport)
-
-        mock_telemetry_data_listener_1.received_telemetry_header = MagicMock()
-        mock_telemetry_data_listener_1.received_telemetry_data = MagicMock()
-
-        mock_telemetry_data_listener_2.received_telemetry_header = MagicMock()
-        mock_telemetry_data_listener_2.received_telemetry_data = MagicMock()
-
-        protocol.lineReceived("time,dt,latitude,longitude,altitude,airspeed,heading")
-        protocol.lineReceived("10.0,0.001,35.00000,24.00000,1000.0,50.0,132.12")
-
-        mock_telemetry_data_listener_1.received_telemetry_data.assert_called_with(["10.0", "0.001", "35.00000", "24.00000", "1000.0", "50.0", "132.12"])
-        mock_telemetry_data_listener_2.received_telemetry_data.assert_called_with(["10.0", "0.001", "35.00000", "24.00000", "1000.0", "50.0", "132.12"])
-
-        protocol.lineReceived("10.001,0.001,35.00001,24.00001,1000.1,50.1,132.13")
-
-        mock_telemetry_data_listener_1.received_telemetry_data.assert_called_with(["10.001", "0.001", "35.00001", "24.00001", "1000.1", "50.1", "132.13"])
-        mock_telemetry_data_listener_2.received_telemetry_data.assert_called_with(["10.001", "0.001", "35.00001", "24.00001", "1000.1", "50.1", "132.13"])
-
-        mock_telemetry_data_listener_1.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])
-        mock_telemetry_data_listener_2.received_telemetry_header.assert_called_once_with(["time", "dt", "latitude", "longitude", "altitude", "airspeed", "heading"])
 
 def isclose(number_1, number_2, tolerance):
     d = math.fabs(number_1 - number_2)
