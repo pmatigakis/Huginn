@@ -64,28 +64,28 @@ def main():
         logger.error("%s is not a supported aircraft", args.aircraft)
         exit(1)
 
-    huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+    huginn_data_path = pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable
 
     if args.dt <= 0.0:
         logger.error("Invalid simulation timestep %f", args.dt)
         exit(1)
 
-    fdmexec = create_fdmexec(huginn_data_path, args.aircraft, args.dt)
+    fdm = create_fdmexec(huginn_data_path, args.aircraft, args.dt)
 
-    fdmexec.PrintSimulationConfiguration()
-
-    fdmexec.GetPropagate().DumpState()
-
-    if not fdmexec:
+    if not fdm:
         logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
         exit(1)
 
-    aircraft = Aircraft(fdmexec)
+    fdm.print_simulation_configuration()
+
+    fdm.dump_state()
+
+    aircraft = Aircraft(fdm)
     aircraft.run()
 
     logger.debug("Engine thrust after simulation start %f", aircraft.engine.thrust)
 
-    simulator = Simulator(fdmexec, aircraft)
+    simulator = Simulator(fdm, aircraft)
     #start the simulator paused
     simulator.paused = True
 

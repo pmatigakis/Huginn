@@ -50,7 +50,7 @@ class FDMDataProtocol(DatagramProtocol):
     def get_fdm_data(self):
         fdm_data = fdm_pb2.FDMData()
 
-        fdm_data.time = self.aircraft.fdmexec.GetSimTime()
+        fdm_data.time = self.aircraft.fdm.get_sim_time()
 
         fdm_data.gps.latitude = self.aircraft.gps.latitude
         fdm_data.gps.longitude = self.aircraft.gps.longitude

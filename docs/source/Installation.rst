@@ -8,18 +8,13 @@ Huginn requires the following Python packages to be installed on your system.
 - Twisted >= 15.3.0
 
 Huginn also requires that you have installed the JSBsim flight dynamics model library. You can download this
-from http://jsbsim.sourceforge.net/. After you install JSBsim you must create an environment variable
-named JSBSIM_HOME that points to the directory of the JSBSim source code.
-
-You also need to download and install the JSBSim Python binding from the following Github page
-
-https://github.com/pmatigakis/PyJSBSim
+from http://jsbsim.sourceforge.net/.
 
 The simulator can be installed by downloading the source code and running the following commands on the console.
 
 .. code-block:: bash
 
-    python setup.py install
+    python setup.py build_ext install
 
 Testing
 -------

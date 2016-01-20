@@ -1,9 +1,6 @@
 import pkg_resources
 from unittest import TestCase
-import inspect
-from os import path
 
-import huginn
 from huginn.fdm import create_fdmexec
 from huginn import configuration
 

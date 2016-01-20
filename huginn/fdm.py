@@ -6,7 +6,7 @@ aircraft
 
 import logging
 
-from PyJSBSim import FGFDMExec  # @UnresolvedImport
+from huginn_jsbsim import FDM
 
 fdm_properties = [
     "simulation/sim-time-sec",
@@ -79,46 +79,32 @@ controls_properties = [
 ]
 
 def create_fdmexec(jsbsim_path, aircraft_name, dt):
-    """
-    Initialize JSBSim and create an FGFDMExec object that will be used for
-    the simulation
-    """
     logger = logging.getLogger("huginn")
 
-    fdmexec = FGFDMExec()
+    fdm = FDM()
 
     logger.debug("Using jsbsim data at %s", jsbsim_path)
-    logger.debug("Using aircraft %s", aircraft_name)
 
-    fdmexec.SetRootDir(jsbsim_path)
-    fdmexec.SetAircraftPath("")
-    fdmexec.SetEnginePath("/%s/Engines" % aircraft_name)
-    fdmexec.SetSystemsPath("/%s/Systems" % aircraft_name)
+    fdm.set_data_path(jsbsim_path)
 
     logger.debug("JSBSim dt is %f", dt)
-    fdmexec.Setdt(dt)
+    fdm.set_dt(dt)
 
-    fdmexec.LoadModel(aircraft_name)
+    logger.debug("Using aircraft %s", aircraft_name)
+    fdm.load_model(aircraft_name)
 
-    engine = fdmexec.GetPropulsion().GetEngine(0)
-    engine.SetRunning(True)
+    fdm.start_engines()
 
-    fdmexec.GetFCS().SetThrottleCmd(0, 0.2)
+    fdm.set_throttle(0.2)
 
-    ic = fdmexec.GetIC()
+    fdm.load_ic("reset")
 
-    ic.Load("reset")
-
-    ic_result = fdmexec.RunIC()
-
-    if not ic_result:
+    if not fdm.run_ic():
         logger.error("Failed to run initial condition")
         return None
 
-    running = fdmexec.Run()
-
-    if not running:
+    if not fdm.run():
         logger.error("Failed to execute initial run")
         return None
 
-    return fdmexec
+    return fdm

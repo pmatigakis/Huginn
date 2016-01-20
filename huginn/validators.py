@@ -1,6 +1,6 @@
 """
 the huginn.validators module contains functions that are using to validate
-input arguments 
+input arguments
 """
 
 import re

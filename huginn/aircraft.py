@@ -16,8 +16,8 @@ class Component(object):
     of an aircraft."""
     __metaclass__ = ABCMeta
 
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
+    def __init__(self, fdm):
+        self.fdm = fdm
 
     @abstractmethod
     def run(self):
@@ -26,8 +26,8 @@ class Component(object):
 
 class GPS(Component):
     """The GPS class simulates the aircraft's GPS system."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.latitude = 0.0
         self.longitude = 0.0
@@ -37,24 +37,22 @@ class GPS(Component):
 
     def run(self):
         """Update the component using data from JSBSim."""
-        propagate = self.fdmexec.GetPropagate()
+        self.latitude = self.fdm.get_latitude()
+        self.longitude = self.fdm.get_longitude()
 
-        self.latitude = propagate.GetLatitudeDeg()
-        self.longitude = propagate.GetLongitudeDeg()
+        self.altitude = self.fdm.get_altitude()
 
-        self.altitude = propagate.GetAltitudeASLmeters()
-
-        airspeed_in_fps = self.fdmexec.GetAuxiliary().GetVtrueFPS()
+        airspeed_in_fps = self.fdm.get_airspeed()
         self.airspeed = convert_feet_to_meters(airspeed_in_fps)
         #self.airspeed = convert_knots_to_meters_per_sec(airspeed_in_knots)
 
-        self.heading = degrees(propagate.GetEuler().Entry(3))
+        self.heading = degrees(self.fdm.get_heading())
 
 class Accelerometer(Component):
     """The Accelerometer class returns the acceleration measures on the body
     frame."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.x_acceleration = 0.0
         self.y_acceleration = 0.0
@@ -62,18 +60,16 @@ class Accelerometer(Component):
 
     def run(self):
         """Update the component using data from JSBSim."""
-        auxiliary = self.fdmexec.GetAuxiliary()
+        self.x_acceleration = convert_feet_to_meters(self.fdm.get_x_acceleration())
 
-        self.x_acceleration = convert_feet_to_meters(auxiliary.GetPilotAccel(1))
+        self.y_acceleration = convert_feet_to_meters(self.fdm.get_y_acceleration())
 
-        self.y_acceleration = convert_feet_to_meters(auxiliary.GetPilotAccel(2))
-
-        self.z_acceleration = convert_feet_to_meters(auxiliary.GetPilotAccel(3))
+        self.z_acceleration = convert_feet_to_meters(self.fdm.get_z_acceleration())
 
 class Gyroscope(Component):
     """The Gyroscope class contains the angular velocities measured on the body axis."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.roll_rate = 0.0
         self.pitch_rate = 0.0
@@ -81,55 +77,53 @@ class Gyroscope(Component):
 
     def run(self):
         """Update the component using data from JSBSim."""
-        auxiliary = self.fdmexec.GetAuxiliary()
+        self.roll_rate = degrees(self.fdm.get_roll_rate())
 
-        self.roll_rate = degrees(auxiliary.GetEulerRates(1))
+        self.pitch_rate = degrees(self.fdm.get_pitch_rate())
 
-        self.pitch_rate = degrees(auxiliary.GetEulerRates(2))
-
-        self.yaw_rate = degrees(auxiliary.GetEulerRates(3))
+        self.yaw_rate = degrees(self.fdm.get_yaw_rate())
 
 class Thermometer(Component):
     """The Thermometer class contains the temperature measured by the
     aircraft's sensors."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.temperature = 0.0
 
     def run(self):
         """Update the component using data from JSBSim."""
         #self.temperature = self.fdmexec.GetAuxiliary().GetTAT_C()
-        self.temperature = convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
+        self.temperature = convert_rankine_to_kelvin(self.fdm.get_temperature())
 
 class PressureSensor(Component):
     """The PressureSensor class contains the static presured measured by the
     aircraft's sensors."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.pressure = 0.0
 
     def run(self):
         """Update the component using data from JSBSim."""
-        self.pressure = convert_psf_to_pascal(self.fdmexec.GetAtmosphere().GetPressure())
+        self.pressure = convert_psf_to_pascal(self.fdm.get_pressure())
 
 class PitotTube(Component):
     """The PitosTure class simulates the aircraft's pitot system."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.pressure = 0.0
 
     def run(self):
         """Update the component using data from JSBSim."""
-        self.pressure = convert_psf_to_pascal(self.fdmexec.GetAuxiliary().GetTotalPressure())
+        self.pressure = convert_psf_to_pascal(self.fdm.get_total_pressure())
 
 class InertialNavigationSystem(Component):
     """The InertialNavigationSystem class is used to simulate the aircraft's
     inertial navigation system."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.roll = 0.0
         self.pitch = 0.0
@@ -141,32 +135,29 @@ class InertialNavigationSystem(Component):
 
     def run(self):
         """Update the component using data from JSBSim."""
-        propagate = self.fdmexec.GetPropagate()
+        self.roll = self.fdm.get_roll()
 
-        euler_angles = propagate.GetEulerDeg()
-        self.roll = euler_angles.Entry(1)
+        self.pitch = self.fdm.get_pitch()
 
-        self.pitch = euler_angles.Entry(2)
+        self.heading = degrees(self.fdm.get_heading())
 
-        self.heading = euler_angles.Entry(3)
+        self.latitude = self.fdm.get_latitude()
+        self.longitude = self.fdm.get_longitude()
 
-        self.latitude = propagate.GetLatitudeDeg()
-        self.longitude = propagate.GetLongitudeDeg()
-
-        airspeed_in_fps = self.fdmexec.GetAuxiliary().GetVtrueFPS()
+        airspeed_in_fps = self.fdm.get_airspeed()
         self.airspeed = convert_feet_to_meters(airspeed_in_fps)
 
-        self.altitude = propagate.GetAltitudeASLmeters()
+        self.altitude = self.fdm.get_altitude()
 
 class Controls(object):
     """The Controls class holds the aircraft control surfaces values"""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
+    def __init__(self, fdm):
+        self.fdm = fdm
 
     @property
     def aileron(self):
         """The aileron deflection."""
-        return self.fdmexec.GetFCS().GetDaCmd()
+        return self.fdm.get_aileron()
 
     @aileron.setter
     def aileron(self, value):
@@ -178,12 +169,12 @@ class Controls(object):
         elif value < -1.0:
             value = -1.0
 
-        self.fdmexec.GetFCS().SetDaCmd(value)
+        self.fdm.set_aileron(value)
 
     @property
     def elevator(self):
         """The elevator deflection."""
-        return self.fdmexec.GetFCS().GetDeCmd()
+        return self.fdm.get_elevator()
 
     @elevator.setter
     def elevator(self, value):
@@ -195,12 +186,12 @@ class Controls(object):
         elif value < -1.0:
             value = -1.0
 
-        self.fdmexec.GetFCS().SetDeCmd(value)
+        self.fdm.set_elevator(value)
 
     @property
     def rudder(self):
         """The rudder deflection."""
-        return self.fdmexec.GetFCS().GetDrCmd()
+        return self.fdm.get_rudder()
 
     @rudder.setter
     def rudder(self, value):
@@ -212,12 +203,12 @@ class Controls(object):
         elif value < -1.0:
             value = -1.0
 
-        self.fdmexec.GetFCS().SetDrCmd(value)
+        self.fdm.set_rudder(value)
 
     @property
     def throttle(self):
         """The throttle setting."""
-        return self.fdmexec.GetFCS().GetThrottleCmd(0)
+        return self.fdm.get_throttle()
 
     @throttle.setter
     def throttle(self, value):
@@ -229,42 +220,39 @@ class Controls(object):
         elif value < 0.0:
             value = 0.0
 
-        for i in range(self.fdmexec.GetPropulsion().GetNumEngines()):
-            self.fdmexec.GetFCS().SetThrottleCmd(i, value)
+        self.fdm.set_throttle(value)
 
 class Engine(Component):
     """The Engine class contains data about the state of the aircraft's engine."""
-    def __init__(self, fdmexec):
-        Component.__init__(self, fdmexec)
+    def __init__(self, fdm):
+        Component.__init__(self, fdm)
 
         self.thrust = 0.0
         self.throttle = 0.0
 
     def run(self):
         """Update the component using data from JSBSim."""
-        engine = self.fdmexec.GetPropulsion().GetEngine(0)
+        self.thrust = convert_libra_to_newtons(self.fdm.get_thrust())
 
-        self.thrust = convert_libra_to_newtons(engine.GetThruster().GetThrust())
-
-        self.throttle = self.fdmexec.GetFCS().GetThrottleCmd(0)
+        self.throttle = self.fdm.get_throttle()
 
 class Aircraft(object):
     """The Aircraft class is a wrapper around jsbsim that contains data about
     the aircraft state."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
+    def __init__(self, fdm):
+        self.fdm = fdm
 
         self._fdmexec_state_listeners = []
 
-        self.gps = GPS(fdmexec)
-        self.accelerometer = Accelerometer(fdmexec)
-        self.gyroscope = Gyroscope(fdmexec)
-        self.thermometer = Thermometer(fdmexec)
-        self.pressure_sensor = PressureSensor(fdmexec)
-        self.pitot_tube = PitotTube(fdmexec)
-        self.inertial_navigation_system = InertialNavigationSystem(fdmexec)
-        self.engine = Engine(fdmexec)
-        self.controls = Controls(fdmexec)
+        self.gps = GPS(fdm)
+        self.accelerometer = Accelerometer(fdm)
+        self.gyroscope = Gyroscope(fdm)
+        self.thermometer = Thermometer(fdm)
+        self.pressure_sensor = PressureSensor(fdm)
+        self.pitot_tube = PitotTube(fdm)
+        self.inertial_navigation_system = InertialNavigationSystem(fdm)
+        self.engine = Engine(fdm)
+        self.controls = Controls(fdm)
 
     def run(self):
         """Update the aircraft state using the data from JSBSim"""

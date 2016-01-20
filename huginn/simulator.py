@@ -30,9 +30,9 @@ class SimulatorEventListener(object):
 class Simulator(object):
     """The Simulator class is used to perform the simulation of an aircraft"""
 
-    def __init__(self, fdmexec, aircraft):
+    def __init__(self, fdm, aircraft):
         self.aircraft = aircraft
-        self.fdmexec = fdmexec
+        self.fdm = fdm
         self.listeners = []
         self.logger = logging.getLogger("huginn")
         self.paused = False
@@ -40,12 +40,12 @@ class Simulator(object):
     @property
     def dt(self):
         """The simulation time step"""
-        return self.fdmexec.GetDeltaT()
+        return self.fdm.get_dt()
 
     @property
     def simulation_time(self):
         """The current simulation time"""
-        return self.fdmexec.GetSimTime()
+        return self.fdm.get_sim_time()
 
     def add_simulator_event_listener(self, listener):
         """Add a simulator event listener"""
@@ -86,20 +86,8 @@ class Simulator(object):
     def reset(self):
         """Reset the simulation"""
         self.logger.debug("Reseting the aircraft")
-        self.fdmexec.Resume()
 
-        self.fdmexec.ResetToInitialConditions(0)
-
-        self.aircraft.controls.aileron = 0.0
-        self.aircraft.controls.elevator = 0.0
-        self.aircraft.controls.rudder = 0.0
-        self.aircraft.controls.throttle = 0.2
-
-        self.fdmexec.PrintSimulationConfiguration()
-
-        self.fdmexec.GetPropagate().DumpState()
-
-        running = self.fdmexec.Run()
+        running = self.fdm.reset()
 
         if not running:
             self.logger.error("Failed to reset the simulator")
@@ -113,10 +101,10 @@ class Simulator(object):
 
     def step(self):
         """Run the simulation one time"""
-        self.fdmexec.ProcessMessage()
-        self.fdmexec.CheckIncrementalHold()
+        #self.fdmexec.ProcessMessage()
+        #self.fdmexec.CheckIncrementalHold()
 
-        run_result = self.fdmexec.Run()
+        run_result = self.fdm.run()
 
         if run_result:
             self.aircraft.run()
@@ -128,10 +116,10 @@ class Simulator(object):
 
     def run_for(self, time_to_run):
         """Run the simulation for the given time in seconds"""
-        start_time = self.fdmexec.GetSimTime()
+        start_time = self.fdm.get_sim_time()
         end_time = start_time + time_to_run
 
-        while self.fdmexec.GetSimTime() < end_time:
+        while self.fdm.get_sim_time() <= end_time:
             self.step()
 
     def run(self):

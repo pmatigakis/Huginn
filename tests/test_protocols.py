@@ -1,3 +1,4 @@
+import pkg_resources
 from unittest import TestCase
 import math
 
@@ -9,14 +10,18 @@ from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
 from huginn.aircraft import Aircraft
 from huginn import fdm_pb2
+from huginn.fdm import create_fdmexec
+from huginn import configuration
 
-from mockObjects import MockFDMExec, MockFDMDataDatagram, MockFDMDataListener
+from mockObjects import MockFDMDataDatagram, MockFDMDataListener
 
 class TestControlsProtocol(TestCase):                
     def test_datagram_received(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
         
-        aircraft = Aircraft(fdmexec)
+        aircraft = Aircraft(fdm)
         aircraft.run()
         
         controls_protocol = ControlsProtocol(aircraft)
@@ -46,16 +51,18 @@ class TestControlsProtocol(TestCase):
 
 class TestFDMDataProtocol(TestCase):
     def test_get_fdm_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         aircraft.run()
 
         fdm_data_protocol = FDMDataProtocol(aircraft, "127.0.0.1", 12345)
 
         fdm_data = fdm_data_protocol.get_fdm_data()
 
-        self.assertAlmostEqual(fdm_data.time, fdmexec.GetSimTime(), 3)
+        self.assertAlmostEqual(fdm_data.time, fdm.get_sim_time(), 3)
         self.assertAlmostEqual(fdm_data.gps.latitude, aircraft.gps.latitude, 3)
         self.assertAlmostEqual(fdm_data.gps.longitude, aircraft.gps.longitude, 3)
         self.assertAlmostEqual(fdm_data.gps.altitude, aircraft.gps.altitude, 3)
@@ -171,9 +178,11 @@ class TestControlsClient(TestCase):
 
 class TestSensorDataProtocol(TestCase):
     def test_fill_gps_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -194,9 +203,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.GPS_REQUEST)
 
     def test_fill_accelerometer_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -215,9 +226,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.ACCELEROMETER_REQUEST)
 
     def test_fill_gyroscope_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -236,9 +249,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.GYROSCOPE_REQUEST)
 
     def test_fill_thermometer_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -255,9 +270,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.THERMOMETER_REQUEST)
 
     def test_fill_pressure_sensor_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -274,9 +291,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.PRESSURE_SENSOR_REQUEST)
 
     def test_fill_pitot_tube_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -293,9 +312,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.PITOT_TUBE_REQUEST)
 
     def test_fill_engine_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -313,9 +334,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.ENGINE_REQUEST)
 
     def test_fill_controls_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -335,9 +358,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.CONTROLS_REQUEST)
 
     def test_fill_ins_data(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 
@@ -355,9 +380,11 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.INS_REQUEST)
 
     def test_handle_sensor_data_request(self):
-        fdmexec = MockFDMExec()
+        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        aircraft = Aircraft(fdmexec)
+        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+
+        aircraft = Aircraft(fdm)
         
         aircraft.run()
 

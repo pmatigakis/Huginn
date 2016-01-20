@@ -25,9 +25,9 @@ class SimulationServer(object):
     simulation data."""
     def __init__(self, simulator):
         self.simulator = simulator
-        self.fdmexec = simulator.fdmexec
+        self.fdm = simulator.fdm
         self.aircraft = simulator.aircraft
-        self.dt = simulator.fdmexec.GetDeltaT()
+        self.dt = simulator.fdm.get_dt()
         self.controls_port = configuration.CONTROLS_PORT
         self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
@@ -54,7 +54,7 @@ class SimulationServer(object):
 
         root.putChild("aircraft", aircraft_root)
         root.putChild("simulator", SimulatorControl(self.simulator))
-        root.putChild("fdm", FDMData(self.fdmexec, self.aircraft))
+        root.putChild("fdm", FDMData(self.fdm, self.aircraft))
         root.putChild("map", MapData())
 
         frontend = server.Site(root)

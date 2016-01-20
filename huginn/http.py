@@ -222,14 +222,14 @@ class FlightControlsData(FlightDataResource):
 class FDMData(FlightDataResource):
     """The FDMData resource returns data relative to the simulation"""
     isLeaf = True
-    def __init__(self, fdmexec, aircraft):
+    def __init__(self, fdm, aircraft):
         FlightDataResource.__init__(self, aircraft)
-        self.fdmexec = fdmexec
+        self.fdm = fdm
 
     def get_flight_data(self):
         flight_data = {
-            "time": self.fdmexec.GetSimTime(),
-            "dt": self.fdmexec.GetDeltaT(),
+            "time": self.fdm.get_sim_time(),
+            "dt": self.fdm.get_dt(),
             "latitude": self.aircraft.gps.latitude,
             "longitude": self.aircraft.gps.longitude,
             "altitude": self.aircraft.gps.altitude,
