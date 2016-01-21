@@ -36,6 +36,7 @@ class Simulator(object):
         self.listeners = []
         self.logger = logging.getLogger("huginn")
         self.paused = False
+        self.start_trimmed = False
 
     @property
     def dt(self):
@@ -87,7 +88,7 @@ class Simulator(object):
         """Reset the simulation"""
         self.logger.debug("Reseting the aircraft")
 
-        running = self.fdm.reset()
+        running = self.fdm.reset(self.start_trimmed)
 
         if not running:
             self.logger.error("Failed to reset the simulator")

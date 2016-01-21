@@ -9,6 +9,7 @@
 #include <JSBSim/models/propulsion/FGEngine.h>
 #include <JSBSim/models/propulsion/FGThruster.h>
 #include <JSBSim/initialization/FGInitialCondition.h>
+#include <JSBSim/initialization/FGTrim.h>
 #include "fdm.h"
 
 FDM::FDM(){
@@ -224,7 +225,7 @@ double FDM::get_sim_time(){
     return fdmexec->GetSimTime();
 }
 
-bool FDM::reset(){
+bool FDM::reset(bool do_trim){
     fdmexec->Resume();
 
     fdmexec->ResetToInitialConditions(0);
@@ -232,11 +233,31 @@ bool FDM::reset(){
     set_aileron(0.0);
     set_elevator(0.0);
     set_rudder(0.0);
-    set_throttle(0.2);
+    set_throttle(0.0);
 
     fdmexec->PrintSimulationConfiguration();
 
     fdmexec->GetPropagate()->DumpState();
 
+    if(do_trim){
+    	trim();
+    }
+
     return fdmexec->Run();
 }
+
+bool FDM::trim(){
+    JSBSim::FGTrim *trimmer;
+
+    trimmer = new JSBSim::FGTrim(fdmexec, JSBSim::tLongitudinal);
+
+    try {
+        trimmer->DoTrim();
+        delete trimmer;
+    } catch (string& msg) {
+        return false;
+    }
+
+    return true;
+}
+

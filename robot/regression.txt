@@ -81,7 +81,7 @@ FDMData endpoint returns data
     Dictionary Should Contain Key    ${resp.json()}    rudder
     Should Be Equal As Numbers    ${resp.json()['rudder']}    0.00000    precision=4
     Dictionary Should Contain Key    ${resp.json()}    throttle
-    Should Be Equal As Numbers    ${resp.json()['throttle']}    0.20000    precision=4
+    Should Be Equal As Numbers    ${resp.json()['throttle']}    0.00000    precision=4
     Dictionary Should Contain Key    ${resp.json()}    x_acceleration
     Dictionary Should Contain Key    ${resp.json()}    y_acceleration
     Dictionary Should Contain Key    ${resp.json()}    z_acceleration

@@ -3,10 +3,7 @@
 import pkg_resources
 import logging
 from argparse import ArgumentParser
-import inspect
-from os import path
 
-import huginn
 from huginn import configuration
 from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint
@@ -31,6 +28,7 @@ def get_arguments():
     parser.add_argument("--debug", action="store_true", help="Enable debug logs")
     parser.add_argument("--dt", action="store", type=float, default=configuration.DT, help="the simulation timestep")
     parser.add_argument("--log", action="store", default="huginn.log", help="The output log file")
+    parser.add_argument("--trim", action="store_true", help="trim the aircraft")
 
     return parser.parse_args()
 
@@ -70,7 +68,7 @@ def main():
         logger.error("Invalid simulation timestep %f", args.dt)
         exit(1)
 
-    fdm = create_fdmexec(huginn_data_path, args.aircraft, args.dt)
+    fdm = create_fdmexec(huginn_data_path, args.aircraft, args.dt, trim=args.trim)
 
     if not fdm:
         logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
@@ -88,6 +86,7 @@ def main():
     simulator = Simulator(fdm, aircraft)
     #start the simulator paused
     simulator.paused = True
+    simulator.start_trimmed = args.trim
 
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)

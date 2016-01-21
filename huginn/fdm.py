@@ -78,7 +78,7 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-def create_fdmexec(jsbsim_path, aircraft_name, dt):
+def create_fdmexec(jsbsim_path, aircraft_name, dt, trim=False):
     logger = logging.getLogger("huginn")
 
     fdm = FDM()
@@ -93,15 +93,21 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt):
     logger.debug("Using aircraft %s", aircraft_name)
     fdm.load_model(aircraft_name)
 
-    fdm.start_engines()
+    #fdm.start_engines()
 
-    fdm.set_throttle(0.2)
+    fdm.set_throttle(0.0)
 
-    fdm.load_ic("reset")
+    fdm.load_ic("reset_on_air")
 
     if not fdm.run_ic():
         logger.error("Failed to run initial condition")
         return None
+
+    if trim:
+        trim_result = fdm.trim()
+
+        if not trim_result:
+            logger.warning("Failed to trim the aircraft")
 
     if not fdm.run():
         logger.error("Failed to execute initial run")

@@ -54,7 +54,8 @@ public:
     double get_dt();
     double get_sim_time();
 
-    bool reset();
+    bool reset(bool do_trim=false);
+    bool trim();
 
 private:
 	JSBSim::FGFDMExec *fdmexec;
