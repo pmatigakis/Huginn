@@ -66,7 +66,7 @@ class TestSimulator(TestCase):
         
         self.assertAlmostEqual(aircraft.controls.aileron, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.rudder, 0.0, 3)
-        self.assertAlmostEqual(aircraft.controls.throttle, 0.2, 3)
+        self.assertAlmostEqual(aircraft.controls.throttle, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.elevator, 0.0, 3)
 
     def test_step(self):
