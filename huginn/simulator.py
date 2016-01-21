@@ -90,6 +90,8 @@ class Simulator(object):
 
         running = self.fdm.reset(self.start_trimmed)
 
+        self.fdm.start_engines()
+
         if not running:
             self.logger.error("Failed to reset the simulator")
             reactor.stop()  # @UndefinedVariable

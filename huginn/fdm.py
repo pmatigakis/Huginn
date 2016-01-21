@@ -93,7 +93,7 @@ def create_fdmexec(jsbsim_path, aircraft_name, dt, trim=False):
     logger.debug("Using aircraft %s", aircraft_name)
     fdm.load_model(aircraft_name)
 
-    #fdm.start_engines()
+    fdm.start_engines()
 
     fdm.set_throttle(0.0)
 
