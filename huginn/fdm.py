@@ -3,10 +3,12 @@ The huginn.fdm module contains classes and functions that can be used to
 initialize the flight dynamics model and create a model for a simulated
 aircraft
 """
-
 import logging
 
+from huginn import configuration
 from huginn_jsbsim import FDM
+from huginn.unit_conversions import convert_meters_to_feet,\
+    convert_meters_per_sec_to_knots
 
 fdm_properties = [
     "simulation/sim-time-sec",
@@ -78,39 +80,59 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-def create_fdmexec(jsbsim_path, aircraft_name, dt, trim=False):
-    logger = logging.getLogger("huginn")
+class FDMBuilder(object):
+    """The FDMBuilder created the flight dynamics model object that will be
+    used by the simulator"""
+    def __init__(self, data_path):
+        self.data_path = data_path
+        self.dt = configuration.DT
 
-    fdm = FDM()
+        self.aircraft = configuration.AIRCRAFT
 
-    logger.debug("Using jsbsim data at %s", jsbsim_path)
+        self.latitude = configuration.LATITUDE
+        self.longitude = configuration.LONGITUDE
+        self.altitude = configuration.ALTITUDE
+        self.airspeed = configuration.AIRSPEED
+        self.heading = configuration.HEADING
 
-    fdm.set_data_path(jsbsim_path)
+        self.trim = False
 
-    logger.debug("JSBSim dt is %f", dt)
-    fdm.set_dt(dt)
+    def create_fdm(self):
+        """Create the flight dynamics model"""
+        logger = logging.getLogger("huginn")
 
-    logger.debug("Using aircraft %s", aircraft_name)
-    fdm.load_model(aircraft_name)
+        fdm = FDM()
 
-    fdm.start_engines()
+        logger.debug("Using jsbsim data at %s", self.data_path)
 
-    fdm.set_throttle(0.0)
+        fdm.set_data_path(self.data_path)
 
-    fdm.load_ic("reset_on_air")
+        logger.debug("JSBSim dt is %f", self.dt)
+        fdm.set_dt(self.dt)
 
-    if not fdm.run_ic():
-        logger.error("Failed to run initial condition")
-        return None
+        logger.debug("Using aircraft %s", self.aircraft)
+        fdm.load_model(self.aircraft)
 
-    if trim:
-        trim_result = fdm.trim()
+        fdm.start_engines()
 
-        if not trim_result:
-            logger.warning("Failed to trim the aircraft")
+        fdm.set_throttle(0.0)
 
-    if not fdm.run():
-        logger.error("Failed to execute initial run")
-        return None
+        altitude_in_feet = convert_meters_to_feet(self.altitude)
+        airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
+        fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading);
 
-    return fdm
+        if not fdm.run_ic():
+            logger.error("Failed to run initial condition")
+            return None
+
+        if self.trim:
+            trim_result = fdm.trim()
+
+            if not trim_result:
+                logger.warning("Failed to trim the aircraft")
+
+        if not fdm.run():
+            logger.error("Failed to execute initial run")
+            return None
+
+        return fdm

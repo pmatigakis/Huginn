@@ -41,7 +41,7 @@ GPS endpoint returns data
     Dictionary Should Contain Key    ${resp.json()}    altitude
     Should Be Equal As Numbers    ${resp.json()['altitude']}    300.00000    precision=4
     Dictionary Should Contain Key    ${resp.json()}    airspeed
-    Should Be Equal As Numbers    ${resp.json()['airspeed']}    15.240000    precision=2
+    Should Be Equal As Numbers    ${resp.json()['airspeed']}    30.00000    precision=1
     Dictionary Should Contain Key    ${resp.json()}    heading
     Should Be Equal As Numbers    ${resp.json()['heading']}    45.00000    precision=4
 
@@ -71,7 +71,7 @@ FDMData endpoint returns data
     Dictionary Should Contain Key    ${resp.json()}    altitude
     Should Be Equal As Numbers    ${resp.json()['altitude']}    300.00000    precision=4
     Dictionary Should Contain Key    ${resp.json()}    airspeed
-    Should Be Equal As Numbers    ${resp.json()['airspeed']}    15.240000    precision=2
+    Should Be Equal As Numbers    ${resp.json()['airspeed']}    30.00000    precision=1
     Dictionary Should Contain Key    ${resp.json()}    heading
     Should Be Equal As Numbers    ${resp.json()['heading']}    45.00000    precision=4
     Dictionary Should Contain Key    ${resp.json()}    aileron

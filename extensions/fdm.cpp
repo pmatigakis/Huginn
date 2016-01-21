@@ -261,3 +261,12 @@ bool FDM::trim(){
     return true;
 }
 
+void FDM::set_initial_condition(double latitude, double longitude, double altitude, double airspeed, double heading){
+    JSBSim::FGInitialCondition *ic = fdmexec->GetIC();
+
+    ic->SetLatitudeDegIC(latitude);
+    ic->SetLongitudeDegIC(longitude);
+    ic->SetAltitudeASLFtIC(altitude);
+    ic->SetPsiDegIC(heading);
+    ic->SetVtrueKtsIC(airspeed);
+}

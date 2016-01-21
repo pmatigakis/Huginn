@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from huginn import configuration
 from huginn.simulator import Simulator
 from huginn.validators import port_number, fdm_data_endpoint
-from huginn.fdm import create_fdmexec
+from huginn.fdm import FDMBuilder
 from huginn.aircraft import Aircraft
 from huginn.servers import SimulationServer
 from huginn.console import SimulatorStatePrinter
@@ -29,6 +29,12 @@ def get_arguments():
     parser.add_argument("--dt", action="store", type=float, default=configuration.DT, help="the simulation timestep")
     parser.add_argument("--log", action="store", default="huginn.log", help="The output log file")
     parser.add_argument("--trim", action="store_true", help="trim the aircraft")
+    
+    parser.add_argument("--latitude", action="store", type=float, default=configuration.LATITUDE, help="The starting latitude")
+    parser.add_argument("--longitude", action="store", type=float, default=configuration.LONGITUDE, help="The starting longitude")
+    parser.add_argument("--altitude", action="store", type=float, default=configuration.ALTITUDE, help="The starting altitude")
+    parser.add_argument("--airspeed", action="store", type=float, default=configuration.AIRSPEED, help="The starting airspeed")
+    parser.add_argument("--heading", action="store", type=float, default=configuration.HEADING, help="The starting heading")
 
     return parser.parse_args()
 
@@ -68,7 +74,18 @@ def main():
         logger.error("Invalid simulation timestep %f", args.dt)
         exit(1)
 
-    fdm = create_fdmexec(huginn_data_path, args.aircraft, args.dt, trim=args.trim)
+    fdm_builder = FDMBuilder(huginn_data_path)
+    fdm_builder.aircraft = args.aircraft
+    fdm_builder.trim = args.trim
+    fdm_builder.dt = args.dt
+
+    fdm_builder.latitude = args.latitude
+    fdm_builder.longitude = args.longitude
+    fdm_builder.altitude = args.altitude
+    fdm_builder.airspeed = args.airspeed
+    fdm_builder.heading = args.heading
+
+    fdm = fdm_builder.create_fdm()
 
     if not fdm:
         logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)

@@ -9,7 +9,7 @@ from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
                         InertialNavigationSystemData, EngineData,\
                         FlightControlsData, SimulatorControl, FDMData
-from huginn.fdm import create_fdmexec
+from huginn.fdm import FDMBuilder
 from huginn import configuration
 
 from mockObjects import MockRequest
@@ -18,7 +18,8 @@ class TestGPSData(TestCase):
     def test_get_gps_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -37,7 +38,8 @@ class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -54,7 +56,8 @@ class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -71,7 +74,8 @@ class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -86,7 +90,8 @@ class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -101,7 +106,8 @@ class TestPitotTubeData(TestCase):
     def test_get_pitot_tube_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -116,7 +122,8 @@ class TestInertialNavigationSystemData(TestCase):
     def test_get_inertial_navigation_system_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -137,7 +144,8 @@ class TestEngineData(TestCase):
     def test_get_engine_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -152,7 +160,8 @@ class TestFlightControlsData(TestCase):
     def test_get_flight_controls_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -170,7 +179,8 @@ class TestSimulatorControl(TestCase):
     def test_pause_simulator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -193,7 +203,8 @@ class TestSimulatorControl(TestCase):
     def test_reset_simulator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -216,7 +227,8 @@ class TestSimulatorControl(TestCase):
     def test_resume_simulator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -239,7 +251,8 @@ class TestSimulatorControl(TestCase):
     def test_invalid_simulator_command(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -263,7 +276,8 @@ class TestSimulatorControl(TestCase):
     def test_invalid_simulator_request(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -286,7 +300,8 @@ class TestSimulatorControl(TestCase):
     def test_step_simulator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -309,7 +324,8 @@ class TestSimulatorControl(TestCase):
     def test_run_for_simulator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()
@@ -336,7 +352,8 @@ class TestFDMData(TestCase):
     def test_get_fdm_data(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdm)
         aircraft.run()

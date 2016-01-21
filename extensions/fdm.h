@@ -57,6 +57,8 @@ public:
     bool reset(bool do_trim=false);
     bool trim();
 
+    void set_initial_condition(double latitude, double longitude, double altitude, double airspeed, double heading);
+
 private:
 	JSBSim::FGFDMExec *fdmexec;
 };

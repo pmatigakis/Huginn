@@ -9,7 +9,7 @@ from huginn.unit_conversions import convert_feet_sec_squared_to_meters_sec_squar
                                     convert_radians_sec_to_degrees_sec
 from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal,\
                                     convert_libra_to_newtons
-from huginn.fdm import create_fdmexec
+from huginn.fdm import FDMBuilder
 from huginn import configuration
 
 from mock.mock import MagicMock
@@ -18,7 +18,8 @@ class TestControls(TestCase):
     def test_get_aileron(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         controls = Controls(fdm)
         
@@ -31,7 +32,8 @@ class TestControls(TestCase):
     def test_set_aileron(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         fdm.set_aileron = MagicMock()
         
@@ -44,7 +46,8 @@ class TestControls(TestCase):
     def test_get_elevator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         controls = Controls(fdm)
         
@@ -57,7 +60,8 @@ class TestControls(TestCase):
     def test_set_elevator(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         fdm.set_elevator = MagicMock()
         
@@ -70,7 +74,8 @@ class TestControls(TestCase):
     def test_get_rudder(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         controls = Controls(fdm)
         
@@ -83,7 +88,8 @@ class TestControls(TestCase):
     def test_set_rudder(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         fdm.set_rudder = MagicMock()
         
@@ -96,7 +102,8 @@ class TestControls(TestCase):
     def test_get_throttle(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         controls = Controls(fdm)
         
@@ -109,7 +116,8 @@ class TestControls(TestCase):
     def test_set_throttle(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         fdm.set_throttle = MagicMock()
         
@@ -123,7 +131,8 @@ class TestEngine(TestCase):
     def test_thrust(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)        
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()        
 
         engine = Engine(fdm)
         engine.run()
@@ -137,7 +146,8 @@ class TestEngine(TestCase):
     def test_get_throttle(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         engine = Engine(fdm)
         engine.run()
@@ -152,7 +162,8 @@ class TestGPS(TestCase):
     def test_gps_latitude(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gps = GPS(fdm)
         gps.run()
@@ -166,7 +177,8 @@ class TestGPS(TestCase):
     def test_gps_longitude(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gps = GPS(fdm)
         gps.run()
@@ -180,7 +192,8 @@ class TestGPS(TestCase):
     def test_airspeed(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gps = GPS(fdm)
         gps.run()
@@ -195,7 +208,8 @@ class TestGPS(TestCase):
     def test_altitude(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gps = GPS(fdm)
         gps.run()
@@ -209,7 +223,8 @@ class TestGPS(TestCase):
     def test_heading(self):        
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gps = GPS(fdm)
         gps.run()
@@ -225,7 +240,8 @@ class TestAccelerometer(TestCase):
     def test_x_acceleration(self):        
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         accelerometer = Accelerometer(fdm)
         accelerometer.run()
@@ -240,7 +256,8 @@ class TestAccelerometer(TestCase):
     def test_y_acceleration(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         accelerometer = Accelerometer(fdm)
         accelerometer.run()
@@ -255,7 +272,8 @@ class TestAccelerometer(TestCase):
     def test_z_acceleration(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         accelerometer = Accelerometer(fdm)
         accelerometer.run()
@@ -271,7 +289,8 @@ class TestGyroscope(TestCase):
     def test_roll_rate(self):        
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gyroscope = Gyroscope(fdm)
         gyroscope.run()
@@ -286,7 +305,8 @@ class TestGyroscope(TestCase):
     def test_pitch_rate(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gyroscope = Gyroscope(fdm)
         gyroscope.run()
@@ -301,7 +321,8 @@ class TestGyroscope(TestCase):
     def test_yaw_rate(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         gyroscope = Gyroscope(fdm)
         gyroscope.run() 
@@ -317,7 +338,8 @@ class TestThermometer(TestCase):
     def test_temperature(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         thermometer = Thermometer(fdm)
         thermometer.run()
@@ -334,7 +356,8 @@ class TestPressureSensor(TestCase):
     def test_pressure(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         pressure_sensor = PressureSensor(fdm)
         pressure_sensor.run()
@@ -351,7 +374,8 @@ class TestPitotTube(TestCase):
     def test_pressure(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         pitot_tube = PitotTube(fdm)
         pitot_tube.run()

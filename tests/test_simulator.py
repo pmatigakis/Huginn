@@ -5,14 +5,15 @@ from mock.mock import MagicMock
 
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
-from huginn.fdm import create_fdmexec
+from huginn.fdm import FDMBuilder
 from huginn import configuration
 
 class TestSimulator(TestCase):
     def test_run_with_real_fdmexec(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
 
         self.assertIsNotNone(fdm)
 
@@ -34,7 +35,8 @@ class TestSimulator(TestCase):
     def test_run(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         aircraft = Aircraft(fdm)
         aircraft.run = MagicMock()
@@ -48,7 +50,8 @@ class TestSimulator(TestCase):
     def test_reset(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         aircraft = Aircraft(fdm)
         aircraft.run = MagicMock()
@@ -72,7 +75,8 @@ class TestSimulator(TestCase):
     def test_step(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         aircraft = Aircraft(fdm)
         aircraft.run = MagicMock()
@@ -86,7 +90,8 @@ class TestSimulator(TestCase):
     def test_run_for(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
 
-        fdm = create_fdmexec(huginn_data_path, "Rascal", configuration.DT)
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm = fdm_builder.create_fdm()
         
         aircraft = Aircraft(fdm)
         aircraft.run = MagicMock()
