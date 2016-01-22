@@ -85,6 +85,7 @@ def main():
     fdm_builder.airspeed = args.airspeed
     fdm_builder.heading = args.heading
 
+    logger.debug("Creating the flight dynamics model")
     fdm = fdm_builder.create_fdm()
 
     if not fdm:
@@ -102,12 +103,14 @@ def main():
 
     simulator = Simulator(fdm, aircraft)
     #start the simulator paused
+    logger.debug("The simulator will start paused")
     simulator.paused = True
     simulator.start_trimmed = args.trim
 
     simulator_state_printer = SimulatorStatePrinter()
     simulator.add_simulator_event_listener(simulator_state_printer)
 
+    logger.debug("creating the simulator server")
     simulator_server = SimulationServer(simulator)
 
     simulator_server.fdm_clients = args.fdm
@@ -116,6 +119,7 @@ def main():
     
     simulator_server.web_server_port = args.web
 
+    logger.debug("starting the simulator server")
     simulator_server.start()
 
 if __name__ == "__main__":

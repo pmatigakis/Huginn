@@ -113,12 +113,20 @@ class FDMBuilder(object):
         logger.debug("Using aircraft %s", self.aircraft)
         fdm.load_model(self.aircraft)
 
+        logger.debug("starting the aircraft's engines")
         fdm.start_engines()
 
         fdm.set_throttle(0.0)
 
         altitude_in_feet = convert_meters_to_feet(self.altitude)
         airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
+
+        logger.debug("Initial latitude: %f degrees", self.latitude)
+        logger.debug("Initial longitude: %f degrees", self.longitude)
+        logger.debug("Initial altitude: %f meters", self.altitude)
+        logger.debug("Initial airspeed: %f meters/second", self.airspeed)
+        logger.debug("Initial heading: %f degrees", self.heading)
+
         fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading);
 
         if not fdm.run_ic():
@@ -126,6 +134,7 @@ class FDMBuilder(object):
             return None
 
         if self.trim:
+            logger.debug("Trimming the aircraft")
             trim_result = fdm.trim()
 
             if not trim_result:
