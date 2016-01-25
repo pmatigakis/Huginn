@@ -22,10 +22,10 @@ class TestControlsProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
         
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
         
-        controls_protocol = ControlsProtocol(aircraft)
+        controls_protocol = ControlsProtocol(fdm)
              
         aileron = 0.1
         elevator = 0.2
@@ -44,6 +44,7 @@ class TestControlsProtocol(TestCase):
         port = 12345
              
         controls_protocol.datagramReceived(controls_datagram, (host, port))
+        fdm.update_aircraft(aircraft)
         
         self.assertAlmostEqual(aircraft.controls.aileron, aileron, 3)
         self.assertAlmostEqual(aircraft.controls.elevator, elevator, 3)
@@ -57,14 +58,14 @@ class TestFDMDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
-        fdm_data_protocol = FDMDataProtocol(aircraft, "127.0.0.1", 12345)
+        fdm_data_protocol = FDMDataProtocol(fdm, aircraft, "127.0.0.1", 12345)
 
         fdm_data = fdm_data_protocol.get_fdm_data()
 
-        self.assertAlmostEqual(fdm_data.time, fdm.get_sim_time(), 3)
+        self.assertAlmostEqual(fdm_data.time, fdm.get_simulation_time(), 3)
         self.assertAlmostEqual(fdm_data.gps.latitude, aircraft.gps.latitude, 3)
         self.assertAlmostEqual(fdm_data.gps.longitude, aircraft.gps.longitude, 3)
         self.assertAlmostEqual(fdm_data.gps.altitude, aircraft.gps.altitude, 3)
@@ -185,9 +186,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -211,9 +211,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -235,9 +234,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -259,9 +257,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -281,9 +278,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -303,9 +299,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -325,9 +320,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -348,9 +342,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -373,9 +366,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         
@@ -396,9 +388,8 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         factory = SensorDataFactory(aircraft)
         

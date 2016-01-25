@@ -14,15 +14,12 @@ from huginn import fdm_pb2
 class ControlsProtocol(DatagramProtocol):
     """The ControlsProtocol is used to receive and update tha aircraft's
     controls"""
-    def __init__(self, aircraft):
-        self.aircraft = aircraft
+    def __init__(self, fdm):
+        self.fdm = fdm
 
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):
         """Set the new aircraft controls values"""
-        self.aircraft.controls.aileron = aileron
-        self.aircraft.controls.elevator = elevator
-        self.aircraft.controls.rudder = rudder
-        self.aircraft.controls.throttle = throttle
+        self.fdm.set_aircraft_controls(aileron, elevator, rudder, throttle)
 
     def datagramReceived(self, datagram, addr):
         controls = fdm_pb2.Controls()
@@ -42,7 +39,8 @@ class ControlsProtocol(DatagramProtocol):
 class FDMDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
     data to the client"""
-    def __init__(self, aircraft, remote_host, port):
+    def __init__(self, fdm, aircraft, remote_host, port):
+        self.fdm = fdm
         self.aircraft = aircraft
         self.remote_host = remote_host
         self.port = port
@@ -50,7 +48,7 @@ class FDMDataProtocol(DatagramProtocol):
     def get_fdm_data(self):
         fdm_data = fdm_pb2.FDMData()
 
-        fdm_data.time = self.aircraft.fdm.get_sim_time()
+        fdm_data.time = self.fdm.get_simulation_time()
 
         fdm_data.gps.latitude = self.aircraft.gps.latitude
         fdm_data.gps.longitude = self.aircraft.gps.longitude

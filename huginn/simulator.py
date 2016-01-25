@@ -46,7 +46,7 @@ class Simulator(object):
     @property
     def simulation_time(self):
         """The current simulation time"""
-        return self.fdm.get_sim_time()
+        return self.fdm.get_simulation_time()
 
     def add_simulator_event_listener(self, listener):
         """Add a simulator event listener"""
@@ -87,16 +87,15 @@ class Simulator(object):
     def reset(self):
         """Reset the simulation"""
         self.logger.debug("Reseting the aircraft")
+        print "=-======reset====="
 
-        running = self.fdm.reset(self.start_trimmed)
-
-        self.fdm.start_engines()
+        running = self.fdm.reset_to_initial_conditions()
 
         if not running:
             self.logger.error("Failed to reset the simulator")
             reactor.stop()  # @UndefinedVariable
 
-        self.aircraft.run()
+        self.fdm.update_aircraft(self.aircraft)
 
         self.logger.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
 
@@ -110,7 +109,7 @@ class Simulator(object):
         run_result = self.fdm.run()
 
         if run_result:
-            self.aircraft.run()
+            self.fdm.update_aircraft(self.aircraft)
 
             self._simulator_has_updated()
         else:
@@ -119,10 +118,10 @@ class Simulator(object):
 
     def run_for(self, time_to_run):
         """Run the simulation for the given time in seconds"""
-        start_time = self.fdm.get_sim_time()
+        start_time = self.fdm.get_simulation_time()
         end_time = start_time + time_to_run
 
-        while self.fdm.get_sim_time() <= end_time:
+        while self.fdm.get_simulation_time() <= end_time:
             self.step()
 
     def run(self):

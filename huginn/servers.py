@@ -66,7 +66,7 @@ class SimulationServer(object):
         self.logger.debug("Starting aircraft controls server at port %d",
                      self.controls_port)
 
-        controls_protocol = ControlsProtocol(self.aircraft)
+        controls_protocol = ControlsProtocol(self.fdm)
 
         reactor.listenUDP(self.controls_port, controls_protocol)  # @UndefinedVariable
 
@@ -76,7 +76,7 @@ class SimulationServer(object):
             client_address, client_port, dt = fdm_client
             self.logger.debug("Sending fdm data to %s:%d", client_address, client_port)
 
-            fdm_data_protocol = FDMDataProtocol(self.aircraft, client_address, client_port)
+            fdm_data_protocol = FDMDataProtocol(self.fdm, self.aircraft, client_address, client_port)
 
             reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable
 

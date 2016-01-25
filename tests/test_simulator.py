@@ -17,7 +17,7 @@ class TestSimulator(TestCase):
 
         self.assertIsNotNone(fdm)
 
-        aircraft = Aircraft(fdm)
+        aircraft = Aircraft()
 
         simulator = Simulator(fdm, aircraft)
 
@@ -38,14 +38,15 @@ class TestSimulator(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
         
-        aircraft = Aircraft(fdm)
-        aircraft.run = MagicMock()
+        fdm.update_aircraft = MagicMock()
+        
+        aircraft = Aircraft()
         
         simulator = Simulator(fdm, aircraft)
         
         simulator.run()
         
-        aircraft.run.assert_called_once_with()
+        fdm.update_aircraft.assert_called_once_with(aircraft)
 
     def test_reset(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
@@ -53,8 +54,7 @@ class TestSimulator(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
         
-        aircraft = Aircraft(fdm)
-        aircraft.run = MagicMock()
+        aircraft = Aircraft()
         
         aircraft.controls.aileron = 0.7
         aircraft.controls.elevator = 0.7
@@ -64,8 +64,6 @@ class TestSimulator(TestCase):
         simulator = Simulator(fdm, aircraft)
         
         simulator.reset()
-
-        aircraft.run.assert_called_once_with()
         
         self.assertAlmostEqual(aircraft.controls.aileron, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.rudder, 0.0, 3)
@@ -78,14 +76,15 @@ class TestSimulator(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
         
-        aircraft = Aircraft(fdm)
-        aircraft.run = MagicMock()
+        fdm.update_aircraft = MagicMock()
+        
+        aircraft = Aircraft()
         
         simulator = Simulator(fdm, aircraft)
         
         simulator.step()
 
-        aircraft.run.assert_called_once_with()
+        fdm.update_aircraft.assert_called_once_with(aircraft)
 
     def test_run_for(self):
         huginn_data_path = pkg_resources.resource_filename("huginn", "data")
@@ -93,8 +92,9 @@ class TestSimulator(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
         
-        aircraft = Aircraft(fdm)
-        aircraft.run = MagicMock()
+        fdm.update_aircraft = MagicMock()
+        
+        aircraft = Aircraft()
         
         simulator = Simulator(fdm, aircraft)
         
@@ -107,4 +107,4 @@ class TestSimulator(TestCase):
         
         self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 3)
         
-        aircraft.run.assert_any_call()
+        fdm.update_aircraft.assert_any_call(aircraft)

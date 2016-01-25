@@ -92,12 +92,8 @@ def main():
         logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
         exit(1)
 
-    fdm.print_simulation_configuration()
-
-    fdm.dump_state()
-
-    aircraft = Aircraft(fdm)
-    aircraft.run()
+    aircraft = Aircraft()
+    fdm.update_aircraft(aircraft)
 
     logger.debug("Engine thrust after simulation start %f", aircraft.engine.thrust)
 

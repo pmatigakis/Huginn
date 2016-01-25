@@ -228,7 +228,7 @@ class FDMData(FlightDataResource):
 
     def get_flight_data(self):
         flight_data = {
-            "time": self.fdm.get_sim_time(),
+            "time": self.fdm.get_simulation_time(),
             "dt": self.fdm.get_dt(),
             "latitude": self.aircraft.gps.latitude,
             "longitude": self.aircraft.gps.longitude,

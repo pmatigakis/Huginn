@@ -21,8 +21,8 @@ class TestGPSData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = GPSData(aircraft)
 
@@ -41,8 +41,8 @@ class TestAccelerometerData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = AccelerometerData(aircraft)
 
@@ -59,8 +59,8 @@ class TestGyroscopeData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = GyroscopeData(aircraft)
 
@@ -77,8 +77,8 @@ class TestThermometerData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = ThermometerData(aircraft)
 
@@ -93,8 +93,8 @@ class TestPressureSensorData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = PressureSensorData(aircraft)
 
@@ -109,8 +109,8 @@ class TestPitotTubeData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = PitotTubeData(aircraft)
 
@@ -125,8 +125,8 @@ class TestInertialNavigationSystemData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = InertialNavigationSystemData(aircraft)
 
@@ -147,8 +147,8 @@ class TestEngineData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = EngineData(aircraft)
 
@@ -163,8 +163,8 @@ class TestFlightControlsData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = FlightControlsData(aircraft)
 
@@ -182,8 +182,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -206,8 +207,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -230,8 +232,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -254,8 +257,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -279,8 +283,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -303,8 +308,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
 
         simulator_control_resource = SimulatorControl(simulator)
@@ -327,8 +333,9 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
+
         simulator = Simulator(fdm, aircraft)
         simulator.run_for = MagicMock()
 
@@ -355,14 +362,14 @@ class TestFDMData(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdm)
-        aircraft.run()
+        aircraft = Aircraft()
+        fdm.update_aircraft(aircraft)
 
         resource = FDMData(fdm, aircraft)
 
         fdm_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(fdm.get_sim_time(), fdm_data["time"], 3)
+        self.assertAlmostEqual(fdm.get_simulation_time(), fdm_data["time"], 3)
         self.assertAlmostEqual(fdm.get_dt(), fdm_data["dt"], 3)
         self.assertAlmostEqual(aircraft.gps.latitude, fdm_data["latitude"], 3)
         self.assertAlmostEqual(aircraft.gps.longitude, fdm_data["longitude"], 3)
