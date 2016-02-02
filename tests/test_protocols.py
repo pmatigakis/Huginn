@@ -13,6 +13,8 @@ from huginn import fdm_pb2
 from huginn.fdm import FDMBuilder
 from huginn import configuration
 
+from test_common import isclose
+
 from mockObjects import MockFDMDataDatagram, MockFDMDataListener
 
 class TestControlsProtocol(TestCase):                
@@ -88,14 +90,6 @@ class TestFDMDataProtocol(TestCase):
         self.assertAlmostEqual(fdm_data.controls.elevator, aircraft.controls.elevator, 3)
         self.assertAlmostEqual(fdm_data.controls.rudder, aircraft.controls.rudder, 3)
         self.assertAlmostEqual(fdm_data.controls.throttle, aircraft.controls.throttle, 3)
-
-def isclose(number_1, number_2, tolerance):
-    d = math.fabs(number_1 - number_2)
-    
-    if d > tolerance:
-        return False
-    
-    return True
 
 class FDMDataMatcher(object):
     def __eq__(self, fdm_data):
