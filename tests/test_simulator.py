@@ -101,7 +101,7 @@ class TestSimulator(TestCase):
         time_to_run = 1.0
         
         start_time = simulator.simulation_time
-        expected_end_time = start_time + time_to_run + configuration.DT
+        expected_end_time = start_time + time_to_run
         
         simulator.run_for(time_to_run)
         
