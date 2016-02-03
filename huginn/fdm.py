@@ -299,9 +299,15 @@ class FDMBuilder(object):
             if not trim_result:
                 logger.warning("Failed to trim the aircraft")
 
-        if not fdm.run():
-            logger.error("Failed to execute initial run")
-            return None
+        # Run the simulation for 1 second in order to make sure that everything
+        # is ok
+        while True:
+            if not fdm.run():
+                logger.error("Failed to execute initial run")
+                return None
+            
+            if fdm.get_sim_time() > 1.0:
+                break
 
         fdm.print_simulation_configuration()
 
