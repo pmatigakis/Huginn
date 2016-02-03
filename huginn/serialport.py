@@ -199,6 +199,7 @@ class AutopilotBoardAdapter(FDMDataFrameProtocol, FDMDataListener, AircraftContr
         FDMDataFrameProtocol.__init__(self)
 
         self.controls_client = controls_client
+        self.add_controls_listener(self)
 
         self.fdm_data = []
 
@@ -231,3 +232,6 @@ class AutopilotBoardAdapter(FDMDataFrameProtocol, FDMDataListener, AircraftContr
                          controls.rudder,
                          controls.throttle]
         self.send_fdm_data(self.fdm_data)
+
+    def controls_received(self, aileron, elevator, rudder, throttle):
+        self.controls_client.transmit_controls(aileron, elevator, rudder, throttle)

@@ -18,7 +18,7 @@ def get_arguments():
 
     parser.add_argument("port", action="store", help="The serial port device to use")
     parser.add_argument("--baud", action="store", default=57600, help="The baudrate to use")
-    parser.add_argument("--host", action="store", default="127.0.0.1", help="The address to Huginn")
+    parser.add_argument("--host", action="store", default="127.0.0.1", help="The address of Huginn")
     parser.add_argument("--controls_port", action="store", default=configuration.CONTROLS_PORT, help="The Huginn control port")
     parser.add_argument("--fdm_port", action="store", default=configuration.FDM_CLIENT_PORT, help="The port that this utility listen to for fdm data")
 
