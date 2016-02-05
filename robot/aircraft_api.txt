@@ -1,0 +1,175 @@
+*** Settings ***
+#Suite Setup    Start Huginn
+#Suite Teardown    Stop Huginn
+Test Setup    Start Huginn
+Test Teardown    Stop Huginn
+Library    Collections
+Library    RequestsLibrary
+Resource    Huginn.robot
+
+*** Test Cases ***
+Front-end is ready
+    [Documentation]    This test checks if the front end is displayed when you connect to the web server
+    [Tags]    frontend
+    
+    Create Session    huginn_web_server    ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /
+    Should be Equal As Strings    ${resp.status_code}  200
+    Should Contain    ${resp.text}  Flight simulator data viewer
+    Should Contain    ${resp.text}  Flight data
+
+FDM API returns the fdm data
+    [Documentation]    This test checks if the fdm endpoint returns fdm data
+    [Tags]    api    fdm
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  latitude
+    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
+    Dictionary Should Contain Key    ${resp.json()}  longitude
+    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
+    Dictionary Should Contain Key    ${resp.json()}  altitude
+    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
+    Dictionary Should Contain Key    ${resp.json()}  airspeed
+    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
+    Dictionary Should Contain Key    ${resp.json()}  heading
+    Value Close To    ${resp.json()['heading']}  45.00000  5.0
+    Dictionary Should Contain Key    ${resp.json()}  aileron
+    Should Be Equal As Numbers    ${resp.json()['aileron']}  0.00000  precision=4
+    Dictionary Should Contain Key    ${resp.json()}  elevator
+    Should Be Equal As Numbers    ${resp.json()['elevator']}  0.00000  precision=4
+    Dictionary Should Contain Key    ${resp.json()}  rudder
+    Should Be Equal As Numbers    ${resp.json()['rudder']}  0.00000  precision=4
+    Dictionary Should Contain Key    ${resp.json()}  throttle
+    Should Be Equal As Numbers    ${resp.json()['throttle']}  0.00000  precision=4
+    Dictionary Should Contain Key    ${resp.json()}  x_acceleration
+    Dictionary Should Contain Key    ${resp.json()}  y_acceleration
+    Dictionary Should Contain Key    ${resp.json()}  z_acceleration
+    Dictionary Should Contain Key    ${resp.json()}  roll_rate
+    Dictionary Should Contain Key    ${resp.json()}  pitch_rate
+    Dictionary Should Contain Key    ${resp.json()}  yaw_rate
+    Dictionary Should Contain Key    ${resp.json()}  temperature
+    Dictionary Should Contain Key    ${resp.json()}  static_pressure
+    Dictionary Should Contain Key    ${resp.json()}  total_pressure
+    Dictionary Should Contain Key    ${resp.json()}  roll
+    Value Close To    ${resp.json()['roll']}  0.00000  5.0
+    Dictionary Should Contain Key    ${resp.json()}  pitch
+    Value Close To    ${resp.json()['pitch']}  0.00000  5.0
+    Dictionary Should Contain Key    ${resp.json()}  thrust
+    Should Be True    ${resp.json()['thrust']} < 0.0
+
+GPS endpoint returns the gps data
+    [Documentation]    This test checks if the gps endpoint returns the gps data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/gps
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  latitude
+    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
+    Dictionary Should Contain Key    ${resp.json()}  longitude
+    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
+    Dictionary Should Contain Key    ${resp.json()}  altitude
+    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
+    Dictionary Should Contain Key    ${resp.json()}  airspeed
+    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
+    Dictionary Should Contain Key    ${resp.json()}  heading
+    Value Close To    ${resp.json()['heading']}  45.00000  5.0
+ 
+Accelerometer endpoint returns the accelerometer data
+    [Documentation]    This test checks if the accelerometer endpoint returns the accelerometer data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/accelerometer
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  x_acceleration
+    Dictionary Should Contain Key    ${resp.json()}  y_acceleration
+    Dictionary Should Contain Key    ${resp.json()}  z_acceleration
+    Value Close To    ${resp.json()['x_acceleration']}  0.0  3.0
+    Value Close To    ${resp.json()['y_acceleration']}  0.0  3.0
+    Value Close To    ${resp.json()['z_acceleration']}  -9.8  3.0
+
+Gyroscope endpoint returns the gyroscope data
+    [Documentation]    This test checks if the gyroscope endpoint returns the gyroscope data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/gyroscope
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  roll_rate
+    Dictionary Should Contain Key    ${resp.json()}  pitch_rate
+    Dictionary Should Contain Key    ${resp.json()}  yaw_rate
+    Value Close To    ${resp.json()['roll_rate']}  0.0  5.0
+    Value Close To    ${resp.json()['pitch_rate']}  0.0  5.0
+    Value Close To    ${resp.json()['yaw_rate']}  0.0  5.0
+
+Thermometer endpoint returns the thermometer data
+    [Documentation]    This test checks if the thermometer endpoint returns the thermometer data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/thermometer
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  temperature
+    Value Close To    ${resp.json()['temperature']}  280.0  10.0
+
+Pressure sensor endpoint returns the thermometer data
+    [Documentation]    This test checks if the pressure sensor endpoint returns the pressure sensor data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/pressure_sensor
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  static_pressure
+    Value Close To    ${resp.json()['static_pressure']}  97000.0  5000.0
+
+Pitot tube sensor endpoint returns the pitot tube data
+    [Documentation]    This test checks if the pitot tube sensor endpoint returns the pitot tube data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/pitot_tube
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  total_pressure
+    Value Close To    ${resp.json()['total_pressure']}  97000.0  5000.0
+
+Inertial navigation system endpoint returns the inertial navigation system data
+    [Documentation]    This test checks if the inertial navigation system endpoint returns the inertial navigation system data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/ins
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  latitude
+    Dictionary Should Contain Key    ${resp.json()}  longitude
+    Dictionary Should Contain Key    ${resp.json()}  altitude
+    Dictionary Should Contain Key    ${resp.json()}  airspeed
+    Dictionary Should Contain Key    ${resp.json()}  heading
+    Dictionary Should Contain Key    ${resp.json()}  pitch
+    Dictionary Should Contain Key    ${resp.json()}  roll
+    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
+    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
+    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
+    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${resp.json()['heading']}   45.00000  5.0
+    Value Close To    ${resp.json()['roll']}  0.0  3.0
+    Value Close To    ${resp.json()['pitch']}  0.0  3.0
+
+Engine endpoint returns the engine data
+    [Documentation]    This test checks if the engine endpoint returns the engine data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/engine
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  thrust
+    Dictionary Should Contain Key    ${resp.json()}  throttle
+    Should Be Equal As Numbers    ${resp.json()['throttle']}  0.0
+
+Flight controls endpoint returns the flight controls data
+    [Documentation]    This test checks if the flight controls endpoint returns the flight controls data
+    [Tags]    api    fdm    sensors
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/flight_controls
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  aileron
+    Dictionary Should Contain Key    ${resp.json()}  elevator
+    Dictionary Should Contain Key    ${resp.json()}  rudder
+    Dictionary Should Contain Key    ${resp.json()}  throttle
+    Should Be Equal As Numbers    ${resp.json()['aileron']}  0.0
+    Should Be Equal As Numbers    ${resp.json()['elevator']}  0.0
+    Should Be Equal As Numbers    ${resp.json()['rudder']}  0.0
+    Should Be Equal As Numbers    ${resp.json()['throttle']}  0.0

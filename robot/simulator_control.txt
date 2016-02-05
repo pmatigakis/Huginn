@@ -1,0 +1,126 @@
+*** Settings ***
+#Suite Setup    Start Huginn
+#Suite Teardown    Stop Huginn
+Test Setup    Start Huginn
+Test Teardown    Stop Huginn
+Library    Collections
+Library    RequestsLibrary
+Resource    Huginn.robot
+
+*** Test Cases ***
+Simulator endpoint returns the simulator status
+    [Documentation]    This test checks if the simulator endpoint returns the simulator status
+    [Tags]    api    simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} > 0.00625
+
+Resume the simulation after the simulator has started
+    [Documentation]    This test checks if the simulator will respond to the resume command
+    [Tags]    api    simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} < 2.0
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
+    Simulator Command Executed Successfully    ${resp}  resume
+    Sleep    2 seconds
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} > 2.0
+
+Check if the simulator is reset properly
+    [Documentation]    This test checks if the simulator will reset properly
+    [Tags]    api    simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} < 2.0
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
+    Simulator Command Executed Successfully    ${resp}  resume
+    Sleep    2 seconds
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} > 2.0
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  reset
+    Simulator Command Executed Successfully    ${resp}  reset
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} < 2.0
+    ${resp} =    Get Request    huginn_web_server  /aircraft/gps
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  latitude
+    Dictionary Should Contain Key    ${resp.json()}  longitude
+    Dictionary Should Contain Key    ${resp.json()}  altitude
+    Dictionary Should Contain Key    ${resp.json()}  airspeed
+    Dictionary Should Contain Key    ${resp.json()}  heading
+    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
+    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
+    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
+    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${resp.json()['heading']}  45.00000  5.0
+
+Pause the simulator
+    [Documentation]    This test checks if the simulator can be paused
+    [Tags]    api    simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} < 2.0
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
+    Simulator Command Executed Successfully    ${resp}  resume
+    Sleep    2 seconds
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} > 2.0
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  pause
+    Simulator Command Executed Successfully    ${resp}  pause
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Dictionary Should Contain Key    ${resp.json()}  dt
+    Dictionary Should Contain Key    ${resp.json()}  running
+    Dictionary Should Contain Key    ${resp.json()}  time
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Not Be True    ${resp.json()['running']}
+    Should Be True    ${resp.json()['time']} > 2.0
