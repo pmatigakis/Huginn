@@ -8,56 +8,6 @@ Library    RequestsLibrary
 Resource    Huginn.robot
 
 *** Test Cases ***
-Front-end is ready
-    [Documentation]    This test checks if the front end is displayed when you connect to the web server
-    [Tags]    frontend
-    
-    Create Session    huginn_web_server    ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /
-    Should be Equal As Strings    ${resp.status_code}  200
-    Should Contain    ${resp.text}  Flight simulator data viewer
-    Should Contain    ${resp.text}  Flight data
-
-FDM API returns the fdm data
-    [Documentation]    This test checks if the fdm endpoint returns fdm data
-    [Tags]    api    fdm
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /fdm
-    Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  latitude
-    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
-    Dictionary Should Contain Key    ${resp.json()}  longitude
-    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
-    Dictionary Should Contain Key    ${resp.json()}  altitude
-    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
-    Dictionary Should Contain Key    ${resp.json()}  airspeed
-    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
-    Dictionary Should Contain Key    ${resp.json()}  heading
-    Value Close To    ${resp.json()['heading']}  45.00000  5.0
-    Dictionary Should Contain Key    ${resp.json()}  aileron
-    Should Be Equal As Numbers    ${resp.json()['aileron']}  0.00000  precision=4
-    Dictionary Should Contain Key    ${resp.json()}  elevator
-    Should Be Equal As Numbers    ${resp.json()['elevator']}  0.00000  precision=4
-    Dictionary Should Contain Key    ${resp.json()}  rudder
-    Should Be Equal As Numbers    ${resp.json()['rudder']}  0.00000  precision=4
-    Dictionary Should Contain Key    ${resp.json()}  throttle
-    Should Be Equal As Numbers    ${resp.json()['throttle']}  0.00000  precision=4
-    Dictionary Should Contain Key    ${resp.json()}  x_acceleration
-    Dictionary Should Contain Key    ${resp.json()}  y_acceleration
-    Dictionary Should Contain Key    ${resp.json()}  z_acceleration
-    Dictionary Should Contain Key    ${resp.json()}  roll_rate
-    Dictionary Should Contain Key    ${resp.json()}  pitch_rate
-    Dictionary Should Contain Key    ${resp.json()}  yaw_rate
-    Dictionary Should Contain Key    ${resp.json()}  temperature
-    Dictionary Should Contain Key    ${resp.json()}  static_pressure
-    Dictionary Should Contain Key    ${resp.json()}  total_pressure
-    Dictionary Should Contain Key    ${resp.json()}  roll
-    Value Close To    ${resp.json()['roll']}  0.00000  5.0
-    Dictionary Should Contain Key    ${resp.json()}  pitch
-    Value Close To    ${resp.json()['pitch']}  0.00000  5.0
-    Dictionary Should Contain Key    ${resp.json()}  thrust
-    Should Be True    ${resp.json()['thrust']} < 0.0
-
 GPS endpoint returns the gps data
     [Documentation]    This test checks if the gps endpoint returns the gps data
     [Tags]    api    fdm    sensors
