@@ -1,5 +1,6 @@
 *** Settings ***
 Library    Process
+Library    String
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
@@ -32,3 +33,12 @@ Execute Simulator Control Command
     ${command} =    Create Dictionary  command  ${command}
     ${resp} =    Post Request    huginn_web_server    /simulator    ${command}
     [Return]    ${resp}
+
+JSON Response Should Contain item
+    [Arguments]    ${response}  ${item}
+    Dictionary Should Contain Key    ${response.json()}  ${item}
+
+Response Content Type Should Be JSON
+    [Arguments]    ${response}
+    ${content_type} =    Get Substring    ${response.headers['content-type']}  0  16
+    Should Be Equal    ${content_type}    application/json

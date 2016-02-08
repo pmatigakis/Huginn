@@ -14,9 +14,10 @@ Simulator endpoint returns the simulator status
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 0.00625
@@ -27,9 +28,10 @@ Resume the simulation after the simulator has started
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} < 2.0
@@ -38,9 +40,10 @@ Resume the simulation after the simulator has started
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 2.0
@@ -51,9 +54,10 @@ Check if the simulator is reset properly
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} < 2.0
@@ -62,9 +66,10 @@ Check if the simulator is reset properly
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 2.0
@@ -72,19 +77,21 @@ Check if the simulator is reset properly
     Simulator Command Executed Successfully    ${resp}  reset
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} < 2.0
     ${resp} =    Get Request    huginn_web_server  /aircraft/gps
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  latitude
-    Dictionary Should Contain Key    ${resp.json()}  longitude
-    Dictionary Should Contain Key    ${resp.json()}  altitude
-    Dictionary Should Contain Key    ${resp.json()}  airspeed
-    Dictionary Should Contain Key    ${resp.json()}  heading
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  latitude
+    JSON Response Should Contain item    ${resp}  longitude
+    JSON Response Should Contain item    ${resp}  altitude
+    JSON Response Should Contain item    ${resp}  airspeed
+    JSON Response Should Contain item    ${resp}  heading
     Value Close To    ${resp.json()['latitude']}  37.923255  0.001
     Value Close To    ${resp.json()['longitude']}  23.921773  0.001
     Value Close To    ${resp.json()['altitude']}  300.00000  10.0
@@ -97,9 +104,10 @@ Pause the simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} < 2.0
@@ -108,9 +116,10 @@ Pause the simulator
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 2.0
@@ -118,9 +127,10 @@ Pause the simulator
     Simulator Command Executed Successfully    ${resp}  pause
     ${resp} =    Get Request    huginn_web_server  /simulator
     Should be Equal As Strings    ${resp.status_code}  200
-    Dictionary Should Contain Key    ${resp.json()}  dt
-    Dictionary Should Contain Key    ${resp.json()}  running
-    Dictionary Should Contain Key    ${resp.json()}  time
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 2.0
