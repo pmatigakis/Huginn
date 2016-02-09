@@ -118,6 +118,10 @@ class Simulator(object):
 
     def run_for(self, time_to_run):
         """Run the simulation for the given time in seconds"""
+        if time_to_run < 0.0:
+            self.logger.error("Invalid simulator run time length %f", time_to_run)
+            reactor.stop()  # @UndefinedVariable
+
         start_time = self.fdm.get_simulation_time()
         end_time = start_time + time_to_run
 
