@@ -312,6 +312,7 @@ class SimulatorControl(Resource):
     def handleCommand(self, request):
         simulator_command = request.args["command"][0]
 
+        #TODO: This needs to be refactored
         try:
             if simulator_command == "pause":
                 self.logger.debug("Pausing the simulator")
@@ -321,15 +322,31 @@ class SimulatorControl(Resource):
                 self.simulator.resume()
             elif simulator_command == "reset":
                 self.logger.debug("Reseting the simulator")
-                self.simulator.reset()
+
+                result = self.simulator.reset()
+                if not result:
+                    self.logger.error("Failed to reset the simulator")
+                    reactor.stop()  # @UndefinedVariable
+                    return {"command": simulator_command, "result": "error"}
+
                 self.logger.debug("Pausing the simulator")
                 self.simulator.pause()
             elif simulator_command == "step":
-                self.simulator.step()
+                result = self.simulator.step()
+
+                if not result:
+                    self.logger.error("The simulator has failed to run")
+                    reactor.stop()  # @UndefinedVariable
+                    return {"command": simulator_command, "result": "error"}
             elif simulator_command == "run_for":
                 time_to_run = float(request.args["time_to_run"][0])
                 self.logger.debug("Running simulator for %f seconds", time_to_run)
-                self.simulator.run_for(time_to_run)
+                result = self.simulator.run_for(time_to_run)
+
+                if not result:
+                    self.logger.error("The simulator has failed to run for %f", time_to_run)
+                    reactor.stop()  # @UndefinedVariable
+                    return {"command": simulator_command, "result": "error"}
             else:
                 self.logger.error("Invalid simulator command %s", simulator_command)
                 return {"result": "error",

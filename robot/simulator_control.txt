@@ -134,3 +134,37 @@ Pause the simulator
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} > 2.0
+
+Run a single simulation step
+    [Documentation]    This test checks if the simulator can run a single step
+    [Tags]    api    simulator
+    Simulator is Paused
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
+    ${dt} =    Convert To Number    ${resp.json()['dt']}
+    Should Be Equal As Numbers    ${dt}  0.00625
+    ${running} =    Convert To Boolean    ${resp.json()['running']}
+    Should Not Be True    ${running}
+    ${time} =    Convert To Number    ${resp.json()['time']}
+    Should Be True    ${time} < 2.0
+    ${last_run_time} =    Set Variable    ${resp.json()['time']}
+    ${last_run_time} =    Convert To Number    ${last_run_time}
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  step
+    Simulator Command Executed Successfully    ${resp}  step
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    JSON Response Should Contain item    ${resp}  running
+    JSON Response Should Contain item    ${resp}  time
+    ${dt} =    Convert To Number    ${resp.json()['dt']}
+    Should Be Equal As Numbers    ${dt}  0.00625
+    ${running} =    Convert To Boolean    ${resp.json()['running']}
+    Should Not Be True    ${running}
+    ${time} =    Convert To Number    ${resp.json()['time']}
+    Should Be Equal    ${time}  ${last_run_time + 0.00625}

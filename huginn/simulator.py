@@ -93,7 +93,7 @@ class Simulator(object):
 
         if not running:
             self.logger.error("Failed to reset the simulator")
-            reactor.stop()  # @UndefinedVariable
+            return False
 
         self.fdm.update_aircraft(self.aircraft)
 
@@ -101,34 +101,45 @@ class Simulator(object):
 
         self._simulator_has_reset()
 
+        return True
+
     def step(self):
         """Run the simulation one time"""
-        #self.fdmexec.ProcessMessage()
-        #self.fdmexec.CheckIncrementalHold()
-
         run_result = self.fdm.run()
 
         if run_result:
             self.fdm.update_aircraft(self.aircraft)
 
             self._simulator_has_updated()
+
+            return True
         else:
             self.logger.error("The simulator has failed to run")
-            reactor.stop()  # @UndefinedVariable
+            return False
 
     def run_for(self, time_to_run):
         """Run the simulation for the given time in seconds"""
         if time_to_run < 0.0:
             self.logger.error("Invalid simulator run time length %f", time_to_run)
-            reactor.stop()  # @UndefinedVariable
+            return False
 
         start_time = self.fdm.get_simulation_time()
         end_time = start_time + time_to_run
 
         while self.fdm.get_simulation_time() <= end_time:
-            self.step()
+            result = self.step()
+
+            if not result:
+                return False
+
+        return True
 
     def run(self):
         """Run the simulation"""
         if not self.paused:
-            self.step()
+            result = self.step()
+
+            if not result:
+                return False
+
+        return True

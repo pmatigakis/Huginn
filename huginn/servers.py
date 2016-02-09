@@ -83,8 +83,15 @@ class SimulationServer(object):
             fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data)
             fdm_data_updater.start(dt)
 
+    def _run_simulator(self):
+        result = self.simulator.run()
+
+        if not result:
+            self.logger.error("The simulator has failed to run")
+            reactor.stop()  # @UndefinedVariable
+
     def _initialize_simulator_updater(self):
-        fdm_updater = LoopingCall(self.simulator.run)
+        fdm_updater = LoopingCall(self._run_simulator)
         fdm_updater.start(self.dt)
 
     def _initialize_sensors_server(self):

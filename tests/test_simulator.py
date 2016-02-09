@@ -44,8 +44,9 @@ class TestSimulator(TestCase):
         
         simulator = Simulator(fdm, aircraft)
         
-        simulator.run()
+        result = simulator.run()
         
+        self.assertTrue(result)
         fdm.update_aircraft.assert_called_once_with(aircraft)
 
     def test_reset(self):
@@ -63,8 +64,9 @@ class TestSimulator(TestCase):
         
         simulator = Simulator(fdm, aircraft)
         
-        simulator.reset()
+        result = simulator.reset()
         
+        self.assertTrue(result)
         self.assertAlmostEqual(aircraft.controls.aileron, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.rudder, 0.0, 3)
         self.assertAlmostEqual(aircraft.controls.throttle, 0.0, 3)
@@ -82,7 +84,9 @@ class TestSimulator(TestCase):
         
         simulator = Simulator(fdm, aircraft)
         
-        simulator.step()
+        result = simulator.step()
+
+        self.assertTrue(result)
 
         fdm.update_aircraft.assert_called_once_with(aircraft)
 
@@ -103,8 +107,9 @@ class TestSimulator(TestCase):
         start_time = simulator.simulation_time
         expected_end_time = start_time + time_to_run
         
-        simulator.run_for(time_to_run)
-        
+        result = simulator.run_for(time_to_run)
+
+        self.assertTrue(result)
         self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 3)
         
         fdm.update_aircraft.assert_any_call(aircraft)
