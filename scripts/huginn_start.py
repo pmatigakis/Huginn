@@ -14,27 +14,58 @@ from huginn.console import SimulatorStatePrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
-    
-    parser.add_argument("--web", action="store", type=port_number, default=configuration.WEB_SERVER_PORT, help="The web server port")
-    
+
+    parser.add_argument("--web", action="store", type=port_number,
+                        default=configuration.WEB_SERVER_PORT,
+                        help="The web server port")
+
     parser.add_argument("--fdm",
                         action="append",
                         type=fdm_data_endpoint,
                         default=[],
                         help="The fdm data endpoint")
-    
-    parser.add_argument("--controls", action="store", type=port_number, default=configuration.CONTROLS_PORT, help="The controls port")
-    parser.add_argument("--aircraft", action="store", default="Rascal", help="The aircraft model that will be used")
-    parser.add_argument("--debug", action="store_true", help="Enable debug logs")
-    parser.add_argument("--dt", action="store", type=float, default=configuration.DT, help="the simulation timestep")
-    parser.add_argument("--log", action="store", default="huginn.log", help="The output log file")
-    parser.add_argument("--trim", action="store_true", help="trim the aircraft")
-    
-    parser.add_argument("--latitude", action="store", type=float, default=configuration.LATITUDE, help="The starting latitude")
-    parser.add_argument("--longitude", action="store", type=float, default=configuration.LONGITUDE, help="The starting longitude")
-    parser.add_argument("--altitude", action="store", type=float, default=configuration.ALTITUDE, help="The starting altitude")
-    parser.add_argument("--airspeed", action="store", type=float, default=configuration.AIRSPEED, help="The starting airspeed")
-    parser.add_argument("--heading", action="store", type=float, default=configuration.HEADING, help="The starting heading")
+
+    parser.add_argument("--controls", action="store", type=port_number,
+                        default=configuration.CONTROLS_PORT,
+                        help="The controls port")
+
+    parser.add_argument("--aircraft", action="store",
+                        default=configuration.DEFAULT_AICRAFT,
+                        choices=configuration.AVAILABLE_AIRCRAFT,
+                        help="The aircraft model that will be used")
+
+    parser.add_argument("--debug", action="store_true",
+                        help="Enable debug logs")
+
+    parser.add_argument("--dt", action="store", type=float,
+                        default=configuration.DT,
+                        help="the simulation timestep")
+
+    parser.add_argument("--log", action="store", default="huginn.log",
+                        help="The output log file")
+
+    parser.add_argument("--trim", action="store_true",
+                        help="trim the aircraft")
+
+    parser.add_argument("--latitude", action="store", type=float,
+                        default=configuration.LATITUDE,
+                        help="The starting latitude")
+
+    parser.add_argument("--longitude", action="store", type=float,
+                        default=configuration.LONGITUDE,
+                        help="The starting longitude")
+
+    parser.add_argument("--altitude", action="store", type=float,
+                        default=configuration.ALTITUDE,
+                        help="The starting altitude")
+
+    parser.add_argument("--airspeed", action="store", type=float,
+                        default=configuration.AIRSPEED,
+                        help="The starting airspeed")
+
+    parser.add_argument("--heading", action="store", type=float,
+                        default=configuration.HEADING,
+                        help="The starting heading")
 
     return parser.parse_args()
 
@@ -62,11 +93,6 @@ def main():
     logger.addHandler(console_logging_handler)
 
     logger.info("Starting the Huginn flight simulator")
-
-    #make sure the user is using a model we support
-    if args.aircraft != "Rascal" and args.aircraft != "easystar":
-        logger.error("%s is not a supported aircraft", args.aircraft)
-        exit(1)
 
     huginn_data_path = pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable
 
