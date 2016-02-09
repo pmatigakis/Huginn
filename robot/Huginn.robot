@@ -11,6 +11,9 @@ Start Huginn
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    5 sec    Get Request    huginn_web_server    /
+    Simulator Is Paused
+    Simulator DT Should Be    0.00625
+    Simulation Time Should Be Close To    1.0  0.1
     
 Stop Huginn
     Terminate All Processes
@@ -42,3 +45,49 @@ Response Content Type Should Be JSON
     [Arguments]    ${response}
     ${content_type} =    Get Substring    ${response.headers['content-type']}  0  16
     Should Be Equal    ${content_type}    application/json
+
+Simulator Is Running
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  running
+    Should Be True    ${resp.json()['running']}
+
+Simulator Is Paused
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  running
+    Should Not Be True    ${resp.json()['running']}
+
+Simulator DT Should Be
+    [Arguments]    ${dt}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  dt
+    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+
+Simulation Time Should Be Close To
+    [Arguments]    ${time}  ${difference}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  time
+    ${min_value} =    Set Variable    ${time} - ${difference}
+    Should Be True    ${resp.json()['time']} >= ${min_value}
+    ${max_value} =    Set Variable    ${time} + ${difference}
+    Should Be True    ${resp.json()['time']} <= ${max_value}
+
+Simulation Time Should Be Greater Than
+    [Arguments]    ${time}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Should be Equal As Strings    ${resp.status_code}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  time
+    Should Be True    ${resp.json()['time']} > ${time}
