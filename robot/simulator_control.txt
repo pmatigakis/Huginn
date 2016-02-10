@@ -13,7 +13,7 @@ Simulator endpoint returns the simulator status
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -27,7 +27,7 @@ Resume the simulation after the simulator has started
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -39,7 +39,7 @@ Resume the simulation after the simulator has started
     Simulator Command Executed Successfully    ${resp}  resume
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -53,7 +53,7 @@ Check if the simulator is reset properly
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -65,7 +65,7 @@ Check if the simulator is reset properly
     Simulator Command Executed Successfully    ${resp}  resume
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -76,7 +76,7 @@ Check if the simulator is reset properly
     ${resp} =    Execute Simulator Control Command    huginn_web_server  reset
     Simulator Command Executed Successfully    ${resp}  reset
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -85,7 +85,7 @@ Check if the simulator is reset properly
     Should Not Be True    ${resp.json()['running']}
     Should Be True    ${resp.json()['time']} < 2.0
     ${resp} =    Get Request    huginn_web_server  /aircraft/gps
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  latitude
     JSON Response Should Contain item    ${resp}  longitude
@@ -103,7 +103,7 @@ Pause the simulator
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -115,7 +115,7 @@ Pause the simulator
     Simulator Command Executed Successfully    ${resp}  resume
     Sleep    2 seconds
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -126,7 +126,7 @@ Pause the simulator
     ${resp} =    Execute Simulator Control Command    huginn_web_server  pause
     Simulator Command Executed Successfully    ${resp}  pause
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -141,7 +141,7 @@ Run a single simulation step
     Simulator is Paused
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running
@@ -157,7 +157,7 @@ Run a single simulation step
     ${resp} =    Execute Simulator Control Command    huginn_web_server  step
     Simulator Command Executed Successfully    ${resp}  step
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     JSON Response Should Contain item    ${resp}  running

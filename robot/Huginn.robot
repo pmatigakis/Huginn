@@ -25,7 +25,7 @@ Value Close To
 
 Simulator Command Executed Successfully
     [Arguments]    ${response}    ${command}
-    Should be Equal As Strings    ${response.status_code}    200
+    Response Status Code Should Be    ${response}  200
     Dictionary Should Contain Key    ${response.json()}    command
     Dictionary Should Contain Key    ${response.json()}    result
     Should be Equal As Strings    ${response.json()['command']}    ${command}
@@ -49,7 +49,7 @@ Response Content Type Should Be JSON
 Simulator Is Running
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  running
     Should Be True    ${resp.json()['running']}
@@ -57,7 +57,7 @@ Simulator Is Running
 Simulator Is Paused
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  running
     Should Not Be True    ${resp.json()['running']}
@@ -66,7 +66,7 @@ Simulator DT Should Be
     [Arguments]    ${dt}
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
@@ -75,7 +75,7 @@ Simulation Time Should Be Close To
     [Arguments]    ${time}  ${difference}
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  time
     ${min_value} =    Set Variable    ${time} - ${difference}
@@ -87,7 +87,11 @@ Simulation Time Should Be Greater Than
     [Arguments]    ${time}
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
-    Should be Equal As Strings    ${resp.status_code}  200
+    Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  time
     Should Be True    ${resp.json()['time']} > ${time}
+
+Response Status Code Should Be
+    [Arguments]    ${response}  ${status_code}
+    Should be Equal As Integers    ${response.status_code}  ${status_code}
