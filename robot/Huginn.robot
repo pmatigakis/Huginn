@@ -52,7 +52,8 @@ Simulator Is Running
     Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  running
-    Should Be True    ${resp.json()['running']}
+    ${running} =    Convert To Boolean    ${resp.json()['running']}
+    Should Be True    ${running}
 
 Simulator Is Paused
     Create Session    huginn_web_server  ${HUGINN_URL}
@@ -60,7 +61,8 @@ Simulator Is Paused
     Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  running
-    Should Not Be True    ${resp.json()['running']}
+    ${running} =    Convert To Boolean    ${resp.json()['running']}
+    Should Not Be True    ${running}
 
 Simulator DT Should Be
     [Arguments]    ${dt}
@@ -95,3 +97,37 @@ Simulation Time Should Be Greater Than
 Response Status Code Should Be
     [Arguments]    ${response}  ${status_code}
     Should be Equal As Integers    ${response.status_code}  ${status_code}
+
+Send Get HTTP Command
+    [Arguments]    ${command_url}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  ${command_url}
+    [Return]    ${resp}
+
+Resume Simulation
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
+    Simulator Command Executed Successfully    ${resp}  resume
+
+Reset Simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  reset
+    Simulator Command Executed Successfully    ${resp}  reset
+
+Pause Simulator
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  pause
+    Simulator Command Executed Successfully    ${resp}  pause
+
+Get Simulator Time
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Response Status Code Should Be    ${resp}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  time
+    ${simulator_time} =    Convert To Number    ${resp.json()['time']}
+    [Return]    ${simulator_time}
+
+Execute Single Simulation Step
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  step
+    Simulator Command Executed Successfully    ${resp}  step

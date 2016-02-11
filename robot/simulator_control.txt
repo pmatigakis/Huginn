@@ -11,79 +11,30 @@ Resource    Huginn.robot
 Simulator endpoint returns the simulator status
     [Documentation]    This test checks if the simulator endpoint returns the simulator status
     [Tags]    api    simulator
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} > 0.00625
+    Simulator is Paused
+    Simulator DT Should Be    0.00625
+    Simulation Time Should Be Close To    1.0  0.1
 
 Resume the simulation after the simulator has started
     [Documentation]    This test checks if the simulator will respond to the resume command
     [Tags]    api    simulator
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} < 2.0
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
-    Simulator Command Executed Successfully    ${resp}  resume
+    Simulator is Paused
+    Resume Simulation
     Sleep    2 seconds
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} > 2.0
+    Simulator Is Running
 
 Check if the simulator is reset properly
     [Documentation]    This test checks if the simulator will reset properly
     [Tags]    api    simulator
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} < 2.0
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
-    Simulator Command Executed Successfully    ${resp}  resume
+    Simulator Is Paused
+    Simulation Time Should Be Close To    1.0  0.1
+    Resume Simulation
     Sleep    2 seconds
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} > 2.0
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  reset
-    Simulator Command Executed Successfully    ${resp}  reset
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} < 2.0
+    Simulator Is Running
+    Simulation Time Should Be Greater Than    2.0
+    Reset Simulator
+    Simulator Is Paused
+    Simulation Time Should Be Close To    1.0  0.1
     ${resp} =    Get Request    huginn_web_server  /aircraft/gps
     Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
@@ -102,69 +53,27 @@ Pause the simulator
     [Documentation]    This test checks if the simulator can be paused
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} < 2.0
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  resume
-    Simulator Command Executed Successfully    ${resp}  resume
+    Simulator is Paused
+    Simulation Time Should Be Close To    1.0  0.1
+    Resume Simulation
     Sleep    2 seconds
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} > 2.0
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  pause
-    Simulator Command Executed Successfully    ${resp}  pause
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
-    Should Not Be True    ${resp.json()['running']}
-    Should Be True    ${resp.json()['time']} > 2.0
+    Simulator Is Running
+    Simulation Time Should Be Greater Than    2.0
+    Pause Simulator
+    Simulator Is Paused
+    ${time_1}    Get Simulator Time
+    Sleep    1 seconds
+    ${time_2}    Get Simulator Time
+    Should Be Equal As Numbers    ${time_1}    ${time_2}
 
 Run a single simulation step
     [Documentation]    This test checks if the simulator can run a single step
     [Tags]    api    simulator
     Simulator is Paused
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    ${dt} =    Convert To Number    ${resp.json()['dt']}
-    Should Be Equal As Numbers    ${dt}  0.00625
-    ${running} =    Convert To Boolean    ${resp.json()['running']}
-    Should Not Be True    ${running}
-    ${time} =    Convert To Number    ${resp.json()['time']}
-    Should Be True    ${time} < 2.0
-    ${last_run_time} =    Set Variable    ${resp.json()['time']}
-    ${last_run_time} =    Convert To Number    ${last_run_time}
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  step
-    Simulator Command Executed Successfully    ${resp}  step
-    ${resp} =    Get Request    huginn_web_server  /simulator
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  dt
-    JSON Response Should Contain item    ${resp}  running
-    JSON Response Should Contain item    ${resp}  time
-    ${dt} =    Convert To Number    ${resp.json()['dt']}
-    Should Be Equal As Numbers    ${dt}  0.00625
-    ${running} =    Convert To Boolean    ${resp.json()['running']}
-    Should Not Be True    ${running}
-    ${time} =    Convert To Number    ${resp.json()['time']}
-    Should Be Equal    ${time}  ${last_run_time + 0.00625}
+    Simulator DT Should Be    0.00625
+    Simulation Time Should Be Close To    1.0  0.1
+    ${starting_time} =    Get Simulator Time
+    Execute Single Simulation Step
+    Simulator is Paused
+    ${current_time} =    Get Simulator Time
+    Should Be Equal    ${current_time}  ${starting_time + 0.00625}
