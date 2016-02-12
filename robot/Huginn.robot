@@ -74,7 +74,7 @@ Simulator DT Should Be
     Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
 
 Simulation Time Should Be Close To
-    [Arguments]    ${time}  ${difference}
+    [Arguments]    ${time}  ${difference}=0.1
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /simulator
     Response Status Code Should Be    ${resp}  200
@@ -131,3 +131,233 @@ Get Simulator Time
 Execute Single Simulation Step
     ${resp} =    Execute Simulator Control Command    huginn_web_server  step
     Simulator Command Executed Successfully    ${resp}  step
+
+Aircraft Should Be In The Start Location
+    ${resp} =    Get Request    huginn_web_server  /aircraft/gps
+    Response Status Code Should Be    ${resp}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  latitude
+    JSON Response Should Contain item    ${resp}  longitude
+    JSON Response Should Contain item    ${resp}  altitude
+    JSON Response Should Contain item    ${resp}  airspeed
+    JSON Response Should Contain item    ${resp}  heading
+    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
+    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
+    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
+    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${resp.json()['heading']}  45.00000  5.0
+
+Get FDM Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm
+    [Return]    ${resp}
+
+Is Valid FDM Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  latitude
+    JSON Response Should Contain item    ${response}  longitude
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  heading
+    JSON Response Should Contain item    ${response}  aileron
+    JSON Response Should Contain item    ${response}  elevator
+    JSON Response Should Contain item    ${response}  rudder
+    JSON Response Should Contain item    ${response}  throttle
+    JSON Response Should Contain item    ${response}  x_acceleration
+    JSON Response Should Contain item    ${response}  y_acceleration
+    JSON Response Should Contain item    ${response}  z_acceleration
+    JSON Response Should Contain item    ${response}  roll_rate
+    JSON Response Should Contain item    ${response}  pitch_rate
+    JSON Response Should Contain item    ${response}  yaw_rate
+    JSON Response Should Contain item    ${response}  temperature
+    JSON Response Should Contain item    ${response}  static_pressure
+    JSON Response Should Contain item    ${response}  total_pressure
+    JSON Response Should Contain item    ${response}  roll
+    JSON Response Should Contain item    ${response}  pitch
+    JSON Response Should Contain item    ${response}  thrust
+
+Is FDM Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['latitude']}  37.923255  0.001
+    Value Close To    ${response.json()['longitude']}  23.921773  0.001
+    Value Close To    ${response.json()['altitude']}  300.00000  10.0
+    Value Close To    ${response.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${response.json()['heading']}  45.00000  5.0
+    Should Be Equal As Numbers    ${response.json()['aileron']}  0.00000  precision=4
+    Should Be Equal As Numbers    ${response.json()['elevator']}  0.00000  precision=4
+    Should Be Equal As Numbers    ${response.json()['rudder']}  0.00000  precision=4
+    Should Be Equal As Numbers    ${response.json()['throttle']}  0.00000  precision=4
+    Value Close To    ${response.json()['roll']}  0.00000  5.0
+    Value Close To    ${response.json()['pitch']}  0.00000  5.0
+
+Get GPS Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${response} =    Get Request    huginn_web_server  /aircraft/gps
+    [Return]    ${response}
+
+Should Be Valid GPS Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  latitude
+    JSON Response Should Contain item    ${response}  longitude
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  heading
+
+Should Be GPS Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['latitude']}  37.923255  0.001
+    Value Close To    ${response.json()['longitude']}  23.921773  0.001
+    Value Close To    ${response.json()['altitude']}  300.00000  10.0
+    Value Close To    ${response.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${response.json()['heading']}  45.00000  5.0
+
+Get Accelerometer Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${response} =    Get Request    huginn_web_server  /aircraft/accelerometer
+    [Return]    ${response}
+
+Should Be Valid Accelerometer Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  x_acceleration
+    JSON Response Should Contain item    ${response}  y_acceleration
+    JSON Response Should Contain item    ${response}  z_acceleration
+
+Should Be Accelerometer Response With Aircraft Almost Level
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['x_acceleration']}  0.0  3.0
+    Value Close To    ${response.json()['y_acceleration']}  0.0  3.0
+    Value Close To    ${response.json()['z_acceleration']}  -9.8  3.0
+
+Get Gyroscope Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/gyroscope
+    [Return]    ${resp}
+
+Should Be Valid Gyroscope Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  roll_rate
+    JSON Response Should Contain item    ${response}  pitch_rate
+    JSON Response Should Contain item    ${response}  yaw_rate
+
+Should Be Gyroscope Response With Minimal Aircraft Rotation
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['roll_rate']}  0.0  5.0
+    Value Close To    ${response.json()['pitch_rate']}  0.0  5.0
+    Value Close To    ${response.json()['yaw_rate']}  0.0  5.0
+
+Get Thermometer Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/thermometer
+    [Return]    ${resp}
+
+Should Be Valid Thermometer Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  temperature
+
+Should Be Valid Thermometer Response When Aircraft At 300 Meters Above Sea Level
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['temperature']}  280.0  10.0
+
+Get Pressure Sensor Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/pressure_sensor
+    [Return]    ${resp}
+
+Should Be Valid Pressure Sensor Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  static_pressure
+
+Should Be Pressure Sensor Response When Aircraft At 300 Meters Above Sea Level
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['static_pressure']}  97000.0  5000.0
+
+Get Pitot Tube Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/pitot_tube
+    [Return]    ${resp}
+
+Should Be Valid Pitot Tube Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  total_pressure
+
+Should Be Pitot Tube Response When Airspeed At 30 Meters Per Second
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['total_pressure']}  97000.0  5000.0
+
+Get INS Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/ins
+    [Return]    ${resp}
+
+Should Be Valid INS Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  latitude
+    JSON Response Should Contain item    ${response}  longitude
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  heading
+    JSON Response Should Contain item    ${response}  pitch
+    JSON Response Should Contain item    ${response}  roll
+
+Should Be Valid INS Response When Aircraft In The Start Location
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['latitude']}  37.923255  0.001
+    Value Close To    ${response.json()['longitude']}  23.921773  0.001
+    Value Close To    ${response.json()['altitude']}  300.00000  10.0
+    Value Close To    ${response.json()['airspeed']}  30.00000  5.0
+    Value Close To    ${response.json()['heading']}   45.00000  5.0
+    Value Close To    ${response.json()['roll']}  0.0  3.0
+    Value Close To    ${response.json()['pitch']}  0.0  3.0
+
+Get Engine Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/engine
+    [Return]    ${resp}
+
+Should Be Valid Engine Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  thrust
+    JSON Response Should Contain item    ${response}  throttle
+
+Should Be Valid Engine Response With Engine On Idle
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['throttle']}  0.0
+
+Get The Flight Controls Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/flight_controls
+    [Return]    ${resp}
+
+Should Be Valid Flight Control Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  aileron
+    JSON Response Should Contain item    ${response}  elevator
+    JSON Response Should Contain item    ${response}  rudder
+    JSON Response Should Contain item    ${response}  throttle
+
+Should be Valid Flight Controls Response With Flight Controls Idle
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['aileron']}  0.0
+    Should Be Equal As Numbers    ${response.json()['elevator']}  0.0
+    Should Be Equal As Numbers    ${response.json()['rudder']}  0.0
+    Should Be Equal As Numbers    ${response.json()['throttle']}  0.0

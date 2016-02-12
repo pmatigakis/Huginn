@@ -13,7 +13,7 @@ Simulator endpoint returns the simulator status
     [Tags]    api    simulator
     Simulator is Paused
     Simulator DT Should Be    0.00625
-    Simulation Time Should Be Close To    1.0  0.1
+    Simulation Time Should Be Close To    1.0
 
 Resume the simulation after the simulator has started
     [Documentation]    This test checks if the simulator will respond to the resume command
@@ -27,34 +27,23 @@ Check if the simulator is reset properly
     [Documentation]    This test checks if the simulator will reset properly
     [Tags]    api    simulator
     Simulator Is Paused
-    Simulation Time Should Be Close To    1.0  0.1
+    Simulation Time Should Be Close To    1.0
+    Aircraft Should Be In The Start Location
     Resume Simulation
     Sleep    2 seconds
     Simulator Is Running
     Simulation Time Should Be Greater Than    2.0
     Reset Simulator
     Simulator Is Paused
-    Simulation Time Should Be Close To    1.0  0.1
-    ${resp} =    Get Request    huginn_web_server  /aircraft/gps
-    Response Status Code Should Be    ${resp}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  latitude
-    JSON Response Should Contain item    ${resp}  longitude
-    JSON Response Should Contain item    ${resp}  altitude
-    JSON Response Should Contain item    ${resp}  airspeed
-    JSON Response Should Contain item    ${resp}  heading
-    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
-    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
-    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
-    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
-    Value Close To    ${resp.json()['heading']}  45.00000  5.0
+    Simulation Time Should Be Close To    1.0
+    Aircraft Should Be In The Start Location
 
 Pause the simulator
     [Documentation]    This test checks if the simulator can be paused
     [Tags]    api    simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     Simulator is Paused
-    Simulation Time Should Be Close To    1.0  0.1
+    Simulation Time Should Be Close To    1.0
     Resume Simulation
     Sleep    2 seconds
     Simulator Is Running
@@ -71,7 +60,7 @@ Run a single simulation step
     [Tags]    api    simulator
     Simulator is Paused
     Simulator DT Should Be    0.00625
-    Simulation Time Should Be Close To    1.0  0.1
+    Simulation Time Should Be Close To    1.0
     ${starting_time} =    Get Simulator Time
     Execute Single Simulation Step
     Simulator is Paused

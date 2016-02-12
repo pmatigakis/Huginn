@@ -1,6 +1,4 @@
 *** Settings ***
-#Suite Setup    Start Huginn
-#Suite Teardown    Stop Huginn
 Test Setup    Start Huginn
 Test Teardown    Stop Huginn
 Library    Collections
@@ -11,39 +9,8 @@ Resource    Huginn.robot
 FDM API returns the fdm data
     [Documentation]    This test checks if the fdm endpoint returns fdm data
     [Tags]    api    fdm
-    Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /fdm
-    Should be Equal As Strings    ${resp.status_code}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  latitude
-    JSON Response Should Contain item    ${resp}  longitude
-    JSON Response Should Contain item    ${resp}  altitude
-    JSON Response Should Contain item    ${resp}  airspeed
-    JSON Response Should Contain item    ${resp}  heading
-    JSON Response Should Contain item    ${resp}  aileron
-    JSON Response Should Contain item    ${resp}  elevator
-    JSON Response Should Contain item    ${resp}  rudder
-    JSON Response Should Contain item    ${resp}  throttle
-    JSON Response Should Contain item    ${resp}  x_acceleration
-    JSON Response Should Contain item    ${resp}  y_acceleration
-    JSON Response Should Contain item    ${resp}  z_acceleration
-    JSON Response Should Contain item    ${resp}  roll_rate
-    JSON Response Should Contain item    ${resp}  pitch_rate
-    JSON Response Should Contain item    ${resp}  yaw_rate
-    JSON Response Should Contain item    ${resp}  temperature
-    JSON Response Should Contain item    ${resp}  static_pressure
-    JSON Response Should Contain item    ${resp}  total_pressure
-    JSON Response Should Contain item    ${resp}  roll
-    JSON Response Should Contain item    ${resp}  pitch
-    JSON Response Should Contain item    ${resp}  thrust
-    Value Close To    ${resp.json()['latitude']}  37.923255  0.001
-    Value Close To    ${resp.json()['longitude']}  23.921773  0.001
-    Value Close To    ${resp.json()['altitude']}  300.00000  10.0
-    Value Close To    ${resp.json()['airspeed']}  30.00000  5.0
-    Value Close To    ${resp.json()['heading']}  45.00000  5.0
-    Should Be Equal As Numbers    ${resp.json()['aileron']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${resp.json()['elevator']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${resp.json()['rudder']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${resp.json()['throttle']}  0.00000  precision=4
-    Value Close To    ${resp.json()['roll']}  0.00000  5.0
-    Value Close To    ${resp.json()['pitch']}  0.00000  5.0
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Data
+    Is Valid FDM Data Response    ${resp}
+    Is FDM Data Response With Aircraft In The Start Location    ${resp}
