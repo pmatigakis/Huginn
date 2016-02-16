@@ -286,7 +286,7 @@ class FDMBuilder(object):
         logger.debug("Initial airspeed: %f meters/second", self.airspeed)
         logger.debug("Initial heading: %f degrees", self.heading)
 
-        fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading);
+        fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading)
 
         if not fdm.run_ic():
             logger.error("Failed to run initial condition")

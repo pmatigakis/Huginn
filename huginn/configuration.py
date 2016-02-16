@@ -26,3 +26,5 @@ HEADING = 45.0
 
 AVAILABLE_AIRCRAFT = ["Rascal", "easystar"]
 DEFAULT_AICRAFT = "Rascal"
+
+LOG_FILE = "huginn.log"

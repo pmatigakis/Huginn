@@ -11,7 +11,7 @@ from huginn.protocols import FDMDataListener
 
 def calculate_checksum(data):
     """Calculate the 8bit checksum for the given data"""
-    checksum = 0;
+    checksum = 0
 
     for i in range(len(data)):
         checksum += ord(data[i])

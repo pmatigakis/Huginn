@@ -41,7 +41,7 @@ def get_arguments():
                         default=configuration.DT,
                         help="the simulation timestep")
 
-    parser.add_argument("--log", action="store", default="huginn.log",
+    parser.add_argument("--log", action="store", default=configuration.LOG_FILE,
                         help="The output log file")
 
     parser.add_argument("--trim", action="store_true",
