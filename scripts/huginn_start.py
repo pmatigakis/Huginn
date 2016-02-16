@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import pkg_resources
 import logging
 from argparse import ArgumentParser
 
@@ -69,11 +68,10 @@ def get_arguments():
 
     return parser.parse_args()
 
-def main():
-    args = get_arguments()
-
+def initialize_logger(output_file, debug):
     log_level = logging.INFO
-    if args.debug:
+
+    if debug:
         log_level = logging.DEBUG
 
     logger = logging.getLogger("huginn")
@@ -81,7 +79,7 @@ def main():
 
     formater = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s - %(message)s")
 
-    file_logging_handler = logging.FileHandler(args.log)
+    file_logging_handler = logging.FileHandler(output_file)
     file_logging_handler.setLevel(log_level)
     file_logging_handler.setFormatter(formater)
 
@@ -92,9 +90,16 @@ def main():
     logger.addHandler(file_logging_handler)
     logger.addHandler(console_logging_handler)
 
+    return logger
+
+def main():
+    args = get_arguments()
+
+    logger = initialize_logger(args.log, args.debug) 
+
     logger.info("Starting the Huginn flight simulator")
 
-    huginn_data_path = pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable
+    huginn_data_path = configuration.get_data_path()
 
     if args.dt <= 0.0:
         logger.error("Invalid simulation timestep %f", args.dt)

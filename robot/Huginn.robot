@@ -33,8 +33,8 @@ Simulator Command Executed Successfully
 
 Execute Simulator Control Command
     [Arguments]    ${session}    ${command}
-    ${command} =    Create Dictionary  command  ${command}
-    ${resp} =    Post Request    huginn_web_server    /simulator    ${command}
+    ${command_data} =    Create Dictionary  command=${command}
+    ${resp} =    Post Request    huginn_web_server  /simulator  params=${command_data}
     [Return]    ${resp}
 
 JSON Response Should Contain item

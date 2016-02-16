@@ -1,5 +1,4 @@
 from unittest import TestCase
-import pkg_resources
 
 from mock import MagicMock, ANY
 
@@ -16,7 +15,7 @@ from mockObjects import MockRequest
 
 class TestGPSData(TestCase):
     def test_get_gps_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -36,7 +35,7 @@ class TestGPSData(TestCase):
 
 class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -54,7 +53,7 @@ class TestAccelerometerData(TestCase):
 
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -72,7 +71,7 @@ class TestGyroscopeData(TestCase):
 
 class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -88,7 +87,7 @@ class TestThermometerData(TestCase):
 
 class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -104,7 +103,7 @@ class TestPressureSensorData(TestCase):
 
 class TestPitotTubeData(TestCase):
     def test_get_pitot_tube_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -120,7 +119,7 @@ class TestPitotTubeData(TestCase):
 
 class TestInertialNavigationSystemData(TestCase):
     def test_get_inertial_navigation_system_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -142,7 +141,7 @@ class TestInertialNavigationSystemData(TestCase):
 
 class TestEngineData(TestCase):
     def test_get_engine_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -158,7 +157,7 @@ class TestEngineData(TestCase):
 
 class TestFlightControlsData(TestCase):
     def test_get_flight_controls_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -177,7 +176,7 @@ class TestFlightControlsData(TestCase):
 
 class TestSimulatorControl(TestCase):
     def test_pause_simulator(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -202,7 +201,7 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_reset_simulator(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -227,7 +226,7 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_resume_simulator(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -252,7 +251,7 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_invalid_simulator_command(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -278,7 +277,7 @@ class TestSimulatorControl(TestCase):
                                                                           "reason": "invalid simulator command"})
 
     def test_invalid_simulator_request(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -303,7 +302,7 @@ class TestSimulatorControl(TestCase):
                                                                           "reason": "invalid simulator command request"})
 
     def test_step_simulator(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -328,7 +327,7 @@ class TestSimulatorControl(TestCase):
                                                                           "result": "ok"})
 
     def test_run_for_simulator(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -357,7 +356,7 @@ class TestSimulatorControl(TestCase):
 
 class TestFDMData(TestCase):
     def test_get_fdm_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()

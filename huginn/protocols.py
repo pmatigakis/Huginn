@@ -6,8 +6,8 @@ to transmit and receive simulation data.
 import logging
 from abc import ABCMeta, abstractmethod
 
-from twisted.internet.protocol import DatagramProtocol, Protocol, Factory
-from twisted.protocols.basic import LineReceiver, Int32StringReceiver
+from twisted.internet.protocol import DatagramProtocol, Factory
+from twisted.protocols.basic import Int32StringReceiver
 
 from huginn import fdm_pb2
 
@@ -16,6 +16,7 @@ class ControlsProtocol(DatagramProtocol):
     controls"""
     def __init__(self, fdm):
         self.fdm = fdm
+        self.logger = logging.getLogger("huginn")
 
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):
         """Set the new aircraft controls values"""

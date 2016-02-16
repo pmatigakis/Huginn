@@ -1,12 +1,9 @@
-import pkg_resources
 from unittest import TestCase
-import math
 
 from mock import MagicMock
-from twisted.test.proto_helpers import StringTransport
 
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
-                             FDMDataClient, ControlsClient, SensorDataProtocol,\
+                             FDMDataClient, ControlsClient,\
                              SensorDataFactory
 from huginn.aircraft import Aircraft
 from huginn import fdm_pb2
@@ -19,7 +16,7 @@ from mockObjects import MockFDMDataDatagram, MockFDMDataListener
 
 class TestControlsProtocol(TestCase):                
     def test_datagram_received(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -55,7 +52,7 @@ class TestControlsProtocol(TestCase):
 
 class TestFDMDataProtocol(TestCase):
     def test_get_fdm_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -175,7 +172,7 @@ class TestControlsClient(TestCase):
 
 class TestSensorDataProtocol(TestCase):
     def test_fill_gps_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -200,7 +197,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.GPS_REQUEST)
 
     def test_fill_accelerometer_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -223,7 +220,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.ACCELEROMETER_REQUEST)
 
     def test_fill_gyroscope_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -246,7 +243,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.GYROSCOPE_REQUEST)
 
     def test_fill_thermometer_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -267,7 +264,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.THERMOMETER_REQUEST)
 
     def test_fill_pressure_sensor_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -288,7 +285,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.PRESSURE_SENSOR_REQUEST)
 
     def test_fill_pitot_tube_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -309,7 +306,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.PITOT_TUBE_REQUEST)
 
     def test_fill_engine_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -331,7 +328,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.ENGINE_REQUEST)
 
     def test_fill_controls_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -355,7 +352,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.CONTROLS_REQUEST)
 
     def test_fill_ins_data(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()
@@ -377,7 +374,7 @@ class TestSensorDataProtocol(TestCase):
         self.assertEqual(sensor_data_response.type, fdm_pb2.INS_REQUEST)
 
     def test_handle_sensor_data_request(self):
-        huginn_data_path = pkg_resources.resource_filename("huginn", "data")
+        huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm = fdm_builder.create_fdm()

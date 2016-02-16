@@ -1,6 +1,7 @@
 """
 The huginn.configuration module contains the default configuration values
 """
+import pkg_resources
 
 #interface settings
 SIMULATOR_CONTROL_PORT = 10500
@@ -28,3 +29,6 @@ AVAILABLE_AIRCRAFT = ["Rascal", "easystar"]
 DEFAULT_AICRAFT = "Rascal"
 
 LOG_FILE = "huginn.log"
+
+def get_data_path():
+    return pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable
