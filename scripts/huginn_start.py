@@ -33,7 +33,9 @@ def get_arguments():
                         choices=configuration.AVAILABLE_AIRCRAFT,
                         help="The aircraft model that will be used")
 
-    parser.add_argument("--debug", action="store_true",
+    parser.add_argument("--log_level", action="store",
+                        choices=["critical", "error", "warning", "info", "debug"],
+                        default="debug",
                         help="Enable debug logs")
 
     parser.add_argument("--dt", action="store", type=float,
@@ -68,23 +70,32 @@ def get_arguments():
 
     return parser.parse_args()
 
-def initialize_logger(output_file, debug):
-    log_level = logging.INFO
-
-    if debug:
-        log_level = logging.DEBUG
+def initialize_logger(output_file, log_level):
+    if log_level == "critical":
+        logger_log_level = logging.CRITICAL
+    elif log_level == "error":
+        logger_log_level = logging.ERROR
+    elif log_level == "warning":
+        logger_log_level = logging.WARNING
+    elif log_level == "info":
+        logger_log_level = logging.INFO
+    elif log_level == "debug":
+        logger_log_level = logging.DEBUG
+    else:
+        print("Unknown log level %s" % log_level)
+        exit(1)
 
     logger = logging.getLogger("huginn")
-    logger.setLevel(log_level)
+    logger.setLevel(logger_log_level)
 
     formater = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s - %(message)s")
 
     file_logging_handler = logging.FileHandler(output_file)
-    file_logging_handler.setLevel(log_level)
+    file_logging_handler.setLevel(logger_log_level)
     file_logging_handler.setFormatter(formater)
 
     console_logging_handler = logging.StreamHandler()
-    console_logging_handler.setLevel(log_level)
+    console_logging_handler.setLevel(logger_log_level)
     console_logging_handler.setFormatter(formater)
 
     logger.addHandler(file_logging_handler)
@@ -95,7 +106,7 @@ def initialize_logger(output_file, debug):
 def main():
     args = get_arguments()
 
-    logger = initialize_logger(args.log, args.debug) 
+    logger = initialize_logger(args.log, args.log_level) 
 
     logger.info("Starting the Huginn flight simulator")
 
