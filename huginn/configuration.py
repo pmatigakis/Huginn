@@ -16,7 +16,7 @@ TELEMETRY_DT = 1.0
 AIRCRAFT = "Rascal"
 
 #simulation settings
-DT = 1.0/160.0
+DT = 1.0/300.0
 
 #initial condition
 LATITUDE = 37.9232547

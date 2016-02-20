@@ -12,7 +12,7 @@ Simulator endpoint returns the simulator status
     [Documentation]    This test checks if the simulator endpoint returns the simulator status
     [Tags]    api    simulator
     Simulator is Paused
-    Simulator DT Should Be    0.00625
+    Simulator DT Should Be    0.003333
     Simulation Time Should Be Close To    1.0
 
 Resume the simulation after the simulator has started
@@ -59,10 +59,10 @@ Run a single simulation step
     [Documentation]    This test checks if the simulator can run a single step
     [Tags]    api    simulator
     Simulator is Paused
-    Simulator DT Should Be    0.00625
+    Simulator DT Should Be    0.003333
     Simulation Time Should Be Close To    1.0
     ${starting_time} =    Get Simulator Time
     Execute Single Simulation Step
     Simulator is Paused
     ${current_time} =    Get Simulator Time
-    Should Be Equal    ${current_time}  ${starting_time + 0.00625}
+    Should Be Equal As Numbers    ${current_time}  ${starting_time + 0.003333}  precision=5

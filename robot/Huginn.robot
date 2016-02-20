@@ -12,7 +12,7 @@ Start Huginn
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    5 sec    Get Request    huginn_web_server    /
     Simulator Is Paused
-    Simulator DT Should Be    0.00625
+    Simulator DT Should Be    0.003333
     Simulation Time Should Be Close To    1.0  0.1
     
 Stop Huginn
@@ -71,7 +71,7 @@ Simulator DT Should Be
     Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
-    Should Be Equal As Numbers    ${resp.json()['dt']}  0.00625
+    Should Be Equal As Numbers    ${resp.json()['dt']}  ${dt}
 
 Simulation Time Should Be Close To
     [Arguments]    ${time}  ${difference}=0.1
