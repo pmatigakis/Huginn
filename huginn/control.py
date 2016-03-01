@@ -15,15 +15,10 @@ class SimulatorControlClient(object):
         self.simulator_controls_port = simulator_control_port
 
     def _send_command(self, command, data=None):
-        command_data = {"command": command}
-
-        if data:
-            for key, value in data.items():
-                command_data[key] = value
-
-        response = requests.post("http://%s:%d/simulator" % (self.huginn_host,
-                                                             self.simulator_controls_port),
-                                 data=command_data)
+        response = requests.post("http://%s:%d/simulator/%s" % (self.huginn_host,
+                                                                self.simulator_controls_port,
+                                                                command),
+                                 data=data)
 
         response_data = json.loads(response.text)
 

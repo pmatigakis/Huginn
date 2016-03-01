@@ -32,9 +32,9 @@ Simulator Command Executed Successfully
     Should be Equal As Strings    ${response.json()['result']}    ok
 
 Execute Simulator Control Command
-    [Arguments]    ${session}    ${command}
-    ${command_data} =    Create Dictionary  command=${command}
-    ${resp} =    Post Request    huginn_web_server  /simulator  params=${command_data}
+    [Arguments]    ${session}    ${command}    ${params}={}
+    #${command_data} =    Create Dictionary  command=${command}
+    ${resp} =    Post Request    huginn_web_server  /simulator/${command}  params=${params}
     [Return]    ${resp}
 
 JSON Response Should Contain item
@@ -131,6 +131,13 @@ Get Simulator Time
 Execute Single Simulation Step
     ${resp} =    Execute Simulator Control Command    huginn_web_server  step
     Simulator Command Executed Successfully    ${resp}  step
+
+Run The Simulation For The Given Time
+    [Arguments]    ${time_to_run}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${params} =    Create Dictionary  time_to_run=${time_to_run}
+    ${resp} =    Execute Simulator Control Command    huginn_web_server  run_for  ${params}
+    Simulator Command Executed Successfully    ${resp}  run_for
 
 Aircraft Should Be In The Start Location
     ${resp} =    Get Request    huginn_web_server  /aircraft/gps

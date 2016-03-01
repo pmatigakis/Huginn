@@ -7,7 +7,10 @@ from huginn.aircraft import Aircraft
 from huginn.http import GPSData, AccelerometerData, GyroscopeData,\
                         ThermometerData, PressureSensorData, PitotTubeData,\
                         InertialNavigationSystemData, EngineData,\
-                        FlightControlsData, SimulatorControl, FDMData
+                        FlightControlsData, SimulatorControl, FDMData,\
+                        StepSimulatorCommand, RunForSimulatorCommand,\
+                        PauseSimulatorCommand, ResetSimulatorCommand,\
+                        ResetSimulatorCommand, ResumeSimulatorCommand
 from huginn.fdm import FDMBuilder
 from huginn import configuration
 
@@ -186,7 +189,7 @@ class TestSimulatorControl(TestCase):
 
         simulator = Simulator(fdm, aircraft)
 
-        simulator_control_resource = SimulatorControl(simulator)
+        simulator_control_resource = PauseSimulatorCommand(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -211,7 +214,7 @@ class TestSimulatorControl(TestCase):
 
         simulator = Simulator(fdm, aircraft)
 
-        simulator_control_resource = SimulatorControl(simulator)
+        simulator_control_resource = ResetSimulatorCommand(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -236,7 +239,7 @@ class TestSimulatorControl(TestCase):
 
         simulator = Simulator(fdm, aircraft)
 
-        simulator_control_resource = SimulatorControl(simulator)
+        simulator_control_resource = ResumeSimulatorCommand(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -250,57 +253,6 @@ class TestSimulatorControl(TestCase):
                                                                          {"command": "resume",
                                                                           "result": "ok"})
 
-    def test_invalid_simulator_command(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
-
-        aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
-
-        simulator = Simulator(fdm, aircraft)
-
-        simulator_control_resource = SimulatorControl(simulator)
-
-        simulator_control_resource.send_response = MagicMock()
-
-        request = MockRequest()
-
-        request.args = {"command": ["abcdef"]}
-
-        simulator_control_resource.render_POST(request)
-        
-        simulator_control_resource.send_response.assert_called_once_with(ANY, 
-                                                                         {"command": "abcdef",
-                                                                          "result": "error",
-                                                                          "reason": "invalid simulator command"})
-
-    def test_invalid_simulator_request(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
-
-        aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
-
-        simulator = Simulator(fdm, aircraft)
-
-        simulator_control_resource = SimulatorControl(simulator)
-
-        simulator_control_resource.send_response = MagicMock()
-
-        request = MockRequest()
-
-        request.args = {}
-
-        simulator_control_resource.render_POST(request)
-        
-        simulator_control_resource.send_response.assert_called_once_with(ANY, 
-                                                                         {"result": "error",
-                                                                          "reason": "invalid simulator command request"})
-
     def test_step_simulator(self):
         huginn_data_path = configuration.get_data_path()
 
@@ -312,7 +264,7 @@ class TestSimulatorControl(TestCase):
 
         simulator = Simulator(fdm, aircraft)
 
-        simulator_control_resource = SimulatorControl(simulator)
+        simulator_control_resource = StepSimulatorCommand(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
@@ -338,7 +290,7 @@ class TestSimulatorControl(TestCase):
         simulator = Simulator(fdm, aircraft)
         simulator.run_for = MagicMock()
 
-        simulator_control_resource = SimulatorControl(simulator)
+        simulator_control_resource = RunForSimulatorCommand(simulator)
 
         simulator_control_resource.send_response = MagicMock()
 
