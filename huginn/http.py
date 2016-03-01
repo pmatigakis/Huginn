@@ -277,8 +277,8 @@ class FDMData(FlightDataResource):
 
 class SimulatorControl(Resource):
     """The SimulatorControl resource is used to control the simulator.
-    For the moment it is possible to pause, resume, reset and run a
-    single time the simulator"""
+    For the moment it is possible to pause, resume, reset, run a
+    single time step and run the simulation for a specified time"""
     isLeaf = True
 
     def __init__(self, simulator):
