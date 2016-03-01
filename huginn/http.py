@@ -8,17 +8,37 @@ import logging
 
 from twisted.web.resource import Resource
 
-class AircraftIndex(Resource):
+class AircraftResource(Resource):
     """This class server as the root for the aircraft web resources."""
     isLeaf = False
 
-    def __init__(self):
+    def __init__(self, aircraft):
         Resource.__init__(self)
+
+        self.aircraft = aircraft
+
+        self.putChild("gps", GPSData(self.aircraft))
+        self.putChild("accelerometer", AccelerometerData(self.aircraft))
+        self.putChild("gyroscope", GyroscopeData(self.aircraft))
+        self.putChild("thermometer", ThermometerData(self.aircraft))
+        self.putChild("pressure_sensor", PressureSensorData(self.aircraft))
+        self.putChild("pitot_tube", PitotTubeData(self.aircraft))
+        self.putChild("ins", InertialNavigationSystemData(self.aircraft))
+        self.putChild("engine", EngineData(self.aircraft))
+        self.putChild("flight_controls", FlightControlsData(self.aircraft))
 
     def getChild(self, name, request):
         if name == '':
             return self
         return Resource.getChild(self, name, request)
+
+    def render_GET(self, request):
+        request.responseHeaders.addRawHeader("content-type",
+                                             "application/json")
+
+        aircraft_info = {"aircraft_type": self.aircraft.type}
+
+        return json.dumps(aircraft_info)
 
 class FlightDataResource(Resource):
     """This is the base class that can be used to create resource subclasses

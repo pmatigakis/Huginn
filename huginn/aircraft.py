@@ -73,9 +73,10 @@ class Engine(object):
 class Aircraft(object):
     """The Aircraft class is a wrapper around jsbsim that contains data about
     the aircraft state."""
-    def __init__(self):
+    def __init__(self, aircraft_type=None):
         self._fdmexec_state_listeners = []
 
+        self.type = aircraft_type
         self.gps = GPS()
         self.accelerometer = Accelerometer()
         self.gyroscope = Gyroscope()

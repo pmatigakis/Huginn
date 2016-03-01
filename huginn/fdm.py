@@ -305,7 +305,7 @@ class FDMBuilder(object):
             if not fdm.run():
                 logger.error("Failed to execute initial run")
                 return None
-            
+
             if fdm.get_sim_time() > 1.0:
                 break
 

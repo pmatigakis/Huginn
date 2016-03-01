@@ -99,7 +99,7 @@ class Simulator(object):
             if not self.fdm.run():
                 self.logger.error("Failed to execute initial run")
                 return False
-            
+
             if self.fdm.get_simulation_time() > 1.0:
                 break
 

@@ -11,11 +11,7 @@ from twisted.web.static import File
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
-from huginn.http import GPSData, AccelerometerData,\
-                        GyroscopeData, ThermometerData, PressureSensorData,\
-                        PitotTubeData, InertialNavigationSystemData,\
-                        EngineData, FlightControlsData, SimulatorControl,\
-                        FDMData, AircraftIndex, MapData
+from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
 
@@ -40,17 +36,7 @@ class SimulationServer(object):
 
         root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
 
-        aircraft_root = AircraftIndex()
-
-        aircraft_root.putChild("gps", GPSData(self.aircraft))
-        aircraft_root.putChild("accelerometer", AccelerometerData(self.aircraft))
-        aircraft_root.putChild("gyroscope", GyroscopeData(self.aircraft))
-        aircraft_root.putChild("thermometer", ThermometerData(self.aircraft))
-        aircraft_root.putChild("pressure_sensor", PressureSensorData(self.aircraft))
-        aircraft_root.putChild("pitot_tube", PitotTubeData(self.aircraft))
-        aircraft_root.putChild("ins", InertialNavigationSystemData(self.aircraft))
-        aircraft_root.putChild("engine", EngineData(self.aircraft))
-        aircraft_root.putChild("flight_controls", FlightControlsData(self.aircraft))
+        aircraft_root = AircraftResource(self.aircraft)
 
         root.putChild("aircraft", aircraft_root)
         root.putChild("simulator", SimulatorControl(self.simulator))
