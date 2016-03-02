@@ -156,7 +156,7 @@ class FramedDataProtocol(Protocol):
         pass
 
     def invalid_frame_received(self, frame_data):
-        print("invalid frame")
+        print("invalid frame: %s" % frame_data)
 
 class AircraftControlsListener(object):
     """The AircraftControlsListener interface must be implemented by any

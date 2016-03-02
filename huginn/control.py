@@ -15,6 +15,7 @@ class SimulatorControlClient(object):
         self.simulator_controls_port = simulator_control_port
 
     def _send_command(self, command, data=None):
+        """Send an http command to the simulator"""
         response = requests.post("http://%s:%d/simulator/%s" % (self.huginn_host,
                                                                 self.simulator_controls_port,
                                                                 command),

@@ -307,7 +307,7 @@ class PauseSimulatorCommand(SimulatorCommand):
                                    "result": "ok"})
 
 class ResumeSimulatorCommand(SimulatorCommand):
-    """The PauseSimulatorCommand http command resumes the simulation""" 
+    """The PauseSimulatorCommand http command resumes the simulation"""
     isLeaf = True
 
     def __init__(self, simulator):

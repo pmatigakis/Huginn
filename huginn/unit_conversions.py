@@ -1,11 +1,11 @@
-def convert_feet_to_meters(feet):
-    """Convert from feet to meters"""
-    return feet * 0.3048
-
 """
 the huginn.unit_conversions module contains function that perform conversions
 between different measurement unit types
 """
+
+def convert_feet_to_meters(feet):
+    """Convert from feet to meters"""
+    return feet * 0.3048
 
 def convert_meters_to_feet(meters):
     """Convert from meters to feet"""

@@ -31,4 +31,5 @@ DEFAULT_AICRAFT = "Rascal"
 LOG_FILE = "huginn.log"
 
 def get_data_path():
+    """Returns the absolute path to the data folder of Huginn"""
     return pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable

@@ -47,6 +47,7 @@ class FDMDataProtocol(DatagramProtocol):
         self.port = port
 
     def get_fdm_data(self):
+        """Return the fdm data"""
         fdm_data = fdm_pb2.FDMData()
 
         fdm_data.time = self.fdm.get_simulation_time()

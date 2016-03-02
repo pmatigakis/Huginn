@@ -5,8 +5,6 @@ simulation
 
 import logging
 
-from twisted.internet import reactor
-
 class SimulatorEventListener(object):
     """The SimulatorEventListener class must be implemented by any object
     that has to notified when a simulation event is raised"""
@@ -57,18 +55,26 @@ class Simulator(object):
         self.listeners.remove(listener)
 
     def _simulator_has_reset(self):
+        """Notifies the simulator state listeners that the simulator has been
+        reset"""
         for listener in self.listeners:
             listener.simulator_reset(self)
 
     def _simulator_has_paused(self):
+        """Notifies the simulator state listeners that the simulator has been
+        paused"""
         for listener in self.listeners:
             listener.simulator_paused(self)
 
     def _simulator_has_resumed(self):
+        """Notifies the simulator state listeners that the simulator has been
+        resumed"""
         for listener in self.listeners:
             listener.simulator_resumed(self)
 
     def _simulator_has_updated(self):
+        """Notifies the simulator state listeners that the simulator state has
+        been updated"""
         for listener in self.listeners:
             listener.simulator_state_update(self)
 
