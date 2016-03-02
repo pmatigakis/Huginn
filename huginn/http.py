@@ -276,16 +276,20 @@ class FDMData(FlightDataResource):
         return flight_data
 
 class SimulatorCommand(Resource):
+    """The SimulatorCommand is the base class for the simulator commands that
+    are called throught an http connection"""
     def __init__(self):
         Resource.__init__(self)
 
     def send_response(self, request, response_data):
+        """Return the response in json format"""
         request.responseHeaders.addRawHeader("content-type",
                                              "application/json")
 
         return json.dumps(response_data)
 
 class PauseSimulatorCommand(SimulatorCommand):
+    """The PauseSimulatorCommand http command pauses the simulator"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -294,6 +298,7 @@ class PauseSimulatorCommand(SimulatorCommand):
         self.logger = logging.getLogger("huginn")
 
     def render_POST(self, request):
+        """Execute the command"""
         self.logger.debug("Pausing the simulator")
         self.simulator.pause()
 
@@ -302,6 +307,7 @@ class PauseSimulatorCommand(SimulatorCommand):
                                    "result": "ok"})
 
 class ResumeSimulatorCommand(SimulatorCommand):
+    """The PauseSimulatorCommand http command resumes the simulation""" 
     isLeaf = True
 
     def __init__(self, simulator):
@@ -310,6 +316,7 @@ class ResumeSimulatorCommand(SimulatorCommand):
         self.logger = logging.getLogger("huginn")
 
     def render_POST(self, request):
+        """Execute the command"""
         self.logger.debug("Resuming the simulator")
         self.simulator.resume()
 
@@ -318,6 +325,7 @@ class ResumeSimulatorCommand(SimulatorCommand):
                                    "result": "ok"})
 
 class ResetSimulatorCommand(SimulatorCommand):
+    """The ResetSimulatorCommand http command resets the simulator"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -326,6 +334,7 @@ class ResetSimulatorCommand(SimulatorCommand):
         self.logger = logging.getLogger("huginn")
 
     def render_POST(self, request):
+        """Execute the command"""
         self.logger.debug("Reseting the simulator")
 
         reset_result = self.simulator.reset()
@@ -344,6 +353,8 @@ class ResetSimulatorCommand(SimulatorCommand):
                                    "result": "ok"})
 
 class StepSimulatorCommand(SimulatorCommand):
+    """The StepSimulatorCommand http command executes a single simulation
+    timestep"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -352,6 +363,7 @@ class StepSimulatorCommand(SimulatorCommand):
         self.logger = logging.getLogger("huginn")
 
     def render_POST(self, request):
+        """Execute the command"""
         self.logger.debug("Executing a single simulation step")
 
         result = self.simulator.step()
@@ -368,6 +380,8 @@ class StepSimulatorCommand(SimulatorCommand):
                                    "result": "ok"})
 
 class RunForSimulatorCommand(SimulatorCommand):
+    """The RunForSimulatorCommand http command makes the simulator run for
+    the given amount of time"""
     isLeaf = True
 
     def __init__(self, simulator):
@@ -376,6 +390,7 @@ class RunForSimulatorCommand(SimulatorCommand):
         self.logger = logging.getLogger("huginn")
 
     def render_POST(self, request):
+        """Execute the command"""
         time_to_run = float(request.args["time_to_run"][0])
         self.logger.debug("Running the simulation for %f seconds", time_to_run)
 
@@ -413,19 +428,6 @@ class SimulatorControl(Resource):
             return self
         return Resource.getChild(self, name, request)
 
-#     def invalid_request(self, request):
-#         response_data = {"result": "error",
-#                          "reason": "invalid simulator command request"}
-# 
-#         return self.send_response(request, response_data)
-# 
-#     def invalid_command(self, request, command):
-#         response_data = {"result": "error",
-#                          "reason": "invalid simulator command",
-#                          "command": command}
-# 
-#         return self.send_response(request, response_data)
-
     def send_response(self, request, response_data):
         request.responseHeaders.addRawHeader("content-type",
                                              "application/json")
@@ -442,69 +444,6 @@ class SimulatorControl(Resource):
         }
 
         return self.send_response(request, simulator_state)
-
-#     def render_POST(self, request):
-#         """The POST http method is used to control the simulator.
-#         The request must contain a command argument with the name of the action
-#         to be performed"""
-#         if not request.args.has_key("command"):
-#             self.logger.error("Invalid simulator control request")
-# 
-#             return self.invalid_request(request)
-# 
-#         response_data = self.handleCommand(request)
-# 
-#         return self.send_response(request, response_data)
-# 
-#     def handleCommand(self, request):
-#         simulator_command = request.args["command"][0]
-# 
-#         #TODO: This needs to be refactored
-#         try:
-#             if simulator_command == "pause":
-#                 self.logger.debug("Pausing the simulator")
-#                 self.simulator.pause()
-#             elif simulator_command == "resume":
-#                 self.logger.debug("Resuming simulation")
-#                 self.simulator.resume()
-#             elif simulator_command == "reset":
-#                 self.logger.debug("Reseting the simulator")
-# 
-#                 result = self.simulator.reset()
-#                 if not result:
-#                     self.logger.error("Failed to reset the simulator")
-#                     reactor.stop()  # @UndefinedVariable
-#                     return {"command": simulator_command, "result": "error"}
-# 
-#                 self.logger.debug("Pausing the simulator")
-#                 self.simulator.pause()
-#             elif simulator_command == "step":
-#                 result = self.simulator.step()
-# 
-#                 if not result:
-#                     self.logger.error("The simulator has failed to run")
-#                     reactor.stop()  # @UndefinedVariable
-#                     return {"command": simulator_command, "result": "error"}
-#             elif simulator_command == "run_for":
-#                 time_to_run = float(request.args["time_to_run"][0])
-#                 self.logger.debug("Running simulator for %f seconds", time_to_run)
-#                 result = self.simulator.run_for(time_to_run)
-# 
-#                 if not result:
-#                     self.logger.error("The simulator has failed to run for %f", time_to_run)
-#                     reactor.stop()  # @UndefinedVariable
-#                     return {"command": simulator_command, "result": "error"}
-#             else:
-#                 self.logger.error("Invalid simulator command %s", simulator_command)
-#                 return {"result": "error",
-#                         "reason": "invalid simulator command",
-#                         "command": simulator_command}
-#         except:
-#             #TODO: add better exception handling here
-#             self.logger.exception("An error occurred while executing simulator request command %s", simulator_command)
-#             return  {"command": simulator_command, "result": "error"}
-# 
-#         return {"command": simulator_command, "result": "ok"}
 
 class WebClient(object):
     """The WebClient is used to retrieve flight data from Huginn's web
