@@ -4,19 +4,30 @@ Library    String
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
+${HUGINN_FRONTEND_URL}    http://localhost:5000
 
 *** Keywords ***
 Start Huginn
     ${huginn_process_id} =    Start Process    huginn_start.py --aircraft Rascal    shell=true
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
-    Wait Until Keyword Succeeds    1 min    5 sec    Get Request    huginn_web_server    /
+    Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
     Simulator Is Paused
     Simulator DT Should Be    0.003333
     Simulation Time Should Be Close To    1.0  0.1
     
 Stop Huginn
     Terminate All Processes
+
+Start Huginn Frontend
+    ${huginn_frontend_process_id} =    Start Process    huginn_web.py    shell=true
+    Process Should Be Running    ${huginn_frontend_process_id}
+    Create Session    huginn_web_server    ${HUGINN_FRONTEND_URL}
+    Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
+
+Start Huginn And The FrontEnd
+    Start Huginn
+    Start Huginn Frontend
 
 Value Close To
     [Arguments]    ${value}    ${expected_value}    ${tolerance}

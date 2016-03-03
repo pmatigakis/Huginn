@@ -43,7 +43,7 @@ function init_map(){
 	}).addTo(map);
 	
 	var aircraftIcon = L.icon({
-	    iconUrl: 'images/32px-Airplane_silhouette.png',
+	    iconUrl: 'static/images/32px-Airplane_silhouette.png',
 
 	    iconSize:     [32, 32],
 	    iconAnchor:   [16, 16]
@@ -74,30 +74,6 @@ function update_map(latitude, longitude){
 	aircraft_marker.setLatLng([latitude, longitude]);
 }
 
-function update_fdm_data_table(data){
-	$("#fdm-data .longitude").text(data["longitude"]);
-	$("#fdm-data .latitude").text(data["latitude"]);
-	$("#fdm-data .altitude").text(data["altitude"]);
-	$("#fdm-data .airspeed").text(data["airspeed"]);
-	$("#fdm-data .heading").text(data["heading"]);
-	$("#fdm-data .x-acceleration").text(data["x_acceleration"]);
-	$("#fdm-data .y-acceleration").text(data["y_acceleration"]);
-	$("#fdm-data .z-acceleration").text(data["z_acceleration"]);
-	$("#fdm-data .roll-rate").text(data["roll_rate"]);
-	$("#fdm-data .pitch-rate").text(data["pitch_rate"]);
-	$("#fdm-data .yaw-rate").text(data["yaw_rate"]);
-	$("#fdm-data .temperature").text(data["temperature"]);
-	$("#fdm-data .static-pressure").text(data["static_pressure"]);
-	$("#fdm-data .total-pressure").text(data["total_pressure"]);
-	$("#fdm-data .roll").text(data["roll"]);
-	$("#fdm-data .pitch").text(data["pitch"]);
-	$("#fdm-data .thrust").text(data["thrust"]);
-	$("#fdm-data .aileron").text(data["aileron"]);
-	$("#fdm-data .elevator").text(data["elevator"]);
-	$("#fdm-data .rudder").text(data["rudder"]);
-	$("#fdm-data .throttle").text(data["throttle"]);
-}
-
 function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pitch){
 	var position = Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude);
 	var heading_in_radians = Cesium.Math.toRadians(heading);
@@ -111,7 +87,8 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
 
 function start_data_update(){
 	setInterval(function(){
-		$.getJSON("fdm", function(data){
+		//$.getJSON("fdm", function(data){
+		$.getJSON("api/ins_data", function(data){
 			var roll = data["roll"];
 			var pitch = data["pitch"];
 			var airspeed = data["airspeed"];
@@ -122,7 +99,6 @@ function start_data_update(){
 			
 			update_hud(altitude, airspeed, heading, roll, pitch);
 			update_map(latitude, longitude);
-			update_fdm_data_table(data);
 			aircraft_info.update(data);
 			
 			//the -90 is required because the model is facing east
@@ -130,6 +106,8 @@ function start_data_update(){
 		});
 	}, 250);
 	
+	//TODO: Comment out this until I add better waypoint drawing functions
+	/*
 	setInterval(function(){
 		$.getJSON("map", function(data){
 			for(var i = 0; i < markers.length; i++){
@@ -147,6 +125,7 @@ function start_data_update(){
 			}
 		});
 	}, 2000);
+	*/
 }
 
 $(document).ready(function(){
@@ -185,7 +164,7 @@ $(document).ready(function(){
 	        position : position,
 	        orientation : orientation,
 	        model : {
-	            uri : "models/Cesium_Air.glb",
+	            uri : "static/models/Cesium_Air.glb",
 	            minimumPixelSize : 128,
 	            maximumScale : 20000
 	        }

@@ -11,7 +11,8 @@ from twisted.web.static import File
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
-from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData
+from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData,\
+                        SimulatorServerRoot
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
 
@@ -34,7 +35,7 @@ class SimulationServer(object):
         """Initialize the web server"""
         self.logger.debug("Starting web server at port %d", self.web_server_port)
 
-        root = File(pkg_resources.resource_filename("huginn", "/static"))  # @UndefinedVariable
+        root = SimulatorServerRoot()
 
         aircraft_root = AircraftResource(self.aircraft)
 

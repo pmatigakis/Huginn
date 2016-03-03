@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="static/css/leaflet.css">
+<link rel="stylesheet" href="static/css/bootstrap.css">
+<link rel="stylesheet" href="static/css/style.css">
+
+<title>Huginn - Flight data</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table id="fdm-data" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Flight data</th>
+                            <th>Value</th>
+                            <th>Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Longitude</td>
+                            <td class="longitude">{{ data["longitude"] }}</td>
+                            <td>Degrees</td>
+                        </tr>
+                        <tr>
+                            <td>Latitude</td>
+                            <td class="latitude">{{ data["latitude"] }}</td>
+                            <td>Degrees</td>
+                        </tr>
+                        <tr>
+                            <td>Altitude</td>
+                            <td class="altitude">{{ data["altitude"] }}</td>
+                            <td>Meters</td>
+                        </tr>
+                        <tr>
+                            <td>Airspeed</td>
+                            <td class="airspeed">{{ data["airspeed"] }}</td>
+                            <td>Meters/Sec</td>
+                        </tr>
+                        <tr>
+                            <td>Heading</td>
+                            <td class="heading">{{ data["heading"] }}</td>
+                            <td>Degrees</td>
+                        </tr>
+                        <tr>
+                            <td>X acceleration</td>
+                            <td class="x-acceleration">{{ data["x_acceleration"] }}</td>
+                            <td>meters/sec^2</td>
+                        </tr>
+                        <tr>
+                            <td>Y acceleration</td>
+                            <td class="y-acceleration">{{ data["y_acceleration"] }}</td>
+                            <td>meters/sec^2</td>
+                        </tr>
+                        <tr>
+                            <td>Z acceleration</td>
+                            <td class="z-acceleration">{{ data["z_acceleration"] }}</td>
+                            <td>meters/sec^2</td>
+                        </tr>
+                        <tr>
+                            <td>Roll rate</td>
+                            <td class="roll-rate">{{ data["roll_rate"] }}</td>
+                            <td>degrees/sec</td>
+                        </tr>
+                        <tr>
+                            <td>Pitch rate</td>
+                            <td class="pitch-rate">{{ data["pitch_rate"] }}</td>
+                            <td>degrees/sec</td>
+                        </tr>
+                        <tr>
+                            <td>Yaw rate</td>
+                            <td class="yaw-rate">{{ data["yaw_rate"] }}</td>
+                            <td>degrees/sec</td>
+                        </tr>
+                        <tr>
+                            <td>Temperature</td>
+                            <td class="temperature">{{ data["temperature"] }}</td>
+                            <td>Kelvin</td>
+                        </tr>
+                        <tr>
+                            <td>Static pressure</td>
+                            <td class="static-pressure">{{ data["static_pressure"] }}</td>
+                            <td>pascal</td>
+                        </tr>
+                        <tr>
+                            <td>Total pressure</td>
+                            <td class="total-pressure">{{ data["total_pressure"] }}</td>
+                            <td>pascal</td>
+                        </tr>
+                        <tr>
+                            <td>Roll</td>
+                            <td class="roll">{{ data["roll"] }}</td>
+                            <td>degrees</td>
+                        </tr>
+                        <tr>
+                            <td>Pitch</td>
+                            <td class="pitch">{{ data["pitch"] }}</td>
+                            <td>degrees</td>
+                        </tr>
+                        <tr>
+                            <td>Thrust</td>
+                            <td class="thrust">{{ data["thrust"] }}</td>
+                            <td>newtons</td>
+                        </tr>
+                        <tr>
+                            <td>Aileron</td>
+                            <td class="aileron">{{ data["aileron"] }}</td>
+                            <td>Normalized value</td>
+                        </tr>
+                        <tr>
+                            <td>Elevator</td>
+                            <td class="elevator">{{ data["elevator"] }}</td>
+                            <td>Normalized value</td>
+                        </tr>
+                        <tr>
+                            <td>Rudder</td>
+                            <td class="rudder">{{ data["rudder"] }}</td>
+                            <td>Normalized value</td>
+                        </tr>
+                        <tr>
+                            <td>Throttle</td>
+                            <td class="throttle">{{ data["throttle"] }}</td>
+                            <td>Normalized value</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/jquery-1.11.3.js" type="text/javascript"></script>
+    <script src="static/js/bootstrap.min.js" type="text/javascript"></script>
+</body>
+</html>
