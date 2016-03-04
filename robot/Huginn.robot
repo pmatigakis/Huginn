@@ -1,6 +1,8 @@
 *** Settings ***
 Library    Process
 Library    String
+Library    RequestsLibrary
+Library    Collections
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
@@ -28,6 +30,18 @@ Start Huginn Frontend
 Start Huginn And The FrontEnd
     Start Huginn
     Start Huginn Frontend
+
+Resume Simulation Using The CLI
+    ${result} =    Run Process    huginn_cli.py control resume  shell=true
+    Should Be Equal As Integers    ${result.rc}  0
+
+Pause the Simulation Using The CLI
+    ${result} =    Run Process    huginn_cli.py control pause  shell=true
+    Should Be Equal As Integers    ${result.rc}  0
+
+Reset the Simulation Using The CLI
+    ${result} =    Run Process    huginn_cli.py control reset  shell=true
+    Should Be Equal As Integers    ${result.rc}  0
 
 Value Close To
     [Arguments]    ${value}    ${expected_value}    ${tolerance}
