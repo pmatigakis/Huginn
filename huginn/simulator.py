@@ -157,3 +157,12 @@ class Simulator(object):
                 return False
 
         return True
+
+    def print_simulator_state(self):
+        """Show the current state of the simulation"""
+        print("Simulation state")
+        print("================")
+        print("Time: %f seconds" % self.simulation_time)
+        print("DT: %f seconds" % self.dt)
+        print("Running: %s" % (not self.paused))
+        print("")

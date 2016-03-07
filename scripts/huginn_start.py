@@ -9,7 +9,6 @@ from huginn.validators import port_number, fdm_data_endpoint
 from huginn.fdm import FDMBuilder
 from huginn.aircraft import Aircraft
 from huginn.servers import SimulationServer
-from huginn.console import SimulatorStatePrinter
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -144,9 +143,6 @@ def main():
     logger.debug("The simulator will start paused")
     simulator.paused = True
     simulator.start_trimmed = args.trim
-
-    simulator_state_printer = SimulatorStatePrinter()
-    simulator.add_simulator_event_listener(simulator_state_printer)
 
     logger.debug("creating the simulator server")
     simulator_server = SimulationServer(simulator)
