@@ -84,5 +84,6 @@ setup(name="huginn",
                           "robotframework==3.0",
                           "robotframework-requests==0.4.4",
                           "Sphinx==1.3.6",
-                          "Twisted==15.5.0"]
+                          "Twisted==15.5.0"],
+      test_suite="nose.collector"
       )
