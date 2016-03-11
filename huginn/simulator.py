@@ -5,25 +5,9 @@ simulation
 
 import logging
 
-class SimulatorEventListener(object):
-    """The SimulatorEventListener class must be implemented by any object
-    that has to notified when a simulation event is raised"""
-
-    def simulator_reset(self, simulator):
-        """The simulator has reset"""
-        pass
-
-    def simulator_paused(self, simulator):
-        """The simulator has paused"""
-        pass
-
-    def simulator_resumed(self, simulator):
-        """The simulator has resumed execution"""
-        pass
-
-    def simulator_state_update(self, simulator):
-        """The simulator has run"""
-        pass
+class SimulationError(Exception):
+    """SimulationError raised when an error occurs during simulation"""
+    pass
 
 class Simulator(object):
     """The Simulator class is used to perform the simulation of an aircraft"""
@@ -31,7 +15,6 @@ class Simulator(object):
     def __init__(self, fdm, aircraft):
         self.aircraft = aircraft
         self.fdm = fdm
-        self.listeners = []
         self.logger = logging.getLogger("huginn")
         self.paused = False
         self.start_trimmed = False
@@ -46,49 +29,13 @@ class Simulator(object):
         """The current simulation time"""
         return self.fdm.get_simulation_time()
 
-    def add_simulator_event_listener(self, listener):
-        """Add a simulator event listener"""
-        self.listeners.append(listener)
-
-    def remove_simulator_event_listener(self, listener):
-        """Remove a simulator event listener"""
-        self.listeners.remove(listener)
-
-    def _simulator_has_reset(self):
-        """Notifies the simulator state listeners that the simulator has been
-        reset"""
-        for listener in self.listeners:
-            listener.simulator_reset(self)
-
-    def _simulator_has_paused(self):
-        """Notifies the simulator state listeners that the simulator has been
-        paused"""
-        for listener in self.listeners:
-            listener.simulator_paused(self)
-
-    def _simulator_has_resumed(self):
-        """Notifies the simulator state listeners that the simulator has been
-        resumed"""
-        for listener in self.listeners:
-            listener.simulator_resumed(self)
-
-    def _simulator_has_updated(self):
-        """Notifies the simulator state listeners that the simulator state has
-        been updated"""
-        for listener in self.listeners:
-            listener.simulator_state_update(self)
-
     def pause(self):
         """Pause the simulator"""
         self.paused = True
 
-        self._simulator_has_paused()
-
     def resume(self):
         """Resume the simulation"""
         self.paused = False
-
-        self._simulator_has_resumed()
 
     def reset(self):
         """Reset the simulation"""
@@ -113,18 +60,17 @@ class Simulator(object):
 
         self.logger.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
 
-        self._simulator_has_reset()
-
         return True
 
     def step(self):
         """Run the simulation one time"""
-        run_result = self.fdm.run()
+        try:
+            run_result = self.fdm.run()
+        except:
+            raise SimulationError()
 
         if run_result:
             self.fdm.update_aircraft(self.aircraft)
-
-            self._simulator_has_updated()
 
             return True
         else:
@@ -153,8 +99,7 @@ class Simulator(object):
         if not self.paused:
             result = self.step()
 
-            if not result:
-                return False
+            return result
 
         return True
 
