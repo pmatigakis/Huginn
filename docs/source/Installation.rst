@@ -18,15 +18,6 @@ The simulator can be installed by downloading the source code and running the fo
 
 Testing
 -------
-In order to run the tests you will also need to install the following packages.
-
-- coverage >= 3.7.1
-- nose >= 1.3.7
-- mock >= 1.3.0
-- PyHamcrest >= 1.8.5
-- robotframework >= 2.9.2
-- robotframework-requests >= 0.3.9
-
 Go to the source code directory and run the tests with the following command.
 
 .. code-block:: bash
