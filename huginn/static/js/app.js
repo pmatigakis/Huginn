@@ -171,4 +171,28 @@ $(document).ready(function(){
 	});
 	
 	viewer.trackedEntity = entity;
+	
+	$("#resume_button").click(function(){
+		$.getJSON("simulator/resume", function(data){
+			if(data["result"] != "ok"){
+				alert("Failed to resume simulation");
+			}
+		});
+	})
+	
+	$("#pause_button").click(function(){
+		$.getJSON("simulator/pause", function(data){
+			if(data["result"] != "ok"){
+				alert("Failed to pause the simulator");
+			}
+		});
+	})
+	
+	$("#reset_button").click(function(){
+		$.getJSON("simulator/reset", function(data){
+			if(data["result"] != "ok"){
+				alert("Failed to reset the simulator");
+			}
+		});
+	})
 })
