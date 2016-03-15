@@ -32,15 +32,15 @@ Start Huginn And The FrontEnd
     Start Huginn Frontend
 
 Resume Simulation Using The CLI
-    ${result} =    Run Process    huginn_cli.py control resume  shell=true
+    ${result} =    Run Process    huginn_control.py resume  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Pause the Simulation Using The CLI
-    ${result} =    Run Process    huginn_cli.py control pause  shell=true
+    ${result} =    Run Process    huginn_control.py pause  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Reset the Simulation Using The CLI
-    ${result} =    Run Process    huginn_cli.py control reset  shell=true
+    ${result} =    Run Process    huginn_control.py reset  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Value Close To
