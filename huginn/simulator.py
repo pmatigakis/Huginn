@@ -40,7 +40,6 @@ class Simulator(object):
     def reset(self):
         """Reset the simulation"""
         self.logger.debug("Reseting the aircraft")
-        print "=-======reset====="
 
         running = self.fdm.reset_to_initial_conditions()
 

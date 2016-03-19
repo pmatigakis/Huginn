@@ -116,12 +116,20 @@ class JSBSimFDM(FDM):
         FDM.__init__(self)
         self.fdm = fdm
         self.start_trimmed = start_trimmed
+        self.logger = logging.getLogger("huginn")
 
     def run(self):
         return self.fdm.run()
 
     def reset_to_initial_conditions(self):
+        self.logger.debug("Reseting JSBSim to initial conditions")
+
         reset_result = self.fdm.reset(self.start_trimmed)
+
+        if reset_result:
+            self.logger.debug("Reset was successful")
+        else:
+            self.logger.debug("Failed to reset the JSBSim model")
 
         self.fdm.start_engines()
 
@@ -256,23 +264,24 @@ class FDMBuilder(object):
 
         self.trim = False
 
+        self.logger = logging.getLogger("huginn")
+
     def create_fdm(self):
         """Create the flight dynamics model"""
-        logger = logging.getLogger("huginn")
 
         fdm = huginn_jsbsim.FDM()
 
-        logger.debug("Using jsbsim data at %s", self.data_path)
+        self.logger.debug("Using jsbsim data at %s", self.data_path)
 
         fdm.set_data_path(self.data_path)
 
-        logger.debug("JSBSim dt is %f", self.dt)
+        self.logger.debug("JSBSim dt is %f", self.dt)
         fdm.set_dt(self.dt)
 
-        logger.debug("Using aircraft %s", self.aircraft)
+        self.logger.debug("Using aircraft %s", self.aircraft)
         fdm.load_model(self.aircraft)
 
-        logger.debug("starting the aircraft's engines")
+        self.logger.debug("starting the aircraft's engines")
         fdm.start_engines()
 
         fdm.set_throttle(0.0)
@@ -280,30 +289,30 @@ class FDMBuilder(object):
         altitude_in_feet = convert_meters_to_feet(self.altitude)
         airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
 
-        logger.debug("Initial latitude: %f degrees", self.latitude)
-        logger.debug("Initial longitude: %f degrees", self.longitude)
-        logger.debug("Initial altitude: %f meters", self.altitude)
-        logger.debug("Initial airspeed: %f meters/second", self.airspeed)
-        logger.debug("Initial heading: %f degrees", self.heading)
+        self.logger.debug("Initial latitude: %f degrees", self.latitude)
+        self.logger.debug("Initial longitude: %f degrees", self.longitude)
+        self.logger.debug("Initial altitude: %f meters", self.altitude)
+        self.logger.debug("Initial airspeed: %f meters/second", self.airspeed)
+        self.logger.debug("Initial heading: %f degrees", self.heading)
 
         fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading)
 
         if not fdm.run_ic():
-            logger.error("Failed to run initial condition")
+            self.logger.error("Failed to run initial condition")
             return None
 
         if self.trim:
-            logger.debug("Trimming the aircraft")
+            self.logger.debug("Trimming the aircraft")
             trim_result = fdm.trim()
 
             if not trim_result:
-                logger.warning("Failed to trim the aircraft")
+                self.logger.warning("Failed to trim the aircraft")
 
         # Run the simulation for 1 second in order to make sure that everything
         # is ok
         while fdm.get_sim_time() < 1.0:
             if not fdm.run():
-                logger.error("Failed to execute initial run")
+                self.logger.error("Failed to execute initial run")
                 return None
 
         fdm.print_simulation_configuration()

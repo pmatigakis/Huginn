@@ -3,11 +3,9 @@ The huginn.servers module contains classes that can be used to create
 a simulator that transmits and receives data from/to the network
 """
 import logging
-import pkg_resources
 
 from twisted.internet import reactor
 from twisted.web import server
-from twisted.web.static import File
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
