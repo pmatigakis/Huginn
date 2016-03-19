@@ -1,7 +1,9 @@
 from unittest import TestCase
 from argparse import ArgumentTypeError
 
-from huginn.validators import port_number, fdm_data_endpoint
+from huginn.validators import port_number, fdm_data_endpoint,\
+                              is_valid_latitude, is_valid_longitude,\
+                              is_valid_heading
 
 class TestPortNumber(TestCase):
     def test_port_number(self):
@@ -50,3 +52,33 @@ class TestFDMDataEndpoint(TestCase):
         fdm_endpoint_string = "df2342,1234,0.01"
 
         self.assertRaises(ArgumentTypeError, fdm_data_endpoint, fdm_endpoint_string)
+
+class TestLatitudeValidator(TestCase):
+    def test_valid_latitude(self):
+        self.assertTrue(is_valid_latitude(10.0))
+
+    def test_invalid_latitude_greater_that_90_degrees(self):
+        self.assertFalse(is_valid_latitude(100.0))
+
+    def test_invalid_latitude_less_that_minus_90_degrees(self):
+        self.assertFalse(is_valid_latitude(-100.0))
+
+class TestLongitudeValidator(TestCase):
+    def test_valid_longitude(self):
+        self.assertTrue(is_valid_longitude(-10.0))
+
+    def test_invalid_longitude_greater_that_180_degrees(self):
+        self.assertFalse(is_valid_longitude(190.0))
+
+    def test_invalid_longitude_less_that_minus_100_degrees(self):
+        self.assertFalse(is_valid_longitude(-190.0))
+
+class TestHeadingValidator(TestCase):
+    def test_valid_heading(self):
+        self.assertTrue(is_valid_heading(60.0))
+
+    def test_invalid_heading_greater_that_360_degrees(self):
+        self.assertFalse(is_valid_heading(370.0))
+
+    def test_invalid_heading_less_that_0_degrees(self):
+        self.assertFalse(is_valid_heading(-10.0))

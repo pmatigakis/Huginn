@@ -5,7 +5,9 @@ from argparse import ArgumentParser
 
 from huginn import configuration
 from huginn.simulator import Simulator
-from huginn.validators import port_number, fdm_data_endpoint
+from huginn.validators import port_number, fdm_data_endpoint,\
+                              is_valid_latitude, is_valid_longitude,\
+                              is_valid_heading
 from huginn.fdm import FDMBuilder
 from huginn.aircraft import Aircraft
 from huginn.servers import SimulationServer
@@ -69,6 +71,39 @@ def get_arguments():
 
     return parser.parse_args()
 
+def validate_arguments(args, logger):
+    """Check if the script arguments have valid values
+
+    Arguments:
+    args: an ArgumentParser object
+    logger: the Logger object that will record the error messages
+    """
+    if args.dt <= 0.0:
+        logger.error("Invalid simulation timestep %f", args.dt)
+        return False
+
+    if args.airspeed < 0.0:
+        logger.error("Invalid aircraft airspeed %f", args.airspeed)
+        return False
+
+    if not is_valid_latitude(args.latitude):
+        logger.error("Invalid latitude %f", args.latitude)
+        return False        
+
+    if not is_valid_longitude(args.longitude):
+        logger.error("Invalid longitude %f", args.longitude)
+        return False        
+
+    if not is_valid_heading(args.heading):
+        logger.error("Invalid heading %f", args.heading)
+        return False        
+
+    if args.altitude < 0.0:
+        logger.error("Invalid altitude %f", args.altitude)
+        return False
+        
+    return True
+
 def initialize_logger(output_file, log_level):
     if log_level == "critical":
         logger_log_level = logging.CRITICAL
@@ -111,8 +146,8 @@ def main():
 
     huginn_data_path = configuration.get_data_path()
 
-    if args.dt <= 0.0:
-        logger.error("Invalid simulation timestep %f", args.dt)
+    if not validate_arguments(args, logger):
+        logger.error("Invalid simulator arguments")
         exit(1)
 
     fdm_builder = FDMBuilder(huginn_data_path)
