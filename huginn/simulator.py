@@ -47,13 +47,10 @@ class Simulator(object):
             self.logger.error("Failed to reset the simulator")
             return False
 
-        while True:
+        while self.fdm.get_simulation_time() < 1.0:
             if not self.fdm.run():
                 self.logger.error("Failed to execute initial run")
                 return False
-
-            if self.fdm.get_simulation_time() > 1.0:
-                break
 
         self.fdm.update_aircraft(self.aircraft)
 
