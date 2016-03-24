@@ -4,6 +4,7 @@ from math import radians, sin, cos, asin, sqrt, atan2, pi, fmod, degrees
 from twisted.internet import reactor, task
 
 from huginn.protocols import FDMDataClient, FDMDataListener, ControlsClient 
+from huginn.control import SimulatorControlClient
 
 def haversine_distance(latitude1, longitude1, latitude2, longitude2):
     R = 6372.8 # Earth radius in kilometers
@@ -204,28 +205,37 @@ class Autopilot(FDMDataListener):
                                                self.rudder,
                                                self.throttle)
 
-controls_client = ControlsClient("127.0.0.1", 10301)
-reactor.listenUDP(0, controls_client)
+def main():
+    controls_client = ControlsClient("127.0.0.1", 10301)
+    reactor.listenUDP(0, controls_client)
+    
+    altitude = 300.0
+    airspeed = 30.0
+    
+    waypoints = []
+    
+    with open("waypoints.csv", "r") as f:
+        reader = csv.reader(f, delimiter=",")
+    
+        for row in reader:
+            waypoint = [float(row[1]), float(row[2]), altitude, airspeed]
+            waypoints.append(waypoint)
+    
+    autopilot = Autopilot(controls_client, waypoints)
+    
+    fdm_data_client = FDMDataClient()
+    fdm_data_client.add_fdm_data_listener(autopilot)
+    reactor.listenUDP(10302, fdm_data_client)
+    
+    log_updater = task.LoopingCall(autopilot.print_log)
+    log_updater.start(1.0)
 
-altitude = 300.0
-airspeed = 30.0
+    simulator_control = SimulatorControlClient("localhost", 8090)
 
-waypoints = []
+    simulator_control.reset()
+    simulator_control.resume()
 
-with open("waypoints.csv", "r") as f:
-    reader = csv.reader(f, delimiter=",")
+    reactor.run()
 
-    for row in reader:
-        waypoint = [float(row[1]), float(row[2]), altitude, airspeed]
-        waypoints.append(waypoint)
-
-autopilot = Autopilot(controls_client, waypoints)
-
-fdm_data_client = FDMDataClient()
-fdm_data_client.add_fdm_data_listener(autopilot)
-reactor.listenUDP(10302, fdm_data_client)
-
-log_updater = task.LoopingCall(autopilot.print_log)
-log_updater.start(1.0)
-
-reactor.run()
+if __name__ == "__main__":
+    main()
