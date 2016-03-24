@@ -1,6 +1,6 @@
 *** Settings ***
-Test Setup    Start Huginn And The Frontend
-Test Teardown    Stop Huginn
+Suite Setup    Start Huginn And The Frontend
+Suite Teardown    Stop Huginn
 Library    RequestsLibrary
 Library    Collections
 Resource    Huginn.robot

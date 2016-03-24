@@ -1,7 +1,7 @@
 *** Settings ***
 Suite Setup    Start Huginn
 Suite Teardown    Stop Huginn
-Test Setup    Reset Simulator
+Test Teardown    Reset Simulator
 Library    Collections
 Library    RequestsLibrary
 Resource    Huginn.robot

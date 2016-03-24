@@ -1,6 +1,6 @@
 *** Settings ***
-Test Setup    Start Huginn
-Test Teardown    Stop Huginn
+Suite Setup    Start Huginn
+Suite Teardown    Stop Huginn
 Library    Collections
 Library    RequestsLibrary
 Resource    Huginn.robot
