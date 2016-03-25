@@ -3,11 +3,11 @@ Recording telemetry data
 Huginn has a utility script that you can use to capture telemetry data that
 you can use for analysis.
 
-The huginn_cli.py record command can be called from the console in the following way.
+The huginn_record.py script can be called from the console in the following way.
 
 .. code-block:: bash
 
-  huginn_cli.py record telemetry.csv
+  huginn_record.py telemetry.csv
 
 The telemetry data will be saved in csv format in *telemetry.csv*. This file
 will contain the following data.

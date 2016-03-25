@@ -10,19 +10,18 @@ the Rascal aircraft
     huginn_start.py --aircraft Rascal
     
 By default the simulator will start paused. The fdm data and controls interfaces will use 
-udp ports 10300 and 10301 respectively. The simulator control server will run on port 10500 
-and the web interface will run at port 5000. 
+tcp port 10300 and udp port 10301 respectively. The simulator web interface will run at port 8090. 
 
-The simulator can be controlled with the *huginn_cli.py* script.
+The simulator can be controlled with the *huginn_control.py* script.
 
 .. code-block:: bash
 
     # resume the simulation
-    huginn_cli.py control resume
+    huginn_control.py resume
     
     # pause the simulator
-    huginn_cli.py control pause
+    huginn_control.py pause
     
     # reset the simulator
-    huginn_cli.py control reset
+    huginn_control.py reset
     

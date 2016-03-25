@@ -2,13 +2,8 @@ Installation
 ============
 Requirements
 ------------
-Huginn requires the following Python packages to be installed on your system.
-
-- requests >= 2.7.0
-- Twisted >= 15.3.0
-
-Huginn also requires that you have installed the JSBsim flight dynamics model library. You can download this
-from http://jsbsim.sourceforge.net/.
+Huginn requires that you have installed the JSBsim flight dynamics model library. You can download this
+from http://jsbsim.sourceforge.net.
 
 The simulator can be installed by downloading the source code and running the following commands on the console.
 
@@ -16,20 +11,23 @@ The simulator can be installed by downloading the source code and running the fo
 
     python setup.py build_ext install
 
+This will download the requirements, build the JSBSim python extension and install Huginn. It is recommended to use a
+virtual environment to install Huginn.
+
 Testing
 -------
-Go to the source code directory and run the tests with the following command.
+You can execute the unit tests with the following command.  
 
 .. code-block:: bash
 
-    ./run_tests.sh
+    python setup.py nosetests
 
 A Robot test suite also exists. This can be run by entering the robot directory and
 using the following command.
 
 .. code-block:: bash
 
-    pybot regression.txt
+    ./run_robot.sh
 
 Documentation
 -------------
