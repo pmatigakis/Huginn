@@ -13,6 +13,13 @@ class Simulator(object):
     """The Simulator class is used to perform the simulation of an aircraft"""
 
     def __init__(self, fdm, aircraft):
+        """Constructor for the Simulator object
+
+        Arguments:
+        fdm: A flight dynamics model
+        aircraft: The aircraft object that will be updated every time the
+                  simulator runs
+        """
         self.aircraft = aircraft
         self.fdm = fdm
         self.logger = logging.getLogger("huginn")
@@ -74,7 +81,11 @@ class Simulator(object):
             return False
 
     def run_for(self, time_to_run):
-        """Run the simulation for the given time in seconds"""
+        """Run the simulation for the given time in seconds
+
+        Arguments:
+        time_to_run: the time in seconds that the simulator will run
+        """
         if time_to_run < 0.0:
             self.logger.error("Invalid simulator run time length %f", time_to_run)
             return False

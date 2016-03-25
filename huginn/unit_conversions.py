@@ -19,13 +19,6 @@ def convert_meters_per_sec_to_knots(mps):
     """Convert from meters per second to knots"""
     return mps / 0.514444
 
-def convert_feet_sec_squared_to_meters_sec_squared(feet_sec_squared):
-    #TODO: this function can be replaced with convert_feet_to_meters
-    return feet_sec_squared * 0.3048000000012
-
-def convert_radians_sec_to_degrees_sec(radians_sec):
-    return radians_sec * 57.2957795
-
 def convert_rankine_to_kelvin(temperature):
     """Convert from degrees rankine to kelvin"""
     return temperature * (5.0/9.0)

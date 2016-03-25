@@ -8,6 +8,7 @@ from abc import ABCMeta, abstractmethod
 
 from twisted.internet.protocol import DatagramProtocol, Factory
 from twisted.protocols.basic import Int32StringReceiver
+from google.protobuf.message import DecodeError
 
 from huginn import fdm_pb2
 
@@ -27,7 +28,7 @@ class ControlsProtocol(DatagramProtocol):
 
         try:
             controls.ParseFromString(datagram)
-        except:
+        except DecodeError:
             logging.exception("Failed to parse control data")
             print("Failed to parse control data")
             return
@@ -99,6 +100,12 @@ class FDMDataListener(object):
 
     @abstractmethod
     def fdm_data_received(self, fdm_data):
+        """This function is called when fdm data have been received so that
+        the implementing class can handler them
+
+        Arguments:
+        fdm_data: a protocol buffer object that contains the fdm data
+        """
         pass
 
 class FDMDataClient(DatagramProtocol):
@@ -115,6 +122,11 @@ class FDMDataClient(DatagramProtocol):
         self.listeners.remove(listener)
 
     def _notify_fdm_data_listeners(self, fdm_data):
+        """Update the fdm data listeners
+
+        Arguments:
+        fdm_data: a protocol buffer object that contains the fdm data
+        """
         for fdm_data_listener in self.listeners:
             fdm_data_listener.fdm_data_received(fdm_data)
 
@@ -136,6 +148,12 @@ class ControlsClient(DatagramProtocol):
         self.transport.connect(self.host, self.port)
 
     def send_datagram(self, datagram):
+        """Transmit the UDP datagram that contains the aircraft controls
+        values
+
+        Arguments:
+        datagram: that datagram to transmit
+        """
         self.transport.write(datagram)
 
     def transmit_controls(self, aileron, elevator, rudder, throttle):
