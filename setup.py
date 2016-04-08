@@ -1,23 +1,6 @@
 from os import walk, path, chdir
 from setuptools import setup, Extension
 
-# jsbsim_wrapper_extension = Extension("_huginn_jsbsim",
-#                                      include_dirs=[ 
-#                                                    "/usr/local/include", 
-#                                                    "/usr/local/include/JSBSim",
-#                                                    ],
-#                                      sources=["huginn_jsbsim.i", "extensions/fdm.cpp"],
-#                                      library_dirs=["/usr/local/lib"],
-#                                      libraries=["JSBSim"],
-#                                      swig_opts=['-c++',
-#                                                 '-I/usr/local/include']
-#                                      )
-
-jsbsim_wrapper_extension = Extension("_huginn_jsbsim",
-                                     sources=["huginn_jsbsim.i", "extensions/fdm.cpp"],
-                                     libraries=["JSBSim"],
-                                     )
-
 def get_web_static_files():
     chdir("huginn")
     package_data = []
@@ -73,8 +56,6 @@ setup(name="huginn",
       packages=["huginn",
                 "huginn.web"],
       package_data={'huginn': get_web_static_files() + get_jsbsim_data() + get_templates()},
-      ext_modules=[jsbsim_wrapper_extension],
-      py_modules=["huginn_jsbsim"],
       install_requires = ["coverage>=4.0.3",
                           "Flask>=0.10.1",
                           "mock>=1.3.0",
@@ -87,5 +68,6 @@ setup(name="huginn",
                           "robotframework-requests>=0.4.4",
                           "Sphinx>=1.3.6",
                           "Twisted>=15.5.0"],
-      test_suite="nose.collector"
+      test_suite="nose.collector",
+      zip_safe=False,
       )

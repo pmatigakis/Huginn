@@ -4,11 +4,11 @@ initialize the flight dynamics model and create a model for a simulated
 aircraft
 """
 from math import degrees
-from abc import ABCMeta, abstractmethod
 import logging
 
+from PyJSBSim import FGFDMExec
+
 from huginn import configuration
-import huginn_jsbsim
 from huginn.unit_conversions import convert_meters_to_feet,\
     convert_meters_per_sec_to_knots, convert_feet_to_meters,\
     convert_rankine_to_kelvin, convert_psf_to_pascal,\
@@ -84,36 +84,8 @@ controls_properties = [
     "fcs/throttle-cmd-norm"
 ]
 
-class FDM(object):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def run(self):
-        pass
-
-    @abstractmethod
-    def reset_to_initial_conditions(self):
-        pass
-
-    @abstractmethod
-    def update_aircraft(self, aircraft):
-        pass
-
-    @abstractmethod
-    def get_dt(self):
-        pass
-
-    @abstractmethod
-    def get_simulation_time(self):
-        pass
-
-    @abstractmethod
-    def set_aircraft_controls(self, aileron, elevator, rudder, throttle):
-        pass
-
-class JSBSimFDM(FDM):
+class JSBSimFDM(object):
     def __init__(self, fdm, start_trimmed=False):
-        FDM.__init__(self)
         self.fdm = fdm
         self.start_trimmed = start_trimmed
         self.logger = logging.getLogger("huginn")
@@ -121,24 +93,25 @@ class JSBSimFDM(FDM):
     def run(self):
         return self.fdm.run()
 
-    def reset_to_initial_conditions(self):
+    def reset(self):
         self.logger.debug("Reseting JSBSim to initial conditions")
 
-        reset_result = self.fdm.reset(self.start_trimmed)
+        reset_result = self.fdm.reset()
 
-        if reset_result:
-            self.logger.debug("Reset was successful")
-        else:
+        if not reset_result:
             self.logger.debug("Failed to reset the JSBSim model")
-
-        self.fdm.start_engines()
 
         self.fdm.set_aileron(0.0)
         self.fdm.set_elevator(0.0)
         self.fdm.set_rudder(0.0)
         self.fdm.set_throttle(0.0)
 
+        self.fdm.start_engines()
+
         return reset_result
+
+    def trim(self):
+        return self.fdm.trim()
 
     def get_dt(self):
         return self.fdm.get_dt()
@@ -248,7 +221,7 @@ class JSBSimFDM(FDM):
         self.fdm.set_throttle(throttle)
 
 class FDMBuilder(object):
-    """The FDMBuilder created the flight dynamics model object that will be
+    """The FDMBuilder creates the flight dynamics model object that will be
     used by the simulator"""
     def __init__(self, data_path):
         self.data_path = data_path
@@ -269,22 +242,30 @@ class FDMBuilder(object):
     def create_fdm(self):
         """Create the flight dynamics model"""
 
-        fdm = huginn_jsbsim.FDM()
+        fdmexec = FGFDMExec()
 
         self.logger.debug("Using jsbsim data at %s", self.data_path)
 
-        fdm.set_data_path(self.data_path)
+        fdmexec.SetRootDir(self.data_path)
+        fdmexec.SetAircraftPath("")
+        fdmexec.SetEnginePath(self.data_path + "/Engines")
+        fdmexec.SetSystemsPath(self.data_path + "/Systems")
+        #fdm.set_data_path(self.data_path)
 
         self.logger.debug("JSBSim dt is %f", self.dt)
-        fdm.set_dt(self.dt)
+        fdmexec.Setdt(self.dt)
+        #fdm.set_dt(self.dt)
 
         self.logger.debug("Using aircraft %s", self.aircraft)
-        fdm.load_model(self.aircraft)
+        fdmexec.LoadModel(self.aircraft)
+        #fdm.load_model(self.aircraft)
 
         self.logger.debug("starting the aircraft's engines")
-        fdm.start_engines()
+        fdmexec.GetPropulsion().GetEngine(0).SetRunning(1)
+        #fdm.start_engines()
 
-        fdm.set_throttle(0.0)
+        fdmexec.GetFCS().SetThrottleCmd(0, 0.0)
+        #fdm.set_throttle(0.0)
 
         altitude_in_feet = convert_meters_to_feet(self.altitude)
         airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
@@ -295,28 +276,43 @@ class FDMBuilder(object):
         self.logger.debug("Initial airspeed: %f meters/second", self.airspeed)
         self.logger.debug("Initial heading: %f degrees", self.heading)
 
-        fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading)
+        fdmexec.GetIC().SetLatitudeDegIC(self.latitude)
+        fdmexec.GetIC().SetLongitudeDegIC(self.longitude)
+        fdmexec.GetIC().SetAltitudeASLFtIC(altitude_in_feet)
+        fdmexec.GetIC().SetPsiDegIC(self.heading)
+        fdmexec.GetIC().SetVtrueKtsIC(airspeed_in_knots)
+        #fdm.set_initial_condition(self.latitude, self.longitude, altitude_in_feet, airspeed_in_knots, self.heading)
 
-        if not fdm.run_ic():
+        if not fdmexec.RunIC():
             self.logger.error("Failed to run initial condition")
             return None
 
         if self.trim:
-            self.logger.debug("Trimming the aircraft")
-            trim_result = fdm.trim()
+            self.logger.warning("Trimming is not supported yet")
 
-            if not trim_result:
-                self.logger.warning("Failed to trim the aircraft")
+#        if self.trim:
+#            self.logger.debug("Trimming the aircraft")
+#            trim_result = fdm.trim()
+#
+#            if not trim_result:
+#                self.logger.warning("Failed to trim the aircraft")
 
         # Run the simulation for 1 second in order to make sure that everything
         # is ok
-        while fdm.get_sim_time() < 1.0:
-            if not fdm.run():
+#        while fdm.get_sim_time() < 1.0:
+        while fdmexec.GetSimTime() < 1.0:
+            fdmexec.ProcessMessage()
+            fdmexec.CheckIncrementalHold()
+
+            if not fdmexec.Run():
+#            if not fdm.run():
                 self.logger.error("Failed to execute initial run")
                 return None
 
-        fdm.print_simulation_configuration()
+        fdmexec.PrintSimulationConfiguration()
+        #fdm.print_simulation_configuration()
 
-        fdm.dump_state()
+        fdmexec.GetPropagate().DumpState()
+        #fdm.dump_state()
 
-        return JSBSimFDM(fdm, self.trim)
+        return fdmexec

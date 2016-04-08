@@ -162,21 +162,16 @@ def main():
     fdm_builder.heading = args.heading
 
     logger.debug("Creating the flight dynamics model")
-    fdm = fdm_builder.create_fdm()
+    fdmexec = fdm_builder.create_fdm()
 
-    if not fdm:
+    if not fdmexec:
         logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
         exit(1)
 
-    aircraft = Aircraft(args.aircraft)
-    fdm.update_aircraft(aircraft)
-
-    logger.debug("Engine thrust after simulation start %f", aircraft.engine.thrust)
-
-    simulator = Simulator(fdm, aircraft)
+    simulator = Simulator(fdmexec)
     #start the simulator paused
     logger.debug("The simulator will start paused")
-    simulator.paused = True
+    simulator.pause()
     simulator.start_trimmed = args.trim
 
     logger.debug("creating the simulator server")

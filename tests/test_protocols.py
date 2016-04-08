@@ -19,12 +19,13 @@ class TestControlsProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
         
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
         
-        controls_protocol = ControlsProtocol(fdm)
+        controls_protocol = ControlsProtocol(fdmexec)
              
         aileron = 0.1
         elevator = 0.2
@@ -43,7 +44,7 @@ class TestControlsProtocol(TestCase):
         port = 12345
              
         controls_protocol.datagramReceived(controls_datagram, (host, port))
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
         
         self.assertAlmostEqual(aircraft.controls.aileron, aileron, 3)
         self.assertAlmostEqual(aircraft.controls.elevator, elevator, 3)
@@ -55,16 +56,17 @@ class TestFDMDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
-        fdm_data_protocol = FDMDataProtocol(fdm, aircraft, "127.0.0.1", 12345)
+        fdm_data_protocol = FDMDataProtocol(fdmexec, aircraft, "127.0.0.1", 12345)
 
         fdm_data = fdm_data_protocol.get_fdm_data()
 
-        self.assertAlmostEqual(fdm_data.time, fdm.get_simulation_time(), 3)
+        self.assertAlmostEqual(fdm_data.time, fdmexec.GetSimTime(), 3)
         self.assertAlmostEqual(fdm_data.gps.latitude, aircraft.gps.latitude, 3)
         self.assertAlmostEqual(fdm_data.gps.longitude, aircraft.gps.longitude, 3)
         self.assertAlmostEqual(fdm_data.gps.altitude, aircraft.gps.altitude, 3)
@@ -175,10 +177,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -200,10 +203,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -223,10 +227,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -246,10 +251,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -267,10 +273,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -288,10 +295,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -309,10 +317,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -331,10 +340,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -355,10 +365,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -377,10 +388,11 @@ class TestSensorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
-
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+ 
         aircraft = Aircraft()
-        fdm.update_aircraft(aircraft)
+        aircraft.update_from_fdmexec(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         

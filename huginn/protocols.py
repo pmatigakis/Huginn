@@ -15,13 +15,40 @@ from huginn import fdm_pb2
 class ControlsProtocol(DatagramProtocol):
     """The ControlsProtocol is used to receive and update tha aircraft's
     controls"""
-    def __init__(self, fdm):
-        self.fdm = fdm
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
         self.logger = logging.getLogger("huginn")
 
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):
         """Set the new aircraft controls values"""
-        self.fdm.set_aircraft_controls(aileron, elevator, rudder, throttle)
+        if aileron > 1.0:
+            aileron = 1.0
+        elif aileron < -1.0:
+            aileron = -1.0
+
+        self.fdmexec.GetFCS().SetDaCmd(aileron)
+
+        if elevator > 1.0:
+            elevator = 1.0
+        elif elevator < -1.0:
+            elevator = -1.0
+
+        self.fdmexec.GetFCS().SetDeCmd(elevator)
+
+        if rudder > 1.0:
+            rudder = 1.0
+        elif rudder < -1.0:
+            rudder = -1.0
+
+        self.fdmexec.GetFCS().SetDrCmd(rudder)
+
+        if throttle > 1.0:
+            throttle = 1.0
+        elif throttle < 0.0:
+            throttle = 0.0
+
+        for i in range(self.fdmexec.GetPropulsion().GetNumEngines()):
+            self.fdmexec.GetFCS().SetThrottleCmd(i, throttle);
 
     def datagramReceived(self, datagram, addr):
         controls = fdm_pb2.Controls()
@@ -41,8 +68,8 @@ class ControlsProtocol(DatagramProtocol):
 class FDMDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
     data to the client"""
-    def __init__(self, fdm, aircraft, remote_host, port):
-        self.fdm = fdm
+    def __init__(self, fdmexec, aircraft, remote_host, port):
+        self.fdmexec = fdmexec
         self.aircraft = aircraft
         self.remote_host = remote_host
         self.port = port
@@ -51,7 +78,7 @@ class FDMDataProtocol(DatagramProtocol):
         """Return the fdm data"""
         fdm_data = fdm_pb2.FDMData()
 
-        fdm_data.time = self.fdm.get_simulation_time()
+        fdm_data.time = self.fdmexec.GetSimTime()
 
         fdm_data.gps.latitude = self.aircraft.gps.latitude
         fdm_data.gps.longitude = self.aircraft.gps.longitude

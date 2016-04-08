@@ -12,13 +12,12 @@ class TestSimulator(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
 
-        self.assertIsNotNone(fdm)
+        self.assertIsNotNone(fdmexec)
 
-        aircraft = Aircraft()
-
-        simulator = Simulator(fdm, aircraft)
+        simulator = Simulator(fdmexec)
 
         start_time = simulator.simulation_time
 
@@ -35,71 +34,60 @@ class TestSimulator(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
-        
-        fdm.update_aircraft = MagicMock()
-        
-        aircraft = Aircraft()
-        
-        simulator = Simulator(fdm, aircraft)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+    
+        simulator = Simulator(fdmexec)
         
         result = simulator.run()
         
         self.assertTrue(result)
-        fdm.update_aircraft.assert_called_once_with(aircraft)
 
     def test_reset(self):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
         
-        aircraft = Aircraft()
+        simulator = Simulator(fdmexec)
+        simulator.run()
         
-        aircraft.controls.aileron = 0.7
-        aircraft.controls.elevator = 0.7
-        aircraft.controls.rudder = 0.7
-        aircraft.controls.throttle = 0.7
-        
-        simulator = Simulator(fdm, aircraft)
-        
+        simulator.set_aircraft_controls(0.1, 0.2, 0.3, 0.4)
+        self.assertAlmostEqual(simulator.aircraft.controls.aileron, 0.1, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.elevator, 0.2, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.rudder, 0.3, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.throttle, 0.4, 3)
+
         result = simulator.reset()
         
         self.assertTrue(result)
-        self.assertAlmostEqual(aircraft.controls.aileron, 0.0, 3)
-        self.assertAlmostEqual(aircraft.controls.rudder, 0.0, 3)
-        self.assertAlmostEqual(aircraft.controls.throttle, 0.0, 3)
-        self.assertAlmostEqual(aircraft.controls.elevator, 0.0, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.aileron, 0.0, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.rudder, 0.0, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.throttle, 0.0, 3)
+        self.assertAlmostEqual(simulator.aircraft.controls.elevator, 0.0, 3)
 
     def test_step(self):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
         
-        fdm.update_aircraft = MagicMock()
-        
-        aircraft = Aircraft()
-        
-        simulator = Simulator(fdm, aircraft)
+        simulator = Simulator(fdmexec)
         
         result = simulator.step()
 
         self.assertTrue(result)
 
-        fdm.update_aircraft.assert_called_once_with(aircraft)
-
     def test_run_for(self):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm = fdm_builder.create_fdm()
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
         
-        fdm.update_aircraft = MagicMock()
-        
-        aircraft = Aircraft()
-        
-        simulator = Simulator(fdm, aircraft)
+        simulator = Simulator(fdmexec)
         
         time_to_run = 1.0
         
@@ -110,5 +98,3 @@ class TestSimulator(TestCase):
 
         self.assertTrue(result)
         self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 3)
-        
-        fdm.update_aircraft.assert_any_call(aircraft)

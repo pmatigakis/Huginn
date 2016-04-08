@@ -20,9 +20,9 @@ class SimulationServer(object):
     simulation data."""
     def __init__(self, simulator):
         self.simulator = simulator
-        self.fdm = simulator.fdm
+        self.fdmexec = simulator.fdmexec
         self.aircraft = simulator.aircraft
-        self.dt = simulator.fdm.get_dt()
+        self.dt = simulator.fdmexec.GetDeltaT()
         self.controls_port = configuration.CONTROLS_PORT
         self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
@@ -39,7 +39,7 @@ class SimulationServer(object):
 
         root.putChild("aircraft", aircraft_root)
         root.putChild("simulator", SimulatorControl(self.simulator))
-        root.putChild("fdm", FDMData(self.fdm, self.aircraft))
+        root.putChild("fdm", FDMData(self.fdmexec, self.aircraft))
         root.putChild("map", MapData())
 
         frontend = server.Site(root)
@@ -51,7 +51,7 @@ class SimulationServer(object):
         self.logger.debug("Starting aircraft controls server at port %d",
                      self.controls_port)
 
-        controls_protocol = ControlsProtocol(self.fdm)
+        controls_protocol = ControlsProtocol(self.fdmexec)
 
         reactor.listenUDP(self.controls_port, controls_protocol)  # @UndefinedVariable
 
@@ -61,7 +61,7 @@ class SimulationServer(object):
             client_address, client_port, dt = fdm_client
             self.logger.debug("Sending fdm data to %s:%d", client_address, client_port)
 
-            fdm_data_protocol = FDMDataProtocol(self.fdm, self.aircraft, client_address, client_port)
+            fdm_data_protocol = FDMDataProtocol(self.fdmexec, self.aircraft, client_address, client_port)
 
             reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable
 
