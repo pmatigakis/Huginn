@@ -22,8 +22,7 @@ class TestControlsProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
         
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
         
         controls_protocol = ControlsProtocol(fdmexec)
              
@@ -44,7 +43,6 @@ class TestControlsProtocol(TestCase):
         port = 12345
              
         controls_protocol.datagramReceived(controls_datagram, (host, port))
-        aircraft.update_from_fdmexec(fdmexec)
         
         self.assertAlmostEqual(aircraft.controls.aileron, aileron, 3)
         self.assertAlmostEqual(aircraft.controls.elevator, elevator, 3)
@@ -59,8 +57,7 @@ class TestFDMDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         fdm_data_protocol = FDMDataProtocol(fdmexec, aircraft, "127.0.0.1", 12345)
 
@@ -180,8 +177,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -206,8 +202,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -230,8 +225,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -254,8 +248,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -276,8 +269,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -298,8 +290,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -320,8 +311,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -343,8 +333,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -368,8 +357,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         
@@ -391,8 +379,7 @@ class TestSensorDataProtocol(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
  
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         factory = SensorDataFactory(aircraft)
         

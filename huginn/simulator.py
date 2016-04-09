@@ -22,9 +22,8 @@ class Simulator(object):
         aircraft: The aircraft object that will be updated every time the
                   simulator runs
         """
-        self.aircraft = Aircraft()
+        self.aircraft = Aircraft(fdmexec)
         self.fdmexec = fdmexec
-        self.aircraft.update_from_fdmexec(fdmexec)
         self.logger = logging.getLogger("huginn")
         self.start_trimmed = False
 
@@ -61,19 +60,13 @@ class Simulator(object):
             self.logger.error("Failed to run initial condition")
             return False
 
-        self.fdmexec.GetFCS().SetDaCmd(0.0)
         self.aircraft.controls.aileron = 0.0
-
-        self.fdmexec.GetFCS().SetDeCmd(0.0)
         self.aircraft.controls.elevator = 0.0
-
-        self.fdmexec.GetFCS().SetDrCmd(0.0)
         self.aircraft.controls.rudder = 0.0
 
         self.logger.debug("starting the aircraft's engines")
         self.fdmexec.GetPropulsion().GetEngine(0).SetRunning(1)
-
-        self.fdmexec.GetFCS().SetThrottleCmd(0, 0.0)
+        self.aircraft.controls.throttle = 0.0
 
 #        running = self.fdm.reset_to_initial_conditions()
 
@@ -87,8 +80,6 @@ class Simulator(object):
                 self.logger.error("Failed to execute initial run")
                 return False
 
-#        self.fdm.update_aircraft(self.aircraft)
-        self.aircraft.update_from_fdmexec(self.fdmexec)
 
         self.logger.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
 
@@ -109,8 +100,6 @@ class Simulator(object):
             raise SimulationError()
 
         if run_result:
-            self.aircraft.update_from_fdmexec(self.fdmexec)
-
             if was_paused:
                 self.pause()
 
@@ -153,38 +142,9 @@ class Simulator(object):
         return True
 
     def set_aircraft_controls(self, aileron, elevator, rudder, throttle):
-        if aileron > 1.0:
-            aileron = 1.0
-        elif aileron < -1.0:
-            aileron = -1.0
-
-        self.fdmexec.GetFCS().SetDaCmd(aileron)
         self.aircraft.controls.aileron = aileron
-
-        if elevator > 1.0:
-            elevator = 1.0
-        elif elevator < -1.0:
-            elevator = -1.0
-
-        self.fdmexec.GetFCS().SetDeCmd(elevator)
         self.aircraft.controls.elevator = elevator
-
-        if rudder > 1.0:
-            rudder = 1.0
-        elif rudder < -1.0:
-            rudder = -1.0
-
-        self.fdmexec.GetFCS().SetDrCmd(rudder)
         self.aircraft.controls.rudder = rudder
-
-        if throttle > 1.0:
-            throttle = 1.0
-        elif throttle < 0.0:
-            throttle = 0.0
-
-        for i in range(self.fdmexec.GetPropulsion().GetNumEngines()):
-            self.fdmexec.GetFCS().SetThrottleCmd(i, throttle);
-
         self.aircraft.controls.throttle = throttle
 
     def print_simulator_state(self):

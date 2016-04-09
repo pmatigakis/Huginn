@@ -24,8 +24,7 @@ class TestGPSData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = GPSData(aircraft)
 
@@ -45,8 +44,7 @@ class TestAccelerometerData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = AccelerometerData(aircraft)
 
@@ -64,8 +62,7 @@ class TestGyroscopeData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = GyroscopeData(aircraft)
 
@@ -83,8 +80,7 @@ class TestThermometerData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = ThermometerData(aircraft)
 
@@ -100,8 +96,7 @@ class TestPressureSensorData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = PressureSensorData(aircraft)
 
@@ -117,8 +112,7 @@ class TestPitotTubeData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = PitotTubeData(aircraft)
 
@@ -134,8 +128,7 @@ class TestInertialNavigationSystemData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = InertialNavigationSystemData(aircraft)
 
@@ -157,8 +150,7 @@ class TestEngineData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = EngineData(aircraft)
 
@@ -174,8 +166,7 @@ class TestFlightControlsData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = FlightControlsData(aircraft)
 
@@ -240,9 +231,6 @@ class TestSimulatorControl(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
-
         simulator = Simulator(fdmexec)
 
         simulator_control_resource = ResumeSimulatorCommand(simulator)
@@ -266,9 +254,6 @@ class TestSimulatorControl(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
-
         simulator = Simulator(fdmexec)
 
         simulator_control_resource = StepSimulatorCommand(simulator)
@@ -291,9 +276,6 @@ class TestSimulatorControl(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
-
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
 
         simulator = Simulator(fdmexec)
         simulator.run_for = MagicMock()
@@ -322,8 +304,7 @@ class TestFDMData(TestCase):
         fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft()
-        aircraft.update_from_fdmexec(fdmexec)
+        aircraft = Aircraft(fdmexec)
 
         resource = FDMData(fdmexec, aircraft)
 

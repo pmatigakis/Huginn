@@ -5,11 +5,14 @@ Requirements
 Huginn requires that you have installed the JSBsim flight dynamics model library. You can download this
 from http://jsbsim.sourceforge.net.
 
+You must also install the Python bindings for JSBSim. You can download it from this Github repository.
+https://github.com/pmatigakis/PyJSBSim
+
 The simulator can be installed by downloading the source code and running the following commands on the console.
 
 .. code-block:: bash
 
-    python setup.py build_ext install
+    python setup.py install
 
 This will download the requirements, build the JSBSim python extension and install Huginn. It is recommended to use a
 virtual environment to install Huginn.
