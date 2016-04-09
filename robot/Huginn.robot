@@ -6,7 +6,6 @@ Library    Collections
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
-${HUGINN_FRONTEND_URL}    http://localhost:5000
 
 *** Keywords ***
 Start Huginn
@@ -20,16 +19,6 @@ Start Huginn
     
 Stop Huginn
     Terminate All Processes
-
-Start Huginn Frontend
-    ${huginn_frontend_process_id} =    Start Process    huginn_web.py    shell=true
-    Process Should Be Running    ${huginn_frontend_process_id}
-    Create Session    huginn_web_server    ${HUGINN_FRONTEND_URL}
-    Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
-
-Start Huginn And The FrontEnd
-    Start Huginn
-    Start Huginn Frontend
 
 Resume Simulation Using The CLI
     ${result} =    Run Process    huginn_control.py resume  shell=true

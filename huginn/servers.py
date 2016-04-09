@@ -3,14 +3,15 @@ The huginn.servers module contains classes that can be used to create
 a simulator that transmits and receives data from/to the network
 """
 import logging
+import pkg_resources
 
 from twisted.internet import reactor
 from twisted.web import server
+from twisted.web.static import File
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
-from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData,\
-                        SimulatorServerRoot
+from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
 
@@ -33,7 +34,9 @@ class SimulationServer(object):
         """Initialize the web server"""
         self.logger.debug("Starting web server at port %d", self.web_server_port)
 
-        root = SimulatorServerRoot()
+        #root = SimulatorServerRoot()
+        path_to_static_data = pkg_resources.resource_filename("huginn", "static")  # @UndefinedVariable
+        root = File(path_to_static_data)
 
         aircraft_root = AircraftResource(self.aircraft)
 

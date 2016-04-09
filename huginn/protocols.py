@@ -48,7 +48,7 @@ class ControlsProtocol(DatagramProtocol):
             throttle = 0.0
 
         for i in range(self.fdmexec.GetPropulsion().GetNumEngines()):
-            self.fdmexec.GetFCS().SetThrottleCmd(i, throttle);
+            self.fdmexec.GetFCS().SetThrottleCmd(i, throttle)
 
     def datagramReceived(self, datagram, addr):
         controls = fdm_pb2.Controls()

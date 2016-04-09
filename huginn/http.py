@@ -527,18 +527,3 @@ class MapData(Resource):
                                              "application/json")
 
         return json.dumps({"result": "ok"})
-
-class SimulatorServerRoot(Resource):
-    """This is just a placeholder for the web server resources"""
-    isLeaf = False
-
-    def __init__(self):
-        Resource.__init__(self)
-
-    def getChild(self, name, request):
-        if name == '':
-            return self
-        return Resource.getChild(self, name, request)
-
-    def render_GET(self, request):
-        return "Huginn simulator server"

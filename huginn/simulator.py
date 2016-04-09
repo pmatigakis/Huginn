@@ -54,7 +54,7 @@ class Simulator(object):
 
         self.resume()
 
-        self.fdmexec.ResetToInitialConditions(0);
+        self.fdmexec.ResetToInitialConditions(0)
 
         if not self.fdmexec.RunIC():
             self.logger.error("Failed to run initial condition")

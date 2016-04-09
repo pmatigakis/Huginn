@@ -43,7 +43,7 @@ function init_map(){
 	}).addTo(map);
 	
 	var aircraftIcon = L.icon({
-	    iconUrl: 'static/images/32px-Airplane_silhouette.png',
+	    iconUrl: 'images/32px-Airplane_silhouette.png',
 
 	    iconSize:     [32, 32],
 	    iconAnchor:   [16, 16]
@@ -88,7 +88,7 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
 function start_data_update(){
 	setInterval(function(){
 		//$.getJSON("fdm", function(data){
-		$.getJSON("api/ins_data", function(data){
+		$.getJSON("aircraft/ins", function(data){
 			var roll = data["roll"];
 			var pitch = data["pitch"];
 			var airspeed = data["airspeed"];
@@ -128,6 +128,37 @@ function start_data_update(){
 	*/
 }
 
+function start_fdm_data_update(){
+	setInterval(function(){
+		//$.getJSON("fdm", function(data){
+		$.getJSON("fdm", function(data){
+			$("#time").text(data["time"]);
+			$("#dt").text(data["dt"]);
+			$("#latitude").text(data["latitude"]);
+			$("#longitude").text(data["longitude"]);
+			$("#altitude").text(data["altitude"]);
+			$("#airspeed").text(data["airspeed"]);
+			$("#heading").text(data["heading"]);
+			$("#x-acceleration").text(data["x_acceleration"]);
+			$("#y-acceleration").text(data["y_acceleration"]);
+			$("#z-acceleration").text(data["z_acceleration"]);
+			$("#roll-rate").text(data["roll_rate"]);
+			$("#pitch-rate").text(data["pitch_rate"]);
+			$("#yaw-rate").text(data["yaw_rate"]);
+			$("#temperature").text(data["temperature"]);
+			$("#static-pressure").text(data["static_pressure"]);
+			$("#total-pressure").text(data["total_pressure"]);
+			$("#roll").text(data["roll"]);
+			$("#pitch").text(data["pitch"]);
+			$("#thrust").text(data["thrust"]);
+			$("#aileron").text(data["aileron"]);
+			$("#elevator").text(data["elevator"]);
+			$("#rudder").text(data["rudder"]);
+			$("#throttle").text(data["throttle"]);
+		});
+	}, 1000);
+}
+
 $(document).ready(function(){
 	init_map();
 	
@@ -144,6 +175,7 @@ $(document).ready(function(){
 	myhud.draw();
 	
 	start_data_update();
+	start_fdm_data_update();
 	
 	follow_aircraft = $("#follow_aircraft").is(":checked");
 	
@@ -164,7 +196,7 @@ $(document).ready(function(){
 	        position : position,
 	        orientation : orientation,
 	        model : {
-	            uri : "static/models/Cesium_Air.glb",
+	            uri : "models/Cesium_Air.glb",
 	            minimumPixelSize : 128,
 	            maximumScale : 20000
 	        }
@@ -173,26 +205,14 @@ $(document).ready(function(){
 	viewer.trackedEntity = entity;
 	
 	$("#resume_button").click(function(){
-		$.getJSON("simulator/resume", function(data){
-			if(data["result"] != "ok"){
-				alert("Failed to resume simulation");
-			}
-		});
-	})
+		$.post("simulator/resume");
+	});
 	
 	$("#pause_button").click(function(){
-		$.getJSON("simulator/pause", function(data){
-			if(data["result"] != "ok"){
-				alert("Failed to pause the simulator");
-			}
-		});
-	})
+        $.post("simulator/pause");
+	});
 	
 	$("#reset_button").click(function(){
-		$.getJSON("simulator/reset", function(data){
-			if(data["result"] != "ok"){
-				alert("Failed to reset the simulator");
-			}
-		});
-	})
+		$.post("simulator/reset");
+	});
 })
