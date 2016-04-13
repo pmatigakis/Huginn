@@ -6,6 +6,7 @@ simulation
 import logging
 
 from huginn.aircraft import Aircraft
+from huginn.fdm import FDM
 
 class SimulationError(Exception):
     """SimulationError raised when an error occurs during simulation"""
@@ -24,6 +25,7 @@ class Simulator(object):
         """
         self.aircraft = Aircraft(fdmexec)
         self.fdmexec = fdmexec
+        self.fdm = FDM(fdmexec)
         self.logger = logging.getLogger("huginn")
         self.start_trimmed = False
 

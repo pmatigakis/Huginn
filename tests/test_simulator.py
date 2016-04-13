@@ -1,8 +1,5 @@
 from unittest import TestCase
 
-from mock.mock import MagicMock
-
-from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.fdm import FDMBuilder
 from huginn import configuration

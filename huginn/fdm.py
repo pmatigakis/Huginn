@@ -14,76 +14,6 @@ from huginn.unit_conversions import convert_meters_to_feet,\
     convert_rankine_to_kelvin, convert_psf_to_pascal,\
     convert_libra_to_newtons
 
-fdm_properties = [
-    "simulation/sim-time-sec",
-    "simulation/dt",
-    "position/lat-gc-deg",
-    "position/long-gc-deg",
-    "position/h-sl-ft",
-    "velocities/vtrue-kts",
-    "velocities/v-north-fps",
-    "velocities/v-east-fps",
-    "velocities/v-down-fps",
-    "velocities/u-fps",
-    "velocities/v-fps",
-    "velocities/w-fps",
-    "velocities/p-rad_sec",
-    "velocities/q-rad_sec",
-    "velocities/r-rad_sec",
-    "velocities/mach",
-    "accelerations/a-pilot-x-ft_sec2",
-    "accelerations/a-pilot-y-ft_sec2",
-    "accelerations/a-pilot-z-ft_sec2",
-    "accelerations/pdot-rad_sec2",
-    "accelerations/qdot-rad_sec2",
-    "accelerations/rdot-rad_sec2",
-    "accelerations/udot-ft_sec2",
-    "accelerations/vdot-ft_sec2",
-    "accelerations/wdot-ft_sec2",
-    "attitude/phi-rad",
-    "attitude/theta-rad",
-    "attitude/psi-rad",
-    "attitude/roll-rad",
-    "attitude/pitch-rad",
-    "attitude/heading-true-rad",
-    "propulsion/engine/engine-rpm",
-    "propulsion/engine/thrust-lbs",
-    "propulsion/engine/power-hp",
-    "atmosphere/T-R",
-    "atmosphere/T-sl-R",
-    "atmosphere/P-psf",
-    "atmosphere/P-sl-psf",
-    "aero/qbar-psf",
-    "fcs/elevator-cmd-norm",
-    "fcs/aileron-cmd-norm",
-    "fcs/rudder-cmd-norm",
-    "fcs/throttle-cmd-norm"
-]
-
-fdm_data_properties = [
-   "accelerations/a-pilot-x-ft_sec2",
-   "accelerations/a-pilot-y-ft_sec2",
-   "accelerations/a-pilot-z-ft_sec2",
-   "velocities/p-rad_sec",
-   "velocities/q-rad_sec",
-   "velocities/r-rad_sec",
-   "atmosphere/P-psf",
-   "aero/qbar-psf",
-   "atmosphere/T-R",
-   "position/lat-gc-deg",
-   "position/long-gc-deg",
-   "position/h-sl-ft",
-   "velocities/vtrue-kts",
-   "attitude/heading-true-rad"
-]
-
-controls_properties = [
-    "fcs/elevator-cmd-norm",
-    "fcs/aileron-cmd-norm",
-    "fcs/rudder-cmd-norm",
-    "fcs/throttle-cmd-norm"
-]
-
 class JSBSimFDM(object):
     def __init__(self, fdm, start_trimmed=False):
         self.fdm = fdm
@@ -316,3 +246,52 @@ class FDMBuilder(object):
         #fdm.dump_state()
 
         return fdmexec
+
+class Accelerations(object):
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def x(self):
+        """Returns the acceleration along the x axis of the aircraft in
+        meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
+
+    @property
+    def y(self):
+        """Returns the acceleration along the y axis of the aircraft in
+        meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
+
+    @property
+    def z(self):
+        """Returns the acceleration along the z axis of the aircraft in
+        meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+
+class Velocities(object):
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def roll_rate(self):
+        """Return the roll rate in degrees/sec"""
+        return degrees(self.fdmexec.GetPropagate().GetPQR(1))
+
+    @property
+    def pitch_rate(self):
+        """Return the pitch rate in degrees/sec"""
+        return degrees(self.fdmexec.GetPropagate().GetPQR(2))
+
+    @property
+    def yaw_rate(self):
+        """Return the yaw rate in degrees/sec"""
+        return degrees(self.fdmexec.GetPropagate().GetPQR(3))
+
+class FDM(object):
+    """The FDM object is a wrapper around the JSBSim objects that contains the
+    values of the flight dynamics model."""
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        self.accelerations = Accelerations(fdmexec)
+        self.velocities = Velocities(fdmexec)
