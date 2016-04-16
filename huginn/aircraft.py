@@ -8,57 +8,8 @@ from huginn.unit_conversions import convert_feet_to_meters,\
                                     convert_rankine_to_kelvin,\
                                     convert_psf_to_pascal,\
                                     convert_libra_to_newtons
-
-class GPS(object):
-    """The GPS class simulates the aircraft's GPS system."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def latitude(self):
-        """Returns the latitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLatitudeDeg()
-
-    @property
-    def longitude(self):
-        """Returns the longitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLongitudeDeg()
-
-    @property
-    def altitude(self):
-        """Returns the altitude in meters"""
-        return self.fdmexec.GetPropagate().GetAltitudeASLmeters()
-
-    @property
-    def airspeed(self):
-        """Returns the airspeed in meters per second"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
-
-    @property
-    def heading(self):
-        """Returns the heading in degrees"""
-        return degrees(self.fdmexec.GetPropagate().GetEuler(3))
-
-class Accelerometer(object):
-    """The Accelerometer class returns the acceleration measures on the body
-    frame."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def x_acceleration(self):
-        """Return the acceleration along the x axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
-
-    @property
-    def y_acceleration(self):
-        """Return the acceleration along the y axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
-
-    @property
-    def z_acceleration(self):
-        """Return the acceleration along the z axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+from huginn.sensors import Accelerometer
+from huginn.instruments import GPS
 
 class Gyroscope(object):
     """The Gyroscope class contains the angular velocities measured on the body axis."""
@@ -239,8 +190,8 @@ class Aircraft(object):
     def __init__(self, fdmexec, aircraft_type=None):
         self.fdmexec = fdmexec
         self.type = aircraft_type
-        self.gps = GPS(fdmexec)
         self.accelerometer = Accelerometer(fdmexec)
+        self.gps = GPS(fdmexec)
         self.gyroscope = Gyroscope(fdmexec)
         self.thermometer = Thermometer(fdmexec)
         self.pressure_sensor = PressureSensor(fdmexec)

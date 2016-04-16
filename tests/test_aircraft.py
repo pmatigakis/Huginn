@@ -1,7 +1,7 @@
 from unittest import TestCase
 import math
 
-from huginn.aircraft import Controls, Aircraft, GPS, Accelerometer,\
+from huginn.aircraft import Aircraft,\
                             Gyroscope, Thermometer, PressureSensor,\
                             PitotTube, InertialNavigationSystem,\
                             Engine
@@ -10,35 +10,6 @@ from huginn import configuration
 from huginn.unit_conversions import convert_feet_to_meters, convert_rankine_to_kelvin,\
                                     convert_psf_to_pascal, convert_libra_to_newtons
 
-class GPSTests(TestCase):
-    def test_gps(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        gps = GPS(fdmexec)
-
-        self.assertAlmostEqual(gps.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
-        self.assertAlmostEqual(gps.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
-        self.assertAlmostEqual(gps.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(gps.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
-        self.assertAlmostEqual(gps.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))
-
-class AccelerometerTests(TestCase):
-    def test_accelerometer(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        accelerometer = Accelerometer(fdmexec)
-
-        self.assertAlmostEqual(accelerometer.x_acceleration, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)))
-        self.assertAlmostEqual(accelerometer.y_acceleration, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)))
-        self.assertAlmostEqual(accelerometer.z_acceleration, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)))
 
 class GyroscopeTests(TestCase):
     def test_gyroscope(self):
