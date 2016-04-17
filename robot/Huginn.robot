@@ -6,6 +6,14 @@ Library    Collections
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
+${IC_X_ACCELERATION}    -2.3863054128
+${IC_Y_ACCELERATION}    0.300261528
+${IC_Z_ACCELERATION}    -8.0968135752
+${IC_ROLL_RATE}    1.153077531
+${IC_PITCH_RATE}    -3.2386438479
+${IC_YAW_RATE}    1.04547606
+${IC_PRESSURE}    97771.68
+${IC_TOTAL_PRESSURE}    98224.25
 
 *** Keywords ***
 Start Huginn
@@ -177,6 +185,8 @@ Is Valid FDM Data Response
     [Arguments]    ${response}
     Should be Equal As Strings    ${response.status_code}  200
     Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  time
+    JSON Response Should Contain item    ${response}  dt
     JSON Response Should Contain item    ${response}  latitude
     JSON Response Should Contain item    ${response}  longitude
     JSON Response Should Contain item    ${response}  altitude
@@ -212,6 +222,14 @@ Is FDM Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['throttle']}  0.00000  precision=4
     Value Close To    ${response.json()['roll']}  0.00000  5.0
     Value Close To    ${response.json()['pitch']}  0.00000  5.0
+    Should Be Equal As Numbers    ${response.json()['x_acceleration']}  ${IC_X_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['y_acceleration']}  ${IC_Y_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['z_acceleration']}  ${IC_Z_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['roll_rate']}  ${IC_ROLL_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['pitch_rate']}  ${IC_PITCH_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['yaw_rate']}  ${IC_YAW_RATE}  precision=4
+    Value Close To    ${response.json()['total_pressure']}  ${IC_TOTAL_PRESSURE}  1.0
+    Value Close To    ${response.json()['static_pressure']}  ${IC_PRESSURE}  1.0
 
 Get GPS Data
     Create Session    huginn_web_server  ${HUGINN_URL}

@@ -2,7 +2,7 @@
 The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
 
-from huginn.unit_conversions import convert_feet_to_meters 
+from huginn.unit_conversions import convert_feet_to_meters
 
 class Accelerometer(object):
     """The Accelerometer class returns the acceleration forces on the body
