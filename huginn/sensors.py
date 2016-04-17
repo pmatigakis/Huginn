@@ -3,7 +3,8 @@ The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
 from math import degrees
 
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import convert_feet_to_meters,\
+                                    convert_rankine_to_kelvin
 
 class Accelerometer(object):
     """The Accelerometer class returns the acceleration forces on the body
@@ -46,8 +47,20 @@ class Gyroscope(object):
         """The yaw rate in degrees/sec"""
         return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(3))
 
+class Thermometer(object):
+    """The Thermometer class contains the temperature measured by the
+    aircraft's sensors."""
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def temperature(self):
+        """return the temperature in Kelvin"""
+        return convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
+
 class Sensors(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.accelerometer = Accelerometer(fdmexec)
         self.gyroscope = Gyroscope(fdmexec)
+        self.thermometer = Thermometer(fdmexec)

@@ -86,7 +86,7 @@ class TestThermometerData(TestCase):
 
         thermometer_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.thermometer.temperature, thermometer_data["temperature"], 3)
+        self.assertAlmostEqual(aircraft.sensors.thermometer.temperature, thermometer_data["temperature"], 3)
 
 class TestPressureSensorData(TestCase):
     def test_get_pressure_sensor_data(self):
@@ -323,7 +323,7 @@ class TestFDMData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, fdm_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, fdm_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.yaw_rate, fdm_data["yaw_rate"], 3)
-        self.assertAlmostEqual(aircraft.thermometer.temperature, fdm_data["temperature"], 3)
+        self.assertAlmostEqual(aircraft.sensors.thermometer.temperature, fdm_data["temperature"], 3)
         self.assertAlmostEqual(aircraft.pressure_sensor.pressure, fdm_data["static_pressure"], 3)
         self.assertAlmostEqual(aircraft.pitot_tube.pressure, fdm_data["total_pressure"], 3)
         self.assertAlmostEqual(aircraft.inertial_navigation_system.roll, fdm_data["roll"], 3)

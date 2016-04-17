@@ -11,17 +11,6 @@ from huginn.unit_conversions import convert_feet_to_meters,\
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
 
-class Thermometer(object):
-    """The Thermometer class contains the temperature measured by the
-    aircraft's sensors."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def temperature(self):
-        """return the temperature in Kelvin"""
-        return convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
-
 class PressureSensor(object):
     """The PressureSensor class contains the static presured measured by the
     aircraft's sensors."""
@@ -172,7 +161,6 @@ class Aircraft(object):
         self.type = aircraft_type
         self.sensors = Sensors(fdmexec)
         self.instruments = Instruments(fdmexec)
-        self.thermometer = Thermometer(fdmexec)
         self.pressure_sensor = PressureSensor(fdmexec)
         self.pitot_tube = PitotTube(fdmexec)
         self.inertial_navigation_system = InertialNavigationSystem(fdmexec)

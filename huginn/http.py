@@ -134,7 +134,7 @@ class ThermometerData(FlightDataResource):
 
     def get_flight_data(self):
         thermometer_data = {
-            "temperature": self.aircraft.thermometer.temperature,
+            "temperature": self.aircraft.sensors.thermometer.temperature,
         }
 
         #print("temperature", thermometer_data["temperature"], convert_rankine_to_kelvin(self.aircraft.fdmexec.GetPropertyValue("atmosphere/T-R")))
@@ -261,7 +261,7 @@ class FDMData(FlightDataResource):
             "roll_rate": self.aircraft.sensors.gyroscope.roll_rate,
             "pitch_rate": self.aircraft.sensors.gyroscope.pitch_rate,
             "yaw_rate": self.aircraft.sensors.gyroscope.yaw_rate,
-            "temperature": self.aircraft.thermometer.temperature,
+            "temperature": self.aircraft.sensors.thermometer.temperature,
             "static_pressure": self.aircraft.pressure_sensor.pressure,
             "total_pressure": self.aircraft.pitot_tube.pressure,
             "roll": self.aircraft.inertial_navigation_system.roll,

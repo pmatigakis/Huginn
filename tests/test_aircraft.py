@@ -2,25 +2,13 @@ from unittest import TestCase
 import math
 
 from huginn.aircraft import Aircraft,\
-                            Thermometer, PressureSensor,\
+                            PressureSensor,\
                             PitotTube, InertialNavigationSystem,\
                             Engine
 from huginn.fdm import FDMBuilder
 from huginn import configuration
-from huginn.unit_conversions import convert_feet_to_meters, convert_rankine_to_kelvin,\
+from huginn.unit_conversions import convert_feet_to_meters,\
                                     convert_psf_to_pascal, convert_libra_to_newtons
-
-class ThermometerTests(TestCase):
-    def test_thermometer(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        thermometer = Thermometer(fdmexec)
-
-        self.assertAlmostEqual(thermometer.temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
 
 class PressureSensorTests(TestCase):
     def test_presure_sensor(self):

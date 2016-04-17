@@ -94,7 +94,7 @@ class FDMDataProtocol(DatagramProtocol):
         fdm_data.gyroscope.pitch_rate = self.aircraft.sensors.gyroscope.pitch_rate
         fdm_data.gyroscope.yaw_rate = self.aircraft.sensors.gyroscope.yaw_rate
 
-        fdm_data.thermometer.temperature = self.aircraft.thermometer.temperature
+        fdm_data.thermometer.temperature = self.aircraft.sensors.thermometer.temperature
 
         fdm_data.pressure_sensor.pressure = self.aircraft.pressure_sensor.pressure
         fdm_data.pitot_tube.pressure = self.aircraft.pitot_tube.pressure
@@ -221,7 +221,7 @@ class SensorDataProtocol(Int32StringReceiver):
     def fill_thermometer_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.THERMOMETER_REQUEST
 
-        sensor_data_response.thermometer.temperature = self.factory.aircraft.thermometer.temperature
+        sensor_data_response.thermometer.temperature = self.factory.aircraft.sensors.thermometer.temperature
 
     def fill_pressure_sensor_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.PRESSURE_SENSOR_REQUEST

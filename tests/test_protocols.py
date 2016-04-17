@@ -75,7 +75,7 @@ class TestFDMDataProtocol(TestCase):
         self.assertAlmostEqual(fdm_data.gyroscope.roll_rate, aircraft.sensors.gyroscope.roll_rate, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.pitch_rate, aircraft.sensors.gyroscope.pitch_rate, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.yaw_rate, aircraft.sensors.gyroscope.yaw_rate, 3)
-        self.assertAlmostEqual(fdm_data.thermometer.temperature, aircraft.thermometer.temperature, 3)
+        self.assertAlmostEqual(fdm_data.thermometer.temperature, aircraft.sensors.thermometer.temperature, 3)
         self.assertAlmostEqual(fdm_data.pressure_sensor.pressure, aircraft.pressure_sensor.pressure, 3)
         self.assertAlmostEqual(fdm_data.pitot_tube.pressure, aircraft.pitot_tube.pressure, 3)
         self.assertAlmostEqual(fdm_data.ins.roll, aircraft.inertial_navigation_system.roll, 3)
@@ -258,7 +258,7 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_thermometer_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.thermometer.temperature, aircraft.thermometer.temperature)
+        self.assertAlmostEqual(sensor_data_response.thermometer.temperature, aircraft.sensors.thermometer.temperature)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.THERMOMETER_REQUEST)
 
