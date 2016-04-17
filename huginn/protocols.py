@@ -90,9 +90,9 @@ class FDMDataProtocol(DatagramProtocol):
         fdm_data.accelerometer.y_acceleration = self.aircraft.sensors.accelerometer.y
         fdm_data.accelerometer.z_acceleration = self.aircraft.sensors.accelerometer.z
 
-        fdm_data.gyroscope.roll_rate = self.aircraft.gyroscope.roll_rate
-        fdm_data.gyroscope.pitch_rate = self.aircraft.gyroscope.pitch_rate
-        fdm_data.gyroscope.yaw_rate = self.aircraft.gyroscope.yaw_rate
+        fdm_data.gyroscope.roll_rate = self.aircraft.sensors.gyroscope.roll_rate
+        fdm_data.gyroscope.pitch_rate = self.aircraft.sensors.gyroscope.pitch_rate
+        fdm_data.gyroscope.yaw_rate = self.aircraft.sensors.gyroscope.yaw_rate
 
         fdm_data.thermometer.temperature = self.aircraft.thermometer.temperature
 
@@ -214,9 +214,9 @@ class SensorDataProtocol(Int32StringReceiver):
     def fill_gyroscope_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GYROSCOPE_REQUEST
 
-        sensor_data_response.gyroscope.roll_rate = self.factory.aircraft.gyroscope.roll_rate
-        sensor_data_response.gyroscope.pitch_rate = self.factory.aircraft.gyroscope.pitch_rate
-        sensor_data_response.gyroscope.yaw_rate = self.factory.aircraft.gyroscope.yaw_rate
+        sensor_data_response.gyroscope.roll_rate = self.factory.aircraft.sensors.gyroscope.roll_rate
+        sensor_data_response.gyroscope.pitch_rate = self.factory.aircraft.sensors.gyroscope.pitch_rate
+        sensor_data_response.gyroscope.yaw_rate = self.factory.aircraft.sensors.gyroscope.yaw_rate
 
     def fill_thermometer_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.THERMOMETER_REQUEST

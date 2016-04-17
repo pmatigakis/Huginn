@@ -11,26 +11,6 @@ from huginn.unit_conversions import convert_feet_to_meters,\
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
 
-class Gyroscope(object):
-    """The Gyroscope class contains the angular velocities measured on the body axis."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def roll_rate(self):
-        """The roll rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(1))
-
-    @property
-    def pitch_rate(self):
-        """The pitch rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(2))
-
-    @property
-    def yaw_rate(self):
-        """The yaw rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(3))
-
 class Thermometer(object):
     """The Thermometer class contains the temperature measured by the
     aircraft's sensors."""
@@ -192,7 +172,6 @@ class Aircraft(object):
         self.type = aircraft_type
         self.sensors = Sensors(fdmexec)
         self.instruments = Instruments(fdmexec)
-        self.gyroscope = Gyroscope(fdmexec)
         self.thermometer = Thermometer(fdmexec)
         self.pressure_sensor = PressureSensor(fdmexec)
         self.pitot_tube = PitotTube(fdmexec)

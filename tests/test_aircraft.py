@@ -2,28 +2,13 @@ from unittest import TestCase
 import math
 
 from huginn.aircraft import Aircraft,\
-                            Gyroscope, Thermometer, PressureSensor,\
+                            Thermometer, PressureSensor,\
                             PitotTube, InertialNavigationSystem,\
                             Engine
 from huginn.fdm import FDMBuilder
 from huginn import configuration
 from huginn.unit_conversions import convert_feet_to_meters, convert_rankine_to_kelvin,\
                                     convert_psf_to_pascal, convert_libra_to_newtons
-
-
-class GyroscopeTests(TestCase):
-    def test_gyroscope(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        gyroscope = Gyroscope(fdmexec)
-
-        self.assertAlmostEqual(gyroscope.roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)))
-        self.assertAlmostEqual(gyroscope.pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)))
-        self.assertAlmostEqual(gyroscope.yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)))
 
 class ThermometerTests(TestCase):
     def test_thermometer(self):
