@@ -30,11 +30,11 @@ class TestGPSData(TestCase):
 
         gps_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.gps.latitude, gps_data["latitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.longitude, gps_data["longitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.altitude, gps_data["altitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.airspeed, gps_data["airspeed"], 3)
-        self.assertAlmostEqual(aircraft.gps.heading, gps_data["heading"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.latitude, gps_data["latitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.longitude, gps_data["longitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.altitude, gps_data["altitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.airspeed, gps_data["airspeed"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.heading, gps_data["heading"], 3)
 
 class TestAccelerometerData(TestCase):
     def test_get_accelerometer_data(self):
@@ -50,9 +50,9 @@ class TestAccelerometerData(TestCase):
 
         accelerometer_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.accelerometer.x_acceleration, accelerometer_data["x_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.accelerometer.y_acceleration, accelerometer_data["y_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.accelerometer.z_acceleration, accelerometer_data["z_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.x, accelerometer_data["x_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.y, accelerometer_data["y_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.z, accelerometer_data["z_acceleration"], 3)
 
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
@@ -134,11 +134,11 @@ class TestInertialNavigationSystemData(TestCase):
 
         inertial_navigation_system_data = resource.get_flight_data()
 
-        self.assertAlmostEqual(aircraft.gps.latitude, inertial_navigation_system_data["latitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.longitude, inertial_navigation_system_data["longitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.altitude, inertial_navigation_system_data["altitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.airspeed, inertial_navigation_system_data["airspeed"], 3)
-        self.assertAlmostEqual(aircraft.gps.heading, inertial_navigation_system_data["heading"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.latitude, inertial_navigation_system_data["latitude"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.longitude, inertial_navigation_system_data["longitude"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.altitude, inertial_navigation_system_data["altitude"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.airspeed, inertial_navigation_system_data["airspeed"], 3)
+        self.assertAlmostEqual(aircraft.inertial_navigation_system.heading, inertial_navigation_system_data["heading"], 3)
         self.assertAlmostEqual(aircraft.inertial_navigation_system.roll, inertial_navigation_system_data["roll"], 3)
         self.assertAlmostEqual(aircraft.inertial_navigation_system.pitch, inertial_navigation_system_data["pitch"], 3)
 
@@ -312,14 +312,14 @@ class TestFDMData(TestCase):
 
         self.assertAlmostEqual(fdmexec.GetSimTime(), fdm_data["time"], 3)
         self.assertAlmostEqual(fdmexec.GetDeltaT(), fdm_data["dt"], 3)
-        self.assertAlmostEqual(aircraft.gps.latitude, fdm_data["latitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.longitude, fdm_data["longitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.altitude, fdm_data["altitude"], 3)
-        self.assertAlmostEqual(aircraft.gps.airspeed, fdm_data["airspeed"], 3)
-        self.assertAlmostEqual(aircraft.gps.heading, fdm_data["heading"], 3)
-        self.assertAlmostEqual(aircraft.accelerometer.x_acceleration, fdm_data["x_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.accelerometer.y_acceleration, fdm_data["y_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.accelerometer.z_acceleration, fdm_data["z_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.latitude, fdm_data["latitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.longitude, fdm_data["longitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.altitude, fdm_data["altitude"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.airspeed, fdm_data["airspeed"], 3)
+        self.assertAlmostEqual(aircraft.instruments.gps.heading, fdm_data["heading"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.x, fdm_data["x_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.y, fdm_data["y_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.z, fdm_data["z_acceleration"], 3)
         self.assertAlmostEqual(aircraft.gyroscope.roll_rate, fdm_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.gyroscope.pitch_rate, fdm_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.gyroscope.yaw_rate, fdm_data["yaw_rate"], 3)

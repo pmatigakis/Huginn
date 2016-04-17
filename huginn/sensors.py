@@ -11,16 +11,21 @@ class Accelerometer(object):
         self.fdmexec = fdmexec
 
     @property
-    def x_acceleration(self):
+    def x(self):
         """Return the acceleration along the x axis in meters/sec^2"""
         return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
 
     @property
-    def y_acceleration(self):
+    def y(self):
         """Return the acceleration along the y axis in meters/sec^2"""
         return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
 
     @property
-    def z_acceleration(self):
+    def z(self):
         """Return the acceleration along the z axis in meters/sec^2"""
         return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+
+class Sensors(object):
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        self.accelerometer = Accelerometer(fdmexec)

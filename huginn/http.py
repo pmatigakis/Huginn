@@ -70,11 +70,11 @@ class GPSData(FlightDataResource):
 
     def get_flight_data(self):
         gps_data = {
-            "latitude": self.aircraft.gps.latitude,
-            "longitude": self.aircraft.gps.longitude,
-            "altitude": self.aircraft.gps.altitude,
-            "airspeed": self.aircraft.gps.airspeed,
-            "heading": self.aircraft.gps.heading
+            "latitude": self.aircraft.instruments.gps.latitude,
+            "longitude": self.aircraft.instruments.gps.longitude,
+            "altitude": self.aircraft.instruments.gps.altitude,
+            "airspeed": self.aircraft.instruments.gps.airspeed,
+            "heading": self.aircraft.instruments.gps.heading
         }
 
         #print("latitude", gps_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
@@ -94,9 +94,9 @@ class AccelerometerData(FlightDataResource):
 
     def get_flight_data(self):
         accelerometer_data = {
-            "x_acceleration": self.aircraft.accelerometer.x_acceleration,
-            "y_acceleration": self.aircraft.accelerometer.y_acceleration,
-            "z_acceleration": self.aircraft.accelerometer.z_acceleration
+            "x_acceleration": self.aircraft.sensors.accelerometer.x,
+            "y_acceleration": self.aircraft.sensors.accelerometer.y,
+            "z_acceleration": self.aircraft.sensors.accelerometer.z
         }
 
         #print("x_acc", accelerometer_data["x_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-x-ft_sec2")))
@@ -250,14 +250,14 @@ class FDMData(FlightDataResource):
         flight_data = {
             "time": self.fdmexec.GetSimTime(),
             "dt": self.fdmexec.GetDeltaT(),
-            "latitude": self.aircraft.gps.latitude,
-            "longitude": self.aircraft.gps.longitude,
-            "altitude": self.aircraft.gps.altitude,
-            "airspeed": self.aircraft.gps.airspeed,
-            "heading": self.aircraft.gps.heading,
-            "x_acceleration": self.aircraft.accelerometer.x_acceleration,
-            "y_acceleration": self.aircraft.accelerometer.y_acceleration,
-            "z_acceleration": self.aircraft.accelerometer.z_acceleration,
+            "latitude": self.aircraft.instruments.gps.latitude,
+            "longitude": self.aircraft.instruments.gps.longitude,
+            "altitude": self.aircraft.instruments.gps.altitude,
+            "airspeed": self.aircraft.instruments.gps.airspeed,
+            "heading": self.aircraft.instruments.gps.heading,
+            "x_acceleration": self.aircraft.sensors.accelerometer.x,
+            "y_acceleration": self.aircraft.sensors.accelerometer.y,
+            "z_acceleration": self.aircraft.sensors.accelerometer.z,
             "roll_rate": self.aircraft.gyroscope.roll_rate,
             "pitch_rate": self.aircraft.gyroscope.pitch_rate,
             "yaw_rate": self.aircraft.gyroscope.yaw_rate,

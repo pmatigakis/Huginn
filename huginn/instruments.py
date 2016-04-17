@@ -1,5 +1,5 @@
 """
-The hugin.sensors module contains classes that simulate the aircraft's
+The hugin.instruments module contains classes that simulate the aircraft's
 instruments
 """
 
@@ -36,3 +36,8 @@ class GPS(object):
     def heading(self):
         """Returns the heading in degrees"""
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+
+class Instruments(object):
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        self.gps = GPS(fdmexec)

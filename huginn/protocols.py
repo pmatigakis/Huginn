@@ -80,15 +80,15 @@ class FDMDataProtocol(DatagramProtocol):
 
         fdm_data.time = self.fdmexec.GetSimTime()
 
-        fdm_data.gps.latitude = self.aircraft.gps.latitude
-        fdm_data.gps.longitude = self.aircraft.gps.longitude
-        fdm_data.gps.altitude = self.aircraft.gps.altitude
-        fdm_data.gps.airspeed = self.aircraft.gps.airspeed
-        fdm_data.gps.heading = self.aircraft.gps.heading
+        fdm_data.gps.latitude = self.aircraft.instruments.gps.latitude
+        fdm_data.gps.longitude = self.aircraft.instruments.gps.longitude
+        fdm_data.gps.altitude = self.aircraft.instruments.gps.altitude
+        fdm_data.gps.airspeed = self.aircraft.instruments.gps.airspeed
+        fdm_data.gps.heading = self.aircraft.instruments.gps.heading
 
-        fdm_data.accelerometer.x_acceleration = self.aircraft.accelerometer.x_acceleration
-        fdm_data.accelerometer.y_acceleration = self.aircraft.accelerometer.y_acceleration
-        fdm_data.accelerometer.z_acceleration = self.aircraft.accelerometer.z_acceleration
+        fdm_data.accelerometer.x_acceleration = self.aircraft.sensors.accelerometer.x
+        fdm_data.accelerometer.y_acceleration = self.aircraft.sensors.accelerometer.y
+        fdm_data.accelerometer.z_acceleration = self.aircraft.sensors.accelerometer.z
 
         fdm_data.gyroscope.roll_rate = self.aircraft.gyroscope.roll_rate
         fdm_data.gyroscope.pitch_rate = self.aircraft.gyroscope.pitch_rate
@@ -198,18 +198,18 @@ class SensorDataProtocol(Int32StringReceiver):
     def fill_gps_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GPS_REQUEST
 
-        sensor_data_response.gps.latitude = self.factory.aircraft.gps.latitude
-        sensor_data_response.gps.longitude = self.factory.aircraft.gps.longitude
-        sensor_data_response.gps.altitude = self.factory.aircraft.gps.altitude
-        sensor_data_response.gps.airspeed = self.factory.aircraft.gps.airspeed
-        sensor_data_response.gps.heading = self.factory.aircraft.gps.heading
+        sensor_data_response.gps.latitude = self.factory.aircraft.instruments.gps.latitude
+        sensor_data_response.gps.longitude = self.factory.aircraft.instruments.gps.longitude
+        sensor_data_response.gps.altitude = self.factory.aircraft.instruments.gps.altitude
+        sensor_data_response.gps.airspeed = self.factory.aircraft.instruments.gps.airspeed
+        sensor_data_response.gps.heading = self.factory.aircraft.instruments.gps.heading
 
     def fill_accelerometer_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.ACCELEROMETER_REQUEST
 
-        sensor_data_response.accelerometer.x_acceleration = self.factory.aircraft.accelerometer.x_acceleration
-        sensor_data_response.accelerometer.y_acceleration = self.factory.aircraft.accelerometer.y_acceleration
-        sensor_data_response.accelerometer.z_acceleration = self.factory.aircraft.accelerometer.z_acceleration
+        sensor_data_response.accelerometer.x_acceleration = self.factory.aircraft.sensors.accelerometer.x
+        sensor_data_response.accelerometer.y_acceleration = self.factory.aircraft.sensors.accelerometer.y
+        sensor_data_response.accelerometer.z_acceleration = self.factory.aircraft.sensors.accelerometer.z
 
     def fill_gyroscope_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GYROSCOPE_REQUEST

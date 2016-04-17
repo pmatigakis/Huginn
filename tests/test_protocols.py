@@ -64,14 +64,14 @@ class TestFDMDataProtocol(TestCase):
         fdm_data = fdm_data_protocol.get_fdm_data()
 
         self.assertAlmostEqual(fdm_data.time, fdmexec.GetSimTime(), 3)
-        self.assertAlmostEqual(fdm_data.gps.latitude, aircraft.gps.latitude, 3)
-        self.assertAlmostEqual(fdm_data.gps.longitude, aircraft.gps.longitude, 3)
-        self.assertAlmostEqual(fdm_data.gps.altitude, aircraft.gps.altitude, 3)
-        self.assertAlmostEqual(fdm_data.gps.airspeed, aircraft.gps.airspeed, 3)
-        self.assertAlmostEqual(fdm_data.gps.heading, aircraft.gps.heading, 3)
-        self.assertAlmostEqual(fdm_data.accelerometer.x_acceleration, aircraft.accelerometer.x_acceleration, 3)
-        self.assertAlmostEqual(fdm_data.accelerometer.y_acceleration, aircraft.accelerometer.y_acceleration, 3)
-        self.assertAlmostEqual(fdm_data.accelerometer.z_acceleration, aircraft.accelerometer.z_acceleration, 3)
+        self.assertAlmostEqual(fdm_data.gps.latitude, aircraft.instruments.gps.latitude, 3)
+        self.assertAlmostEqual(fdm_data.gps.longitude, aircraft.instruments.gps.longitude, 3)
+        self.assertAlmostEqual(fdm_data.gps.altitude, aircraft.instruments.gps.altitude, 3)
+        self.assertAlmostEqual(fdm_data.gps.airspeed, aircraft.instruments.gps.airspeed, 3)
+        self.assertAlmostEqual(fdm_data.gps.heading, aircraft.instruments.gps.heading, 3)
+        self.assertAlmostEqual(fdm_data.accelerometer.x_acceleration, aircraft.sensors.accelerometer.x, 3)
+        self.assertAlmostEqual(fdm_data.accelerometer.y_acceleration, aircraft.sensors.accelerometer.y, 3)
+        self.assertAlmostEqual(fdm_data.accelerometer.z_acceleration, aircraft.sensors.accelerometer.z, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.roll_rate, aircraft.gyroscope.roll_rate, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.pitch_rate, aircraft.gyroscope.pitch_rate, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.yaw_rate, aircraft.gyroscope.yaw_rate, 3)
@@ -187,11 +187,11 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_gps_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.gps.latitude, aircraft.gps.latitude)
-        self.assertAlmostEqual(sensor_data_response.gps.longitude, aircraft.gps.longitude)
-        self.assertAlmostEqual(sensor_data_response.gps.altitude, aircraft.gps.altitude)
-        self.assertAlmostEqual(sensor_data_response.gps.airspeed, aircraft.gps.airspeed)
-        self.assertAlmostEqual(sensor_data_response.gps.heading, aircraft.gps.heading)
+        self.assertAlmostEqual(sensor_data_response.gps.latitude, aircraft.instruments.gps.latitude)
+        self.assertAlmostEqual(sensor_data_response.gps.longitude, aircraft.instruments.gps.longitude)
+        self.assertAlmostEqual(sensor_data_response.gps.altitude, aircraft.instruments.gps.altitude)
+        self.assertAlmostEqual(sensor_data_response.gps.airspeed, aircraft.instruments.gps.airspeed)
+        self.assertAlmostEqual(sensor_data_response.gps.heading, aircraft.instruments.gps.heading)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.GPS_REQUEST)
 
@@ -212,9 +212,9 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_accelerometer_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.accelerometer.x_acceleration, aircraft.accelerometer.x_acceleration)
-        self.assertAlmostEqual(sensor_data_response.accelerometer.y_acceleration, aircraft.accelerometer.y_acceleration)
-        self.assertAlmostEqual(sensor_data_response.accelerometer.z_acceleration, aircraft.accelerometer.z_acceleration)
+        self.assertAlmostEqual(sensor_data_response.accelerometer.x_acceleration, aircraft.sensors.accelerometer.x)
+        self.assertAlmostEqual(sensor_data_response.accelerometer.y_acceleration, aircraft.sensors.accelerometer.y)
+        self.assertAlmostEqual(sensor_data_response.accelerometer.z_acceleration, aircraft.sensors.accelerometer.z)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.ACCELEROMETER_REQUEST)
 
@@ -393,10 +393,10 @@ class TestSensorDataProtocol(TestCase):
 
         expected_sensor_data_response = fdm_pb2.SensorDataResponse()
         expected_sensor_data_response.type = fdm_pb2.GPS_REQUEST
-        expected_sensor_data_response.gps.latitude = aircraft.gps.latitude
-        expected_sensor_data_response.gps.longitude = aircraft.gps.longitude
-        expected_sensor_data_response.gps.altitude = aircraft.gps.altitude
-        expected_sensor_data_response.gps.airspeed = aircraft.gps.airspeed
-        expected_sensor_data_response.gps.heading = aircraft.gps.heading
+        expected_sensor_data_response.gps.latitude = aircraft.instruments.gps.latitude
+        expected_sensor_data_response.gps.longitude = aircraft.instruments.gps.longitude
+        expected_sensor_data_response.gps.altitude = aircraft.instruments.gps.altitude
+        expected_sensor_data_response.gps.airspeed = aircraft.instruments.gps.airspeed
+        expected_sensor_data_response.gps.heading = aircraft.instruments.gps.heading
         
         protocol.send_response_string.assert_called_once_with(expected_sensor_data_response.SerializeToString())

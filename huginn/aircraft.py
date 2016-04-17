@@ -8,8 +8,8 @@ from huginn.unit_conversions import convert_feet_to_meters,\
                                     convert_rankine_to_kelvin,\
                                     convert_psf_to_pascal,\
                                     convert_libra_to_newtons
-from huginn.sensors import Accelerometer
-from huginn.instruments import GPS
+from huginn.sensors import Sensors
+from huginn.instruments import Instruments
 
 class Gyroscope(object):
     """The Gyroscope class contains the angular velocities measured on the body axis."""
@@ -190,8 +190,8 @@ class Aircraft(object):
     def __init__(self, fdmexec, aircraft_type=None):
         self.fdmexec = fdmexec
         self.type = aircraft_type
-        self.accelerometer = Accelerometer(fdmexec)
-        self.gps = GPS(fdmexec)
+        self.sensors = Sensors(fdmexec)
+        self.instruments = Instruments(fdmexec)
         self.gyroscope = Gyroscope(fdmexec)
         self.thermometer = Thermometer(fdmexec)
         self.pressure_sensor = PressureSensor(fdmexec)
@@ -206,11 +206,11 @@ class Aircraft(object):
         print("")
         print("Position")
         print("========")
-        print("Latitude: %f degrees" % self.gps.latitude)
-        print("Longitude: %f degrees" % self.gps.longitude)
-        print("Altitude: %f meters" % self.gps.altitude)
-        print("Airspeed: %f meters/second" % self.gps.airspeed)
-        print("Heading: %f degrees" % self.gps.heading)
+        print("Latitude: %f degrees" % self.intruments.gps.latitude)
+        print("Longitude: %f degrees" % self.intruments.gps.longitude)
+        print("Altitude: %f meters" % self.intruments.gps.altitude)
+        print("Airspeed: %f meters/second" % self.intruments.gps.airspeed)
+        print("Heading: %f degrees" % self.intruments.gps.heading)
         print("")
         print("Orientation")
         print("===========")
