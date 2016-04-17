@@ -151,7 +151,7 @@ class PressureSensorData(FlightDataResource):
 
     def get_flight_data(self):
         pressure_sensor_data = {
-            "static_pressure": self.aircraft.pressure_sensor.pressure,
+            "static_pressure": self.aircraft.sensors.pressure_sensor.pressure,
         }
 
         #print("static_pressule", pressure_sensor_data["static_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("atmosphere/P-psf")))
@@ -167,7 +167,7 @@ class PitotTubeData(FlightDataResource):
 
     def get_flight_data(self):
         pitot_tube_data = {
-            "total_pressure": self.aircraft.pitot_tube.pressure,
+            "total_pressure": self.aircraft.sensors.pitot_tube.pressure,
         }
 
         #print("total pressure", pitot_tube_data["total_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("aero/qbar-psf")))
@@ -184,13 +184,13 @@ class InertialNavigationSystemData(FlightDataResource):
 
     def get_flight_data(self):
         inertial_navigation_system_data = {
-            "latitude": self.aircraft.inertial_navigation_system.latitude,
-            "longitude": self.aircraft.inertial_navigation_system.longitude,
-            "altitude": self.aircraft.inertial_navigation_system.altitude,
-            "airspeed": self.aircraft.inertial_navigation_system.airspeed,
-            "heading": self.aircraft.inertial_navigation_system.heading,
-            "roll": self.aircraft.inertial_navigation_system.roll,
-            "pitch": self.aircraft.inertial_navigation_system.pitch,
+            "latitude": self.aircraft.sensors.inertial_navigation_system.latitude,
+            "longitude": self.aircraft.sensors.inertial_navigation_system.longitude,
+            "altitude": self.aircraft.sensors.inertial_navigation_system.altitude,
+            "airspeed": self.aircraft.sensors.inertial_navigation_system.airspeed,
+            "heading": self.aircraft.sensors.inertial_navigation_system.heading,
+            "roll": self.aircraft.sensors.inertial_navigation_system.roll,
+            "pitch": self.aircraft.sensors.inertial_navigation_system.pitch,
         }
 
         #print("latitude", inertial_navigation_system_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
@@ -262,10 +262,10 @@ class FDMData(FlightDataResource):
             "pitch_rate": self.aircraft.sensors.gyroscope.pitch_rate,
             "yaw_rate": self.aircraft.sensors.gyroscope.yaw_rate,
             "temperature": self.aircraft.sensors.thermometer.temperature,
-            "static_pressure": self.aircraft.pressure_sensor.pressure,
-            "total_pressure": self.aircraft.pitot_tube.pressure,
-            "roll": self.aircraft.inertial_navigation_system.roll,
-            "pitch": self.aircraft.inertial_navigation_system.pitch,
+            "static_pressure": self.aircraft.sensors.pressure_sensor.pressure,
+            "total_pressure": self.aircraft.sensors.pitot_tube.pressure,
+            "roll": self.aircraft.sensors.inertial_navigation_system.roll,
+            "pitch": self.aircraft.sensors.inertial_navigation_system.pitch,
             "thrust": self.aircraft.engine.thrust,
             "aileron": self.aircraft.controls.aileron,
             "elevator": self.aircraft.controls.elevator,

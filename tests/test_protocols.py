@@ -76,10 +76,10 @@ class TestFDMDataProtocol(TestCase):
         self.assertAlmostEqual(fdm_data.gyroscope.pitch_rate, aircraft.sensors.gyroscope.pitch_rate, 3)
         self.assertAlmostEqual(fdm_data.gyroscope.yaw_rate, aircraft.sensors.gyroscope.yaw_rate, 3)
         self.assertAlmostEqual(fdm_data.thermometer.temperature, aircraft.sensors.thermometer.temperature, 3)
-        self.assertAlmostEqual(fdm_data.pressure_sensor.pressure, aircraft.pressure_sensor.pressure, 3)
-        self.assertAlmostEqual(fdm_data.pitot_tube.pressure, aircraft.pitot_tube.pressure, 3)
-        self.assertAlmostEqual(fdm_data.ins.roll, aircraft.inertial_navigation_system.roll, 3)
-        self.assertAlmostEqual(fdm_data.ins.pitch, aircraft.inertial_navigation_system.pitch, 3)
+        self.assertAlmostEqual(fdm_data.pressure_sensor.pressure, aircraft.sensors.pressure_sensor.pressure, 3)
+        self.assertAlmostEqual(fdm_data.pitot_tube.pressure, aircraft.sensors.pitot_tube.pressure, 3)
+        self.assertAlmostEqual(fdm_data.ins.roll, aircraft.sensors.inertial_navigation_system.roll, 3)
+        self.assertAlmostEqual(fdm_data.ins.pitch, aircraft.sensors.inertial_navigation_system.pitch, 3)
         self.assertAlmostEqual(fdm_data.engine.thrust, aircraft.engine.thrust, 3)
         self.assertAlmostEqual(fdm_data.engine.throttle, aircraft.engine.throttle, 3)
         self.assertAlmostEqual(fdm_data.controls.aileron, aircraft.controls.aileron, 3)
@@ -279,7 +279,7 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_pressure_sensor_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.pressure_sensor.pressure, aircraft.pressure_sensor.pressure)
+        self.assertAlmostEqual(sensor_data_response.pressure_sensor.pressure, aircraft.sensors.pressure_sensor.pressure)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.PRESSURE_SENSOR_REQUEST)
 
@@ -300,7 +300,7 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_pitot_tube_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.pitot_tube.pressure, aircraft.pitot_tube.pressure)
+        self.assertAlmostEqual(sensor_data_response.pitot_tube.pressure, aircraft.sensors.pitot_tube.pressure)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.PITOT_TUBE_REQUEST)
 
@@ -367,8 +367,8 @@ class TestSensorDataProtocol(TestCase):
 
         protocol.fill_ins_data(sensor_data_response)
 
-        self.assertAlmostEqual(sensor_data_response.ins.roll, aircraft.inertial_navigation_system.roll)
-        self.assertAlmostEqual(sensor_data_response.ins.pitch, aircraft.inertial_navigation_system.pitch)
+        self.assertAlmostEqual(sensor_data_response.ins.roll, aircraft.sensors.inertial_navigation_system.roll)
+        self.assertAlmostEqual(sensor_data_response.ins.pitch, aircraft.sensors.inertial_navigation_system.pitch)
 
         self.assertEqual(sensor_data_response.type, fdm_pb2.INS_REQUEST)
 

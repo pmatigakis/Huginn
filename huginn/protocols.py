@@ -96,8 +96,8 @@ class FDMDataProtocol(DatagramProtocol):
 
         fdm_data.thermometer.temperature = self.aircraft.sensors.thermometer.temperature
 
-        fdm_data.pressure_sensor.pressure = self.aircraft.pressure_sensor.pressure
-        fdm_data.pitot_tube.pressure = self.aircraft.pitot_tube.pressure
+        fdm_data.pressure_sensor.pressure = self.aircraft.sensors.pressure_sensor.pressure
+        fdm_data.pitot_tube.pressure = self.aircraft.sensors.pitot_tube.pressure
 
         fdm_data.engine.thrust = self.aircraft.engine.thrust
         fdm_data.engine.throttle = self.aircraft.engine.throttle
@@ -107,8 +107,8 @@ class FDMDataProtocol(DatagramProtocol):
         fdm_data.controls.rudder = self.aircraft.controls.rudder
         fdm_data.controls.throttle = self.aircraft.controls.throttle
 
-        fdm_data.ins.roll = self.aircraft.inertial_navigation_system.roll
-        fdm_data.ins.pitch = self.aircraft.inertial_navigation_system.pitch
+        fdm_data.ins.roll = self.aircraft.sensors.inertial_navigation_system.roll
+        fdm_data.ins.pitch = self.aircraft.sensors.inertial_navigation_system.pitch
 
         return fdm_data
 
@@ -226,12 +226,12 @@ class SensorDataProtocol(Int32StringReceiver):
     def fill_pressure_sensor_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.PRESSURE_SENSOR_REQUEST
 
-        sensor_data_response.pressure_sensor.pressure = self.factory.aircraft.pressure_sensor.pressure
+        sensor_data_response.pressure_sensor.pressure = self.factory.aircraft.sensors.pressure_sensor.pressure
 
     def fill_pitot_tube_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.PITOT_TUBE_REQUEST
 
-        sensor_data_response.pitot_tube.pressure = self.factory.aircraft.pitot_tube.pressure
+        sensor_data_response.pitot_tube.pressure = self.factory.aircraft.sensors.pitot_tube.pressure
 
     def fill_engine_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.ENGINE_REQUEST
@@ -250,8 +250,8 @@ class SensorDataProtocol(Int32StringReceiver):
     def fill_ins_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.INS_REQUEST
 
-        sensor_data_response.ins.roll = self.factory.aircraft.inertial_navigation_system.roll
-        sensor_data_response.ins.pitch = self.factory.aircraft.inertial_navigation_system.pitch
+        sensor_data_response.ins.roll = self.factory.aircraft.sensors.inertial_navigation_system.roll
+        sensor_data_response.ins.pitch = self.factory.aircraft.sensors.inertial_navigation_system.pitch
 
     def fill_error_response(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.INVALID_REQUEST

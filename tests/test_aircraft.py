@@ -1,56 +1,10 @@
 from unittest import TestCase
 import math
 
-from huginn.aircraft import Aircraft,\
-                            PressureSensor,\
-                            PitotTube, InertialNavigationSystem,\
-                            Engine
+from huginn.aircraft import Aircraft, Engine
 from huginn.fdm import FDMBuilder
 from huginn import configuration
-from huginn.unit_conversions import convert_feet_to_meters,\
-                                    convert_psf_to_pascal, convert_libra_to_newtons
-
-class PressureSensorTests(TestCase):
-    def test_presure_sensor(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        pressure_sensor = PressureSensor(fdmexec)
-
-        self.assertAlmostEqual(pressure_sensor.pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()))
-
-class PitotTubeTests(TestCase):
-    def test_pitot_tube(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        pitot_tube = PitotTube(fdmexec)
-
-        self.assertAlmostEqual(pitot_tube.pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()))
-
-class InertialNavigationSystemTests(TestCase):
-    def test_inertialNavigationSystem(self):
-        huginn_data_path = configuration.get_data_path()
-
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        fdmexec = fdm_builder.create_fdm()
-
-        ins = InertialNavigationSystem(fdmexec)
-
-        self.assertAlmostEqual(ins.roll, fdmexec.GetPropagate().GetEulerDeg(1))
-        self.assertAlmostEqual(ins.pitch, fdmexec.GetPropagate().GetEulerDeg(2))
-        self.assertAlmostEqual(ins.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
-        self.assertAlmostEqual(ins.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
-        self.assertAlmostEqual(ins.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(ins.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
-        self.assertAlmostEqual(ins.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))
+from huginn.unit_conversions import convert_libra_to_newtons
 
 class EngineTests(TestCase):
     def test_engine(self):

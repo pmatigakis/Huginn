@@ -2,76 +2,9 @@
 The huginn.aircraft module contains classes that wrap the jsbsim object and
 and provide access to the simulated components of the aircraft.
 """
-from math import degrees
-
-from huginn.unit_conversions import convert_feet_to_meters,\
-                                    convert_rankine_to_kelvin,\
-                                    convert_psf_to_pascal,\
-                                    convert_libra_to_newtons
+from huginn.unit_conversions import convert_libra_to_newtons
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
-
-class PressureSensor(object):
-    """The PressureSensor class contains the static presured measured by the
-    aircraft's sensors."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def pressure(self):
-        """Returns the pressure in Pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAtmosphere().GetPressure())
-
-class PitotTube(object):
-    """The PitosTure class simulates the aircraft's pitot system."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def pressure(self):
-        """Return the pressure in pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAuxiliary().GetTotalPressure())
-
-class InertialNavigationSystem(object):
-    """The InertialNavigationSystem class is used to simulate the aircraft's
-    inertial navigation system."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-
-    @property
-    def roll(self):
-        """Return the roll angle in degrees"""
-        return self.fdmexec.GetPropagate().GetEulerDeg(1)
-
-    @property
-    def pitch(self):
-        """Return the pitch angle in degrees"""
-        return self.fdmexec.GetPropagate().GetEulerDeg(2)
-
-    @property
-    def latitude(self):
-        """Returns the latitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLatitudeDeg()
-
-    @property
-    def longitude(self):
-        """Returns the longitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLongitudeDeg()
-
-    @property
-    def altitude(self):
-        """Returns the altitude in meters"""
-        return self.fdmexec.GetPropagate().GetAltitudeASLmeters()
-
-    @property
-    def airspeed(self):
-        """Returns the airspeed in meters per second"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
-
-    @property
-    def heading(self):
-        """Returns the heading in degrees"""
-        return degrees(self.fdmexec.GetPropagate().GetEuler(3))
 
 class Controls(object):
     """The Controls class holds the aircraft control surfaces values"""
@@ -161,9 +94,6 @@ class Aircraft(object):
         self.type = aircraft_type
         self.sensors = Sensors(fdmexec)
         self.instruments = Instruments(fdmexec)
-        self.pressure_sensor = PressureSensor(fdmexec)
-        self.pitot_tube = PitotTube(fdmexec)
-        self.inertial_navigation_system = InertialNavigationSystem(fdmexec)
         self.engine = Engine(fdmexec)
         self.controls = Controls(fdmexec)
 
