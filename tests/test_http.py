@@ -26,9 +26,9 @@ class TestGPSData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = GPSData(aircraft)
+        resource = GPSData(aircraft.instruments.gps)
 
-        gps_data = resource.get_flight_data()
+        gps_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.instruments.gps.latitude, gps_data["latitude"], 3)
         self.assertAlmostEqual(aircraft.instruments.gps.longitude, gps_data["longitude"], 3)
@@ -46,9 +46,9 @@ class TestAccelerometerData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = AccelerometerData(aircraft)
+        resource = AccelerometerData(aircraft.sensors.accelerometer)
 
-        accelerometer_data = resource.get_flight_data()
+        accelerometer_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.accelerometer.x, accelerometer_data["x_acceleration"], 3)
         self.assertAlmostEqual(aircraft.sensors.accelerometer.y, accelerometer_data["y_acceleration"], 3)
@@ -64,9 +64,9 @@ class TestGyroscopeData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = GyroscopeData(aircraft)
+        resource = GyroscopeData(aircraft.sensors.gyroscope)
 
-        gyroscope_data = resource.get_flight_data()
+        gyroscope_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, gyroscope_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, gyroscope_data["pitch_rate"], 3)
@@ -82,9 +82,9 @@ class TestThermometerData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = ThermometerData(aircraft)
+        resource = ThermometerData(aircraft.sensors.thermometer)
 
-        thermometer_data = resource.get_flight_data()
+        thermometer_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.thermometer.temperature, thermometer_data["temperature"], 3)
 
@@ -98,9 +98,9 @@ class TestPressureSensorData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = PressureSensorData(aircraft)
+        resource = PressureSensorData(aircraft.sensors.pressure_sensor)
 
-        pressure_sensor_data = resource.get_flight_data()
+        pressure_sensor_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.pressure_sensor.pressure, pressure_sensor_data["static_pressure"], 3)
 
@@ -114,9 +114,9 @@ class TestPitotTubeData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = PitotTubeData(aircraft)
+        resource = PitotTubeData(aircraft.sensors.pitot_tube)
 
-        pitot_tube_data = resource.get_flight_data()
+        pitot_tube_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.pitot_tube.pressure, pitot_tube_data["total_pressure"], 3)
 
@@ -130,9 +130,9 @@ class TestInertialNavigationSystemData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = InertialNavigationSystemData(aircraft)
+        resource = InertialNavigationSystemData(aircraft.sensors.inertial_navigation_system)
 
-        inertial_navigation_system_data = resource.get_flight_data()
+        inertial_navigation_system_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.latitude, inertial_navigation_system_data["latitude"], 3)
         self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.longitude, inertial_navigation_system_data["longitude"], 3)
@@ -152,9 +152,9 @@ class TestEngineData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = EngineData(aircraft)
+        resource = EngineData(aircraft.engine)
 
-        engine_data = resource.get_flight_data()
+        engine_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.engine.thrust, engine_data["thrust"], 3)
 
@@ -168,9 +168,9 @@ class TestFlightControlsData(TestCase):
 
         aircraft = Aircraft(fdmexec)
 
-        resource = FlightControlsData(aircraft)
+        resource = FlightControlsData(aircraft.controls)
 
-        flight_controls_data = resource.get_flight_data()
+        flight_controls_data = resource._get_flight_data()
 
         self.assertAlmostEqual(aircraft.controls.aileron, flight_controls_data["aileron"], 3)
         self.assertAlmostEqual(aircraft.controls.elevator, flight_controls_data["elevator"], 3)
@@ -308,7 +308,7 @@ class TestFDMData(TestCase):
 
         resource = FDMData(fdmexec, aircraft)
 
-        fdm_data = resource.get_flight_data()
+        fdm_data = resource._get_flight_data()
 
         self.assertAlmostEqual(fdmexec.GetSimTime(), fdm_data["time"], 3)
         self.assertAlmostEqual(fdmexec.GetDeltaT(), fdm_data["dt"], 3)

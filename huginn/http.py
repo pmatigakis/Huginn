@@ -9,7 +9,7 @@ import logging
 from twisted.web.resource import Resource
 
 class AircraftResource(Resource):
-    """This class server as the root for the aircraft web resources."""
+    """This class serves as the root for the aircraft web resources."""
     isLeaf = False
 
     def __init__(self, aircraft):
@@ -17,15 +17,10 @@ class AircraftResource(Resource):
 
         self.aircraft = aircraft
 
-        self.putChild("gps", GPSData(self.aircraft))
-        self.putChild("accelerometer", AccelerometerData(self.aircraft))
-        self.putChild("gyroscope", GyroscopeData(self.aircraft))
-        self.putChild("thermometer", ThermometerData(self.aircraft))
-        self.putChild("pressure_sensor", PressureSensorData(self.aircraft))
-        self.putChild("pitot_tube", PitotTubeData(self.aircraft))
-        self.putChild("ins", InertialNavigationSystemData(self.aircraft))
-        self.putChild("engine", EngineData(self.aircraft))
-        self.putChild("flight_controls", FlightControlsData(self.aircraft))
+        self.putChild("sensors", SensorsResource(aircraft.sensors))
+        self.putChild("instruments", InstrumentsResource(aircraft.instruments))
+        self.putChild("engine", EngineData(self.aircraft.engine))
+        self.putChild("flight_controls", FlightControlsData(self.aircraft.controls))
 
     def getChild(self, name, request):
         if name == '':
@@ -40,14 +35,48 @@ class AircraftResource(Resource):
 
         return json.dumps(aircraft_info)
 
+class SensorsResource(Resource):
+    isLeaf = False
+
+    def __init__(self, sensors):
+        Resource.__init__(self)
+
+        self.sensors = sensors
+
+        self.putChild("accelerometer", AccelerometerData(sensors.accelerometer))
+        self.putChild("gyroscope", GyroscopeData(sensors.gyroscope))
+        self.putChild("thermometer", ThermometerData(sensors.thermometer))
+        self.putChild("pressure_sensor", PressureSensorData(sensors.pressure_sensor))
+        self.putChild("pitot_tube", PitotTubeData(sensors.pitot_tube))
+        self.putChild("ins", InertialNavigationSystemData(sensors.inertial_navigation_system))
+
+    def getChild(self, name, request):
+        if name == '':
+            return self
+        return Resource.getChild(self, name, request)
+
+class InstrumentsResource(Resource):
+    isLeaf = False
+
+    def __init__(self, instruments):
+        Resource.__init__(self)
+
+        self.instruments = instruments
+
+        self.putChild("gps", GPSData(instruments.gps))
+
+    def getChild(self, name, request):
+        if name == '':
+            return self
+        return Resource.getChild(self, name, request)
+
 class FlightDataResource(Resource):
     """This is the base class that can be used to create resource subclasses
     that return flight data"""
-    def __init__(self, aircraft):
+    def __init__(self):
         Resource.__init__(self)
-        self.aircraft = aircraft
 
-    def get_flight_data(self):
+    def _get_flight_data(self):
         """This method must be overridden by the subclass. It should return a
         dictionary containing the requested flight data"""
         pass
@@ -57,7 +86,7 @@ class FlightDataResource(Resource):
         request.responseHeaders.addRawHeader("content-type",
                                              "application/json")
 
-        flight_data = self.get_flight_data()
+        flight_data = self._get_flight_data()
 
         return json.dumps(flight_data)
 
@@ -65,16 +94,17 @@ class GPSData(FlightDataResource):
     """This resource class will return the gps data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, gps):
+        FlightDataResource.__init__(self)
+        self.gps = gps
 
-    def get_flight_data(self):
+    def _get_flight_data(self):
         gps_data = {
-            "latitude": self.aircraft.instruments.gps.latitude,
-            "longitude": self.aircraft.instruments.gps.longitude,
-            "altitude": self.aircraft.instruments.gps.altitude,
-            "airspeed": self.aircraft.instruments.gps.airspeed,
-            "heading": self.aircraft.instruments.gps.heading
+            "latitude": self.gps.latitude,
+            "longitude": self.gps.longitude,
+            "altitude": self.gps.altitude,
+            "airspeed": self.gps.airspeed,
+            "heading": self.gps.heading
         }
 
         #print("latitude", gps_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
@@ -89,14 +119,16 @@ class AccelerometerData(FlightDataResource):
     """This resource class will return the accelerometer data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, accelerometer):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.accelerometer = accelerometer
+
+    def _get_flight_data(self):
         accelerometer_data = {
-            "x_acceleration": self.aircraft.sensors.accelerometer.x,
-            "y_acceleration": self.aircraft.sensors.accelerometer.y,
-            "z_acceleration": self.aircraft.sensors.accelerometer.z
+            "x_acceleration": self.accelerometer.x,
+            "y_acceleration": self.accelerometer.y,
+            "z_acceleration": self.accelerometer.z
         }
 
         #print("x_acc", accelerometer_data["x_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-x-ft_sec2")))
@@ -109,14 +141,16 @@ class GyroscopeData(FlightDataResource):
     """This resource class will return the gyroscope data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, gyroscope):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.gyroscope = gyroscope
+
+    def _get_flight_data(self):
         gyroscope_data = {
-            "roll_rate": self.aircraft.sensors.gyroscope.roll_rate,
-            "pitch_rate": self.aircraft.sensors.gyroscope.pitch_rate,
-            "yaw_rate": self.aircraft.sensors.gyroscope.yaw_rate,
+            "roll_rate": self.gyroscope.roll_rate,
+            "pitch_rate": self.gyroscope.pitch_rate,
+            "yaw_rate": self.gyroscope.yaw_rate,
         }
 
         #print("roll_rate", gyroscope_data["roll_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/p-rad_sec")))
@@ -129,12 +163,14 @@ class ThermometerData(FlightDataResource):
     """This resource class will return the thermometer data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, thermometer):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.thermometer = thermometer
+
+    def _get_flight_data(self):
         thermometer_data = {
-            "temperature": self.aircraft.sensors.thermometer.temperature,
+            "temperature": self.thermometer.temperature,
         }
 
         #print("temperature", thermometer_data["temperature"], convert_rankine_to_kelvin(self.aircraft.fdmexec.GetPropertyValue("atmosphere/T-R")))
@@ -146,12 +182,14 @@ class PressureSensorData(FlightDataResource):
     format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, pressure_sensor):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.pressure_sensor = pressure_sensor
+
+    def _get_flight_data(self):
         pressure_sensor_data = {
-            "static_pressure": self.aircraft.sensors.pressure_sensor.pressure,
+            "static_pressure": self.pressure_sensor.pressure,
         }
 
         #print("static_pressule", pressure_sensor_data["static_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("atmosphere/P-psf")))
@@ -162,12 +200,14 @@ class PitotTubeData(FlightDataResource):
     """This resource class will return the pitot tube data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, pitot_tube):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.pitot_tube = pitot_tube
+
+    def _get_flight_data(self):
         pitot_tube_data = {
-            "total_pressure": self.aircraft.sensors.pitot_tube.pressure,
+            "total_pressure": self.pitot_tube.pressure,
         }
 
         #print("total pressure", pitot_tube_data["total_pressure"], convert_psf_to_pascal(self.aircraft.fdmexec.GetPropertyValue("aero/qbar-psf")))
@@ -179,18 +219,20 @@ class InertialNavigationSystemData(FlightDataResource):
     json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, inertial_navigation_system):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.inertial_navigation_system = inertial_navigation_system 
+
+    def _get_flight_data(self):
         inertial_navigation_system_data = {
-            "latitude": self.aircraft.sensors.inertial_navigation_system.latitude,
-            "longitude": self.aircraft.sensors.inertial_navigation_system.longitude,
-            "altitude": self.aircraft.sensors.inertial_navigation_system.altitude,
-            "airspeed": self.aircraft.sensors.inertial_navigation_system.airspeed,
-            "heading": self.aircraft.sensors.inertial_navigation_system.heading,
-            "roll": self.aircraft.sensors.inertial_navigation_system.roll,
-            "pitch": self.aircraft.sensors.inertial_navigation_system.pitch,
+            "latitude": self.inertial_navigation_system.latitude,
+            "longitude": self.inertial_navigation_system.longitude,
+            "altitude": self.inertial_navigation_system.altitude,
+            "airspeed": self.inertial_navigation_system.airspeed,
+            "heading": self.inertial_navigation_system.heading,
+            "roll": self.inertial_navigation_system.roll,
+            "pitch": self.inertial_navigation_system.pitch,
         }
 
         #print("latitude", inertial_navigation_system_data["latitude"], self.aircraft.fdmexec.GetPropertyValue("position/lat-gc-deg"))
@@ -207,13 +249,15 @@ class EngineData(FlightDataResource):
     """This resource class will return the engine data in json format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, engine):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.engine = engine
+
+    def _get_flight_data(self):
         engine_data = {
-            "thrust": self.aircraft.engine.thrust,
-            "throttle": self.aircraft.engine.throttle,
+            "thrust": self.engine.thrust,
+            "throttle": self.engine.throttle,
         }
 
         #print("thrust", engine_data["thrust"], convert_libra_to_newtons(self.aircraft.fdmexec.GetPropertyValue("propulsion/engine/thrust-lbs")))
@@ -226,15 +270,17 @@ class FlightControlsData(FlightDataResource):
     format"""
     isLeaf = True
 
-    def __init__(self, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+    def __init__(self, controls):
+        FlightDataResource.__init__(self)
 
-    def get_flight_data(self):
+        self.controls = controls
+
+    def _get_flight_data(self):
         flight_controls_data = {
-            "aileron": self.aircraft.controls.aileron,
-            "elevator": self.aircraft.controls.elevator,
-            "rudder": self.aircraft.controls.rudder,
-            "throttle": self.aircraft.engine.throttle,
+            "aileron": self.controls.aileron,
+            "elevator": self.controls.elevator,
+            "rudder": self.controls.rudder,
+            "throttle": self.controls.throttle,
         }
 
         return flight_controls_data
@@ -243,10 +289,11 @@ class FDMData(FlightDataResource):
     """The FDMData resource returns data relative to the simulation"""
     isLeaf = True
     def __init__(self, fdmexec, aircraft):
-        FlightDataResource.__init__(self, aircraft)
+        FlightDataResource.__init__(self)
         self.fdmexec = fdmexec
+        self.aircraft = aircraft
 
-    def get_flight_data(self):
+    def _get_flight_data(self):
         flight_data = {
             "time": self.fdmexec.GetSimTime(),
             "dt": self.fdmexec.GetDeltaT(),

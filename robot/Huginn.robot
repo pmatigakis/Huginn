@@ -162,7 +162,7 @@ Run The Simulation For The Given Time
     Simulator Command Executed Successfully    ${resp}  run_for
 
 Aircraft Should Be In The Start Location
-    ${resp} =    Get Request    huginn_web_server  /aircraft/gps
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/gps
     Response Status Code Should Be    ${resp}  200
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  latitude
@@ -233,7 +233,7 @@ Is FDM Data Response With Aircraft In The Start Location
 
 Get GPS Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${response} =    Get Request    huginn_web_server  /aircraft/gps
+    ${response} =    Get Request    huginn_web_server  /aircraft/instruments/gps
     [Return]    ${response}
 
 Should Be Valid GPS Response
@@ -256,7 +256,7 @@ Should Be GPS Response When Aircraft Is In The Start Location
 
 Get Accelerometer Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${response} =    Get Request    huginn_web_server  /aircraft/accelerometer
+    ${response} =    Get Request    huginn_web_server  /aircraft/sensors/accelerometer
     [Return]    ${response}
 
 Should Be Valid Accelerometer Response
@@ -275,7 +275,7 @@ Should Be Accelerometer Response With Aircraft Almost Level
 
 Get Gyroscope Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/gyroscope
+    ${resp} =    Get Request    huginn_web_server  /aircraft/sensors/gyroscope
     [Return]    ${resp}
 
 Should Be Valid Gyroscope Response
@@ -294,7 +294,7 @@ Should Be Gyroscope Response With Minimal Aircraft Rotation
 
 Get Thermometer Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/thermometer
+    ${resp} =    Get Request    huginn_web_server  /aircraft/sensors/thermometer
     [Return]    ${resp}
 
 Should Be Valid Thermometer Response
@@ -309,7 +309,7 @@ Should Be Valid Thermometer Response When Aircraft At 300 Meters Above Sea Level
 
 Get Pressure Sensor Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/pressure_sensor
+    ${resp} =    Get Request    huginn_web_server  /aircraft/sensors/pressure_sensor
     [Return]    ${resp}
 
 Should Be Valid Pressure Sensor Response
@@ -324,7 +324,7 @@ Should Be Pressure Sensor Response When Aircraft At 300 Meters Above Sea Level
 
 Get Pitot Tube Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/pitot_tube
+    ${resp} =    Get Request    huginn_web_server  /aircraft/sensors/pitot_tube
     [Return]    ${resp}
 
 Should Be Valid Pitot Tube Response
@@ -339,7 +339,7 @@ Should Be Pitot Tube Response When Airspeed At 30 Meters Per Second
 
 Get INS Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/ins
+    ${resp} =    Get Request    huginn_web_server  /aircraft/sensors/ins
     [Return]    ${resp}
 
 Should Be Valid INS Response
