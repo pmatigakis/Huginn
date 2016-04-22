@@ -1,5 +1,5 @@
 from os import walk, path, chdir
-from setuptools import setup, Extension
+from setuptools import setup
 
 def get_web_static_files():
     chdir("huginn")
@@ -40,16 +40,13 @@ setup(name="huginn",
                "scripts/huginn_record.py"],
       packages=["huginn"],
       package_data={'huginn': get_web_static_files() + get_jsbsim_data()},
-      install_requires = ["coverage>=4.0.3",
-                          "mock>=1.3.0",
-                          "nose>=1.3.7",
-                          "protobuf>=2.6.1",
-                          "PyHamcrest>=1.9.0",
+      install_requires = ["protobuf>=2.6.1",
                           "requests>=2.9.1",
-                          "robotframework>=3.0",
-                          "robotframework-requests>=0.4.4",
-                          "Sphinx>=1.3.6",
                           "Twisted>=15.5.0"],
+      tests_require=["coverage>=4.0.3",
+                     "mock>=1.3.0",
+                     "nose>=1.3.7",
+                     "PyHamcrest>=1.9.0"],
       test_suite="nose.collector",
       zip_safe=False,
       )
