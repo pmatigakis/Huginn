@@ -515,37 +515,37 @@ class WebClient(object):
     def get_gps_data(self):
         """Get the gps data from the simulator and return them as a
         dictionary"""
-        return self._get_json_data_from_endpoint("gps")
+        return self._get_json_data_from_endpoint("instruments/gps")
 
     def get_accelerometer_data(self):
         """Get the accelerometer data from the simulator and return them as a
         dictionary"""
-        return self._get_json_data_from_endpoint("accelerometer")
+        return self._get_json_data_from_endpoint("sensors/accelerometer")
 
     def get_gyroscope_data(self):
         """Get the gyroscope data from the simulator and return them as a
         dictionary"""
-        return self._get_json_data_from_endpoint("gyroscope")
+        return self._get_json_data_from_endpoint("sensors/gyroscope")
 
     def get_thermometer_data(self):
         """Get the temperature data from the simulator and return them as a
         dictionary"""
-        return self._get_json_data_from_endpoint("thermometer")
+        return self._get_json_data_from_endpoint("sensors/thermometer")
 
     def get_pressure_sensor_data(self):
         """Get the atmospheric pressure data from the simulator and return
         them as a dictionary"""
-        return self._get_json_data_from_endpoint("pressure_sensor")
+        return self._get_json_data_from_endpoint("sensors/pressure_sensor")
 
     def get_pitot_tube_data(self):
         """Get the pitot tube data from the simulator and return them as a
         dictionary"""
-        return self._get_json_data_from_endpoint("pitot_tube")
+        return self._get_json_data_from_endpoint("sensors/pitot_tube")
 
     def get_ins_data(self):
         """Get the inertial navigation system  data from the simulator and
         return them as a dictionary"""
-        return self._get_json_data_from_endpoint("ins")
+        return self._get_json_data_from_endpoint("sensors/ins")
 
     def get_engine_data(self):
         """Get the engine data from the simulator and return them as a

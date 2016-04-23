@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import logging
 from argparse import ArgumentParser
 
@@ -9,7 +7,6 @@ from huginn.validators import port_number, fdm_data_endpoint,\
                               is_valid_latitude, is_valid_longitude,\
                               is_valid_heading
 from huginn.fdm import FDMBuilder
-from huginn.aircraft import Aircraft
 from huginn.servers import SimulationServer
 
 def get_arguments():
@@ -88,20 +85,20 @@ def validate_arguments(args, logger):
 
     if not is_valid_latitude(args.latitude):
         logger.error("Invalid latitude %f", args.latitude)
-        return False        
+        return False
 
     if not is_valid_longitude(args.longitude):
         logger.error("Invalid longitude %f", args.longitude)
-        return False        
+        return False
 
     if not is_valid_heading(args.heading):
         logger.error("Invalid heading %f", args.heading)
-        return False        
+        return False
 
     if args.altitude < 0.0:
         logger.error("Invalid altitude %f", args.altitude)
         return False
-        
+
     return True
 
 def initialize_logger(output_file, log_level):
@@ -140,7 +137,7 @@ def initialize_logger(output_file, log_level):
 def main():
     args = get_arguments()
 
-    logger = initialize_logger(args.log, args.log_level) 
+    logger = initialize_logger(args.log, args.log_level)
 
     logger.info("Starting the Huginn flight simulator")
 
@@ -180,11 +177,8 @@ def main():
     simulator_server.fdm_clients = args.fdm
 
     simulator_server.controls_port = args.controls
-    
+
     simulator_server.web_server_port = args.web
 
     logger.debug("starting the simulator server")
     simulator_server.start()
-
-if __name__ == "__main__":
-    main()

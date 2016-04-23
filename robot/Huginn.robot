@@ -17,7 +17,7 @@ ${IC_TOTAL_PRESSURE}    98224.25
 
 *** Keywords ***
 Start Huginn
-    ${huginn_process_id} =    Start Process    huginn_start.py --aircraft Rascal    shell=true
+    ${huginn_process_id} =    Start Process    huginn_start --aircraft Rascal    shell=true
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
@@ -29,15 +29,15 @@ Stop Huginn
     Terminate All Processes
 
 Resume Simulation Using The CLI
-    ${result} =    Run Process    huginn_control.py resume  shell=true
+    ${result} =    Run Process    huginn_control resume  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Pause the Simulation Using The CLI
-    ${result} =    Run Process    huginn_control.py pause  shell=true
+    ${result} =    Run Process    huginn_control pause  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Reset the Simulation Using The CLI
-    ${result} =    Run Process    huginn_control.py reset  shell=true
+    ${result} =    Run Process    huginn_control reset  shell=true
     Should Be Equal As Integers    ${result.rc}  0
 
 Value Close To

@@ -1,5 +1,5 @@
 from os import walk, path, chdir
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def get_web_static_files():
     chdir("huginn")
@@ -34,11 +34,7 @@ setup(name="huginn",
       description = 'Flight simulator for HITL and SITL simulations',
       author = 'Panagiotis Matigakis',
       author_email = 'pmatigakis@gmail.com',
-      scripts=["scripts/huginn_start.py",
-               "scripts/huginn_control.py",
-               "scripts/huginn_data.py",
-               "scripts/huginn_record.py"],
-      packages=["huginn"],
+      packages=find_packages(),
       package_data={'huginn': get_web_static_files() + get_jsbsim_data()},
       install_requires = ["protobuf>=2.6.1",
                           "requests>=2.9.1",
@@ -49,4 +45,9 @@ setup(name="huginn",
                      "PyHamcrest>=1.9.0"],
       test_suite="nose.collector",
       zip_safe=False,
+      entry_points={"console_scripts": ["huginn_start=huginn.cli.huginn_start:main",
+                                        "huginn_control=huginn.cli.huginn_control:main",
+                                        "huginn_record=huginn.cli.huginn_record:main",
+                                        "huginn_data=huginn.cli.huginn_data:main"]
+                    }
       )

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 
 from huginn import configuration
@@ -42,6 +40,3 @@ def main():
     if not result:
         print("Failed to execute command %s" % args.command)
         exit(-1)
-
-if __name__ == "__main__":
-    main() 

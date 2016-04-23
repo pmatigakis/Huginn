@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 
 from requests import ConnectionError
@@ -132,6 +130,3 @@ def main():
         print_flight_controls_data(web_client)
     except ConnectionError:
         print("Failed to connect to Huginn's web server")
-
-if __name__ == "__main__":
-    main()

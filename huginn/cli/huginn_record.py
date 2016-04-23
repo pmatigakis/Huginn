@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 
 import json
@@ -73,6 +71,3 @@ def main():
     reactor.run()  # @UndefinedVariable
 
     output_file.close()
-
-if __name__ == "__main__":
-    main()
