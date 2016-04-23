@@ -18,9 +18,41 @@ class AccelerometerTests(TestCase):
 
         accelerometer = Accelerometer(fdmexec)
 
-        self.assertAlmostEqual(accelerometer.x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)))
-        self.assertAlmostEqual(accelerometer.y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)))
-        self.assertAlmostEqual(accelerometer.z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)))
+        self.assertAlmostEqual(accelerometer.true_x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)), 3)
+        self.assertAlmostEqual(accelerometer.true_y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)), 3)
+        self.assertAlmostEqual(accelerometer.true_z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)), 3)
+
+        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer.bias + accelerometer.measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer.bias + accelerometer.measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.z, accelerometer.true_z + accelerometer.bias + accelerometer.measurement_noise, 3)
+
+    def test_accelerometer_bias_and_noise_modification_updates(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        accelerometer = Accelerometer(fdmexec)
+
+        accelerometer._measurement_noise = 0.0
+
+        fdmexec.Run()
+        
+        self.assertEqual(accelerometer.measurement_noise, 0.0)
+
+        #make sure the model is not paused
+        fdmexec.Resume()
+
+        run_until = fdmexec.GetSimTime() + accelerometer.update_rate + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer.bias + accelerometer.measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer.bias + accelerometer.measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.z, accelerometer.true_z + accelerometer.bias + accelerometer.measurement_noise, 3)
+
+        self.assertNotEqual(accelerometer.measurement_noise, 0.0)
 
 class GyroscopeTests(TestCase):
     def test_gyroscope(self):
@@ -100,9 +132,9 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.accelerometer.x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)))
-        self.assertAlmostEqual(sensors.accelerometer.y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)))
-        self.assertAlmostEqual(sensors.accelerometer.z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)))
+        self.assertAlmostEqual(sensors.accelerometer.true_x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)))
+        self.assertAlmostEqual(sensors.accelerometer.true_y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)))
+        self.assertAlmostEqual(sensors.accelerometer.true_z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)))
 
     def test_gyroscope(self):
         huginn_data_path = configuration.get_data_path()

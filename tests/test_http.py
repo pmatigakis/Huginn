@@ -50,9 +50,12 @@ class TestAccelerometerData(TestCase):
 
         accelerometer_data = resource._get_flight_data()
 
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.x, accelerometer_data["x_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.y, accelerometer_data["y_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.z, accelerometer_data["z_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.x, accelerometer_data["x"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.y, accelerometer_data["y"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.z, accelerometer_data["z"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_x, accelerometer_data["true_x"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_y, accelerometer_data["true_y"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_z, accelerometer_data["true_z"], 3)
 
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
@@ -317,9 +320,9 @@ class TestFDMData(TestCase):
         self.assertAlmostEqual(aircraft.instruments.gps.altitude, fdm_data["altitude"], 3)
         self.assertAlmostEqual(aircraft.instruments.gps.airspeed, fdm_data["airspeed"], 3)
         self.assertAlmostEqual(aircraft.instruments.gps.heading, fdm_data["heading"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.x, fdm_data["x_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.y, fdm_data["y_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.z, fdm_data["z_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_x, fdm_data["x_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_y, fdm_data["y_acceleration"], 3)
+        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_z, fdm_data["z_acceleration"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, fdm_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, fdm_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.yaw_rate, fdm_data["yaw_rate"], 3)

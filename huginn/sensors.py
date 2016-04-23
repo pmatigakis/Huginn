@@ -2,6 +2,7 @@
 The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
 from math import degrees
+from random import normalvariate
 
 from huginn.unit_conversions import convert_feet_to_meters,\
                                     convert_rankine_to_kelvin,\
@@ -9,24 +10,68 @@ from huginn.unit_conversions import convert_feet_to_meters,\
 
 class Accelerometer(object):
     """The Accelerometer class returns the acceleration forces on the body
-    frame."""
+    frame.
+
+
+    This class simulates an accelerometer using the following model.
+
+    acceleration = true_acceleration + bias + measurement_noise
+    """
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.update_rate = 1.0/250.0
+        self.bias_sigma = 0.02
+        self.bias_mu = -0.2
+        self.noise_sigma = 0.005
+        self.noise_mu = 0.06
+        self._bias = normalvariate(self.bias_mu, self.bias_sigma)
+        self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+        self._update_at = fdmexec.GetSimTime() + self.update_rate
+
+    @property
+    def bias(self):
+        """The measurement bias in meters/sec^2"""
+        return self._bias
+
+    @property
+    def measurement_noise(self):
+        """The measurement noise in meters/sec^2"""
+        if self.fdmexec.GetSimTime() > self._update_at:
+            self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+
+            self._update_at += self.fdmexec.GetSimTime() + self.update_rate
+
+        return self._measurement_noise
+
+    @property
+    def true_x(self):
+        """The true acceleration along the x axis in meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
+
+    @property
+    def true_y(self):
+        """The true acceleration along the x axis in meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
+
+    @property
+    def true_z(self):
+        """The true acceleration along the x axis in meters/sec^2"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
 
     @property
     def x(self):
         """Return the acceleration along the x axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
+        return self.true_x + self.bias + self.measurement_noise
 
     @property
     def y(self):
         """Return the acceleration along the y axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
+        return self.true_y + self.bias + self.measurement_noise
 
     @property
     def z(self):
         """Return the acceleration along the z axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+        return self.true_z + self.bias + self.measurement_noise
 
 class Gyroscope(object):
     """The Gyroscope class contains the angular velocities measured on the body axis."""

@@ -263,15 +263,18 @@ Should Be Valid Accelerometer Response
     [Arguments]    ${response}
     Should be Equal As Strings    ${response.status_code}  200
     Response Content Type Should Be JSON    ${response}
-    JSON Response Should Contain item    ${response}  x_acceleration
-    JSON Response Should Contain item    ${response}  y_acceleration
-    JSON Response Should Contain item    ${response}  z_acceleration
+    JSON Response Should Contain item    ${response}  x
+    JSON Response Should Contain item    ${response}  y
+    JSON Response Should Contain item    ${response}  z
+    JSON Response Should Contain item    ${response}  true_x
+    JSON Response Should Contain item    ${response}  true_y
+    JSON Response Should Contain item    ${response}  true_z
 
 Should Be Accelerometer Response With Aircraft Almost Level
     [Arguments]    ${response}
-    Value Close To    ${response.json()['x_acceleration']}  0.0  3.0
-    Value Close To    ${response.json()['y_acceleration']}  0.0  3.0
-    Value Close To    ${response.json()['z_acceleration']}  -9.8  3.0
+    Value Close To    ${response.json()['true_x']}  0.0  3.0
+    Value Close To    ${response.json()['true_y']}  0.0  3.0
+    Value Close To    ${response.json()['true_z']}  -9.8  3.0
 
 Get Gyroscope Data
     Create Session    huginn_web_server  ${HUGINN_URL}

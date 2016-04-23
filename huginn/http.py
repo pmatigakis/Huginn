@@ -126,9 +126,12 @@ class AccelerometerData(FlightDataResource):
 
     def _get_flight_data(self):
         accelerometer_data = {
-            "x_acceleration": self.accelerometer.x,
-            "y_acceleration": self.accelerometer.y,
-            "z_acceleration": self.accelerometer.z
+            "x": self.accelerometer.x,
+            "y": self.accelerometer.y,
+            "z": self.accelerometer.z,
+            "true_x": self.accelerometer.true_x,
+            "true_y": self.accelerometer.true_y,
+            "true_z": self.accelerometer.true_z
         }
 
         #print("x_acc", accelerometer_data["x_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-x-ft_sec2")))
@@ -222,7 +225,7 @@ class InertialNavigationSystemData(FlightDataResource):
     def __init__(self, inertial_navigation_system):
         FlightDataResource.__init__(self)
 
-        self.inertial_navigation_system = inertial_navigation_system 
+        self.inertial_navigation_system = inertial_navigation_system
 
     def _get_flight_data(self):
         inertial_navigation_system_data = {
@@ -302,9 +305,9 @@ class FDMData(FlightDataResource):
             "altitude": self.aircraft.instruments.gps.altitude,
             "airspeed": self.aircraft.instruments.gps.airspeed,
             "heading": self.aircraft.instruments.gps.heading,
-            "x_acceleration": self.aircraft.sensors.accelerometer.x,
-            "y_acceleration": self.aircraft.sensors.accelerometer.y,
-            "z_acceleration": self.aircraft.sensors.accelerometer.z,
+            "x_acceleration": self.aircraft.sensors.accelerometer.true_x,
+            "y_acceleration": self.aircraft.sensors.accelerometer.true_y,
+            "z_acceleration": self.aircraft.sensors.accelerometer.true_z,
             "roll_rate": self.aircraft.sensors.gyroscope.roll_rate,
             "pitch_rate": self.aircraft.sensors.gyroscope.pitch_rate,
             "yaw_rate": self.aircraft.sensors.gyroscope.yaw_rate,
