@@ -44,7 +44,7 @@ class AccelerometerTests(TestCase):
         #make sure the model is not paused
         fdmexec.Resume()
 
-        run_until = fdmexec.GetSimTime() + accelerometer.update_rate + 1.0
+        run_until = fdmexec.GetSimTime() + (1.0/accelerometer.update_rate) + 1.0
         while fdmexec.GetSimTime() < run_until:
             fdmexec.Run()
 
@@ -64,9 +64,34 @@ class GyroscopeTests(TestCase):
 
         gyroscope = Gyroscope(fdmexec)
 
-        self.assertAlmostEqual(gyroscope.roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)))
-        self.assertAlmostEqual(gyroscope.pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)))
-        self.assertAlmostEqual(gyroscope.yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)))
+        self.assertAlmostEqual(gyroscope.true_roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)), 3)
+        self.assertAlmostEqual(gyroscope.true_pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)), 3)
+        self.assertAlmostEqual(gyroscope.true_yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)), 3)
+
+        self.assertAlmostEqual(gyroscope.roll_rate, gyroscope.true_roll_rate + gyroscope.roll_rate_bias + gyroscope.roll_rate_measurement_noise, 3)
+        self.assertAlmostEqual(gyroscope.pitch_rate, gyroscope.true_pitch_rate + gyroscope.pitch_rate_bias + gyroscope.pitch_rate_measurement_noise, 3)
+        self.assertAlmostEqual(gyroscope.yaw_rate, gyroscope.true_yaw_rate + gyroscope.yaw_rate_bias + gyroscope.yaw_rate_measurement_noise, 3)
+
+    def test_gyroscope_bias_and_measurement_noise_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        gyroscope = Gyroscope(fdmexec)
+
+        gyroscope._roll_rate_measurement_noise = 0.0
+
+        fdmexec.Run()
+
+        self.assertEqual(gyroscope._roll_rate_measurement_noise, 0.0)
+
+        run_until = fdmexec.GetSimTime() + (1.0/gyroscope.update_rate) + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertNotEqual(gyroscope.roll_rate_measurement_noise, 0.0)
 
 class ThermometerTests(TestCase):
     def test_thermometer(self):
@@ -145,9 +170,9 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.gyroscope.roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)))
-        self.assertAlmostEqual(sensors.gyroscope.pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)))
-        self.assertAlmostEqual(sensors.gyroscope.yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)))
+        self.assertAlmostEqual(sensors.gyroscope.true_roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)))
+        self.assertAlmostEqual(sensors.gyroscope.true_pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)))
+        self.assertAlmostEqual(sensors.gyroscope.true_yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)))
 
     def test_thermometer(self):
         huginn_data_path = configuration.get_data_path()

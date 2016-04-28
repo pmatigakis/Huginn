@@ -74,6 +74,9 @@ class TestGyroscopeData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, gyroscope_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, gyroscope_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.yaw_rate, gyroscope_data["yaw_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_roll_rate, gyroscope_data["true_roll_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_pitch_rate, gyroscope_data["true_pitch_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_yaw_rate, gyroscope_data["true_yaw_rate"], 3)
 
 class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
@@ -323,9 +326,9 @@ class TestFDMData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.accelerometer.true_x, fdm_data["x_acceleration"], 3)
         self.assertAlmostEqual(aircraft.sensors.accelerometer.true_y, fdm_data["y_acceleration"], 3)
         self.assertAlmostEqual(aircraft.sensors.accelerometer.true_z, fdm_data["z_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, fdm_data["roll_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, fdm_data["pitch_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.yaw_rate, fdm_data["yaw_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_roll_rate, fdm_data["roll_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_pitch_rate, fdm_data["pitch_rate"], 3)
+        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_yaw_rate, fdm_data["yaw_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.thermometer.temperature, fdm_data["temperature"], 3)
         self.assertAlmostEqual(aircraft.sensors.pressure_sensor.pressure, fdm_data["static_pressure"], 3)
         self.assertAlmostEqual(aircraft.sensors.pitot_tube.pressure, fdm_data["total_pressure"], 3)

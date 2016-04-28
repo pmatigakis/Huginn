@@ -288,6 +288,9 @@ Should Be Valid Gyroscope Response
     JSON Response Should Contain item    ${response}  roll_rate
     JSON Response Should Contain item    ${response}  pitch_rate
     JSON Response Should Contain item    ${response}  yaw_rate
+    JSON Response Should Contain item    ${response}  true_roll_rate
+    JSON Response Should Contain item    ${response}  true_pitch_rate
+    JSON Response Should Contain item    ${response}  true_yaw_rate
 
 Should Be Gyroscope Response With Minimal Aircraft Rotation
     [Arguments]    ${response}

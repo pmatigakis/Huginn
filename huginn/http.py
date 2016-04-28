@@ -154,6 +154,9 @@ class GyroscopeData(FlightDataResource):
             "roll_rate": self.gyroscope.roll_rate,
             "pitch_rate": self.gyroscope.pitch_rate,
             "yaw_rate": self.gyroscope.yaw_rate,
+            "true_roll_rate": self.gyroscope.true_roll_rate,
+            "true_pitch_rate": self.gyroscope.true_pitch_rate,
+            "true_yaw_rate": self.gyroscope.true_yaw_rate, 
         }
 
         #print("roll_rate", gyroscope_data["roll_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/p-rad_sec")))
@@ -308,9 +311,9 @@ class FDMData(FlightDataResource):
             "x_acceleration": self.aircraft.sensors.accelerometer.true_x,
             "y_acceleration": self.aircraft.sensors.accelerometer.true_y,
             "z_acceleration": self.aircraft.sensors.accelerometer.true_z,
-            "roll_rate": self.aircraft.sensors.gyroscope.roll_rate,
-            "pitch_rate": self.aircraft.sensors.gyroscope.pitch_rate,
-            "yaw_rate": self.aircraft.sensors.gyroscope.yaw_rate,
+            "roll_rate": self.aircraft.sensors.gyroscope.true_roll_rate,
+            "pitch_rate": self.aircraft.sensors.gyroscope.true_pitch_rate,
+            "yaw_rate": self.aircraft.sensors.gyroscope.true_yaw_rate,
             "temperature": self.aircraft.sensors.thermometer.temperature,
             "static_pressure": self.aircraft.sensors.pressure_sensor.pressure,
             "total_pressure": self.aircraft.sensors.pitot_tube.pressure,

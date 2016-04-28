@@ -19,19 +19,14 @@ class Accelerometer(object):
     """
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
-        self.update_rate = 1.0/250.0
+        self.update_rate = 250.0
         self.bias_sigma = 0.02
         self.bias_mu = -0.2
         self.noise_sigma = 0.005
         self.noise_mu = 0.06
-        self._bias = normalvariate(self.bias_mu, self.bias_sigma)
+        self.bias = normalvariate(self.bias_mu, self.bias_sigma)
         self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
-        self._update_at = fdmexec.GetSimTime() + self.update_rate
-
-    @property
-    def bias(self):
-        """The measurement bias in meters/sec^2"""
-        return self._bias
+        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     @property
     def measurement_noise(self):
@@ -39,7 +34,7 @@ class Accelerometer(object):
         if self.fdmexec.GetSimTime() > self._update_at:
             self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
 
-            self._update_at += self.fdmexec.GetSimTime() + self.update_rate
+            self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
 
         return self._measurement_noise
 
@@ -77,21 +72,78 @@ class Gyroscope(object):
     """The Gyroscope class contains the angular velocities measured on the body axis."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.update_rate = 100.0
+        self.bias_sigma = 0.0005
+        self.bias_mu = 0.002
+        self.noise_sigma = 0.00001
+        self.noise_mu = 0.0
+        self.roll_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
+        self.pitch_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
+        self.yaw_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
+        self._roll_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+        self._pitch_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+        self._yaw_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+
+        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+
+    def __update_measurements(self):
+        if self.fdmexec.GetSimTime() > self._update_at:
+            self._roll_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+            self._pitch_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+            self._yaw_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+
+            self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
+
+    @property
+    def roll_rate_measurement_noise(self):
+        """The roll rate measurement noise in regrees/sec"""
+        self.__update_measurements()
+
+        return self._roll_rate_measurement_noise 
+
+    @property
+    def pitch_rate_measurement_noise(self):
+        """The pitch rate measurement noise in regrees/sec"""
+        self.__update_measurements()
+
+        return self._pitch_rate_measurement_noise
+
+    @property
+    def yaw_rate_measurement_noise(self):
+        """The yaw rate measurement noise in regrees/sec"""
+        self.__update_measurements()
+
+        return self._yaw_rate_measurement_noise
+
+    @property
+    def true_roll_rate(self):
+        """Return the actual roll rate in degrees/sec"""
+        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(1))
+
+    @property
+    def true_pitch_rate(self):
+        """Return the actual pitch rate in degrees/sec"""
+        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(2))
+
+    @property
+    def true_yaw_rate(self):
+        """Return the actual yaw rate in degrees/sec"""
+        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(3))
 
     @property
     def roll_rate(self):
         """The roll rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(1))
+        return self.true_roll_rate + self.roll_rate_bias + self.roll_rate_measurement_noise
 
     @property
     def pitch_rate(self):
         """The pitch rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(2))
+        return self.true_pitch_rate + self.pitch_rate_bias + self.pitch_rate_measurement_noise
 
     @property
     def yaw_rate(self):
         """The yaw rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(3))
+        return self.true_yaw_rate + self.yaw_rate_bias + self.yaw_rate_measurement_noise
 
 class Thermometer(object):
     """The Thermometer class contains the temperature measured by the
