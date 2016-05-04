@@ -139,7 +139,31 @@ class PressureSensorTests(TestCase):
 
         pressure_sensor = PressureSensor(fdmexec)
 
-        self.assertAlmostEqual(pressure_sensor.pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()))
+        self.assertAlmostEqual(pressure_sensor.true_pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()), 3)
+        self.assertAlmostEqual(pressure_sensor.pressure, pressure_sensor.true_pressure + pressure_sensor.measurement_noise, 3)
+
+    def test_pressure_sensor_meaurement_noise_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        pressure_sensor = PressureSensor(fdmexec)
+
+        pressure_sensor._measurement_noise = 0.0
+
+        fdmexec.Run()
+        
+        self.assertEqual(pressure_sensor._measurement_noise, 0.0)
+        self.assertEqual(pressure_sensor.measurement_noise, 0.0)
+
+        run_until = fdmexec.GetSimTime() + (1.0/pressure_sensor.update_rate) + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertNotEqual(pressure_sensor.measurement_noise, 0.0)
+        self.assertNotEqual(pressure_sensor._measurement_noise, 0.0)
 
 class PitotTubeTests(TestCase):
     def test_pitot_tube(self):
@@ -151,7 +175,31 @@ class PitotTubeTests(TestCase):
 
         pitot_tube = PitotTube(fdmexec)
 
-        self.assertAlmostEqual(pitot_tube.pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()))
+        self.assertAlmostEqual(pitot_tube.true_pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()), 3)
+        self.assertAlmostEqual(pitot_tube.pressure, pitot_tube.true_pressure + pitot_tube.measurement_noise, 3)
+
+    def test_pitot_tube_meaurement_noise_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        pitot_tube = PitotTube(fdmexec)
+
+        pitot_tube._measurement_noise = 0.0
+
+        fdmexec.Run()
+        
+        self.assertEqual(pitot_tube._measurement_noise, 0.0)
+        self.assertEqual(pitot_tube.measurement_noise, 0.0)
+
+        run_until = fdmexec.GetSimTime() + (1.0/pitot_tube.update_rate) + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertNotEqual(pitot_tube.measurement_noise, 0.0)
+        self.assertNotEqual(pitot_tube._measurement_noise, 0.0)
 
 class InertialNavigationSystemTests(TestCase):
     def test_inertialNavigationSystem(self):
@@ -218,7 +266,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.pressure_sensor.pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()))
+        self.assertAlmostEqual(sensors.pressure_sensor.true_pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()))
 
     def test_pitot_tube(self):
         huginn_data_path = configuration.get_data_path()
@@ -229,7 +277,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.pitot_tube.pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()))
+        self.assertAlmostEqual(sensors.pitot_tube.true_pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()))
 
     def test_inertialNavigationSystem(self):
         huginn_data_path = configuration.get_data_path()

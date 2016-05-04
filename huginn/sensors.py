@@ -178,21 +178,55 @@ class PressureSensor(object):
     aircraft's sensors."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.update_rate = 250.0
+        self.bias = 100.0
+        self.sigma = 10.0
+        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+        self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+    @property
+    def measurement_noise(self):
+        if self.fdmexec.GetSimTime() > self._update_at:
+            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+        return self._measurement_noise
+
+    @property
+    def true_pressure(self):
+        """Returns the true pressure in Pascal"""
+        return convert_psf_to_pascal(self.fdmexec.GetAtmosphere().GetPressure())
 
     @property
     def pressure(self):
         """Returns the pressure in Pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAtmosphere().GetPressure())
+        return self.true_pressure + self.measurement_noise
 
 class PitotTube(object):
     """The PitosTure class simulates the aircraft's pitot system."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.update_rate = 250.0
+        self.bias = 100.0
+        self.sigma = 10.0
+        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+        self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+    @property
+    def measurement_noise(self):
+        if self.fdmexec.GetSimTime() > self._update_at:
+            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+        return self._measurement_noise
+
+    @property
+    def true_pressure(self):
+        """Return the true pressure in pascal"""
+        return convert_psf_to_pascal(self.fdmexec.GetAuxiliary().GetTotalPressure())
 
     @property
     def pressure(self):
         """Return the pressure in pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAuxiliary().GetTotalPressure())
+        return self.true_pressure + self.measurement_noise
 
 class InertialNavigationSystem(object):
     """The InertialNavigationSystem class is used to simulate the aircraft's
