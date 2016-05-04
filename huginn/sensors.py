@@ -150,11 +150,28 @@ class Thermometer(object):
     aircraft's sensors."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self.update_rate = 50.0
+        self.bias = 0.1
+        self.sigma = 0.5
+        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+        self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+    @property
+    def measurement_noise(self):
+        if self.fdmexec.GetSimTime() > self._update_at:
+            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
+        return self._measurement_noise
+
+    @property
+    def true_temperature(self):
+        """return the actual temperature in Kelvin"""
+        return convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
 
     @property
     def temperature(self):
         """return the temperature in Kelvin"""
-        return convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
+        return self.true_temperature + self.measurement_noise
 
 class PressureSensor(object):
     """The PressureSensor class contains the static presured measured by the

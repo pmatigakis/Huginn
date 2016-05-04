@@ -314,7 +314,7 @@ class FDMData(FlightDataResource):
             "roll_rate": self.aircraft.sensors.gyroscope.true_roll_rate,
             "pitch_rate": self.aircraft.sensors.gyroscope.true_pitch_rate,
             "yaw_rate": self.aircraft.sensors.gyroscope.true_yaw_rate,
-            "temperature": self.aircraft.sensors.thermometer.temperature,
+            "temperature": self.aircraft.sensors.thermometer.true_temperature,
             "static_pressure": self.aircraft.sensors.pressure_sensor.pressure,
             "total_pressure": self.aircraft.sensors.pitot_tube.pressure,
             "roll": self.aircraft.sensors.inertial_navigation_system.roll,

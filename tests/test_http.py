@@ -329,7 +329,7 @@ class TestFDMData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.gyroscope.true_roll_rate, fdm_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.true_pitch_rate, fdm_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.true_yaw_rate, fdm_data["yaw_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.thermometer.temperature, fdm_data["temperature"], 3)
+        self.assertAlmostEqual(aircraft.sensors.thermometer.true_temperature, fdm_data["temperature"], 3)
         self.assertAlmostEqual(aircraft.sensors.pressure_sensor.pressure, fdm_data["static_pressure"], 3)
         self.assertAlmostEqual(aircraft.sensors.pitot_tube.pressure, fdm_data["total_pressure"], 3)
         self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.roll, fdm_data["roll"], 3)

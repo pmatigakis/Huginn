@@ -103,7 +103,31 @@ class ThermometerTests(TestCase):
 
         thermometer = Thermometer(fdmexec)
 
-        self.assertAlmostEqual(thermometer.temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
+        self.assertAlmostEqual(thermometer.true_temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
+        self.assertAlmostEqual(thermometer.temperature, thermometer.true_temperature + thermometer.measurement_noise)
+
+    def test_thermometer_meaurement_noise_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        thermometer = Thermometer(fdmexec)
+
+        thermometer._measurement_noise = 0.0
+
+        fdmexec.Run()
+        
+        self.assertEqual(thermometer._measurement_noise, 0.0)
+        self.assertEqual(thermometer.measurement_noise, 0.0)
+
+        run_until = fdmexec.GetSimTime() + (1.0/thermometer.update_rate) + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertNotEqual(thermometer.measurement_noise, 0.0)
+        self.assertNotEqual(thermometer._measurement_noise, 0.0)
 
 class PressureSensorTests(TestCase):
     def test_presure_sensor(self):
@@ -183,7 +207,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.thermometer.temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
+        self.assertAlmostEqual(sensors.thermometer.true_temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
 
     def test_presure_sensor(self):
         huginn_data_path = configuration.get_data_path()
