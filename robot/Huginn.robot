@@ -248,9 +248,9 @@ Should Be Valid GPS Response
 
 Should Be GPS Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
-    Value Close To    ${response.json()['latitude']}  37.923255  0.001
-    Value Close To    ${response.json()['longitude']}  23.921773  0.001
-    Value Close To    ${response.json()['altitude']}  300.00000  10.0
+    Value Close To    ${response.json()['latitude']}  37.923255  0.005
+    Value Close To    ${response.json()['longitude']}  23.921773  0.005
+    Value Close To    ${response.json()['altitude']}  300.00000  30.0
     Value Close To    ${response.json()['airspeed']}  30.00000  5.0
     Value Close To    ${response.json()['heading']}  45.00000  5.0
 
@@ -266,15 +266,12 @@ Should Be Valid Accelerometer Response
     JSON Response Should Contain item    ${response}  x
     JSON Response Should Contain item    ${response}  y
     JSON Response Should Contain item    ${response}  z
-    JSON Response Should Contain item    ${response}  true_x
-    JSON Response Should Contain item    ${response}  true_y
-    JSON Response Should Contain item    ${response}  true_z
 
 Should Be Accelerometer Response With Aircraft Almost Level
     [Arguments]    ${response}
-    Value Close To    ${response.json()['true_x']}  0.0  3.0
-    Value Close To    ${response.json()['true_y']}  0.0  3.0
-    Value Close To    ${response.json()['true_z']}  -9.8  3.0
+    Value Close To    ${response.json()['x']}  0.0  5.0
+    Value Close To    ${response.json()['y']}  0.0  5.0
+    Value Close To    ${response.json()['z']}  -9.8  5.0
 
 Get Gyroscope Data
     Create Session    huginn_web_server  ${HUGINN_URL}
@@ -288,9 +285,6 @@ Should Be Valid Gyroscope Response
     JSON Response Should Contain item    ${response}  roll_rate
     JSON Response Should Contain item    ${response}  pitch_rate
     JSON Response Should Contain item    ${response}  yaw_rate
-    JSON Response Should Contain item    ${response}  true_roll_rate
-    JSON Response Should Contain item    ${response}  true_pitch_rate
-    JSON Response Should Contain item    ${response}  true_yaw_rate
 
 Should Be Gyroscope Response With Minimal Aircraft Rotation
     [Arguments]    ${response}
@@ -362,13 +356,13 @@ Should Be Valid INS Response
 
 Should Be Valid INS Response When Aircraft In The Start Location
     [Arguments]    ${response}
-    Value Close To    ${response.json()['latitude']}  37.923255  0.001
-    Value Close To    ${response.json()['longitude']}  23.921773  0.001
-    Value Close To    ${response.json()['altitude']}  300.00000  10.0
-    Value Close To    ${response.json()['airspeed']}  30.00000  5.0
-    Value Close To    ${response.json()['heading']}   45.00000  5.0
-    Value Close To    ${response.json()['roll']}  0.0  3.0
-    Value Close To    ${response.json()['pitch']}  0.0  3.0
+    Value Close To    ${response.json()['latitude']}  37.923255  0.005
+    Value Close To    ${response.json()['longitude']}  23.921773  0.005
+    Value Close To    ${response.json()['altitude']}  300.00000  30.0
+    Value Close To    ${response.json()['airspeed']}  30.00000  10.0
+    Value Close To    ${response.json()['heading']}   45.00000  10.0
+    Value Close To    ${response.json()['roll']}  0.0  5.0
+    Value Close To    ${response.json()['pitch']}  0.0  5.0
 
 Get Engine Data
     Create Session    huginn_web_server  ${HUGINN_URL}

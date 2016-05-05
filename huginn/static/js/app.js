@@ -88,7 +88,7 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
 function start_data_update(){
 	setInterval(function(){
 		//$.getJSON("fdm", function(data){
-		$.getJSON("aircraft/sensors/ins", function(data){
+		$.getJSON("fdm", function(data){
 			var roll = data["roll"];
 			var pitch = data["pitch"];
 			var airspeed = data["airspeed"];

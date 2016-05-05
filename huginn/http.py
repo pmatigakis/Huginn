@@ -129,9 +129,6 @@ class AccelerometerData(FlightDataResource):
             "x": self.accelerometer.x,
             "y": self.accelerometer.y,
             "z": self.accelerometer.z,
-            "true_x": self.accelerometer.true_x,
-            "true_y": self.accelerometer.true_y,
-            "true_z": self.accelerometer.true_z
         }
 
         #print("x_acc", accelerometer_data["x_acceleration"], convert_feet_to_meters(self.aircraft.fdmexec.GetPropertyValue("accelerations/a-pilot-x-ft_sec2")))
@@ -153,10 +150,7 @@ class GyroscopeData(FlightDataResource):
         gyroscope_data = {
             "roll_rate": self.gyroscope.roll_rate,
             "pitch_rate": self.gyroscope.pitch_rate,
-            "yaw_rate": self.gyroscope.yaw_rate,
-            "true_roll_rate": self.gyroscope.true_roll_rate,
-            "true_pitch_rate": self.gyroscope.true_pitch_rate,
-            "true_yaw_rate": self.gyroscope.true_yaw_rate, 
+            "yaw_rate": self.gyroscope.yaw_rate
         }
 
         #print("roll_rate", gyroscope_data["roll_rate"], degrees(self.aircraft.fdmexec.GetPropertyValue("velocities/p-rad_sec")))
@@ -317,8 +311,8 @@ class FDMData(FlightDataResource):
             "temperature": self.aircraft.sensors.thermometer.true_temperature,
             "static_pressure": self.aircraft.sensors.pressure_sensor.true_pressure,
             "total_pressure": self.aircraft.sensors.pitot_tube.true_pressure,
-            "roll": self.aircraft.sensors.inertial_navigation_system.roll,
-            "pitch": self.aircraft.sensors.inertial_navigation_system.pitch,
+            "roll": self.aircraft.sensors.inertial_navigation_system.true_roll,
+            "pitch": self.aircraft.sensors.inertial_navigation_system.true_pitch,
             "thrust": self.aircraft.engine.thrust,
             "aileron": self.aircraft.controls.aileron,
             "elevator": self.aircraft.controls.elevator,

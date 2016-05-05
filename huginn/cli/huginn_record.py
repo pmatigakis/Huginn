@@ -7,7 +7,7 @@ from twisted.web.http_headers import Headers
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
-from huginn.io import CSVFDMDataWriter, FDMDataPrinter
+from huginn.io import CSVFDMDataWriter
 
 def get_arguments():
     parser = ArgumentParser(description="Record the fdm data")
@@ -35,9 +35,9 @@ def request_fdm_data(args, csv_telemetry_writer):
     return d
 
 def process_fdm_data_response(response, csv_telemetry_writer):
-        d = readBody(response)
-        d.addCallback(save_fdm_data, csv_telemetry_writer)
-        return d
+    d = readBody(response)
+    d.addCallback(save_fdm_data, csv_telemetry_writer)
+    return d
 
 def save_fdm_data(body, csv_telemetry_writer):
     fdm_data = json.loads(body)

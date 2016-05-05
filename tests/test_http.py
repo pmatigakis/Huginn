@@ -53,9 +53,6 @@ class TestAccelerometerData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.accelerometer.x, accelerometer_data["x"], 3)
         self.assertAlmostEqual(aircraft.sensors.accelerometer.y, accelerometer_data["y"], 3)
         self.assertAlmostEqual(aircraft.sensors.accelerometer.z, accelerometer_data["z"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_x, accelerometer_data["true_x"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_y, accelerometer_data["true_y"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_z, accelerometer_data["true_z"], 3)
 
 class TestGyroscopeData(TestCase):
     def test_get_gyroscope_data(self):
@@ -74,9 +71,6 @@ class TestGyroscopeData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.gyroscope.roll_rate, gyroscope_data["roll_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.pitch_rate, gyroscope_data["pitch_rate"], 3)
         self.assertAlmostEqual(aircraft.sensors.gyroscope.yaw_rate, gyroscope_data["yaw_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_roll_rate, gyroscope_data["true_roll_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_pitch_rate, gyroscope_data["true_pitch_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_yaw_rate, gyroscope_data["true_yaw_rate"], 3)
 
 class TestThermometerData(TestCase):
     def test_get_thermometer_data(self):
@@ -332,8 +326,8 @@ class TestFDMData(TestCase):
         self.assertAlmostEqual(aircraft.sensors.thermometer.true_temperature, fdm_data["temperature"], 3)
         self.assertAlmostEqual(aircraft.sensors.pressure_sensor.true_pressure, fdm_data["static_pressure"], 3)
         self.assertAlmostEqual(aircraft.sensors.pitot_tube.true_pressure, fdm_data["total_pressure"], 3)
-        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.roll, fdm_data["roll"], 3)
-        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.pitch, fdm_data["pitch"], 3)
+        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.true_roll, fdm_data["roll"], 3)
+        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.true_pitch, fdm_data["pitch"], 3)
         self.assertAlmostEqual(aircraft.engine.thrust, fdm_data["thrust"], 3)
         self.assertAlmostEqual(aircraft.controls.aileron, fdm_data["aileron"], 3)
         self.assertAlmostEqual(aircraft.controls.elevator, fdm_data["elevator"], 3)

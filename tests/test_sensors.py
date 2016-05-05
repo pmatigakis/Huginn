@@ -211,13 +211,74 @@ class InertialNavigationSystemTests(TestCase):
 
         ins = InertialNavigationSystem(fdmexec)
 
-        self.assertAlmostEqual(ins.roll, fdmexec.GetPropagate().GetEulerDeg(1))
-        self.assertAlmostEqual(ins.pitch, fdmexec.GetPropagate().GetEulerDeg(2))
-        self.assertAlmostEqual(ins.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
-        self.assertAlmostEqual(ins.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
-        self.assertAlmostEqual(ins.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(ins.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
-        self.assertAlmostEqual(ins.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))
+        self.assertAlmostEqual(ins.true_roll, fdmexec.GetPropagate().GetEulerDeg(1), 3)
+        self.assertAlmostEqual(ins.true_pitch, fdmexec.GetPropagate().GetEulerDeg(2), 3)
+        self.assertAlmostEqual(ins.true_latitude, fdmexec.GetPropagate().GetLatitudeDeg(), 3)
+        self.assertAlmostEqual(ins.true_longitude, fdmexec.GetPropagate().GetLongitudeDeg(), 3)
+        self.assertAlmostEqual(ins.true_altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
+        self.assertAlmostEqual(ins.true_airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
+        self.assertAlmostEqual(ins.true_heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)
+
+        self.assertAlmostEqual(ins.roll, ins.true_roll + ins.roll_measurement_noise, 3)
+        self.assertAlmostEqual(ins.pitch, ins.true_pitch + ins.pitch_measurement_noise, 3)
+        self.assertAlmostEqual(ins.latitude, ins.true_latitude + ins.latitude_measurement_noise, 3)
+        self.assertAlmostEqual(ins.longitude, ins.true_longitude + ins.longitude_measurement_noise, 3)
+        self.assertAlmostEqual(ins.altitude, ins.true_altitude + ins.altitude_measurement_noise, 3)
+        self.assertAlmostEqual(ins.airspeed, ins.true_airspeed + ins.airspeed_measurement_noise, 3)
+        self.assertAlmostEqual(ins.heading, ins.true_heading + ins.heading_measurement_noise, 3)
+
+    def test_ins_meaurement_noise_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        ins = InertialNavigationSystem(fdmexec)
+
+        ins._roll_measurement_noise = 0.0
+        ins._pitch_measurement_noise = 0.0
+        ins._heading_measurement_noise = 0.0
+        ins._latitude_measurement_noise = 0.0
+        ins._longitude_measurement_noise = 0.0
+        ins._altitude_measurement_noise = 0.0
+        ins._airspeed_measurement_noise = 0.0
+
+        fdmexec.Run()
+        
+        self.assertEqual(ins._roll_measurement_noise, 0.0)
+        self.assertEqual(ins.roll_measurement_noise, 0.0)
+        self.assertEqual(ins._pitch_measurement_noise, 0.0)
+        self.assertEqual(ins.pitch_measurement_noise, 0.0)
+        self.assertEqual(ins._heading_measurement_noise, 0.0)
+        self.assertEqual(ins.heading_measurement_noise, 0.0)
+        self.assertEqual(ins._latitude_measurement_noise, 0.0)
+        self.assertEqual(ins.latitude_measurement_noise, 0.0)
+        self.assertEqual(ins._longitude_measurement_noise, 0.0)
+        self.assertEqual(ins.longitude_measurement_noise, 0.0)
+        self.assertEqual(ins._airspeed_measurement_noise, 0.0)
+        self.assertEqual(ins.airspeed_measurement_noise, 0.0)
+        self.assertEqual(ins._altitude_measurement_noise, 0.0)
+        self.assertEqual(ins.altitude_measurement_noise, 0.0)
+
+        run_until = fdmexec.GetSimTime() + (1.0/ins.update_rate) + 1.0
+        while fdmexec.GetSimTime() < run_until:
+            fdmexec.Run()
+
+        self.assertNotEqual(ins.roll_measurement_noise, 0.0)
+        self.assertNotEqual(ins._roll_measurement_noise, 0.0)
+        self.assertNotEqual(ins.pitch_measurement_noise, 0.0)
+        self.assertNotEqual(ins._pitch_measurement_noise, 0.0)
+        self.assertNotEqual(ins.heading_measurement_noise, 0.0)
+        self.assertNotEqual(ins._heading_measurement_noise, 0.0)
+        self.assertNotEqual(ins.latitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins._latitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins.longitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins._longitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins.altitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins._altitude_measurement_noise, 0.0)
+        self.assertNotEqual(ins.airspeed_measurement_noise, 0.0)
+        self.assertNotEqual(ins._airspeed_measurement_noise, 0.0)
 
 class SensorTests(TestCase):
     def test_accelerometer(self):
@@ -288,10 +349,10 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.inertial_navigation_system.roll, fdmexec.GetPropagate().GetEulerDeg(1))
-        self.assertAlmostEqual(sensors.inertial_navigation_system.pitch, fdmexec.GetPropagate().GetEulerDeg(2))
-        self.assertAlmostEqual(sensors.inertial_navigation_system.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
-        self.assertAlmostEqual(sensors.inertial_navigation_system.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
-        self.assertAlmostEqual(sensors.inertial_navigation_system.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(sensors.inertial_navigation_system.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
-        self.assertAlmostEqual(sensors.inertial_navigation_system.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_roll, fdmexec.GetPropagate().GetEulerDeg(1), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_pitch, fdmexec.GetPropagate().GetEulerDeg(2), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_latitude, fdmexec.GetPropagate().GetLatitudeDeg(), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_longitude, fdmexec.GetPropagate().GetLongitudeDeg(), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)

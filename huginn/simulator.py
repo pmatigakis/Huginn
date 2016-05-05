@@ -155,5 +155,5 @@ class Simulator(object):
         print("================")
         print("Time: %f seconds" % self.simulation_time)
         print("DT: %f seconds" % self.dt)
-        print("Running: %s" % (not self.paused))
+        print("Running: %s" % (not self.is_paused()))
         print("")
