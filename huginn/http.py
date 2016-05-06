@@ -7,6 +7,8 @@ import json
 import logging
 
 from twisted.web.resource import Resource
+from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
+from twisted.internet import reactor
 
 class AircraftResource(Resource):
     """This class serves as the root for the aircraft web resources."""
@@ -574,3 +576,36 @@ class MapData(Resource):
                                              "application/json")
 
         return json.dumps({"result": "ok"})
+
+class FDMDataWebSocketFactory(WebSocketServerFactory):
+    """The FDMDataWebSocketFactory class is a factory that creates the protocol
+    objects for the fdm data transmission through web sockets"""
+    def __init__(self, fdm, update_rate, *args, **kwargs):
+        WebSocketServerFactory.__init__(self, *args, **kwargs)
+
+        self.fdm = fdm
+        self.update_rate = update_rate
+
+class FDMDataWebSocketProtocol(WebSocketServerProtocol):
+    """The FDMDataWebSocketProtocol class if the protocol class that transmits
+    the fdm data using a web socket"""
+    def onConnect(self, request):
+        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)  # @UndefinedVariable
+
+    def send_fdm_data(self):
+        """Send the fdm data"""
+        fdm_data = {
+            "roll": self.factory.fdm.orientation.roll,
+            "pitch": self.factory.fdm.orientation.pitch,
+            "airspeed": self.factory.fdm.velocities.airspeed,
+            "latitude": self.factory.fdm.position.latitude,
+            "longitude": self.factory.fdm.position.longitude,
+            "altitude": self.factory.fdm.position.altitude,
+            "heading": self.factory.fdm.position.heading
+        }
+
+        payload = json.dumps(fdm_data).encode("utf8")
+
+        self.sendMessage(payload, False)
+
+        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)  # @UndefinedVariable

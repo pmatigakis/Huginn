@@ -11,7 +11,8 @@ from twisted.web.static import File
 from twisted.internet.task import LoopingCall
 
 from huginn import configuration
-from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData
+from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData,\
+                        FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
 
@@ -28,6 +29,8 @@ class SimulationServer(object):
         self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
         self.sensors_port = configuration.SENSORS_PORT
+        self.websocket_port = configuration.WEBSOCKET_PORT
+        self.websocket_update_rate = configuration.WEBSOCKET_UPDATE_RATE
         self.logger = logging.getLogger("huginn")
 
     def _initialize_web_server(self):
@@ -89,6 +92,14 @@ class SimulationServer(object):
 
         reactor.listenTCP(self.sensors_port, sensor_data_factory)  # @UndefinedVariable
 
+    def _initialize_websocket_server(self):
+        factory = FDMDataWebSocketFactory(self.simulator.fdm,
+                                          self.websocket_update_rate,
+                                          "ws://localhost:%d" % self.websocket_port)
+        factory.protocol = FDMDataWebSocketProtocol
+
+        reactor.listenTCP(self.websocket_port, factory)  # @UndefinedVariable
+
     def start(self):
         """Start the simulator server"""
         self._initialize_controls_server()
@@ -96,6 +107,7 @@ class SimulationServer(object):
         self._initialize_web_server()
         self._initialize_sensors_server()
         self._initialize_simulator_updater()
+        self._initialize_websocket_server()
 
         self.logger.info("Starting the simulator server")
         reactor.run()  # @UndefinedVariable

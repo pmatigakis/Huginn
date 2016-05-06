@@ -1,7 +1,7 @@
 import math
 from unittest import TestCase
 
-from huginn.fdm import FDMBuilder, Accelerations, FDM, Velocities
+from huginn.fdm import FDMBuilder, Accelerations, FDM, Velocities, Position, Orientation
 from huginn import configuration
 from huginn.unit_conversions import convert_feet_to_meters
 
@@ -14,6 +14,8 @@ ic_z_acceleration = convert_feet_to_meters(-26.564349)
 ic_roll_rate = math.degrees(0.020975) 
 ic_pitch_rate = math.degrees(-0.056170)
 ic_yaw_rate = math.degrees(0.019293)
+
+ic_vtrue = convert_feet_to_meters(90.478887)
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
@@ -73,3 +75,32 @@ class VelocitiesTests(TestCase):
         self.assertAlmostEqual(velocities.roll_rate, ic_roll_rate, 3)
         self.assertAlmostEqual(velocities.pitch_rate, ic_pitch_rate, 3)
         self.assertAlmostEqual(velocities.yaw_rate, ic_yaw_rate, 3)
+        self.assertAlmostEqual(velocities.airspeed, ic_vtrue, 3)
+
+class PositionTests(TestCase):
+    def test_aircraft_position(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        position = Position(fdmexec)
+
+        self.assertAlmostEqual(position.latitude, fdmexec.GetPropagate().GetLatitudeDeg(), 3)
+        self.assertAlmostEqual(position.longitude, fdmexec.GetPropagate().GetLongitudeDeg(), 3)
+        self.assertAlmostEqual(position.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
+        self.assertAlmostEqual(position.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)
+
+class OrientationTests(TestCase):
+    def test_aircraft_orientation(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        orientation = Orientation(fdmexec)
+
+        self.assertAlmostEqual(orientation.roll, fdmexec.GetPropagate().GetEulerDeg(1), 3)
+        self.assertAlmostEqual(orientation.pitch, fdmexec.GetPropagate().GetEulerDeg(2), 3)

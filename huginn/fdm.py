@@ -288,6 +288,51 @@ class Velocities(object):
         """Return the yaw rate in degrees/sec"""
         return degrees(self.fdmexec.GetPropagate().GetPQR(3))
 
+    @property
+    def airspeed(self):
+        """Return the airspeed in meters/second"""
+        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
+
+class Position(object):
+    """The Position class contains data about the position of the aircraft"""
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def latitude(self):
+        """Returns the latitude in degrees"""
+        return self.fdmexec.GetPropagate().GetLatitudeDeg()
+
+    @property
+    def longitude(self):
+        """Returns the longitude in degrees"""
+        return self.fdmexec.GetPropagate().GetLongitudeDeg()
+
+    @property
+    def altitude(self):
+        """Returns the altitude in meters"""
+        return self.fdmexec.GetPropagate().GetAltitudeASLmeters()
+
+    @property
+    def heading(self):
+        """Returns the heading in degrees"""
+        return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+
+class Orientation(object):
+    """The Orientation class contains data about the orientation of the aircraft"""
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def roll(self):
+        """Return the roll angle in degrees"""
+        return self.fdmexec.GetPropagate().GetEulerDeg(1)
+
+    @property
+    def pitch(self):
+        """Return the pitch angle in degrees"""
+        return self.fdmexec.GetPropagate().GetEulerDeg(2)
+
 class FDM(object):
     """The FDM object is a wrapper around the JSBSim objects that contains the
     values of the flight dynamics model."""
@@ -295,3 +340,5 @@ class FDM(object):
         self.fdmexec = fdmexec
         self.accelerations = Accelerations(fdmexec)
         self.velocities = Velocities(fdmexec)
+        self.position = Position(fdmexec)
+        self.orientation = Orientation(fdmexec)

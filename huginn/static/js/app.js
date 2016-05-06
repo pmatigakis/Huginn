@@ -86,51 +86,34 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
 }
 
 function start_data_update(){
-	setInterval(function(){
-		//$.getJSON("fdm", function(data){
-		$.getJSON("fdm", function(data){
-			var roll = data["roll"];
-			var pitch = data["pitch"];
-			var airspeed = data["airspeed"];
-			var altitude = data["altitude"];
-			var heading = data["heading"];
-			var latitude = data["latitude"];
-			var longitude = data["longitude"];
-			
-			update_hud(altitude, airspeed, heading, roll, pitch);
-			update_map(latitude, longitude);
-			aircraft_info.update(data);
-			
-			//the -90 is required because the model is facing east
-			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
-		});
-	}, 250);
+	var socket = new WebSocket("ws://localhost:8091");
+
+	socket.onmessage = function(msg){
+		data = JSON.parse(msg.data);
+
+		var roll = data["roll"];
+		var pitch = data["pitch"];
+		var airspeed = data["airspeed"];
+		var altitude = data["altitude"];
+		var heading = data["heading"];
+		var latitude = data["latitude"];
+		var longitude = data["longitude"];
+		
+		update_hud(altitude, airspeed, heading, roll, pitch);
+		
+		//the -90 is required because the model is facing east
+		update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);		
+	}
 	
-	//TODO: Comment out this until I add better waypoint drawing functions
-	/*
-	setInterval(function(){
-		$.getJSON("map", function(data){
-			for(var i = 0; i < markers.length; i++){
-				map.removeLayer(markers[i]);
-			}
-			
-			markers = [];
-			
-			for(var i = 0; i < data.length; i++){
-				var latitude = data[i].latitude;
-				var longitude = data[i].longitude;
-				var marker = L.marker([latitude, longitude]);
-				marker.addTo(map);
-				markers.push(marker);
-			}
-		});
-	}, 2000);
-	*/
+	socket.onclose = function(){
+		setTimeout(function(){
+			start_data_update();
+		}, 3000)
+	}
 }
 
 function start_fdm_data_update(){
 	setInterval(function(){
-		//$.getJSON("fdm", function(data){
 		$.getJSON("fdm", function(data){
 			$("#time").text(data["time"]);
 			$("#dt").text(data["dt"]);
@@ -155,6 +138,9 @@ function start_fdm_data_update(){
 			$("#elevator").text(data["elevator"]);
 			$("#rudder").text(data["rudder"]);
 			$("#throttle").text(data["throttle"]);
+			
+			update_map(data["latitude"], data["longitude"]);
+			aircraft_info.update(data);
 		});
 	}, 1000);
 }
