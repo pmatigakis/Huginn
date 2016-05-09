@@ -2,10 +2,10 @@
 The huginn.clients contains classes that can be used to communicate
 and control huginn
 """
-
-import requests
 import csv
 import json
+
+import requests
 
 from huginn import configuration
 
