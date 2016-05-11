@@ -1,3 +1,7 @@
+"""
+The huginn_start script starts the simulator and the simulator server
+"""
+
 import logging
 from argparse import ArgumentParser
 
@@ -32,7 +36,8 @@ def get_arguments():
                         help="The aircraft model that will be used")
 
     parser.add_argument("--log_level", action="store",
-                        choices=["critical", "error", "warning", "info", "debug"],
+                        choices=["critical", "error", "warning",
+                                 "info", "debug"],
                         default="debug",
                         help="Enable debug logs")
 

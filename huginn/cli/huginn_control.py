@@ -1,3 +1,7 @@
+"""
+The huginn_control scripts is used to control the simulator
+"""
+
 from argparse import ArgumentParser
 
 from huginn import configuration

@@ -86,7 +86,10 @@ class Gyroscope(object):
 
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
-    def __update_measurements(self):
+    def _update_measurements(self):
+        """This function checks if the simulation time is greater than the time
+        that this sensor has to update it's measurements. If it is it updates
+        the measurements"""
         if self.fdmexec.GetSimTime() > self._update_at:
             self._roll_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
             self._pitch_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
@@ -97,21 +100,21 @@ class Gyroscope(object):
     @property
     def roll_rate_measurement_noise(self):
         """The roll rate measurement noise in regrees/sec"""
-        self.__update_measurements()
+        self._update_measurements()
 
         return self._roll_rate_measurement_noise
 
     @property
     def pitch_rate_measurement_noise(self):
         """The pitch rate measurement noise in regrees/sec"""
-        self.__update_measurements()
+        self._update_measurements()
 
         return self._pitch_rate_measurement_noise
 
     @property
     def yaw_rate_measurement_noise(self):
         """The yaw rate measurement noise in regrees/sec"""
-        self.__update_measurements()
+        self._update_measurements()
 
         return self._yaw_rate_measurement_noise
 
@@ -158,6 +161,7 @@ class Thermometer(object):
 
     @property
     def measurement_noise(self):
+        """Returns the measurement noise in Kelvin"""
         if self.fdmexec.GetSimTime() > self._update_at:
             self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
 
@@ -186,6 +190,7 @@ class PressureSensor(object):
 
     @property
     def measurement_noise(self):
+        """Returns the measurement noise in Pascal"""
         if self.fdmexec.GetSimTime() > self._update_at:
             self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
 
@@ -213,6 +218,7 @@ class PitotTube(object):
 
     @property
     def measurement_noise(self):
+        """Returns the measurement noise in Pascal"""
         if self.fdmexec.GetSimTime() > self._update_at:
             self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
 
@@ -258,6 +264,7 @@ class InertialNavigationSystem(object):
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     def _update_measurement_noise(self):
+        """Check if the measurements noise needs to update and update it"""
         if self.fdmexec.GetSimTime() > self._update_at:
             self._roll_measurement_noise = normalvariate(self.roll_bias, self.roll_sigma)
             self._pitch_measurement_noise = normalvariate(self.pitch_bias, self.pitch_sigma)
@@ -388,6 +395,7 @@ class InertialNavigationSystem(object):
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
 
 class Sensors(object):
+    """The Sensors class contains all of the aircraft sensors""" 
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.accelerometer = Accelerometer(fdmexec)

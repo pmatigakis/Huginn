@@ -1,3 +1,7 @@
+"""
+The huginn_record script is used to record flight data from the simulator
+"""
+
 from argparse import ArgumentParser
 
 import json

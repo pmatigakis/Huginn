@@ -1,3 +1,7 @@
+"""
+The huginn_record script is used to display the current flight data
+"""
+
 from argparse import ArgumentParser
 
 from requests import ConnectionError

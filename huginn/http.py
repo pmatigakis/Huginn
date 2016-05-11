@@ -1,14 +1,15 @@
 """
 This module contains classes that are used by Huginn's web server and web clients
 """
-
-import requests
 import json
 import logging
 
+import requests
+
 from twisted.web.resource import Resource
-from autobahn.twisted.websocket import WebSocketServerFactory, WebSocketServerProtocol
 from twisted.internet import reactor
+from autobahn.twisted.websocket import (WebSocketServerFactory,
+                                        WebSocketServerProtocol)
 
 class AircraftResource(Resource):
     """This class serves as the root for the aircraft web resources."""
@@ -470,11 +471,11 @@ class WebClient(object):
         self.host = host
         self.port = port
 
-    def _get_host_url(self, page):
-        return "http://%s:%d/aircraft/%s" % (self.host, self.port, page)
-
     def _get_json_data_from_endpoint(self, endpoint):
-        response = requests.get(self._get_host_url(endpoint))
+        """Get the data in json format"""
+        url = "http://%s:%d/aircraft/%s" % (self.host, self.port, endpoint)
+
+        response = requests.get(url)
 
         data = json.loads(response.text)
 

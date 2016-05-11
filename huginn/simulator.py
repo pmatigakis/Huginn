@@ -48,6 +48,7 @@ class Simulator(object):
         self.fdmexec.Resume()
 
     def is_paused(self):
+        """Check if the simulator is paused"""
         return self.fdmexec.Holding()
 
     def reset(self):
@@ -144,6 +145,7 @@ class Simulator(object):
         return True
 
     def set_aircraft_controls(self, aileron, elevator, rudder, throttle):
+        """Update the aircraft controls"""
         self.aircraft.controls.aileron = aileron
         self.aircraft.controls.elevator = elevator
         self.aircraft.controls.rudder = rudder
