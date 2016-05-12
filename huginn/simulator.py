@@ -19,9 +19,7 @@ class Simulator(object):
         """Constructor for the Simulator object
 
         Arguments:
-        fdm: A flight dynamics model
-        aircraft: The aircraft object that will be updated every time the
-                  simulator runs
+        fdmexec: A flight dynamics model
         """
         self.aircraft = Aircraft(fdmexec)
         self.fdmexec = fdmexec
@@ -71,13 +69,6 @@ class Simulator(object):
         self.fdmexec.GetPropulsion().GetEngine(0).SetRunning(1)
         self.aircraft.controls.throttle = 0.0
 
-#        running = self.fdm.reset_to_initial_conditions()
-
-#        if not running:
-#            self.logger.error("Failed to reset the simulator")
-#            return False
-
-#        while self.fdm.get_simulation_time() < 1.0:
         while self.fdmexec.GetSimTime() < 1.0:
             if not self.fdmexec.Run():
                 self.logger.error("Failed to execute initial run")
