@@ -27,8 +27,6 @@ class FDMBuilder(object):
         self.airspeed = configuration.AIRSPEED
         self.heading = configuration.HEADING
 
-        self.trim = False
-
         self.logger = logging.getLogger("huginn")
 
     def create_fdm(self):
@@ -49,11 +47,6 @@ class FDMBuilder(object):
         self.logger.debug("Using aircraft %s", self.aircraft)
         fdmexec.LoadModel(self.aircraft)
 
-        self.logger.debug("starting the aircraft's engines")
-        fdmexec.GetPropulsion().GetEngine(0).SetRunning(1)
-
-        fdmexec.GetFCS().SetThrottleCmd(0, 0.0)
-
         altitude_in_feet = convert_meters_to_feet(self.altitude)
         airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
 
@@ -72,9 +65,6 @@ class FDMBuilder(object):
         if not fdmexec.RunIC():
             self.logger.error("Failed to run initial condition")
             return None
-
-        if self.trim:
-            self.logger.warning("Trimming is not supported yet")
 
         # Run the simulation for 1 second in order to make sure that everything
         # is ok

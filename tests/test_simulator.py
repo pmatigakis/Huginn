@@ -1,8 +1,20 @@
 from unittest import TestCase
 
-from huginn.simulator import Simulator
+from huginn.simulator import Simulator, SimulationBuilder
 from huginn.fdm import FDMBuilder
 from huginn import configuration
+
+class SimulatorBuilderTests(TestCase):
+    def test_create_simulation(self):
+        huginn_data_path = configuration.get_data_path()
+
+        simulation_builder = SimulationBuilder(huginn_data_path)
+        simulation_builder.aircraft = "Rascal"
+
+        simulator = simulation_builder.create_simulator()
+
+        self.assertIsNotNone(simulator)
+        self.assertGreaterEqual(simulator.simulation_time, 0.5)
 
 class TestSimulator(TestCase):
     def test_run_with_real_fdmexec(self):

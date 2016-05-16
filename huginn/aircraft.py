@@ -2,6 +2,8 @@
 The huginn.aircraft module contains classes that wrap the jsbsim object and
 and provide access to the simulated components of the aircraft.
 """
+from PyJSBSim import tFull
+
 from huginn.unit_conversions import convert_libra_to_newtons
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
@@ -96,6 +98,15 @@ class Aircraft(object):
         self.instruments = Instruments(fdmexec)
         self.engine = Engine(fdmexec)
         self.controls = Controls(fdmexec)
+
+    def start_engines(self):
+        """Start the aircraft engines"""
+        for i in range(self.fdmexec.GetPropulsion().GetNumEngines()):
+            self.fdmexec.GetPropulsion().GetEngine(i).SetRunning(1)
+
+    def trim(self, mode=tFull):
+        """Trim the aircraft"""
+        self.fdmexec.DoTrim(mode)
 
     def print_aircraft_state(self):
         """Print the aircraft state"""

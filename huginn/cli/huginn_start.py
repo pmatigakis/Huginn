@@ -6,11 +6,10 @@ import logging
 from argparse import ArgumentParser
 
 from huginn import configuration
-from huginn.simulator import Simulator
+from huginn.simulator import SimulationBuilder
 from huginn.validators import port_number, fdm_data_endpoint,\
                               is_valid_latitude, is_valid_longitude,\
                               is_valid_heading
-from huginn.fdm import FDMBuilder
 from huginn.servers import SimulationServer
 
 def get_arguments():
@@ -152,25 +151,24 @@ def main():
         logger.error("Invalid simulator arguments")
         exit(1)
 
-    fdm_builder = FDMBuilder(huginn_data_path)
-    fdm_builder.aircraft = args.aircraft
-    fdm_builder.trim = args.trim
-    fdm_builder.dt = args.dt
+    simulator_builder = SimulationBuilder(huginn_data_path)
+    simulator_builder.aircraft = args.aircraft
+    simulator_builder.trim = args.trim
+    simulator_builder.dt = args.dt
 
-    fdm_builder.latitude = args.latitude
-    fdm_builder.longitude = args.longitude
-    fdm_builder.altitude = args.altitude
-    fdm_builder.airspeed = args.airspeed
-    fdm_builder.heading = args.heading
+    simulator_builder.latitude = args.latitude
+    simulator_builder.longitude = args.longitude
+    simulator_builder.altitude = args.altitude
+    simulator_builder.airspeed = args.airspeed
+    simulator_builder.heading = args.heading
 
-    logger.debug("Creating the flight dynamics model")
-    fdmexec = fdm_builder.create_fdm()
+    logger.debug("Creating the simulator")
+    simulator = simulator_builder.create_simulator()
 
-    if not fdmexec:
-        logger.error("Failed to create flight model using the aircraft model '%s'", args.aircraft)
+    if not simulator:
+        logger.error("Failed to create the simulator using the aircraft model '%s'", args.aircraft)
         exit(1)
 
-    simulator = Simulator(fdmexec)
     #start the simulator paused
     logger.debug("The simulator will start paused")
     simulator.pause()
