@@ -1,5 +1,6 @@
 """
-This module contains classes that are used by Huginn's web server and web clients
+This module contains classes that are used by Huginn's web server and web
+clients
 """
 import json
 import logging
@@ -23,7 +24,9 @@ class AircraftResource(Resource):
         self.putChild("sensors", SensorsResource(aircraft.sensors))
         self.putChild("instruments", InstrumentsResource(aircraft.instruments))
         self.putChild("engine", EngineData(self.aircraft.engine))
-        self.putChild("flight_controls", FlightControlsData(self.aircraft.controls))
+
+        self.putChild("flight_controls",
+                      FlightControlsData(self.aircraft.controls))
 
     def getChild(self, name, request):
         if name == '':
@@ -49,7 +52,10 @@ class SensorsResource(Resource):
         self.putChild("accelerometer", AccelerometerData(sensors.accelerometer))
         self.putChild("gyroscope", GyroscopeData(sensors.gyroscope))
         self.putChild("thermometer", ThermometerData(sensors.thermometer))
-        self.putChild("pressure_sensor", PressureSensorData(sensors.pressure_sensor))
+
+        self.putChild("pressure_sensor",
+                      PressureSensorData(sensors.pressure_sensor))
+
         self.putChild("pitot_tube", PitotTubeData(sensors.pitot_tube))
         self.putChild("ins", InertialNavigationSystemData(sensors.inertial_navigation_system))
 
@@ -416,7 +422,9 @@ class RunForSimulatorCommand(SimulatorCommand):
         result = self.simulator.run_for(time_to_run)
 
         if not result:
-            self.logger.error("The simulator has failed to run for %f", time_to_run)
+            self.logger.error("The simulator has failed to run for %f",
+                              time_to_run)
+
             reactor.stop()  # @UndefinedVariable
             return self.send_response(request,
                                       {"command": "run_for",

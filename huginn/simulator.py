@@ -34,7 +34,7 @@ class SimulationBuilder(object):
 
     def create_simulator(self):
         """Create the Simulator object"""
-        fdm_builder = FDMBuilder(self.data_path) 
+        fdm_builder = FDMBuilder(self.data_path)
         fdm_builder.dt = self.dt
         fdm_builder.aircraft = self.aircraft
         fdm_builder.latitude = self.latitude
@@ -121,13 +121,14 @@ class Simulator(object):
 
         self.logger.debug("starting the aircraft's engines")
         self.aircraft.start_engines()
-        
+
         while self.simulation_time < 1.0:
             if not self.step():
                 self.logger.error("Failed to execute initial run")
                 return False
 
-        self.logger.debug("Engine thrust after simulation reset %f", self.aircraft.engine.thrust)
+        self.logger.debug("Engine thrust after simulation reset %f",
+                          self.aircraft.engine.thrust)
 
         self.pause()
 
@@ -166,7 +167,8 @@ class Simulator(object):
         time_to_run: the time in seconds that the simulator will run
         """
         if time_to_run < 0.0:
-            self.logger.error("Invalid simulator run time length %f", time_to_run)
+            self.logger.error("Invalid simulator run time length %f",
+                              time_to_run)
             return False
 
         start_time = self.fdmexec.GetSimTime()

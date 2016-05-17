@@ -32,7 +32,8 @@ class Accelerometer(object):
     def measurement_noise(self):
         """The measurement noise in meters/sec^2"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+            self._measurement_noise = normalvariate(self.noise_mu,
+                                                    self.noise_sigma)
 
             self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
 
@@ -69,7 +70,8 @@ class Accelerometer(object):
         return self.true_z + self.bias + self.measurement_noise
 
 class Gyroscope(object):
-    """The Gyroscope class contains the angular velocities measured on the body axis."""
+    """The Gyroscope class contains the angular velocities measured on the body
+    axis."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.update_rate = 100.0
@@ -80,9 +82,15 @@ class Gyroscope(object):
         self.roll_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
         self.pitch_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
         self.yaw_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
-        self._roll_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
-        self._pitch_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
-        self._yaw_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+
+        self._roll_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                          self.noise_sigma)
+
+        self._pitch_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                           self.noise_sigma)
+
+        self._yaw_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                         self.noise_sigma)
 
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
@@ -91,9 +99,14 @@ class Gyroscope(object):
         that this sensor has to update it's measurements. If it is it updates
         the measurements"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._roll_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
-            self._pitch_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
-            self._yaw_rate_measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+            self._roll_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                              self.noise_sigma)
+
+            self._pitch_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                               self.noise_sigma)
+
+            self._yaw_rate_measurement_noise = normalvariate(self.noise_mu,
+                                                             self.noise_sigma)
 
             self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
 
@@ -136,17 +149,23 @@ class Gyroscope(object):
     @property
     def roll_rate(self):
         """The roll rate in degrees/sec"""
-        return self.true_roll_rate + self.roll_rate_bias + self.roll_rate_measurement_noise
+        return (self.true_roll_rate
+                + self.roll_rate_bias
+                + self.roll_rate_measurement_noise)
 
     @property
     def pitch_rate(self):
         """The pitch rate in degrees/sec"""
-        return self.true_pitch_rate + self.pitch_rate_bias + self.pitch_rate_measurement_noise
+        return (self.true_pitch_rate
+                + self.pitch_rate_bias
+                + self.pitch_rate_measurement_noise)
 
     @property
     def yaw_rate(self):
         """The yaw rate in degrees/sec"""
-        return self.true_yaw_rate + self.yaw_rate_bias + self.yaw_rate_measurement_noise
+        return (self.true_yaw_rate
+                + self.yaw_rate_bias
+                + self.yaw_rate_measurement_noise)
 
 class Thermometer(object):
     """The Thermometer class contains the temperature measured by the
@@ -254,25 +273,54 @@ class InertialNavigationSystem(object):
         self.airspeed_sigma = 1.0
         self.altitude_bias = 7.0
         self.altitude_sigma = 3.0
-        self._roll_measurement_noise = normalvariate(self.roll_bias, self.roll_sigma)
-        self._pitch_measurement_noise = normalvariate(self.pitch_bias, self.pitch_sigma)
-        self._heading_measurement_noise = normalvariate(self.heading_bias, self.heading_sigma)
-        self._latitude_measurement_noise = normalvariate(self.latitude_bias, self.latitude_sigma)
-        self._longitude_measurement_noise = normalvariate(self.longitude_bias, self.longitude_sigma)
-        self._altitude_measurement_noise = normalvariate(self.altitude_bias, self.altitude_sigma)
-        self._airspeed_measurement_noise = normalvariate(self.airspeed_bias, self.airspeed_sigma)
+
+        self._roll_measurement_noise = normalvariate(self.roll_bias,
+                                                     self.roll_sigma)
+
+        self._pitch_measurement_noise = normalvariate(self.pitch_bias,
+                                                      self.pitch_sigma)
+
+        self._heading_measurement_noise = normalvariate(self.heading_bias,
+                                                        self.heading_sigma)
+
+        self._latitude_measurement_noise = normalvariate(self.latitude_bias,
+                                                         self.latitude_sigma)
+
+        self._longitude_measurement_noise = normalvariate(self.longitude_bias,
+                                                          self.longitude_sigma)
+
+        self._altitude_measurement_noise = normalvariate(self.altitude_bias,
+                                                         self.altitude_sigma)
+
+        self._airspeed_measurement_noise = normalvariate(self.airspeed_bias,
+                                                         self.airspeed_sigma)
+
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     def _update_measurement_noise(self):
         """Check if the measurements noise needs to update and update it"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._roll_measurement_noise = normalvariate(self.roll_bias, self.roll_sigma)
-            self._pitch_measurement_noise = normalvariate(self.pitch_bias, self.pitch_sigma)
-            self._heading_measurement_noise = normalvariate(self.heading_bias, self.heading_sigma)
-            self._latitude_measurement_noise = normalvariate(self.latitude_bias, self.latitude_sigma)
-            self._longitude_measurement_noise = normalvariate(self.longitude_bias, self.longitude_sigma)
-            self._altitude_measurement_noise = normalvariate(self.altitude_bias, self.altitude_sigma)
-            self._airspeed_measurement_noise = normalvariate(self.airspeed_bias, self.airspeed_sigma)
+            self._roll_measurement_noise = normalvariate(self.roll_bias,
+                                                         self.roll_sigma)
+
+            self._pitch_measurement_noise = normalvariate(self.pitch_bias,
+                                                          self.pitch_sigma)
+
+            self._heading_measurement_noise = normalvariate(self.heading_bias,
+                                                            self.heading_sigma)
+
+            self._latitude_measurement_noise = normalvariate(self.latitude_bias,
+                                                             self.latitude_sigma)
+
+            self._longitude_measurement_noise = normalvariate(self.longitude_bias,
+                                                              self.longitude_sigma)
+
+            self._altitude_measurement_noise = normalvariate(self.altitude_bias,
+                                                             self.altitude_sigma)
+
+            self._airspeed_measurement_noise = normalvariate(self.airspeed_bias,
+                                                             self.airspeed_sigma)
+
             self._update_at = self.fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     @property
@@ -395,7 +443,7 @@ class InertialNavigationSystem(object):
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
 
 class Sensors(object):
-    """The Sensors class contains all of the aircraft sensors""" 
+    """The Sensors class contains all of the aircraft sensors"""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.accelerometer = Accelerometer(fdmexec)

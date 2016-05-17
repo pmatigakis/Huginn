@@ -15,7 +15,8 @@ class Controls(object):
 
     @property
     def aileron(self):
-        """return the aileron control value. This value will be in the range -1.0 to 1.0"""
+        """return the aileron control value. This value will be in the range
+        -1.0 to 1.0"""
         return self.fdmexec.GetFCS().GetDaCmd()
 
     @aileron.setter
@@ -30,7 +31,8 @@ class Controls(object):
 
     @property
     def elevator(self):
-        """return the elevator control value. This value will be in the range -1.0 to 1.0"""
+        """return the elevator control value. This value will be in the range
+        -1.0 to 1.0"""
         return self.fdmexec.GetFCS().GetDeCmd()
 
     @elevator.setter
@@ -45,7 +47,8 @@ class Controls(object):
 
     @property
     def rudder(self):
-        """return the rudder control value. This value will be in the range -1.0 to 1.0"""
+        """return the rudder control value. This value will be in the range
+        -1.0 to 1.0"""
         return self.fdmexec.GetFCS().GetDrCmd()
 
     @rudder.setter
@@ -60,7 +63,8 @@ class Controls(object):
 
     @property
     def throttle(self):
-        """return the throttle control value. This value will be in the range 0.0 to 1.0"""
+        """return the throttle control value. This value will be in the range
+        0.0 to 1.0"""
         return self.fdmexec.GetFCS().GetThrottleCmd(0)
 
     @throttle.setter
@@ -74,7 +78,8 @@ class Controls(object):
         self.fdmexec.GetFCS().SetThrottleCmd(0, value)
 
 class Engine(object):
-    """The Engine class contains data about the state of the aircraft's engine."""
+    """The Engine class contains data about the state of the aircraft's
+    engine."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
 

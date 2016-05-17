@@ -23,7 +23,8 @@ def fdm_data_endpoint(value):
     match = re.match(r"^(\d+\.\d+.\d+.\d+),(\d+),(\d+\.\d+)$", value.strip())
 
     if not match:
-        raise ArgumentTypeError("The fdm data endpoint must be in the form IP,PORT,DT")
+        raise ArgumentTypeError("The fdm data endpoint must be "
+                                "in the form IP,PORT,DT")
 
     ip = match.group(1)
     port = port_number(match.group(2))
