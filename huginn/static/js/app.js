@@ -7,6 +7,11 @@ var markers = [];
 
 var aircraft_info = L.control();
 
+var attitude_indicator;
+var altitude_indicator;
+var airspeed_indicator;
+var heading_indicator;
+
 aircraft_info.onAdd = function(map){
 	this._div = L.DomUtil.create("div", "aircraft-info");
 	this.update();
@@ -85,6 +90,17 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
     entity.orientation = orientation;
 }
 
+function update_indicators(roll, pitch, altitude, airspeed, heading){
+	attitude_indicator.setRoll(roll);
+    attitude_indicator.setPitch(pitch);
+    
+    heading_indicator.setHeading(heading);
+         
+    airspeed_indicator.setAirSpeed(airspeed);
+    
+    altimeter_indicator.setAltitude(altitude);	
+}
+
 function start_data_update(){
 	var socket = new WebSocket("ws://localhost:8091");
 
@@ -102,7 +118,11 @@ function start_data_update(){
 		update_hud(altitude, airspeed, heading, roll, pitch);
 		
 		//the -90 is required because the model is facing east
-		update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);		
+		update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
+
+		var airspeed_in_knots = airspeed * 1.94384;
+		var altitude_in_feet = altitude * 3.28084;
+		update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading);
 	}
 	
 	socket.onclose = function(){
@@ -201,4 +221,9 @@ $(document).ready(function(){
 	$("#reset_button").click(function(){
 		$.post("simulator/reset");
 	});
+	
+	attitude_indicator = $.flightIndicator('#attitude_indicator', 'attitude');
+	heading_indicator = $.flightIndicator('#heading_indicator', 'heading');
+	airspeed_indicator = $.flightIndicator('#airspeed_indicator', 'airspeed');
+	altimeter_indicator = $.flightIndicator('#altimeter_indicator', 'altimeter');
 })

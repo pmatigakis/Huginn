@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="css/leaflet.css">
 <link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/flightindicators.css" />
 <style>
 @import url(js/Cesium/Widgets/widgets.css);
 
@@ -48,6 +49,13 @@
                     This browser doesn't support the canvas element
                   </canvas>
             </div>
+        </div>
+
+        <div class="col-md-12">
+            <span id="attitude_indicator"></span>
+            <span id="heading_indicator"></span>
+            <span id="airspeed_indicator"></span>
+            <span id="altimeter_indicator"></span>
         </div>
 
         <div class="row">
@@ -195,6 +203,7 @@
     <script src="js/bootstrap.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="js/avionics.js"></script>
     <script src="js/Cesium/Cesium.js"></script>
+    <script src="js/jquery.flightindicators.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
 </body>
 </html>
