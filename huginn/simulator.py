@@ -3,15 +3,18 @@ The huginn.simulator module contains classes that are used to run an aircraft
 simulation
 """
 
+
 import logging
 
 from huginn import configuration
 from huginn.aircraft import Aircraft
 from huginn.fdm import FDM, FDMBuilder
 
+
 class SimulationError(Exception):
     """SimulationError raised when an error occurs during simulation"""
     pass
+
 
 class SimulationBuilder(object):
     """The SimulationBuilder if a factory class that can be used to create a
@@ -64,6 +67,7 @@ class SimulationBuilder(object):
                 return None
 
         return simulator
+
 
 class Simulator(object):
     """The Simulator class is used to perform the simulation of an aircraft"""

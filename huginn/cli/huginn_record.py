@@ -2,6 +2,7 @@
 The huginn_record script is used to record flight data from the simulator
 """
 
+
 from argparse import ArgumentParser
 
 import json
@@ -13,16 +14,29 @@ from twisted.internet.task import LoopingCall
 from huginn import configuration
 from huginn.io import CSVFDMDataWriter
 
+
 def get_arguments():
     parser = ArgumentParser(description="Record the fdm data")
 
-    parser.add_argument("--host", action="store", default="127.0.0.1", help="the simulator ip address")
-    parser.add_argument("--port", action="store", default=configuration.WEB_SERVER_PORT, type=int, help="the simulator http port")
+    parser.add_argument("--host",
+                        action="store",
+                        default="127.0.0.1",
+                        help="the simulator ip address")
 
-    parser.add_argument("--dt", default=1.0, help="How often to request data from the simulator")
+    parser.add_argument("--port",
+                        action="store",
+                        default=configuration.WEB_SERVER_PORT,
+                        type=int,
+                        help="the simulator http port")
+
+    parser.add_argument("--dt",
+                        default=1.0,
+                        help="How often to request data from the simulator")
+
     parser.add_argument("output", help="the output file")
 
     return parser.parse_args()
+
 
 def request_fdm_data(args, csv_telemetry_writer):
     agent = Agent(reactor)
@@ -38,10 +52,12 @@ def request_fdm_data(args, csv_telemetry_writer):
 
     return d
 
+
 def process_fdm_data_response(response, csv_telemetry_writer):
     d = readBody(response)
     d.addCallback(save_fdm_data, csv_telemetry_writer)
     return d
+
 
 def save_fdm_data(body, csv_telemetry_writer):
     fdm_data = json.loads(body)
@@ -52,10 +68,9 @@ def save_fdm_data(body, csv_telemetry_writer):
         print("%s\t%f" % (variable, fdm_data[variable]))
     print ("")
 
+
 def main():
     args = get_arguments()
-
-    #fdm_data_printer = FDMDataPrinter(["time", "altitude", "airspeed", "heading"])
 
     output_file = open(args.output, "w")
 
@@ -63,7 +78,7 @@ def main():
                  "airspeed", "heading", "x_acceleration", "y_acceleration",
                  "z_acceleration", "roll_rate", "pitch_rate", "yaw_rate",
                  "temperature", "static_pressure", "total_pressure",
-                 "roll", "pitch", "thrust", "aileron", "elevator","rudder",
+                 "roll", "pitch", "thrust", "aileron", "elevator", "rudder",
                  "throttle"]
 
     csv_telemetry_writer = CSVFDMDataWriter(variables, output_file)

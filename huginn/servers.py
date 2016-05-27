@@ -2,6 +2,8 @@
 The huginn.servers module contains classes that can be used to create
 a simulator that transmits and receives data from/to the network
 """
+
+
 import logging
 import pkg_resources
 
@@ -15,6 +17,7 @@ from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData,\
                         FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
+
 
 class SimulationServer(object):
     """This class is the network front-end for the simulator. It will create
@@ -35,10 +38,12 @@ class SimulationServer(object):
 
     def _initialize_web_server(self):
         """Initialize the web server"""
-        self.logger.debug("Starting web server at port %d", self.web_server_port)
+        self.logger.debug("Starting web server at port %d",
+                          self.web_server_port)
 
-        #root = SimulatorServerRoot()
-        path_to_static_data = pkg_resources.resource_filename("huginn", "static")  # @UndefinedVariable
+        path_to_static_data = pkg_resources.resource_filename("huginn",
+                                                              "static")
+
         root = File(path_to_static_data)
 
         aircraft_root = AircraftResource(self.aircraft)
@@ -50,26 +55,30 @@ class SimulationServer(object):
 
         frontend = server.Site(root)
 
-        reactor.listenTCP(self.web_server_port, frontend)  # @UndefinedVariable
+        reactor.listenTCP(self.web_server_port, frontend)
 
     def _initialize_controls_server(self):
         """Initialize the controls server"""
         self.logger.debug("Starting aircraft controls server at port %d",
-                     self.controls_port)
+                          self.controls_port)
 
         controls_protocol = ControlsProtocol(self.fdmexec)
 
-        reactor.listenUDP(self.controls_port, controls_protocol)  # @UndefinedVariable
+        reactor.listenUDP(self.controls_port, controls_protocol)
 
     def _initialize_fdm_data_server(self):
         """Initialize the fdm data server"""
         for fdm_client in self.fdm_clients:
             client_address, client_port, dt = fdm_client
-            self.logger.debug("Sending fdm data to %s:%d", client_address, client_port)
+            self.logger.debug("Sending fdm data to %s:%d", client_address,
+                              client_port)
 
-            fdm_data_protocol = FDMDataProtocol(self.fdmexec, self.aircraft, client_address, client_port)
+            fdm_data_protocol = FDMDataProtocol(self.fdmexec,
+                                                self.aircraft,
+                                                client_address,
+                                                client_port)
 
-            reactor.listenUDP(0, fdm_data_protocol)  # @UndefinedVariable
+            reactor.listenUDP(0, fdm_data_protocol)
 
             fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data)
             fdm_data_updater.start(dt)
@@ -79,26 +88,30 @@ class SimulationServer(object):
 
         if not result:
             self.logger.error("The simulator has failed to run")
-            reactor.stop()  # @UndefinedVariable
+            reactor.stop()
 
     def _initialize_simulator_updater(self):
         fdm_updater = LoopingCall(self._run_simulator)
         fdm_updater.start(self.dt)
 
     def _initialize_sensors_server(self):
-        self.logger.debug("Starting the sensor server at port %d", self.sensors_port)
+        self.logger.debug("Starting the sensor server at port %d",
+                          self.sensors_port)
 
         sensor_data_factory = SensorDataFactory(self.aircraft)
 
-        reactor.listenTCP(self.sensors_port, sensor_data_factory)  # @UndefinedVariable
+        reactor.listenTCP(self.sensors_port, sensor_data_factory)
 
     def _initialize_websocket_server(self):
-        factory = FDMDataWebSocketFactory(self.simulator.fdm,
-                                          self.websocket_update_rate,
-                                          "ws://localhost:%d" % self.websocket_port)
+        factory = FDMDataWebSocketFactory(
+            self.simulator.fdm,
+            self.websocket_update_rate,
+            "ws://localhost:%d" % self.websocket_port
+        )
+
         factory.protocol = FDMDataWebSocketProtocol
 
-        reactor.listenTCP(self.websocket_port, factory)  # @UndefinedVariable
+        reactor.listenTCP(self.websocket_port, factory)
 
     def start(self):
         """Start the simulator server"""

@@ -2,12 +2,15 @@
 The huginn.clients contains classes that can be used to communicate
 and control huginn
 """
+
+
 import csv
 import json
 
 import requests
 
 from huginn import configuration
+
 
 class MapClient(object):
     """The MapClient is used to load a weypoint file to the simulator so that

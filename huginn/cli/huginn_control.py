@@ -2,25 +2,40 @@
 The huginn_control scripts is used to control the simulator
 """
 
+
 from argparse import ArgumentParser
 
 from huginn import configuration
 from huginn.control import SimulatorControlClient
 
+
 def get_arguments():
     parser = ArgumentParser(description="Huginn simulator control script")
 
-    parser.add_argument("command", action="store",
-                        choices=["pause", "resume", "reset", "step", "run_for"],
+    parser.add_argument("command",
+                        action="store",
+                        choices=["pause", "resume", "reset", "step",
+                                 "run_for"],
                         help="the simulator control command")
 
-    parser.add_argument("--time_to_run", action="store", default=0.1,
+    parser.add_argument("--time_to_run",
+                        action="store",
+                        default=0.1,
                         help="The time in seconds to run the simulator")
 
-    parser.add_argument("--host", action="store", default="127.0.0.1", help="the simulator ip address")
-    parser.add_argument("--web_port", action="store", default=configuration.WEB_SERVER_PORT, type=int, help="the simulator http port")
+    parser.add_argument("--host",
+                        action="store",
+                        default="127.0.0.1",
+                        help="the simulator ip address")
+
+    parser.add_argument("--web_port",
+                        action="store",
+                        default=configuration.WEB_SERVER_PORT,
+                        type=int,
+                        help="the simulator http port")
 
     return parser.parse_args()
+
 
 def main():
     args = get_arguments()

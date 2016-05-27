@@ -1,9 +1,11 @@
 """
 The huginn.configuration module contains the default configuration values
 """
+
+
 import pkg_resources
 
-#interface settings
+# interface settings
 SIMULATOR_CONTROL_PORT = 10500
 WEB_SERVER_PORT = 8090
 SENSORS_PORT = 10300
@@ -18,10 +20,10 @@ WEBSOCKET_UPDATE_RATE = 20.0
 
 AIRCRAFT = "Rascal"
 
-#simulation settings
+# simulation settings
 DT = 1.0/300.0
 
-#initial condition
+# initial condition
 LATITUDE = 37.9232547
 LONGITUDE = 23.921773
 ALTITUDE = 300.0
@@ -33,6 +35,7 @@ DEFAULT_AICRAFT = "Rascal"
 
 LOG_FILE = "huginn.log"
 
+
 def get_data_path():
     """Returns the absolute path to the data folder of Huginn"""
-    return pkg_resources.resource_filename("huginn", "data")  # @UndefinedVariable
+    return pkg_resources.resource_filename("huginn", "data")

@@ -3,14 +3,18 @@ The huginn.fdm module contains classes and functions that can be used to
 initialize the flight dynamics model and create a model for a simulated
 aircraft
 """
+
+
 from math import degrees
 import logging
 
 from PyJSBSim import FGFDMExec
 
 from huginn import configuration
-from huginn.unit_conversions import convert_meters_to_feet,\
-    convert_meters_per_sec_to_knots, convert_feet_to_meters
+from huginn.unit_conversions import (convert_meters_to_feet,
+                                     convert_meters_per_sec_to_knots,
+                                     convert_feet_to_meters)
+
 
 class FDMBuilder(object):
     """The FDMBuilder creates the flight dynamics model object that will be
@@ -66,8 +70,8 @@ class FDMBuilder(object):
             self.logger.error("Failed to run initial condition")
             return None
 
-        # Run the simulation for 1 second in order to make sure that everything
-        # is ok
+        # Run the simulation for 1 second in order to make sure that
+        # everything is ok
         while fdmexec.GetSimTime() < 1.0:
             fdmexec.ProcessMessage()
             fdmexec.CheckIncrementalHold()
@@ -82,6 +86,7 @@ class FDMBuilder(object):
 
         return fdmexec
 
+
 class Accelerations(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
@@ -90,19 +95,26 @@ class Accelerations(object):
     def x(self):
         """Returns the acceleration along the x axis of the aircraft in
         meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(1)
+
+        return convert_feet_to_meters(acceleration)
 
     @property
     def y(self):
         """Returns the acceleration along the y axis of the aircraft in
         meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(2)
+
+        return convert_feet_to_meters(acceleration)
 
     @property
     def z(self):
         """Returns the acceleration along the z axis of the aircraft in
         meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(3)
+
+        return convert_feet_to_meters(acceleration)
+
 
 class Velocities(object):
     def __init__(self, fdmexec):
@@ -126,7 +138,10 @@ class Velocities(object):
     @property
     def airspeed(self):
         """Return the airspeed in meters/second"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
+        airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
+
+        return convert_feet_to_meters(airspeed)
+
 
 class Position(object):
     """The Position class contains data about the position of the aircraft"""
@@ -153,8 +168,10 @@ class Position(object):
         """Returns the heading in degrees"""
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
 
+
 class Orientation(object):
-    """The Orientation class contains data about the orientation of the aircraft"""
+    """The Orientation class contains data about the orientation of the
+    aircraft"""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
 
@@ -167,6 +184,7 @@ class Orientation(object):
     def pitch(self):
         """Return the pitch angle in degrees"""
         return self.fdmexec.GetPropagate().GetEulerDeg(2)
+
 
 class FDM(object):
     """The FDM object is a wrapper around the JSBSim objects that contains the

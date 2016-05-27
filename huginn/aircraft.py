@@ -8,6 +8,7 @@ from huginn.unit_conversions import convert_libra_to_newtons
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
 
+
 class Controls(object):
     """The Controls class holds the aircraft control surfaces values"""
     def __init__(self, fdmexec):
@@ -77,6 +78,7 @@ class Controls(object):
 
         self.fdmexec.GetFCS().SetThrottleCmd(0, value)
 
+
 class Engine(object):
     """The Engine class contains data about the state of the aircraft's
     engine."""
@@ -86,12 +88,18 @@ class Engine(object):
     @property
     def thrust(self):
         """Return the engine thrust in newtons"""
-        return convert_libra_to_newtons(self.fdmexec.GetPropulsion().GetEngine(0).GetThruster().GetThrust())
+        thrust = self.fdmexec.GetPropulsion()\
+                             .GetEngine(0)\
+                             .GetThruster()\
+                             .GetThrust()
+
+        return convert_libra_to_newtons(thrust)
 
     @property
     def throttle(self):
         """Return the throttle value. This will be in the range 0.0 to 1.0"""
         return self.fdmexec.GetFCS().GetThrottleCmd(0)
+
 
 class Aircraft(object):
     """The Aircraft class is a wrapper around jsbsim that contains data about

@@ -3,8 +3,10 @@ the huginn.validators module contains functions that are using to validate
 input arguments
 """
 
+
 import re
 from argparse import ArgumentTypeError
+
 
 def port_number(value):
     """Check if the given value is a valid port number"""
@@ -14,9 +16,11 @@ def port_number(value):
         raise ArgumentTypeError("%s is not a valid port number" % value)
 
     if parsed_port_number < 1 or parsed_port_number > 65535:
-        raise ArgumentTypeError("Given port number must be in the range 1-65535")
+        raise ArgumentTypeError("Given port number must be in the range "
+                                "1-65535")
 
     return parsed_port_number
+
 
 def fdm_data_endpoint(value):
     """Check if the given value if a valid fdm data endpoint address"""
@@ -32,6 +36,7 @@ def fdm_data_endpoint(value):
 
     return ip, port, dt
 
+
 def is_valid_latitude(latitude):
     """Check if the given argument is within the range -90 to 90 degrees
 
@@ -42,6 +47,7 @@ def is_valid_latitude(latitude):
 
     return True
 
+
 def is_valid_longitude(longitude):
     """Check if the given argument is within the range -180 to 180 degrees
 
@@ -51,6 +57,7 @@ def is_valid_longitude(longitude):
         return False
 
     return True
+
 
 def is_valid_heading(heading):
     """Check if the given argument is within the range 0.0 to 360 degrees

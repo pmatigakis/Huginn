@@ -1,12 +1,15 @@
 """
 The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
+
+
 from math import degrees
 from random import normalvariate
 
-from huginn.unit_conversions import convert_feet_to_meters,\
-                                    convert_rankine_to_kelvin,\
-                                    convert_psf_to_pascal
+from huginn.unit_conversions import (convert_feet_to_meters,
+                                     convert_rankine_to_kelvin,
+                                     convert_psf_to_pascal)
+
 
 class Accelerometer(object):
     """The Accelerometer class returns the acceleration forces on the body
@@ -25,7 +28,10 @@ class Accelerometer(object):
         self.noise_sigma = 0.005
         self.noise_mu = 0.06
         self.bias = normalvariate(self.bias_mu, self.bias_sigma)
-        self._measurement_noise = normalvariate(self.noise_mu, self.noise_sigma)
+
+        self._measurement_noise = normalvariate(self.noise_mu,
+                                                self.noise_sigma)
+
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     @property
@@ -35,24 +41,31 @@ class Accelerometer(object):
             self._measurement_noise = normalvariate(self.noise_mu,
                                                     self.noise_sigma)
 
-            self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
+            self._update_at += (self.fdmexec.GetSimTime() +
+                                (1.0/self.update_rate))
 
         return self._measurement_noise
 
     @property
     def true_x(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(1))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(1)
+
+        return convert_feet_to_meters(acceleration)
 
     @property
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(2))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(2)
+
+        return convert_feet_to_meters(acceleration)
 
     @property
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetPilotAccel(3))
+        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(3)
+
+        return convert_feet_to_meters(acceleration)
 
     @property
     def x(self):
@@ -69,9 +82,10 @@ class Accelerometer(object):
         """Return the acceleration along the z axis in meters/sec^2"""
         return self.true_z + self.bias + self.measurement_noise
 
+
 class Gyroscope(object):
-    """The Gyroscope class contains the angular velocities measured on the body
-    axis."""
+    """The Gyroscope class contains the angular velocities measured on the
+    body axis."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.update_rate = 100.0
@@ -95,20 +109,27 @@ class Gyroscope(object):
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     def _update_measurements(self):
-        """This function checks if the simulation time is greater than the time
-        that this sensor has to update it's measurements. If it is it updates
-        the measurements"""
+        """This function checks if the simulation time is greater than the
+        time that this sensor has to update it's measurements. If it is it
+        updates the measurements"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._roll_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                              self.noise_sigma)
+            self._roll_rate_measurement_noise = normalvariate(
+                self.noise_mu,
+                self.noise_sigma
+            )
 
-            self._pitch_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                               self.noise_sigma)
+            self._pitch_rate_measurement_noise = normalvariate(
+                self.noise_mu,
+                self.noise_sigma
+            )
 
-            self._yaw_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                             self.noise_sigma)
+            self._yaw_rate_measurement_noise = normalvariate(
+                self.noise_mu,
+                self.noise_sigma
+            )
 
-            self._update_at += self.fdmexec.GetSimTime() + (1.0/self.update_rate)
+            self._update_at += (self.fdmexec.GetSimTime() +
+                                (1.0/self.update_rate))
 
     @property
     def roll_rate_measurement_noise(self):
@@ -149,23 +170,24 @@ class Gyroscope(object):
     @property
     def roll_rate(self):
         """The roll rate in degrees/sec"""
-        return (self.true_roll_rate
-                + self.roll_rate_bias
-                + self.roll_rate_measurement_noise)
+        return (self.true_roll_rate +
+                self.roll_rate_bias +
+                self.roll_rate_measurement_noise)
 
     @property
     def pitch_rate(self):
         """The pitch rate in degrees/sec"""
-        return (self.true_pitch_rate
-                + self.pitch_rate_bias
-                + self.pitch_rate_measurement_noise)
+        return (self.true_pitch_rate +
+                self.pitch_rate_bias +
+                self.pitch_rate_measurement_noise)
 
     @property
     def yaw_rate(self):
         """The yaw rate in degrees/sec"""
-        return (self.true_yaw_rate
-                + self.yaw_rate_bias
-                + self.yaw_rate_measurement_noise)
+        return (self.true_yaw_rate +
+                self.yaw_rate_bias +
+                self.yaw_rate_measurement_noise)
+
 
 class Thermometer(object):
     """The Thermometer class contains the temperature measured by the
@@ -182,19 +204,23 @@ class Thermometer(object):
     def measurement_noise(self):
         """Returns the measurement noise in Kelvin"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+            self._measurement_noise = self.bias + normalvariate(0.0,
+                                                                self.sigma)
 
         return self._measurement_noise
 
     @property
     def true_temperature(self):
         """return the actual temperature in Kelvin"""
-        return convert_rankine_to_kelvin(self.fdmexec.GetAtmosphere().GetTemperature())
+        temperature = self.fdmexec.GetAtmosphere().GetTemperature()
+
+        return convert_rankine_to_kelvin(temperature)
 
     @property
     def temperature(self):
         """return the temperature in Kelvin"""
         return self.true_temperature + self.measurement_noise
+
 
 class PressureSensor(object):
     """The PressureSensor class contains the static presured measured by the
@@ -211,19 +237,23 @@ class PressureSensor(object):
     def measurement_noise(self):
         """Returns the measurement noise in Pascal"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+            self._measurement_noise = self.bias + normalvariate(0.0,
+                                                                self.sigma)
 
         return self._measurement_noise
 
     @property
     def true_pressure(self):
         """Returns the true pressure in Pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAtmosphere().GetPressure())
+        pressure = self.fdmexec.GetAtmosphere().GetPressure()
+
+        return convert_psf_to_pascal(pressure)
 
     @property
     def pressure(self):
         """Returns the pressure in Pascal"""
         return self.true_pressure + self.measurement_noise
+
 
 class PitotTube(object):
     """The PitosTure class simulates the aircraft's pitot system."""
@@ -239,19 +269,23 @@ class PitotTube(object):
     def measurement_noise(self):
         """Returns the measurement noise in Pascal"""
         if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+            noise = normalvariate(0.0, self.sigma)
+
+            self._measurement_noise = self.bias + noise
 
         return self._measurement_noise
 
     @property
     def true_pressure(self):
         """Return the true pressure in pascal"""
-        return convert_psf_to_pascal(self.fdmexec.GetAuxiliary().GetTotalPressure())
+        pressure = self.fdmexec.GetAuxiliary().GetTotalPressure()
+        return convert_psf_to_pascal(pressure)
 
     @property
     def pressure(self):
         """Return the pressure in pascal"""
         return self.true_pressure + self.measurement_noise
+
 
 class InertialNavigationSystem(object):
     """The InertialNavigationSystem class is used to simulate the aircraft's
@@ -286,8 +320,10 @@ class InertialNavigationSystem(object):
         self._latitude_measurement_noise = normalvariate(self.latitude_bias,
                                                          self.latitude_sigma)
 
-        self._longitude_measurement_noise = normalvariate(self.longitude_bias,
-                                                          self.longitude_sigma)
+        self._longitude_measurement_noise = normalvariate(
+            self.longitude_bias,
+            self.longitude_sigma
+        )
 
         self._altitude_measurement_noise = normalvariate(self.altitude_bias,
                                                          self.altitude_sigma)
@@ -306,22 +342,33 @@ class InertialNavigationSystem(object):
             self._pitch_measurement_noise = normalvariate(self.pitch_bias,
                                                           self.pitch_sigma)
 
-            self._heading_measurement_noise = normalvariate(self.heading_bias,
-                                                            self.heading_sigma)
+            self._heading_measurement_noise = normalvariate(
+                self.heading_bias,
+                self.heading_sigma
+            )
 
-            self._latitude_measurement_noise = normalvariate(self.latitude_bias,
-                                                             self.latitude_sigma)
+            self._latitude_measurement_noise = normalvariate(
+                self.latitude_bias,
+                self.latitude_sigma
+            )
 
-            self._longitude_measurement_noise = normalvariate(self.longitude_bias,
-                                                              self.longitude_sigma)
+            self._longitude_measurement_noise = normalvariate(
+                self.longitude_bias,
+                self.longitude_sigma
+            )
 
-            self._altitude_measurement_noise = normalvariate(self.altitude_bias,
-                                                             self.altitude_sigma)
+            self._altitude_measurement_noise = normalvariate(
+                self.altitude_bias,
+                self.altitude_sigma
+            )
 
-            self._airspeed_measurement_noise = normalvariate(self.airspeed_bias,
-                                                             self.airspeed_sigma)
+            self._airspeed_measurement_noise = normalvariate(
+                self.airspeed_bias,
+                self.airspeed_sigma
+            )
 
-            self._update_at = self.fdmexec.GetSimTime() + (1.0/self.update_rate)
+            self._update_at = (self.fdmexec.GetSimTime() +
+                               (1.0/self.update_rate))
 
     @property
     def roll_measurement_noise(self):
@@ -435,12 +482,14 @@ class InertialNavigationSystem(object):
     @property
     def true_airspeed(self):
         """Returns the true airspeed in meters per second"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
+        airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
+        return convert_feet_to_meters(airspeed)
 
     @property
     def true_heading(self):
         """Returns the true heading in degrees"""
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+
 
 class Sensors(object):
     """The Sensors class contains all of the aircraft sensors"""

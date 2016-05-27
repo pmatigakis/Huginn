@@ -3,9 +3,11 @@ The huginn.control module contains classes an objects that can be used to
 control the state of the simulator (pause, resume etc)
 """
 
+
 import json
 
 import requests
+
 
 class SimulatorControlClient(object):
     """The SimulatorControlClient is used to remotely pause, resume and
@@ -16,10 +18,12 @@ class SimulatorControlClient(object):
 
     def _send_command(self, command, data=None):
         """Send an http command to the simulator"""
-        response = requests.post("http://%s:%d/simulator/%s" % (self.huginn_host,
-                                                                self.simulator_controls_port,
-                                                                command),
-                                 data=data)
+        response = requests.post(
+            "http://%s:%d/simulator/%s" % (self.huginn_host,
+                                           self.simulator_controls_port,
+                                           command),
+            data=data
+        )
 
         response_data = json.loads(response.text)
 

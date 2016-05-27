@@ -3,6 +3,7 @@ The huginn.protocols module contains classes that are used by twisted in order
 to transmit and receive simulation data.
 """
 
+
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -11,6 +12,7 @@ from twisted.protocols.basic import Int32StringReceiver
 from google.protobuf.message import DecodeError
 
 from huginn import fdm_pb2
+
 
 class ControlsProtocol(DatagramProtocol):
     """The ControlsProtocol is used to receive and update tha aircraft's
@@ -65,6 +67,7 @@ class ControlsProtocol(DatagramProtocol):
                                       controls.rudder,
                                       controls.throttle)
 
+
 class FDMDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
     data to the client"""
@@ -86,18 +89,19 @@ class FDMDataProtocol(DatagramProtocol):
         fdm_data.gps.airspeed = self.aircraft.instruments.gps.airspeed
         fdm_data.gps.heading = self.aircraft.instruments.gps.heading
 
-        fdm_data.accelerometer.x_acceleration = self.aircraft.sensors.accelerometer.x
-        fdm_data.accelerometer.y_acceleration = self.aircraft.sensors.accelerometer.y
-        fdm_data.accelerometer.z_acceleration = self.aircraft.sensors.accelerometer.z
+        sensors = self.aircraft.sensors
+        fdm_data.accelerometer.x_acceleration = sensors.accelerometer.x
+        fdm_data.accelerometer.y_acceleration = sensors.accelerometer.y
+        fdm_data.accelerometer.z_acceleration = sensors.accelerometer.z
 
-        fdm_data.gyroscope.roll_rate = self.aircraft.sensors.gyroscope.roll_rate
-        fdm_data.gyroscope.pitch_rate = self.aircraft.sensors.gyroscope.pitch_rate
-        fdm_data.gyroscope.yaw_rate = self.aircraft.sensors.gyroscope.yaw_rate
+        fdm_data.gyroscope.roll_rate = sensors.gyroscope.roll_rate
+        fdm_data.gyroscope.pitch_rate = sensors.gyroscope.pitch_rate
+        fdm_data.gyroscope.yaw_rate = sensors.gyroscope.yaw_rate
 
-        fdm_data.thermometer.temperature = self.aircraft.sensors.thermometer.temperature
+        fdm_data.thermometer.temperature = sensors.thermometer.temperature
 
-        fdm_data.pressure_sensor.pressure = self.aircraft.sensors.pressure_sensor.pressure
-        fdm_data.pitot_tube.pressure = self.aircraft.sensors.pitot_tube.pressure
+        fdm_data.pressure_sensor.pressure = sensors.pressure_sensor.pressure
+        fdm_data.pitot_tube.pressure = sensors.pitot_tube.pressure
 
         fdm_data.engine.thrust = self.aircraft.engine.thrust
         fdm_data.engine.throttle = self.aircraft.engine.throttle
@@ -107,8 +111,8 @@ class FDMDataProtocol(DatagramProtocol):
         fdm_data.controls.rudder = self.aircraft.controls.rudder
         fdm_data.controls.throttle = self.aircraft.controls.throttle
 
-        fdm_data.ins.roll = self.aircraft.sensors.inertial_navigation_system.roll
-        fdm_data.ins.pitch = self.aircraft.sensors.inertial_navigation_system.pitch
+        fdm_data.ins.roll = sensors.inertial_navigation_system.roll
+        fdm_data.ins.pitch = sensors.inertial_navigation_system.pitch
 
         return fdm_data
 
@@ -119,6 +123,7 @@ class FDMDataProtocol(DatagramProtocol):
         datagram = fdm_data.SerializeToString()
 
         self.transport.write(datagram, (self.remote_host, self.port))
+
 
 class FDMDataListener(object):
     """The methods of the FDMDataListener class must be implemented by any
@@ -134,6 +139,7 @@ class FDMDataListener(object):
         fdm_data: a protocol buffer object that contains the fdm data
         """
         pass
+
 
 class FDMDataClient(DatagramProtocol):
     """The FDMDataClient is used to receive fdm data from Huginn"""
@@ -164,6 +170,7 @@ class FDMDataClient(DatagramProtocol):
 
         self._notify_fdm_data_listeners(fdm_data)
 
+
 class ControlsClient(DatagramProtocol):
     """The ControlsClient is used to transmit the updated aircraft controls
     to Huginn"""
@@ -193,65 +200,84 @@ class ControlsClient(DatagramProtocol):
 
         self.send_datagram(controls.SerializeToString())
 
+
 class SensorDataProtocol(Int32StringReceiver):
     """The SensorDataProtocol is used to transmit the aircraft's sensor data"""
     def fill_gps_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GPS_REQUEST
 
-        sensor_data_response.gps.latitude = self.factory.aircraft.instruments.gps.latitude
-        sensor_data_response.gps.longitude = self.factory.aircraft.instruments.gps.longitude
-        sensor_data_response.gps.altitude = self.factory.aircraft.instruments.gps.altitude
-        sensor_data_response.gps.airspeed = self.factory.aircraft.instruments.gps.airspeed
-        sensor_data_response.gps.heading = self.factory.aircraft.instruments.gps.heading
+        instruments = self.factory.aircraft.instruments
+        sensor_data_response.gps.latitude = instruments.gps.latitude
+        sensor_data_response.gps.longitude = instruments.gps.longitude
+        sensor_data_response.gps.altitude = instruments.gps.altitude
+        sensor_data_response.gps.airspeed = instruments.gps.airspeed
+        sensor_data_response.gps.heading = instruments.gps.heading
 
     def fill_accelerometer_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.ACCELEROMETER_REQUEST
 
-        sensor_data_response.accelerometer.x_acceleration = self.factory.aircraft.sensors.accelerometer.x
-        sensor_data_response.accelerometer.y_acceleration = self.factory.aircraft.sensors.accelerometer.y
-        sensor_data_response.accelerometer.z_acceleration = self.factory.aircraft.sensors.accelerometer.z
+        accelerometer = self.factory.aircraft.sensors.accelerometer
+
+        sensor_data_response.accelerometer.x_acceleration = accelerometer.x
+        sensor_data_response.accelerometer.y_acceleration = accelerometer.y
+        sensor_data_response.accelerometer.z_acceleration = accelerometer.z
 
     def fill_gyroscope_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GYROSCOPE_REQUEST
 
-        sensor_data_response.gyroscope.roll_rate = self.factory.aircraft.sensors.gyroscope.roll_rate
-        sensor_data_response.gyroscope.pitch_rate = self.factory.aircraft.sensors.gyroscope.pitch_rate
-        sensor_data_response.gyroscope.yaw_rate = self.factory.aircraft.sensors.gyroscope.yaw_rate
+        gyroscope = self.factory.aircraft.sensors.gyroscope
+
+        sensor_data_response.gyroscope.roll_rate = gyroscope.roll_rate
+        sensor_data_response.gyroscope.pitch_rate = gyroscope.pitch_rate
+        sensor_data_response.gyroscope.yaw_rate = gyroscope.yaw_rate
 
     def fill_thermometer_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.THERMOMETER_REQUEST
 
-        sensor_data_response.thermometer.temperature = self.factory.aircraft.sensors.thermometer.temperature
+        thermometer = self.factory.aircraft.sensors.thermometer
+
+        sensor_data_response.thermometer.temperature = thermometer.temperature
 
     def fill_pressure_sensor_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.PRESSURE_SENSOR_REQUEST
 
-        sensor_data_response.pressure_sensor.pressure = self.factory.aircraft.sensors.pressure_sensor.pressure
+        pressure = self.factory.aircraft.sensors.pressure_sensor.pressure
+
+        sensor_data_response.pressure_sensor.pressure = pressure
 
     def fill_pitot_tube_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.PITOT_TUBE_REQUEST
 
-        sensor_data_response.pitot_tube.pressure = self.factory.aircraft.sensors.pitot_tube.pressure
+        pitot_tube = self.factory.aircraft.sensors.pitot_tube
+
+        sensor_data_response.pitot_tube.pressure = pitot_tube.pressure
 
     def fill_engine_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.ENGINE_REQUEST
 
-        sensor_data_response.engine.thrust = self.factory.aircraft.engine.thrust
-        sensor_data_response.engine.throttle = self.factory.aircraft.engine.throttle
+        engine = self.factory.aircraft.engine
+
+        sensor_data_response.engine.thrust = engine.thrust
+        sensor_data_response.engine.throttle = engine.throttle
 
     def fill_controls_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.CONTROLS_REQUEST
 
-        sensor_data_response.controls.aileron = self.factory.aircraft.controls.aileron
-        sensor_data_response.controls.elevator = self.factory.aircraft.controls.elevator
-        sensor_data_response.controls.rudder = self.factory.aircraft.controls.rudder
-        sensor_data_response.controls.throttle = self.factory.aircraft.engine.throttle
+        controls = self.factory.aircraft.controls
+        engine = self.factory.aircraft.engine
+
+        sensor_data_response.controls.aileron = controls.aileron
+        sensor_data_response.controls.elevator = controls.elevator
+        sensor_data_response.controls.rudder = controls.rudder
+        sensor_data_response.controls.throttle = engine.throttle
 
     def fill_ins_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.INS_REQUEST
 
-        sensor_data_response.ins.roll = self.factory.aircraft.sensors.inertial_navigation_system.roll
-        sensor_data_response.ins.pitch = self.factory.aircraft.sensors.inertial_navigation_system.pitch
+        ins = self.factory.aircraft.sensors.inertial_navigation_system
+
+        sensor_data_response.ins.roll = ins.roll
+        sensor_data_response.ins.pitch = ins.pitch
 
     def fill_error_response(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.INVALID_REQUEST
@@ -295,14 +321,17 @@ class SensorDataProtocol(Int32StringReceiver):
 
         self.handle_sensor_data_request(sensor_data_request)
 
+
 class SensorDataFactory(Factory):
     def __init__(self, aircraft):
         self.protocol = SensorDataProtocol
         self.aircraft = aircraft
 
+
 class SensorDataResponceListener(object):
     def received_responce(self, sensor_data_responce):
         pass
+
 
 class SensorDataClientProtocol(Int32StringReceiver):
     def connectionMade(self):
@@ -317,6 +346,7 @@ class SensorDataClientProtocol(Int32StringReceiver):
 
         self.factory.received_responce(sensor_data_response)
 
+
 class SensorDataClientProtocolFactory(Factory):
     def __init__(self, request_type, sensor_data_responce_listener):
         self.protocol = SensorDataClientProtocol
@@ -324,4 +354,6 @@ class SensorDataClientProtocolFactory(Factory):
         self.sensor_data_responce_listener = sensor_data_responce_listener
 
     def received_responce(self, sensor_data_responce):
-        self.sensor_data_responce_listener.received_responce(sensor_data_responce)
+        self.sensor_data_responce_listener.received_responce(
+            sensor_data_responce
+        )

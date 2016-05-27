@@ -3,9 +3,11 @@ The hugin.instruments module contains classes that simulate the aircraft's
 instruments
 """
 
+
 from math import degrees
 
 from huginn.unit_conversions import convert_feet_to_meters
+
 
 class GPS(object):
     """The GPS class simulates the aircraft's GPS system."""
@@ -30,12 +32,15 @@ class GPS(object):
     @property
     def airspeed(self):
         """Returns the airspeed in meters per second"""
-        return convert_feet_to_meters(self.fdmexec.GetAuxiliary().GetVtrueFPS())
+        airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
+
+        return convert_feet_to_meters(airspeed)
 
     @property
     def heading(self):
         """Returns the heading in degrees"""
         return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+
 
 class Instruments(object):
     def __init__(self, fdmexec):

@@ -2,6 +2,8 @@
 This module contains classes that are used by Huginn's web server and web
 clients
 """
+
+
 import json
 import logging
 
@@ -11,6 +13,7 @@ from twisted.web.resource import Resource
 from twisted.internet import reactor
 from autobahn.twisted.websocket import (WebSocketServerFactory,
                                         WebSocketServerProtocol)
+
 
 class AircraftResource(Resource):
     """This class serves as the root for the aircraft web resources."""
@@ -22,7 +25,10 @@ class AircraftResource(Resource):
         self.aircraft = aircraft
 
         self.putChild("sensors", SensorsResource(aircraft.sensors))
-        self.putChild("instruments", InstrumentsResource(aircraft.instruments))
+
+        self.putChild("instruments",
+                      InstrumentsResource(aircraft.instruments))
+
         self.putChild("engine", EngineData(self.aircraft.engine))
 
         self.putChild("flight_controls",
@@ -41,6 +47,7 @@ class AircraftResource(Resource):
 
         return json.dumps(aircraft_info)
 
+
 class SensorsResource(Resource):
     isLeaf = False
 
@@ -49,7 +56,9 @@ class SensorsResource(Resource):
 
         self.sensors = sensors
 
-        self.putChild("accelerometer", AccelerometerData(sensors.accelerometer))
+        self.putChild("accelerometer",
+                      AccelerometerData(sensors.accelerometer))
+
         self.putChild("gyroscope", GyroscopeData(sensors.gyroscope))
         self.putChild("thermometer", ThermometerData(sensors.thermometer))
 
@@ -57,12 +66,17 @@ class SensorsResource(Resource):
                       PressureSensorData(sensors.pressure_sensor))
 
         self.putChild("pitot_tube", PitotTubeData(sensors.pitot_tube))
-        self.putChild("ins", InertialNavigationSystemData(sensors.inertial_navigation_system))
+
+        self.putChild(
+            "ins",
+            InertialNavigationSystemData(sensors.inertial_navigation_system)
+        )
 
     def getChild(self, name, request):
         if name == '':
             return self
         return Resource.getChild(self, name, request)
+
 
 class InstrumentsResource(Resource):
     isLeaf = False
@@ -78,6 +92,7 @@ class InstrumentsResource(Resource):
         if name == '':
             return self
         return Resource.getChild(self, name, request)
+
 
 class FlightDataResource(Resource):
     """This is the base class that can be used to create resource subclasses
@@ -99,6 +114,7 @@ class FlightDataResource(Resource):
 
         return json.dumps(flight_data)
 
+
 class GPSData(FlightDataResource):
     """This resource class will return the gps data in json format"""
     isLeaf = True
@@ -118,8 +134,10 @@ class GPSData(FlightDataResource):
 
         return gps_data
 
+
 class AccelerometerData(FlightDataResource):
-    """This resource class will return the accelerometer data in json format"""
+    """This resource class will return the accelerometer data in json
+    format"""
     isLeaf = True
 
     def __init__(self, accelerometer):
@@ -135,6 +153,7 @@ class AccelerometerData(FlightDataResource):
         }
 
         return accelerometer_data
+
 
 class GyroscopeData(FlightDataResource):
     """This resource class will return the gyroscope data in json format"""
@@ -154,6 +173,7 @@ class GyroscopeData(FlightDataResource):
 
         return gyroscope_data
 
+
 class ThermometerData(FlightDataResource):
     """This resource class will return the thermometer data in json format"""
     isLeaf = True
@@ -169,6 +189,7 @@ class ThermometerData(FlightDataResource):
         }
 
         return thermometer_data
+
 
 class PressureSensorData(FlightDataResource):
     """This resource class will return the pressure sensor data in json
@@ -187,6 +208,7 @@ class PressureSensorData(FlightDataResource):
 
         return pressure_sensor_data
 
+
 class PitotTubeData(FlightDataResource):
     """This resource class will return the pitot tube data in json format"""
     isLeaf = True
@@ -202,6 +224,7 @@ class PitotTubeData(FlightDataResource):
         }
 
         return pitot_tube_data
+
 
 class InertialNavigationSystemData(FlightDataResource):
     """This resource class will return the inertial navigation system data in
@@ -226,6 +249,7 @@ class InertialNavigationSystemData(FlightDataResource):
 
         return inertial_navigation_system_data
 
+
 class EngineData(FlightDataResource):
     """This resource class will return the engine data in json format"""
     isLeaf = True
@@ -242,6 +266,7 @@ class EngineData(FlightDataResource):
         }
 
         return engine_data
+
 
 class FlightControlsData(FlightDataResource):
     """This resource class will return the flight controls data in json
@@ -263,15 +288,19 @@ class FlightControlsData(FlightDataResource):
 
         return flight_controls_data
 
+
 class FDMData(FlightDataResource):
     """The FDMData resource returns data relative to the simulation"""
     isLeaf = True
+
     def __init__(self, fdmexec, aircraft):
         FlightDataResource.__init__(self)
         self.fdmexec = fdmexec
         self.aircraft = aircraft
 
     def _get_flight_data(self):
+        sensors = self.aircraft.sensors
+
         flight_data = {
             "time": self.fdmexec.GetSimTime(),
             "dt": self.fdmexec.GetDeltaT(),
@@ -280,17 +309,17 @@ class FDMData(FlightDataResource):
             "altitude": self.aircraft.instruments.gps.altitude,
             "airspeed": self.aircraft.instruments.gps.airspeed,
             "heading": self.aircraft.instruments.gps.heading,
-            "x_acceleration": self.aircraft.sensors.accelerometer.true_x,
-            "y_acceleration": self.aircraft.sensors.accelerometer.true_y,
-            "z_acceleration": self.aircraft.sensors.accelerometer.true_z,
-            "roll_rate": self.aircraft.sensors.gyroscope.true_roll_rate,
-            "pitch_rate": self.aircraft.sensors.gyroscope.true_pitch_rate,
-            "yaw_rate": self.aircraft.sensors.gyroscope.true_yaw_rate,
-            "temperature": self.aircraft.sensors.thermometer.true_temperature,
-            "static_pressure": self.aircraft.sensors.pressure_sensor.true_pressure,
-            "total_pressure": self.aircraft.sensors.pitot_tube.true_pressure,
-            "roll": self.aircraft.sensors.inertial_navigation_system.true_roll,
-            "pitch": self.aircraft.sensors.inertial_navigation_system.true_pitch,
+            "x_acceleration": sensors.accelerometer.true_x,
+            "y_acceleration": sensors.accelerometer.true_y,
+            "z_acceleration": sensors.accelerometer.true_z,
+            "roll_rate": sensors.gyroscope.true_roll_rate,
+            "pitch_rate": sensors.gyroscope.true_pitch_rate,
+            "yaw_rate": sensors.gyroscope.true_yaw_rate,
+            "temperature": sensors.thermometer.true_temperature,
+            "static_pressure": sensors.pressure_sensor.true_pressure,
+            "total_pressure": sensors.pitot_tube.true_pressure,
+            "roll": sensors.inertial_navigation_system.true_roll,
+            "pitch": sensors.inertial_navigation_system.true_pitch,
             "thrust": self.aircraft.engine.thrust,
             "aileron": self.aircraft.controls.aileron,
             "elevator": self.aircraft.controls.elevator,
@@ -299,6 +328,7 @@ class FDMData(FlightDataResource):
         }
 
         return flight_data
+
 
 class SimulatorCommand(Resource):
     """The SimulatorCommand is the base class for the simulator commands that
@@ -312,6 +342,7 @@ class SimulatorCommand(Resource):
                                              "application/json")
 
         return json.dumps(response_data)
+
 
 class PauseSimulatorCommand(SimulatorCommand):
     """The PauseSimulatorCommand http command pauses the simulator"""
@@ -331,6 +362,7 @@ class PauseSimulatorCommand(SimulatorCommand):
                                   {"command": "pause",
                                    "result": "ok"})
 
+
 class ResumeSimulatorCommand(SimulatorCommand):
     """The PauseSimulatorCommand http command resumes the simulation"""
     isLeaf = True
@@ -348,6 +380,7 @@ class ResumeSimulatorCommand(SimulatorCommand):
         return self.send_response(request,
                                   {"command": "resume",
                                    "result": "ok"})
+
 
 class ResetSimulatorCommand(SimulatorCommand):
     """The ResetSimulatorCommand http command resets the simulator"""
@@ -377,6 +410,7 @@ class ResetSimulatorCommand(SimulatorCommand):
                                   {"command": "reset",
                                    "result": "ok"})
 
+
 class StepSimulatorCommand(SimulatorCommand):
     """The StepSimulatorCommand http command executes a single simulation
     timestep"""
@@ -404,6 +438,7 @@ class StepSimulatorCommand(SimulatorCommand):
                                   {"command": "step",
                                    "result": "ok"})
 
+
 class RunForSimulatorCommand(SimulatorCommand):
     """The RunForSimulatorCommand http command makes the simulator run for
     the given amount of time"""
@@ -417,7 +452,8 @@ class RunForSimulatorCommand(SimulatorCommand):
     def render_POST(self, request):
         """Execute the command"""
         time_to_run = float(request.args["time_to_run"][0])
-        self.logger.debug("Running the simulation for %f seconds", time_to_run)
+        self.logger.debug("Running the simulation for %f seconds",
+                          time_to_run)
 
         result = self.simulator.run_for(time_to_run)
 
@@ -433,6 +469,7 @@ class RunForSimulatorCommand(SimulatorCommand):
         return self.send_response(request,
                                   {"command": "run_for",
                                    "result": "ok"})
+
 
 class SimulatorControl(Resource):
     """The SimulatorControl resource is used to control the simulator.
@@ -471,6 +508,7 @@ class SimulatorControl(Resource):
         }
 
         return self.send_response(request, simulator_state)
+
 
 class WebClient(object):
     """The WebClient is used to retrieve flight data from Huginn's web
@@ -534,6 +572,7 @@ class WebClient(object):
         a dictionary"""
         return self._get_json_data_from_endpoint("flight_controls")
 
+
 class MapData(Resource):
     """The MapData resource returns the waypoints stored in the simulation
     server"""
@@ -555,20 +594,22 @@ class MapData(Resource):
 
         return json.dumps({"result": "ok"})
 
+
 class FDMDataWebSocketFactory(WebSocketServerFactory):
-    """The FDMDataWebSocketFactory class is a factory that creates the protocol
-    objects for the fdm data transmission through web sockets"""
+    """The FDMDataWebSocketFactory class is a factory that creates the
+    protocol objects for the fdm data transmission through web sockets"""
     def __init__(self, fdm, update_rate, *args, **kwargs):
         WebSocketServerFactory.__init__(self, *args, **kwargs)
 
         self.fdm = fdm
         self.update_rate = update_rate
 
+
 class FDMDataWebSocketProtocol(WebSocketServerProtocol):
     """The FDMDataWebSocketProtocol class if the protocol class that transmits
     the fdm data using a web socket"""
     def onConnect(self, request):
-        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)  # @UndefinedVariable
+        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)
 
     def send_fdm_data(self):
         """Send the fdm data"""
@@ -586,4 +627,4 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
 
         self.sendMessage(payload, False)
 
-        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)  # @UndefinedVariable
+        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)

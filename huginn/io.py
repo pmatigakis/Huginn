@@ -3,7 +3,9 @@ The huginn.io module contains classes and functions that are used by the
 simulator in order to perform io operations
 """
 
+
 import csv
+
 
 class CSVFDMDataWriter(object):
     """The CSVFDMDataWriter is used to save fdm data to a file
@@ -23,6 +25,7 @@ class CSVFDMDataWriter(object):
         data_to_write = [data[item] for item in self.variables]
 
         self.csv_writer.writerow(data_to_write)
+
 
 class FDMDataPrinter(object):
     """The FDMDataPrinter prints to the console the fdm data that have

@@ -2,6 +2,7 @@
 The huginn_start script starts the simulator and the simulator server
 """
 
+
 import logging
 from argparse import ArgumentParser
 
@@ -11,6 +12,7 @@ from huginn.validators import port_number, fdm_data_endpoint,\
                               is_valid_latitude, is_valid_longitude,\
                               is_valid_heading
 from huginn.servers import SimulationServer
+
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -44,7 +46,8 @@ def get_arguments():
                         default=configuration.DT,
                         help="the simulation timestep")
 
-    parser.add_argument("--log", action="store", default=configuration.LOG_FILE,
+    parser.add_argument("--log", action="store",
+                        default=configuration.LOG_FILE,
                         help="The output log file")
 
     parser.add_argument("--trim", action="store_true",
@@ -71,6 +74,7 @@ def get_arguments():
                         help="The starting heading")
 
     return parser.parse_args()
+
 
 def validate_arguments(args, logger):
     """Check if the script arguments have valid values
@@ -105,6 +109,7 @@ def validate_arguments(args, logger):
 
     return True
 
+
 def initialize_logger(output_file, log_level):
     if log_level == "critical":
         logger_log_level = logging.CRITICAL
@@ -123,7 +128,8 @@ def initialize_logger(output_file, log_level):
     logger = logging.getLogger("huginn")
     logger.setLevel(logger_log_level)
 
-    formater = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s - %(message)s")
+    formater = logging.Formatter("%(asctime)s - %(module)s - "
+                                 "%(levelname)s - %(message)s")
 
     file_logging_handler = logging.FileHandler(output_file)
     file_logging_handler.setLevel(logger_log_level)
@@ -137,6 +143,7 @@ def initialize_logger(output_file, log_level):
     logger.addHandler(console_logging_handler)
 
     return logger
+
 
 def main():
     args = get_arguments()
@@ -166,10 +173,11 @@ def main():
     simulator = simulator_builder.create_simulator()
 
     if not simulator:
-        logger.error("Failed to create the simulator using the aircraft model '%s'", args.aircraft)
+        logger.error("Failed to create the simulator using the aircraft "
+                     "model '%s'", args.aircraft)
         exit(1)
 
-    #start the simulator paused
+    # start the simulator paused
     logger.debug("The simulator will start paused")
     simulator.pause()
     simulator.start_trimmed = args.trim
