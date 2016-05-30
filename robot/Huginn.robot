@@ -17,7 +17,7 @@ ${IC_TOTAL_PRESSURE}    98224.25
 
 *** Keywords ***
 Start Huginn
-    ${huginn_process_id} =    Start Process    huginn_start --aircraft Rascal    shell=true
+    ${huginn_process_id} =    Start Process    huginn_start    shell=true
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /

@@ -31,11 +31,6 @@ def get_arguments():
                         default=configuration.CONTROLS_PORT,
                         help="The controls port")
 
-    parser.add_argument("--aircraft", action="store",
-                        default=configuration.DEFAULT_AICRAFT,
-                        choices=configuration.AVAILABLE_AIRCRAFT,
-                        help="The aircraft model that will be used")
-
     parser.add_argument("--log_level", action="store",
                         choices=["critical", "error", "warning",
                                  "info", "debug"],
@@ -159,7 +154,6 @@ def main():
         exit(1)
 
     simulator_builder = SimulationBuilder(huginn_data_path)
-    simulator_builder.aircraft = args.aircraft
     simulator_builder.trim = args.trim
     simulator_builder.dt = args.dt
 

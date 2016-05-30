@@ -48,8 +48,7 @@ class FDMBuilder(object):
         self.logger.debug("JSBSim dt is %f", self.dt)
         fdmexec.Setdt(self.dt)
 
-        self.logger.debug("Using aircraft %s", self.aircraft)
-        fdmexec.LoadModel(self.aircraft)
+        fdmexec.LoadModel("Rascal")
 
         altitude_in_feet = convert_meters_to_feet(self.altitude)
         airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
