@@ -23,8 +23,6 @@ class SimulationBuilder(object):
         self.data_path = data_path
         self.dt = configuration.DT
 
-        self.aircraft = configuration.AIRCRAFT
-
         self.latitude = configuration.LATITUDE
         self.longitude = configuration.LONGITUDE
         self.altitude = configuration.ALTITUDE
@@ -39,7 +37,6 @@ class SimulationBuilder(object):
         """Create the Simulator object"""
         fdm_builder = FDMBuilder(self.data_path)
         fdm_builder.dt = self.dt
-        fdm_builder.aircraft = self.aircraft
         fdm_builder.latitude = self.latitude
         fdm_builder.longitude = self.longitude
         fdm_builder.altitude = self.altitude
@@ -48,7 +45,7 @@ class SimulationBuilder(object):
 
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdmexec, self.aircraft)
+        aircraft = Aircraft(fdmexec)
 
         aircraft.start_engines()
 
