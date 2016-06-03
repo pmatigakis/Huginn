@@ -18,6 +18,7 @@ hardware-in-the-loop simulations.
    FDMData protocol
    Recording telemetry data
    Sensors data
+   REST interface
 
 Indices and tables
 ==================
