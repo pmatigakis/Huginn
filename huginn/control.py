@@ -18,11 +18,18 @@ class SimulatorControlClient(object):
 
     def _send_command(self, command, data=None):
         """Send an http command to the simulator"""
+        command_data = {"command": command}
+
+        if data:
+            command_data.update(data)
+
+        headers = {"content-type": "application/json"}
+
         response = requests.post(
-            "http://%s:%d/simulator/%s" % (self.huginn_host,
-                                           self.simulator_controls_port,
-                                           command),
-            data=data
+            "http://%s:%d/simulator" % (self.huginn_host,
+                                        self.simulator_controls_port),
+            data=json.dumps(command_data),
+            headers=headers
         )
 
         response_data = json.loads(response.text)

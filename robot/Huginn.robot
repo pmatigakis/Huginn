@@ -54,9 +54,10 @@ Simulator Command Executed Successfully
     Should be Equal As Strings    ${response.json()['result']}    ok
 
 Execute Simulator Control Command
-    [Arguments]    ${session}    ${command}    ${params}={}
-    #${command_data} =    Create Dictionary  command=${command}
-    ${resp} =    Post Request    huginn_web_server  /simulator/${command}  params=${params}
+    [Arguments]    ${session}    ${command}
+    ${command_data} =    Create Dictionary  command=${command}
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
     [Return]    ${resp}
 
 JSON Response Should Contain item
@@ -157,8 +158,9 @@ Execute Single Simulation Step
 Run The Simulation For The Given Time
     [Arguments]    ${time_to_run}
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${params} =    Create Dictionary  time_to_run=${time_to_run}
-    ${resp} =    Execute Simulator Control Command    huginn_web_server  run_for  ${params}
+    ${command_data} =    Create Dictionary  command=run_for  time_to_run=${time_to_run}
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
     Simulator Command Executed Successfully    ${resp}  run_for
 
 Aircraft Should Be In The Start Location
@@ -382,7 +384,7 @@ Should Be Valid Engine Response With Engine On Idle
 
 Get The Flight Controls Data
     Create Session    huginn_web_server  ${HUGINN_URL}
-    ${resp} =    Get Request    huginn_web_server  /aircraft/flight_controls
+    ${resp} =    Get Request    huginn_web_server  /aircraft/controls
     [Return]    ${resp}
 
 Should Be Valid Flight Control Response
@@ -400,3 +402,10 @@ Should be Valid Flight Controls Response With Flight Controls Idle
     Should Be Equal As Numbers    ${response.json()['elevator']}  0.0
     Should Be Equal As Numbers    ${response.json()['rudder']}  0.0
     Should Be Equal As Numbers    ${response.json()['throttle']}  0.0
+
+Run Simulator For
+    [Arguments]    ${session}    ${run_for}
+    ${command_data} =    Create Dictionary  command=${command}  run_for=${run_for}
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
+    [Return]    ${resp}

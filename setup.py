@@ -3,8 +3,16 @@ from setuptools import setup, find_packages
 
 def get_web_static_files():
     chdir("huginn")
+
     package_data = []
+
     for dirname, dirnames, filenames in walk("static"):
+        for filename in filenames:
+            filepath = path.join(dirname, filename)
+            if path.isfile(filepath) and not path.islink(filepath):
+                package_data.append(filepath)
+
+    for dirname, dirnames, filenames in walk("templates"):
         for filename in filenames:
             filepath = path.join(dirname, filename)
             if path.isfile(filepath) and not path.islink(filepath):
@@ -39,7 +47,9 @@ setup(name="huginn",
       install_requires = ["protobuf>=2.6.1",
                           "requests>=2.9.1",
                           "Twisted>=15.5.0",
-                          "autobahn>=0.14.0"],
+                          "autobahn>=0.14.0",
+                          "Flask==0.11.1",
+                          "Flask-RESTful==0.3.5"],
       tests_require=["coverage>=4.0.3",
                      "mock>=1.3.0",
                      "nose>=1.3.7",

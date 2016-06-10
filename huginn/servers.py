@@ -5,18 +5,24 @@ a simulator that transmits and receives data from/to the network
 
 
 import logging
-import pkg_resources
 
 from twisted.internet import reactor
 from twisted.web import server
-from twisted.web.static import File
 from twisted.internet.task import LoopingCall
+from twisted.web.wsgi import WSGIResource
+from flask import Flask, render_template
+from flask_restful import Api
 
 from huginn import configuration
-from huginn.http import SimulatorControl, FDMData, AircraftResource, MapData,\
-                        FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
                              SensorDataFactory
+from huginn.http import FDMDataWebSocketFactory, FDMDataWebSocketProtocol
+from huginn.rest import (FDMResource, AircraftResource, GPSResource,
+                         AccelerometerResource, GyroscopeResource,
+                         ThermometerResource, PressureSensorResource,
+                         PitotTubeResource, InertialNavigationSystemResource,
+                         EngineResource, FlightControlsResource,
+                         SimulatorControlResource)
 
 
 class SimulationServer(object):
@@ -35,27 +41,6 @@ class SimulationServer(object):
         self.websocket_port = configuration.WEBSOCKET_PORT
         self.websocket_update_rate = configuration.WEBSOCKET_UPDATE_RATE
         self.logger = logging.getLogger("huginn")
-
-    def _initialize_web_server(self):
-        """Initialize the web server"""
-        self.logger.debug("Starting web server at port %d",
-                          self.web_server_port)
-
-        path_to_static_data = pkg_resources.resource_filename("huginn",
-                                                              "static")
-
-        root = File(path_to_static_data)
-
-        aircraft_root = AircraftResource(self.aircraft)
-
-        root.putChild("aircraft", aircraft_root)
-        root.putChild("simulator", SimulatorControl(self.simulator))
-        root.putChild("fdm", FDMData(self.fdmexec, self.aircraft))
-        root.putChild("map", MapData())
-
-        frontend = server.Site(root)
-
-        reactor.listenTCP(self.web_server_port, frontend)
 
     def _initialize_controls_server(self):
         """Initialize the controls server"""
@@ -113,14 +98,94 @@ class SimulationServer(object):
 
         reactor.listenTCP(self.websocket_port, factory)
 
+    def _initialize_web_frontend(self):
+        app = Flask(__name__)
+
+        api = Api()
+
+        api.add_resource(FDMResource, "/fdm",
+                         resource_class_args=(self.fdmexec, self.aircraft))
+
+        api.add_resource(AircraftResource, "/aircraft",
+                         resource_class_args=(self.aircraft,))
+
+        api.add_resource(GPSResource, "/aircraft/instruments/gps",
+                         resource_class_args=(self.aircraft.instruments.gps,))
+
+        api.add_resource(
+            AccelerometerResource,
+            "/aircraft/sensors/accelerometer",
+            resource_class_args=(self.aircraft.sensors.accelerometer,)
+        )
+
+        api.add_resource(
+            GyroscopeResource,
+            "/aircraft/sensors/gyroscope",
+            resource_class_args=(self.aircraft.sensors.gyroscope,)
+        )
+
+        api.add_resource(
+            ThermometerResource,
+            "/aircraft/sensors/thermometer",
+            resource_class_args=(self.aircraft.sensors.thermometer,)
+        )
+
+        api.add_resource(
+            PressureSensorResource,
+            "/aircraft/sensors/pressure_sensor",
+            resource_class_args=(self.aircraft.sensors.pressure_sensor,)
+        )
+
+        api.add_resource(
+            PitotTubeResource,
+            "/aircraft/sensors/pitot_tube",
+            resource_class_args=(self.aircraft.sensors.pitot_tube,)
+        )
+
+        api.add_resource(
+            InertialNavigationSystemResource,
+            "/aircraft/sensors/ins",
+            resource_class_args=(
+                self.aircraft.sensors.inertial_navigation_system,)
+        )
+
+        api.add_resource(
+            EngineResource,
+            "/aircraft/engine",
+            resource_class_args=(self.aircraft.engine,)
+        )
+
+        api.add_resource(
+            FlightControlsResource,
+            "/aircraft/controls",
+            resource_class_args=(self.aircraft.controls,)
+        )
+
+        api.add_resource(
+            SimulatorControlResource,
+            "/simulator",
+            resource_class_args=(self.simulator,)
+        )
+
+        api.init_app(app)
+
+        @app.route("/")
+        def index():
+            return render_template("index.html")
+
+        resource = WSGIResource(reactor, reactor.getThreadPool(), app)
+        site = server.Site(resource)
+
+        reactor.listenTCP(self.web_server_port, site)
+
     def start(self):
         """Start the simulator server"""
         self._initialize_controls_server()
         self._initialize_fdm_data_server()
-        self._initialize_web_server()
         self._initialize_sensors_server()
         self._initialize_simulator_updater()
         self._initialize_websocket_server()
+        self._initialize_web_frontend()
 
         self.logger.info("Starting the simulator server")
         reactor.run()  # @UndefinedVariable

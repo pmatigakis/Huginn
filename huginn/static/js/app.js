@@ -48,7 +48,7 @@ function init_map(){
 	}).addTo(map);
 	
 	var aircraftIcon = L.icon({
-	    iconUrl: 'images/32px-Airplane_silhouette.png',
+	    iconUrl: 'static/images/32px-Airplane_silhouette.png',
 
 	    iconSize:     [32, 32],
 	    iconAnchor:   [16, 16]
@@ -202,7 +202,7 @@ $(document).ready(function(){
 	        position : position,
 	        orientation : orientation,
 	        model : {
-	            uri : "models/Cesium_Air.glb",
+	            uri : "static/models/Cesium_Air.glb",
 	            minimumPixelSize : 128,
 	            maximumScale : 20000
 	        }
@@ -211,19 +211,19 @@ $(document).ready(function(){
 	viewer.trackedEntity = entity;
 	
 	$("#resume_button").click(function(){
-		$.post("simulator/resume");
+		$.post("simulator", data={"command": "resume"}, datatype="json");
 	});
 	
 	$("#pause_button").click(function(){
-        $.post("simulator/pause");
+        $.post("simulator", data={"command": "pause"}, datatype="json");
 	});
 	
 	$("#reset_button").click(function(){
-		$.post("simulator/reset");
+		$.post("simulator", data={"command": "reset"}, datatype="json");
 	});
 	
-	attitude_indicator = $.flightIndicator('#attitude_indicator', 'attitude');
-	heading_indicator = $.flightIndicator('#heading_indicator', 'heading');
-	airspeed_indicator = $.flightIndicator('#airspeed_indicator', 'airspeed');
-	altimeter_indicator = $.flightIndicator('#altimeter_indicator', 'altimeter');
+	attitude_indicator = $.flightIndicator('#attitude_indicator', 'attitude', {img_directory: "static/img/"});
+	heading_indicator = $.flightIndicator('#heading_indicator', 'heading', {img_directory: "static/img/"});
+	airspeed_indicator = $.flightIndicator('#airspeed_indicator', 'airspeed', {img_directory: "static/img/"});
+	altimeter_indicator = $.flightIndicator('#altimeter_indicator', 'altimeter', {img_directory: "static/img/"});
 })
