@@ -64,9 +64,9 @@ class GyroscopeTests(TestCase):
 
         gyroscope = Gyroscope(fdmexec)
 
-        self.assertAlmostEqual(gyroscope.true_roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)), 3)
-        self.assertAlmostEqual(gyroscope.true_pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)), 3)
-        self.assertAlmostEqual(gyroscope.true_yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)), 3)
+        self.assertAlmostEqual(gyroscope.true_roll_rate, math.degrees(fdmexec.GetPropagate().GetPQR(1)), 3)
+        self.assertAlmostEqual(gyroscope.true_pitch_rate, math.degrees(fdmexec.GetPropagate().GetPQR(2)), 3)
+        self.assertAlmostEqual(gyroscope.true_yaw_rate, math.degrees(fdmexec.GetPropagate().GetPQR(3)), 3)
 
         self.assertAlmostEqual(gyroscope.roll_rate, gyroscope.true_roll_rate + gyroscope.roll_rate_bias + gyroscope.roll_rate_measurement_noise, 3)
         self.assertAlmostEqual(gyroscope.pitch_rate, gyroscope.true_pitch_rate + gyroscope.pitch_rate_bias + gyroscope.pitch_rate_measurement_noise, 3)
@@ -303,9 +303,9 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.gyroscope.true_roll_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(1)))
-        self.assertAlmostEqual(sensors.gyroscope.true_pitch_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(2)))
-        self.assertAlmostEqual(sensors.gyroscope.true_yaw_rate, math.degrees(fdmexec.GetAuxiliary().GetEulerRates(3)))
+        self.assertAlmostEqual(sensors.gyroscope.true_roll_rate, math.degrees(fdmexec.GetPropagate().GetPQR(1)))
+        self.assertAlmostEqual(sensors.gyroscope.true_pitch_rate, math.degrees(fdmexec.GetPropagate().GetPQR(2)))
+        self.assertAlmostEqual(sensors.gyroscope.true_yaw_rate, math.degrees(fdmexec.GetPropagate().GetPQR(3)))
 
     def test_thermometer(self):
         huginn_data_path = configuration.get_data_path()

@@ -16,6 +16,7 @@ ic_pitch_rate = math.degrees(-0.056170)
 ic_yaw_rate = math.degrees(0.019293)
 
 ic_vtrue = convert_feet_to_meters(90.478887)
+ic_climb_rate = convert_feet_to_meters(-1.871979)
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
@@ -76,6 +77,7 @@ class VelocitiesTests(TestCase):
         self.assertAlmostEqual(velocities.pitch_rate, ic_pitch_rate, 3)
         self.assertAlmostEqual(velocities.yaw_rate, ic_yaw_rate, 3)
         self.assertAlmostEqual(velocities.airspeed, ic_vtrue, 3)
+        self.assertAlmostEqual(velocities.climb_rate, ic_climb_rate, 3)
 
 class PositionTests(TestCase):
     def test_aircraft_position(self):

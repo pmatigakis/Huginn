@@ -22,7 +22,8 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          ThermometerResource, PressureSensorResource,
                          PitotTubeResource, InertialNavigationSystemResource,
                          EngineResource, FlightControlsResource,
-                         SimulatorControlResource)
+                         SimulatorControlResource, AccelerationsResource,
+                         VelocitiesResource)
 
 
 class SimulationServer(object):
@@ -98,13 +99,22 @@ class SimulationServer(object):
 
         reactor.listenTCP(self.websocket_port, factory)
 
+    def _add_fdm_resources(self, api):
+        api.add_resource(FDMResource, "/fdm",
+                         resource_class_args=(self.fdmexec, self.aircraft))
+
+        api.add_resource(AccelerationsResource, "/fdm/accelerations",
+                         resource_class_args=(self.fdmexec,))
+
+        api.add_resource(VelocitiesResource, "/fdm/velocities",
+                         resource_class_args=(self.fdmexec,))
+
     def _initialize_web_frontend(self):
         app = Flask(__name__)
 
         api = Api()
 
-        api.add_resource(FDMResource, "/fdm",
-                         resource_class_args=(self.fdmexec, self.aircraft))
+        self._add_fdm_resources(api)
 
         api.add_resource(AircraftResource, "/aircraft",
                          resource_class_args=(self.aircraft,))

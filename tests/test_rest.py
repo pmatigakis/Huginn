@@ -1,19 +1,18 @@
 from unittest import TestCase
-import json
-
-from mock import MagicMock, ANY
 
 from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          GPSResource, ThermometerResource, PitotTubeResource,
                          PressureSensorResource, EngineResource,
                          InertialNavigationSystemResource, AircraftResource,
-                         FlightControlsResource, SimulatorControlResource)
+                         FlightControlsResource, SimulatorControlResource,
+                         ObjectResource)
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder
+from huginn.fdm import FDMBuilder, Accelerations
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
-from huginn import configuration
+from huginn.schemas import AccelerationsSchema
+from huginn.unit_conversions import convert_feet_to_meters
 
 from mockObjects import MockRequest
 
@@ -53,6 +52,10 @@ class FDMResourceTests(TestCase):
         self.assertAlmostEqual(aircraft.controls.elevator, fdm_data["elevator"], 3)
         self.assertAlmostEqual(aircraft.controls.rudder, fdm_data["rudder"], 3)
         self.assertAlmostEqual(aircraft.engine.throttle, fdm_data["throttle"], 3)
+
+        climb_rate = convert_feet_to_meters(-fdmexec.GetPropagate().GetVel(3))
+        
+        self.assertAlmostEqual(climb_rate, fdm_data["climb_rate"], 3)
 
 class AccelerometerResourceTests(TestCase):
     def test_get_accelerometer_data(self):
@@ -341,3 +344,23 @@ class AircraftResourceTests(TestCase):
         aircraft_data = resource.get()
 
         self.assertDictEqual(aircraft_data, {"type": "Rascal"})
+
+class ObjectResourceTests(TestCase):
+    def test_get_object_resource_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        accelerations = Accelerations(fdmexec)
+        accelerations_schema = AccelerationsSchema()
+
+        object_resource = ObjectResource(accelerations, accelerations_schema)
+
+        response = object_resource.get()
+
+        expected_result = {"x": accelerations.x,
+                           "y": accelerations.y,
+                           "z": accelerations.z}
+
+        self.assertDictEqual(response, expected_result)

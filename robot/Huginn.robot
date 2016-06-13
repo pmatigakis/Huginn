@@ -9,11 +9,13 @@ ${HUGINN_URL}    http://localhost:8090
 ${IC_X_ACCELERATION}    -2.3863054128
 ${IC_Y_ACCELERATION}    0.300261528
 ${IC_Z_ACCELERATION}    -8.0968135752
-${IC_ROLL_RATE}    1.153077531
-${IC_PITCH_RATE}    -3.2386438479
-${IC_YAW_RATE}    1.04547606
+${IC_ROLL_RATE}    1.2017789753
+${IC_PITCH_RATE}    -3.218303935
+${IC_YAW_RATE}    1.1054074741
 ${IC_PRESSURE}    97771.68
 ${IC_TOTAL_PRESSURE}    98224.25
+${IC_AIRSPEED}    27.5779647576
+${IC_CLIMB_RATE}    -0.5705791992
 
 *** Keywords ***
 Start Huginn
@@ -409,3 +411,45 @@ Run Simulator For
     ${headers}=  Create Dictionary  Content-Type=application/json
     ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
     [Return]    ${resp}
+
+Get FDM Accelerations Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/accelerations
+    [Return]    ${resp}
+
+Is Valid FDM Accelerations Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  x
+    JSON Response Should Contain item    ${response}  y
+    JSON Response Should Contain item    ${response}  z
+
+Is FDM accelerations Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['x']}  ${IC_X_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['y']}  ${IC_Y_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['z']}  ${IC_Z_ACCELERATION}  precision=4
+
+Get FDM Velocity Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/velocities
+    [Return]    ${resp}
+
+Is Valid FDM Velocity Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  roll_rate
+    JSON Response Should Contain item    ${response}  pitch_rate
+    JSON Response Should Contain item    ${response}  yaw_rate
+    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  climb_rate
+
+Is FDM Velocity Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['roll_rate']}  ${IC_ROLL_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['pitch_rate']}  ${IC_PITCH_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['yaw_rate']}  ${IC_YAW_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['airspeed']}  ${IC_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['climb_rate']}  ${IC_CLIMB_RATE}  precision=4

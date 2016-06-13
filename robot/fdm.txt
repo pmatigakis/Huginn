@@ -14,3 +14,21 @@ FDM API returns the fdm data
     ${resp} =    Get FDM Data
     Is Valid FDM Data Response    ${resp}
     Is FDM Data Response With Aircraft In The Start Location    ${resp}
+
+FDM Accelerations endpoint returns the accelerations data
+    [Documentation]    This test checks if the fdm accelerations endpoint return the accelerations data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Accelerations Data
+    Is Valid FDM Accelerations Data Response    ${resp}
+    Is FDM Accelerations Data Response With Aircraft In The Start Location    ${resp}
+
+FDM Velocities endpoint returns the velocity data
+    [Documentation]    This test checks if the fdm velocities endpoint return the velocity data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Velocity Data
+    Is Valid FDM Velocity Data Response    ${resp}
+    Is FDM Velocity Data Response With Aircraft In The Start Location    ${resp}

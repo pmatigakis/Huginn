@@ -100,7 +100,8 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
             "latitude": self.factory.fdm.position.latitude,
             "longitude": self.factory.fdm.position.longitude,
             "altitude": self.factory.fdm.position.altitude,
-            "heading": self.factory.fdm.position.heading
+            "heading": self.factory.fdm.position.heading,
+            "climb_rate": self.factory.fdm.velocities.climb_rate
         }
 
         payload = json.dumps(fdm_data).encode("utf8")

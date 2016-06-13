@@ -155,17 +155,17 @@ class Gyroscope(object):
     @property
     def true_roll_rate(self):
         """Return the actual roll rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(1))
+        return degrees(self.fdmexec.GetPropagate().GetPQR(1))
 
     @property
     def true_pitch_rate(self):
         """Return the actual pitch rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(2))
+        return degrees(self.fdmexec.GetPropagate().GetPQR(2))
 
     @property
     def true_yaw_rate(self):
         """Return the actual yaw rate in degrees/sec"""
-        return degrees(self.fdmexec.GetAuxiliary().GetEulerRates(3))
+        return degrees(self.fdmexec.GetPropagate().GetPQR(3))
 
     @property
     def roll_rate(self):

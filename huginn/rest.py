@@ -4,6 +4,10 @@ The huginn.rest module contains the rest interface endpoints
 
 from flask_restful import Resource, reqparse
 
+from huginn.schemas import AccelerationsSchema, VelocitiesSchema
+from huginn.fdm import Accelerations, Velocities
+from huginn.unit_conversions import convert_feet_to_meters
+
 
 class FDMResource(Resource):
     """The FDMResource will return the data from the flight dynamics model"""
@@ -21,6 +25,9 @@ class FDMResource(Resource):
     def get(self):
         """Get the fdm data"""
         sensors = self.aircraft.sensors
+
+        climb_rate = convert_feet_to_meters(
+            -self.fdmexec.GetPropagate().GetVel(3))
 
         flight_data = {
             "time": self.fdmexec.GetSimTime(),
@@ -46,6 +53,7 @@ class FDMResource(Resource):
             "elevator": self.aircraft.controls.elevator,
             "rudder": self.aircraft.controls.rudder,
             "throttle": self.aircraft.engine.throttle,
+            "climb_rate": climb_rate
         }
 
         return flight_data
@@ -346,3 +354,57 @@ class SimulatorControlResource(Resource):
             params = {"time_to_run": args.time_to_run}
 
         return self.execute_command(command, params)
+
+
+class ObjectResource(Resource):
+    """The ObjectResource is using an object and a marshmallow schema to return
+    the representation of an object"""
+
+    def __init__(self, obj, schema):
+        """Create a new ObjectResource object
+
+        Arguments:
+        obj: the object to encode
+        schema: the marshmallow schema object
+        """
+        self.obj = obj
+        self.schema = schema
+
+    def get(self):
+        result = self.schema.dump(self.obj)
+
+        return result.data
+
+
+class AccelerationsResource(ObjectResource):
+    """The AccelerationsResource object returns the fdm accelerations"""
+
+    def __init__(self, fdmexec):
+        """Create a new AccelerationsResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self.accelerations = Accelerations(self.fdmexec)
+        self.acceleration_schema = AccelerationsSchema()
+
+        super(AccelerationsResource, self).__init__(self.accelerations,
+                                                    self.acceleration_schema)
+
+
+class VelocitiesResource(ObjectResource):
+    """The VelocitiesResource object returns the fdm velocities"""
+
+    def __init__(self, fdmexec):
+        """Create a new VelocitiesResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self.velocities = Velocities(self.fdmexec)
+        self.velocities_schema = VelocitiesSchema()
+
+        super(VelocitiesResource, self).__init__(self.velocities,
+                                                 self.velocities_schema)

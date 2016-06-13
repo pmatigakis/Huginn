@@ -141,6 +141,14 @@ class Velocities(object):
 
         return convert_feet_to_meters(airspeed)
 
+    @property
+    def climb_rate(self):
+        """Return the vertical velocity in meters/seconds"""
+        # climb_rate = self.fdmexec.GetPropertyValue("velocities/v-down-fps")
+        climb_rate = -self.fdmexec.GetPropagate().GetVel(3)
+
+        return convert_feet_to_meters(climb_rate)
+
 
 class Position(object):
     """The Position class contains data about the position of the aircraft"""

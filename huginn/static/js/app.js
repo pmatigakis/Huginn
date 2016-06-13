@@ -11,6 +11,7 @@ var attitude_indicator;
 var altitude_indicator;
 var airspeed_indicator;
 var heading_indicator;
+var variometer_indicator;
 
 aircraft_info.onAdd = function(map){
 	this._div = L.DomUtil.create("div", "aircraft-info");
@@ -90,7 +91,7 @@ function update_3dmap(latitude, longitude, altitude, airspeed, heading, roll, pi
     entity.orientation = orientation;
 }
 
-function update_indicators(roll, pitch, altitude, airspeed, heading){
+function update_indicators(roll, pitch, altitude, airspeed, heading, climb_rate){
 	attitude_indicator.setRoll(roll);
     attitude_indicator.setPitch(pitch);
     
@@ -98,7 +99,9 @@ function update_indicators(roll, pitch, altitude, airspeed, heading){
          
     airspeed_indicator.setAirSpeed(airspeed);
     
-    altimeter_indicator.setAltitude(altitude);	
+    altimeter_indicator.setAltitude(altitude);
+    vario = (climb_rate * 60.0) / 1000.0;
+    variometer_indicator.setVario(vario);
 }
 
 function start_data_update(){
@@ -114,6 +117,7 @@ function start_data_update(){
 		var heading = data["heading"];
 		var latitude = data["latitude"];
 		var longitude = data["longitude"];
+		var climb_rate = data["climb_rate"];
 		
 		update_hud(altitude, airspeed, heading, roll, pitch);
 		
@@ -122,7 +126,8 @@ function start_data_update(){
 
 		var airspeed_in_knots = airspeed * 1.94384;
 		var altitude_in_feet = altitude * 3.28084;
-		update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading);
+		var climb_rate_in_feet = climb_rate * 3.28084;
+		update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading, climb_rate_in_feet);
 	}
 	
 	socket.onclose = function(){
@@ -158,6 +163,7 @@ function start_fdm_data_update(){
 			$("#elevator").text(data["elevator"]);
 			$("#rudder").text(data["rudder"]);
 			$("#throttle").text(data["throttle"]);
+			$("#climb_rate").text(data["climb_rate"]);
 			
 			update_map(data["latitude"], data["longitude"]);
 			aircraft_info.update(data);
@@ -226,4 +232,5 @@ $(document).ready(function(){
 	heading_indicator = $.flightIndicator('#heading_indicator', 'heading', {img_directory: "static/img/"});
 	airspeed_indicator = $.flightIndicator('#airspeed_indicator', 'airspeed', {img_directory: "static/img/"});
 	altimeter_indicator = $.flightIndicator('#altimeter_indicator', 'altimeter', {img_directory: "static/img/"});
+	variometer_indicator = $.flightIndicator('#variometer_indicator', 'variometer', {img_directory: "static/img/"});
 })
