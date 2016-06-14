@@ -96,7 +96,7 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
         fdm_data = {
             "roll": self.factory.fdm.orientation.roll,
             "pitch": self.factory.fdm.orientation.pitch,
-            "airspeed": self.factory.fdm.velocities.airspeed,
+            "airspeed": self.factory.fdm.velocities.true_airspeed,
             "latitude": self.factory.fdm.position.latitude,
             "longitude": self.factory.fdm.position.longitude,
             "altitude": self.factory.fdm.position.altitude,

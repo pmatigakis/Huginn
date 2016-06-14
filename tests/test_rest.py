@@ -5,10 +5,11 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          PressureSensorResource, EngineResource,
                          InertialNavigationSystemResource, AircraftResource,
                          FlightControlsResource, SimulatorControlResource,
-                         ObjectResource)
+                         ObjectResource, AccelerationsResource,
+                         VelocitiesResource)
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder, Accelerations
+from huginn.fdm import FDMBuilder, Accelerations, Velocities
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
@@ -359,8 +360,66 @@ class ObjectResourceTests(TestCase):
 
         response = object_resource.get()
 
-        expected_result = {"x": accelerations.x,
-                           "y": accelerations.y,
-                           "z": accelerations.z}
+        expected_result = {
+            "x": accelerations.x,
+            "y": accelerations.y,
+            "z": accelerations.z,
+            "p_dot": accelerations.p_dot,
+            "q_dot": accelerations.q_dot,
+            "r_dot": accelerations.r_dot,
+            "u_dot": accelerations.u_dot,
+            "v_dot": accelerations.v_dot,
+            "w_dot": accelerations.w_dot,
+            "gravity": accelerations.gravity
+        }
 
         self.assertDictEqual(response, expected_result)
+
+class AccelerationsResourceTests(TestCase):
+    def test_get_accelerations(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        accelerations_resource = AccelerationsResource(fdmexec)
+
+        response = accelerations_resource.get()
+
+        accelerations = Accelerations(fdmexec)
+        
+        self.assertAlmostEqual(response["x"], accelerations.x, 3)
+        self.assertAlmostEqual(response["y"], accelerations.y, 3)
+        self.assertAlmostEqual(response["z"], accelerations.z, 3)
+        self.assertAlmostEqual(response["p_dot"], accelerations.p_dot, 3)
+        self.assertAlmostEqual(response["q_dot"], accelerations.q_dot, 3)
+        self.assertAlmostEqual(response["r_dot"], accelerations.r_dot, 3)
+        self.assertAlmostEqual(response["u_dot"], accelerations.u_dot, 3)
+        self.assertAlmostEqual(response["v_dot"], accelerations.v_dot, 3)
+        self.assertAlmostEqual(response["w_dot"], accelerations.w_dot, 3)
+        self.assertAlmostEqual(response["gravity"], accelerations.gravity, 3)
+
+class VelocitiesResourceTests(TestCase):
+    def test_get_velocities(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        velocities_resource = VelocitiesResource(fdmexec)
+
+        response = velocities_resource.get()
+
+        velocities = Velocities(fdmexec)
+
+        self.assertAlmostEqual(response["u"], velocities.u, 3)
+        self.assertAlmostEqual(response["v"], velocities.v, 3)
+        self.assertAlmostEqual(response["w"], velocities.w, 3)
+        self.assertAlmostEqual(response["p"], velocities.p, 3)
+        self.assertAlmostEqual(response["q"], velocities.q, 3)
+        self.assertAlmostEqual(response["r"], velocities.r, 3)
+        self.assertAlmostEqual(response["climb_rate"], velocities.climb_rate, 3)
+        self.assertAlmostEqual(response["true_airspeed"], velocities.true_airspeed, 3)
+        self.assertAlmostEqual(response["calibrated_airspeed"], velocities.calibrated_airspeed, 3)
+        self.assertAlmostEqual(response["equivalent_airspeed"], velocities.equivalent_airspeed, 3)
+        self.assertAlmostEqual(response["ground_speed"], velocities.ground_speed, 3)

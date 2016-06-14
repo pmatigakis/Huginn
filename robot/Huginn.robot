@@ -9,13 +9,26 @@ ${HUGINN_URL}    http://localhost:8090
 ${IC_X_ACCELERATION}    -2.3863054128
 ${IC_Y_ACCELERATION}    0.300261528
 ${IC_Z_ACCELERATION}    -8.0968135752
-${IC_ROLL_RATE}    1.2017789753
-${IC_PITCH_RATE}    -3.218303935
-${IC_YAW_RATE}    1.1054074741
+${IC_P}    1.2017789753
+${IC_Q}    -3.218303935
+${IC_R}    1.1054074741
 ${IC_PRESSURE}    97771.68
 ${IC_TOTAL_PRESSURE}    98224.25
 ${IC_AIRSPEED}    27.5779647576
 ${IC_CLIMB_RATE}    -0.5705791992
+${IC_U_DOT}    -1.9936925328
+${IC_V_DOT}    -0.0348145608
+${IC_W_DOT}    0.109516164
+${IC_P_DOT}    0.45928296858
+${IC_Q_DOT}    -1.2179936809
+${IC_R_DOT}    -0.20334272149
+${IC_GRAVITY}    9.7952561016
+${IC_U}    27.568844532
+${IC_V}    -0.1193944272
+${IC_W}    -0.712468476
+${IC_CALIBRATED_AIRSPEED}    27.1740273384
+${IC_EQUIVALENT_AIRSPEED}    27.1825690536
+${IC_GROUND_SPEED}    27.572404596
 
 *** Keywords ***
 Start Huginn
@@ -229,9 +242,9 @@ Is FDM Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['x_acceleration']}  ${IC_X_ACCELERATION}  precision=4
     Should Be Equal As Numbers    ${response.json()['y_acceleration']}  ${IC_Y_ACCELERATION}  precision=4
     Should Be Equal As Numbers    ${response.json()['z_acceleration']}  ${IC_Z_ACCELERATION}  precision=4
-    Should Be Equal As Numbers    ${response.json()['roll_rate']}  ${IC_ROLL_RATE}  precision=4
-    Should Be Equal As Numbers    ${response.json()['pitch_rate']}  ${IC_PITCH_RATE}  precision=4
-    Should Be Equal As Numbers    ${response.json()['yaw_rate']}  ${IC_YAW_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['roll_rate']}  ${IC_P}  precision=4
+    Should Be Equal As Numbers    ${response.json()['pitch_rate']}  ${IC_Q}  precision=4
+    Should Be Equal As Numbers    ${response.json()['yaw_rate']}  ${IC_R}  precision=4
     Value Close To    ${response.json()['total_pressure']}  ${IC_TOTAL_PRESSURE}  1.0
     Value Close To    ${response.json()['static_pressure']}  ${IC_PRESSURE}  1.0
 
@@ -424,12 +437,26 @@ Is Valid FDM Accelerations Data Response
     JSON Response Should Contain item    ${response}  x
     JSON Response Should Contain item    ${response}  y
     JSON Response Should Contain item    ${response}  z
+    JSON Response Should Contain item    ${response}  u_dot
+    JSON Response Should Contain item    ${response}  v_dot
+    JSON Response Should Contain item    ${response}  w_dot
+    JSON Response Should Contain item    ${response}  p_dot
+    JSON Response Should Contain item    ${response}  q_dot
+    JSON Response Should Contain item    ${response}  r_dot
+    JSON Response Should Contain item    ${response}  gravity
 
 Is FDM accelerations Data Response With Aircraft In The Start Location
     [Arguments]    ${response}
     Should Be Equal As Numbers    ${response.json()['x']}  ${IC_X_ACCELERATION}  precision=4
     Should Be Equal As Numbers    ${response.json()['y']}  ${IC_Y_ACCELERATION}  precision=4
     Should Be Equal As Numbers    ${response.json()['z']}  ${IC_Z_ACCELERATION}  precision=4
+    Should Be Equal As Numbers    ${response.json()['u_dot']}  ${IC_U_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['v_dot']}  ${IC_V_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['w_dot']}  ${IC_W_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['p_dot']}  ${IC_P_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['q_dot']}  ${IC_Q_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['r_dot']}  ${IC_R_DOT}  precision=4
+    Should Be Equal As Numbers    ${response.json()['gravity']}  ${IC_GRAVITY}  precision=4
 
 Get FDM Velocity Data
     Create Session    huginn_web_server  ${HUGINN_URL}
@@ -440,16 +467,28 @@ Is Valid FDM Velocity Data Response
     [Arguments]    ${response}
     Should be Equal As Strings    ${response.status_code}  200
     Response Content Type Should Be JSON    ${response}
-    JSON Response Should Contain item    ${response}  roll_rate
-    JSON Response Should Contain item    ${response}  pitch_rate
-    JSON Response Should Contain item    ${response}  yaw_rate
-    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  p
+    JSON Response Should Contain item    ${response}  q
+    JSON Response Should Contain item    ${response}  r
+    JSON Response Should Contain item    ${response}  true_airspeed
     JSON Response Should Contain item    ${response}  climb_rate
+    JSON Response Should Contain item    ${response}  u
+    JSON Response Should Contain item    ${response}  v
+    JSON Response Should Contain item    ${response}  w
+    JSON Response Should Contain item    ${response}  calibrated_airspeed
+    JSON Response Should Contain item    ${response}  equivalent_airspeed
+    JSON Response Should Contain item    ${response}  ground_speed
 
 Is FDM Velocity Data Response With Aircraft In The Start Location
     [Arguments]    ${response}
-    Should Be Equal As Numbers    ${response.json()['roll_rate']}  ${IC_ROLL_RATE}  precision=4
-    Should Be Equal As Numbers    ${response.json()['pitch_rate']}  ${IC_PITCH_RATE}  precision=4
-    Should Be Equal As Numbers    ${response.json()['yaw_rate']}  ${IC_YAW_RATE}  precision=4
-    Should Be Equal As Numbers    ${response.json()['airspeed']}  ${IC_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['p']}  ${IC_P}  precision=4
+    Should Be Equal As Numbers    ${response.json()['q']}  ${IC_Q}  precision=4
+    Should Be Equal As Numbers    ${response.json()['r']}  ${IC_R}  precision=4
+    Should Be Equal As Numbers    ${response.json()['true_airspeed']}  ${IC_AIRSPEED}  precision=4
     Should Be Equal As Numbers    ${response.json()['climb_rate']}  ${IC_CLIMB_RATE}  precision=4
+    Should Be Equal As Numbers    ${response.json()['u']}  ${IC_U}  precision=4
+    Should Be Equal As Numbers    ${response.json()['v']}  ${IC_V}  precision=4
+    Should Be Equal As Numbers    ${response.json()['w']}  ${IC_W}  precision=4
+    Should Be Equal As Numbers    ${response.json()['calibrated_airspeed']}  ${IC_CALIBRATED_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['equivalent_airspeed']}  ${IC_EQUIVALENT_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['ground_speed']}  ${IC_GROUND_SPEED}  precision=4

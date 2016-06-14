@@ -11,12 +11,27 @@ ic_x_acceleration = convert_feet_to_meters(-7.829086)
 ic_y_acceleration = convert_feet_to_meters(0.985110)
 ic_z_acceleration = convert_feet_to_meters(-26.564349)
 
-ic_roll_rate = math.degrees(0.020975) 
-ic_pitch_rate = math.degrees(-0.056170)
-ic_yaw_rate = math.degrees(0.019293)
+ic_p = math.degrees(0.020975) 
+ic_q = math.degrees(-0.056170)
+ic_r = math.degrees(0.019293)
+ic_u = convert_feet_to_meters(90.448965)
+ic_v = convert_feet_to_meters(-0.391714)
+ic_w = convert_feet_to_meters(-2.337495)
+ic_calibrated_airspeed = convert_feet_to_meters(89.153633)
+ic_equivalent_airspeed = convert_feet_to_meters(89.181657)
 
 ic_vtrue = convert_feet_to_meters(90.478887)
 ic_climb_rate = convert_feet_to_meters(-1.871979)
+
+ic_p_dot = math.degrees(0.008016)
+ic_q_dot = math.degrees(-0.021258)
+ic_r_dot = math.degrees(-0.003549)
+
+ic_u_dot = convert_feet_to_meters(-6.540986)
+ic_v_dot = convert_feet_to_meters(-0.114221)
+ic_w_dot = convert_feet_to_meters(0.359305)
+
+ic_gravity_acceleration = convert_feet_to_meters(32.136667)
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
@@ -32,7 +47,6 @@ class AccelerationsTests(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
         accelerations = Accelerations(fdmexec)
@@ -40,6 +54,13 @@ class AccelerationsTests(TestCase):
         self.assertAlmostEqual(accelerations.x, ic_x_acceleration, 3)
         self.assertAlmostEqual(accelerations.y, ic_y_acceleration, 3)
         self.assertAlmostEqual(accelerations.z, ic_z_acceleration, 3)
+        self.assertAlmostEqual(accelerations.p_dot, ic_p_dot, 3)
+        self.assertAlmostEqual(accelerations.q_dot, ic_q_dot, 3)
+        self.assertAlmostEqual(accelerations.r_dot, ic_r_dot, 3)
+        self.assertAlmostEqual(accelerations.u_dot, ic_u_dot, 3)
+        self.assertAlmostEqual(accelerations.v_dot, ic_v_dot, 3)
+        self.assertAlmostEqual(accelerations.w_dot, ic_w_dot, 3)
+        self.assertAlmostEqual(accelerations.gravity, ic_gravity_acceleration, 3)
 
 class FDMTests(TestCase):
     def setUp(self):
@@ -59,9 +80,16 @@ class FDMTests(TestCase):
     def test_velocities(self):
         fdm = FDM(self.fdmexec)
 
-        self.assertAlmostEqual(fdm.velocities.roll_rate, ic_roll_rate, 3)
-        self.assertAlmostEqual(fdm.velocities.pitch_rate, ic_pitch_rate, 3)
-        self.assertAlmostEqual(fdm.velocities.yaw_rate, ic_yaw_rate, 3)
+        self.assertAlmostEqual(fdm.velocities.p, ic_p, 3)
+        self.assertAlmostEqual(fdm.velocities.q, ic_q, 3)
+        self.assertAlmostEqual(fdm.velocities.r, ic_r, 3)
+        self.assertAlmostEqual(fdm.velocities.u, ic_u, 3)
+        self.assertAlmostEqual(fdm.velocities.v, ic_v, 3)
+        self.assertAlmostEqual(fdm.velocities.w, ic_w, 3)
+        self.assertAlmostEqual(fdm.velocities.climb_rate, ic_climb_rate, 3)
+        self.assertAlmostEqual(fdm.velocities.true_airspeed, ic_vtrue, 3)
+        self.assertAlmostEqual(fdm.velocities.calibrated_airspeed, ic_calibrated_airspeed, 3)
+        self.assertAlmostEqual(fdm.velocities.equivalent_airspeed, ic_equivalent_airspeed, 3)
 
 class VelocitiesTests(TestCase):
     def test_accelerations(self):
@@ -73,11 +101,16 @@ class VelocitiesTests(TestCase):
 
         velocities = Velocities(fdmexec)
 
-        self.assertAlmostEqual(velocities.roll_rate, ic_roll_rate, 3)
-        self.assertAlmostEqual(velocities.pitch_rate, ic_pitch_rate, 3)
-        self.assertAlmostEqual(velocities.yaw_rate, ic_yaw_rate, 3)
-        self.assertAlmostEqual(velocities.airspeed, ic_vtrue, 3)
+        self.assertAlmostEqual(velocities.p, ic_p, 3)
+        self.assertAlmostEqual(velocities.q, ic_q, 3)
+        self.assertAlmostEqual(velocities.r, ic_r, 3)
+        self.assertAlmostEqual(velocities.true_airspeed, ic_vtrue, 3)
         self.assertAlmostEqual(velocities.climb_rate, ic_climb_rate, 3)
+        self.assertAlmostEqual(velocities.u, ic_u, 3)
+        self.assertAlmostEqual(velocities.v, ic_v, 3)
+        self.assertAlmostEqual(velocities.w, ic_w, 3)
+        self.assertAlmostEqual(velocities.calibrated_airspeed, ic_calibrated_airspeed, 3)
+        self.assertAlmostEqual(velocities.equivalent_airspeed, ic_equivalent_airspeed, 3)
 
 class PositionTests(TestCase):
     def test_aircraft_position(self):

@@ -114,29 +114,84 @@ class Accelerations(object):
 
         return convert_feet_to_meters(acceleration)
 
+    @property
+    def p_dot(self):
+        """Returns the p value of the body axis angular acceleration in
+        degress/sec^2"""
+        acceleration = self.fdmexec.GetAccelerations().GetPQRdot(1)
+
+        return degrees(acceleration)
+
+    @property
+    def q_dot(self):
+        """Returns the q value of the body axis angular acceleration in
+        degress/sec^2"""
+        acceleration = self.fdmexec.GetAccelerations().GetPQRdot(2)
+
+        return degrees(acceleration)
+
+    @property
+    def r_dot(self):
+        """Returns the r value of the body axis angular acceleration in
+        degress/sec^2"""
+        acceleration = self.fdmexec.GetAccelerations().GetPQRdot(3)
+
+        return degrees(acceleration)
+
+    @property
+    def u_dot(self):
+        """Returns the u item of the the body axis acceleration in
+        meters/sec"""
+        acceleration = self.fdmexec.GetAccelerations().GetUVWdot(1)
+
+        return convert_feet_to_meters(acceleration)
+
+    @property
+    def v_dot(self):
+        """Returns the v item of the the body axis acceleration in
+        meters/sec"""
+        acceleration = self.fdmexec.GetAccelerations().GetUVWdot(2)
+
+        return convert_feet_to_meters(acceleration)
+
+    @property
+    def w_dot(self):
+        """Returns the w item of the the body axis acceleration in
+        meters/sec"""
+        acceleration = self.fdmexec.GetAccelerations().GetUVWdot(3)
+
+        return convert_feet_to_meters(acceleration)
+
+    @property
+    def gravity(self):
+        """Returns the acceleration of the gravity in meters/sec^2"""
+        acceleration = self.fdmexec.GetAccelerations().GetGravAccelMagnitude()
+
+        return convert_feet_to_meters(acceleration)
+
 
 class Velocities(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
 
     @property
-    def roll_rate(self):
-        """Return the roll rate in degrees/sec"""
+    def p(self):
+        """Return the p item of the body angular rates in degrees/sec"""
         return degrees(self.fdmexec.GetPropagate().GetPQR(1))
 
     @property
-    def pitch_rate(self):
-        """Return the pitch rate in degrees/sec"""
+    def q(self):
+        """Return the q item of the body angular rates in degrees/sec"""
         return degrees(self.fdmexec.GetPropagate().GetPQR(2))
 
     @property
-    def yaw_rate(self):
-        """Return the yaw rate in degrees/sec"""
+    def r(self):
+        """Return the r item of the body angular rates in degrees/sec"""
         return degrees(self.fdmexec.GetPropagate().GetPQR(3))
 
     @property
-    def airspeed(self):
-        """Return the airspeed in meters/second"""
+    def true_airspeed(self):
+        """Return the true airspeed in meters/second"""
         airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
 
         return convert_feet_to_meters(airspeed)
@@ -148,6 +203,51 @@ class Velocities(object):
         climb_rate = -self.fdmexec.GetPropagate().GetVel(3)
 
         return convert_feet_to_meters(climb_rate)
+
+    @property
+    def u(self):
+        """Returns the u item of the body frame velocity vector in
+        meters/sec"""
+        velocity = self.fdmexec.GetPropagate().GetUVW(1)
+
+        return convert_feet_to_meters(velocity)
+
+    @property
+    def v(self):
+        """Returns the v item of the body frame velocity vector in
+        meters/sec"""
+        velocity = self.fdmexec.GetPropagate().GetUVW(2)
+
+        return convert_feet_to_meters(velocity)
+
+    @property
+    def w(self):
+        """Returns the w item of the body frame velocity vector in
+        meters/sec"""
+        velocity = self.fdmexec.GetPropagate().GetUVW(3)
+
+        return convert_feet_to_meters(velocity)
+
+    @property
+    def calibrated_airspeed(self):
+        """Returns the calibrated airspeed in meters/sec"""
+        airspeed = self.fdmexec.GetAuxiliary().GetVcalibratedFPS()
+
+        return convert_feet_to_meters(airspeed)
+
+    @property
+    def equivalent_airspeed(self):
+        """Returns the equivalent airspeed in meters/sec"""
+        airspeed = self.fdmexec.GetAuxiliary().GetVequivalentFPS()
+
+        return convert_feet_to_meters(airspeed)
+
+    @property
+    def ground_speed(self):
+        """Returns the ground speed in meters/sec"""
+        airspeed = self.fdmexec.GetAuxiliary().GetVground()
+
+        return convert_feet_to_meters(airspeed)
 
 
 class Position(object):
