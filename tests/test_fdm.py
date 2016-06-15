@@ -1,9 +1,14 @@
 import math
 from unittest import TestCase
 
-from huginn.fdm import FDMBuilder, Accelerations, FDM, Velocities, Position, Orientation
+from huginn.fdm import (FDMBuilder, Accelerations, FDM, Velocities, Position,
+                        Orientation, Atmosphere)
+
 from huginn import configuration
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import (convert_feet_to_meters,
+                                     convert_psf_to_pascal,
+                                     convert_rankine_to_kelvin,
+                                     convert_slug_sqr_feet_to_kg_sqr_meters)
 
 #here are defined the accelerations when the JSBSim model is at the initial
 #conditions
@@ -139,3 +144,36 @@ class OrientationTests(TestCase):
         self.assertAlmostEqual(orientation.phi, fdmexec.GetPropagate().GetEulerDeg(1), 3)
         self.assertAlmostEqual(orientation.theta, fdmexec.GetPropagate().GetEulerDeg(2), 3)
         self.assertAlmostEqual(orientation.psi, fdmexec.GetPropagate().GetEulerDeg(3), 3)
+
+class AtmosphereTests(TestCase):
+    def test_get_atmospheric_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        atmosphere = Atmosphere(fdmexec)
+
+        self.assertAlmostEqual(atmosphere.pressure,
+                               convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()),
+                               3)
+
+        self.assertAlmostEqual(atmosphere.sea_level_pressure,
+                               convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressureSL()),
+                               3)
+
+        self.assertAlmostEqual(atmosphere.temperature,
+                               convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()),
+                               3)
+
+        self.assertAlmostEqual(atmosphere.sea_level_temperature,
+                               convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperatureSL()),
+                               3)
+
+        self.assertAlmostEqual(atmosphere.density,
+                               convert_slug_sqr_feet_to_kg_sqr_meters(fdmexec.GetAtmosphere().GetDensity()),
+                               3)
+
+        self.assertAlmostEqual(atmosphere.sea_level_density,
+                               convert_slug_sqr_feet_to_kg_sqr_meters(fdmexec.GetAtmosphere().GetDensitySL()),
+                               3)

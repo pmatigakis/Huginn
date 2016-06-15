@@ -1,8 +1,11 @@
 from unittest import TestCase
 
-from huginn.unit_conversions import convert_feet_to_meters, convert_knots_to_meters_per_sec
-from huginn.unit_conversions import convert_rankine_to_kelvin, convert_psf_to_pascal
-from huginn.unit_conversions import convert_pounds_to_newtons, convert_meters_per_sec_to_knots, convert_meters_to_feet
+from huginn.unit_conversions import (convert_feet_to_meters, convert_knots_to_meters_per_sec,
+                                     convert_rankine_to_kelvin, convert_psf_to_pascal,
+                                     convert_pounds_to_newtons,
+                                     convert_meters_per_sec_to_knots,
+                                     convert_meters_to_feet,
+                                     convert_slug_sqr_feet_to_kg_sqr_meters)
 
 class TestConvertFeetToMeters(TestCase):
     def test_convert_feet_to_meters(self):
@@ -73,3 +76,13 @@ class TestConvertMetersToFeet(TestCase):
         feet = convert_meters_to_feet(meters)
 
         self.assertAlmostEqual(feet, expected_feet, 3)
+
+class DensityConversionTests(TestCase):
+    def test_convert_slug_sqr_feet_to_kg_sqr_meters(self):
+        value = 12.3
+
+        expected_value = 6339.159
+
+        converted_value = convert_slug_sqr_feet_to_kg_sqr_meters(value)
+
+        self.assertAlmostEqual(converted_value, expected_value, 2)

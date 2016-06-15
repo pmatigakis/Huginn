@@ -6,10 +6,14 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          InertialNavigationSystemResource, AircraftResource,
                          FlightControlsResource, SimulatorControlResource,
                          ObjectResource, AccelerationsResource,
-                         VelocitiesResource, OrientationResource)
+                         VelocitiesResource, OrientationResource,
+                         AtmosphereResource)
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder, Accelerations, Velocities, Orientation
+
+from huginn.fdm import (FDMBuilder, Accelerations, Velocities, Orientation,
+                        Atmosphere)
+
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
@@ -440,3 +444,24 @@ class OrientationResourceTests(TestCase):
         self.assertAlmostEqual(response["phi"], orientation.phi)
         self.assertAlmostEqual(response["theta"], orientation.theta)
         self.assertAlmostEqual(response["psi"], orientation.psi)
+
+
+class AtmosphereResourceTests(TestCase):
+    def test_get_atmospheric_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        atmosphere_resource = AtmosphereResource(fdmexec)
+
+        response = atmosphere_resource.get()
+
+        atmosphere = Atmosphere(fdmexec)
+
+        self.assertAlmostEqual(response["pressure"], atmosphere.pressure)
+        self.assertAlmostEqual(response["sea_level_pressure"], atmosphere.sea_level_pressure)
+        self.assertAlmostEqual(response["temperature"], atmosphere.temperature)
+        self.assertAlmostEqual(response["sea_level_temperature"], atmosphere.sea_level_temperature)
+        self.assertAlmostEqual(response["density"], atmosphere.density)
+        self.assertAlmostEqual(response["sea_level_density"], atmosphere.sea_level_density)

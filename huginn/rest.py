@@ -5,9 +5,9 @@ The huginn.rest module contains the rest interface endpoints
 from flask_restful import Resource, reqparse
 
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
-                            OrientationSchema)
+                            OrientationSchema, AtmosphereShema)
 
-from huginn.fdm import Accelerations, Velocities, Orientation
+from huginn.fdm import Accelerations, Velocities, Orientation, Atmosphere
 from huginn.unit_conversions import convert_feet_to_meters
 
 
@@ -417,9 +417,31 @@ class OrientationResource(ObjectResource):
     aircraft"""
 
     def __init__(self, fdmexec):
+        """Create a new OrientationResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
         self.fdmexec = fdmexec
         self.orientation = Orientation(fdmexec)
         self.orientation_schema = OrientationSchema()
 
         super(OrientationResource, self).__init__(self.orientation,
                                                   self.orientation_schema)
+
+
+class AtmosphereResource(ObjectResource):
+    """The AtmosphereResource object return the fdm atmospheric data"""
+
+    def __init__(self, fdmexec):
+        """Create a new AtmosphereResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self.atmosphere = Atmosphere(fdmexec)
+        self.atmosphere_schema = AtmosphereShema()
+
+        super(AtmosphereResource, self).__init__(self.atmosphere,
+                                                 self.atmosphere_schema)

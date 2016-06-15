@@ -32,3 +32,12 @@ class OrientationSchema(Schema):
     phi = fields.Float()
     theta = fields.Float()
     psi = fields.Float()
+
+
+class AtmosphereShema(Schema):
+    pressure = fields.Float()
+    sea_level_pressure = fields.Float()
+    temperature = fields.Float()
+    sea_level_temperature = fields.Float()
+    density = fields.Float()
+    sea_level_density = fields.Float()

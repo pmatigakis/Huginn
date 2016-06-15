@@ -13,6 +13,7 @@ ${IC_P}    1.2017789753
 ${IC_Q}    -3.218303935
 ${IC_R}    1.1054074741
 ${IC_PRESSURE}    97771.68
+${IC_SEA_LEVEL_PRESSURE}    101325.16146586795
 ${IC_TOTAL_PRESSURE}    98224.25
 ${IC_AIRSPEED}    27.5779647576
 ${IC_CLIMB_RATE}    -0.5705791992
@@ -32,6 +33,10 @@ ${IC_GROUND_SPEED}    27.572404596
 ${IC_PHI}    1.083614
 ${IC_THETA}    -2.670314
 ${IC_PSI}    46.019295
+${IC_TEMPERATURE}    286.1993966667
+${IC_SEA_LEVEL_TEMPERATURE}    288.15
+${IC_DENSITY}    1.1900096968
+${IC_SEA_LEVEL_DENSITY}    1.2250554566
 
 *** Keywords ***
 Start Huginn
@@ -514,3 +519,28 @@ Is FDM Orientation Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['phi']}  ${IC_PHI}  precision=4
     Should Be Equal As Numbers    ${response.json()['theta']}  ${IC_THETA}  precision=4
     Should Be Equal As Numbers    ${response.json()['psi']}  ${IC_PSI}  precision=4
+
+Get FDM Atmosphere Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/atmosphere
+    [Return]    ${resp}
+
+Is Valid FDM Atmosphere Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  pressure
+    JSON Response Should Contain item    ${response}  sea_level_pressure
+    JSON Response Should Contain item    ${response}  temperature
+    JSON Response Should Contain item    ${response}  sea_level_temperature
+    JSON Response Should Contain item    ${response}  density
+    JSON Response Should Contain item    ${response}  sea_level_density
+
+Is FDM Atmosphere Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['pressure']}  ${IC_PRESSURE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['sea_level_pressure']}  ${IC_SEA_LEVEL_PRESSURE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['temperature']}  ${IC_TEMPERATURE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['sea_level_temperature']}  ${IC_SEA_LEVEL_TEMPERATURE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['density']}  ${IC_DENSITY}  precision=3
+    Should Be Equal As Numbers    ${response.json()['sea_level_density']}  ${IC_SEA_LEVEL_DENSITY}  precision=3

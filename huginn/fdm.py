@@ -13,7 +13,10 @@ from PyJSBSim import FGFDMExec
 from huginn import configuration
 from huginn.unit_conversions import (convert_meters_to_feet,
                                      convert_meters_per_sec_to_knots,
-                                     convert_feet_to_meters)
+                                     convert_feet_to_meters,
+                                     convert_psf_to_pascal,
+                                     convert_rankine_to_kelvin,
+                                     convert_slug_sqr_feet_to_kg_sqr_meters)
 
 
 class FDMBuilder(object):
@@ -298,6 +301,63 @@ class Orientation(object):
         return self.fdmexec.GetPropagate().GetEulerDeg(3)
 
 
+class Atmosphere(object):
+    """The Atmosphere contains the fdm data about the atmosphere"""
+
+    def __init__(self, fdmexec):
+        """Create a new Atmosphere object
+
+        Arguments:
+        fdmexec: a JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+
+    @property
+    def pressure(self):
+        """Returns the pressure at the current altitude. The value will be in
+        Pascal"""
+        pressure = self.fdmexec.GetAtmosphere().GetPressure()
+
+        return convert_psf_to_pascal(pressure)
+
+    @property
+    def sea_level_pressure(self):
+        """Returns the pressure at the sea level. The value will be in
+        Pascal"""
+        pressure = self.fdmexec.GetAtmosphere().GetPressureSL()
+
+        return convert_psf_to_pascal(pressure)
+
+    @property
+    def temperature(self):
+        """Returns the temperature in kelvin at the current altitude"""
+        temperature = self.fdmexec.GetAtmosphere().GetTemperature()
+
+        return convert_rankine_to_kelvin(temperature)
+
+    @property
+    def sea_level_temperature(self):
+        """Returns the temperature in kelvin at the sea level"""
+        temperature = self.fdmexec.GetAtmosphere().GetTemperatureSL()
+
+        return convert_rankine_to_kelvin(temperature)
+
+    @property
+    def density(self):
+        """Returns the atmospheric density at the current altitude in
+        kg/meters^3"""
+        density = self.fdmexec.GetAtmosphere().GetDensity()
+
+        return convert_slug_sqr_feet_to_kg_sqr_meters(density)
+
+    @property
+    def sea_level_density(self):
+        """Returns the atmospheric density at sea level in kg/meters^3"""
+        density = self.fdmexec.GetAtmosphere().GetDensitySL()
+
+        return convert_slug_sqr_feet_to_kg_sqr_meters(density)
+
+
 class FDM(object):
     """The FDM object is a wrapper around the JSBSim objects that contains the
     values of the flight dynamics model."""
@@ -307,3 +367,4 @@ class FDM(object):
         self.velocities = Velocities(fdmexec)
         self.position = Position(fdmexec)
         self.orientation = Orientation(fdmexec)
+        self.atmosphere = Atmosphere(fdmexec)

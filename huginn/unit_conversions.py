@@ -42,3 +42,7 @@ def convert_pounds_to_newtons(pounds):
 def convert_libra_to_newtons(libra):
     """Convert from libres to newtons"""
     return libra * 3.16754795925
+
+
+def convert_slug_sqr_feet_to_kg_sqr_meters(value):
+    return value * 515.379

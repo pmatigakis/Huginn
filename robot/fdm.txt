@@ -42,3 +42,11 @@ FDM Orientation endpoint returns the orientation data
     Is Valid FDM Orientation Data Response    ${resp}
     Is FDM Orientation Data Response With Aircraft In The Start Location    ${resp}
 
+FDM Atmosphere endpoint returns the atmosphere data
+    [Documentation]    This test checks if the fdm atmosphere endpoint return the atmosphere data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Atmosphere Data
+    Is Valid FDM Atmosphere Data Response    ${resp}
+    Is FDM Atmosphere Data Response With Aircraft In The Start Location    ${resp}

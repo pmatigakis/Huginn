@@ -3,7 +3,6 @@ The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
 
 
-from math import degrees
 from random import normalvariate
 
 from huginn.unit_conversions import (convert_feet_to_meters,
