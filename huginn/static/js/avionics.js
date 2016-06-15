@@ -110,7 +110,7 @@ Avionics.PrimaryFlightDisplay.prototype.drawHorizon = function(){
 	
 	var draw_roll = this.roll % 360.0;
 
-	context.rotate(-draw_roll * (Math.PI / 180));
+	context.rotate(draw_roll * (Math.PI / 180));
 	context.translate(0, p);
 	
 	context.fillStyle = this.groundColor;
@@ -140,7 +140,7 @@ Avionics.PrimaryFlightDisplay.prototype.drawPitchAngles = function(){
 	
 	var draw_roll = this.roll % 360.0;
 
-	context.rotate(-draw_roll * (Math.PI / 180));
+	context.rotate(draw_roll * (Math.PI / 180));
 	context.translate(0, p);
 	
 	context.strokeStyle = "white";

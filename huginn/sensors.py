@@ -10,6 +10,8 @@ from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_rankine_to_kelvin,
                                      convert_psf_to_pascal)
 
+from huginn.fdm import Velocities, Orientation, Position
+
 
 class Accelerometer(object):
     """The Accelerometer class returns the acceleration forces on the body
@@ -108,6 +110,8 @@ class Gyroscope(object):
 
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
+        self._velocities = Velocities(fdmexec)
+
     def _update_measurements(self):
         """This function checks if the simulation time is greater than the
         time that this sensor has to update it's measurements. If it is it
@@ -155,17 +159,17 @@ class Gyroscope(object):
     @property
     def true_roll_rate(self):
         """Return the actual roll rate in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(1))
+        return self._velocities.p
 
     @property
     def true_pitch_rate(self):
         """Return the actual pitch rate in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(2))
+        return self._velocities.q
 
     @property
     def true_yaw_rate(self):
         """Return the actual yaw rate in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(3))
+        return self._velocities.r
 
     @property
     def roll_rate(self):
@@ -333,6 +337,10 @@ class InertialNavigationSystem(object):
 
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
+        self._velocities = Velocities(fdmexec)
+        self._position = Position(fdmexec)
+        self._orientation = Orientation(fdmexec)
+
     def _update_measurement_noise(self):
         """Check if the measurements noise needs to update and update it"""
         if self.fdmexec.GetSimTime() > self._update_at:
@@ -457,38 +465,37 @@ class InertialNavigationSystem(object):
     @property
     def true_roll(self):
         """Return the true roll angle in degrees"""
-        return self.fdmexec.GetPropagate().GetEulerDeg(1)
+        return self._orientation.phi
 
     @property
     def true_pitch(self):
         """Return the true pitch angle in degrees"""
-        return self.fdmexec.GetPropagate().GetEulerDeg(2)
+        return self._orientation.theta
 
     @property
     def true_latitude(self):
         """Returns the true latitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLatitudeDeg()
+        return self._position.latitude
 
     @property
     def true_longitude(self):
         """Returns the true longitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLongitudeDeg()
+        return self._position.longitude
 
     @property
     def true_altitude(self):
         """Returns the true altitude in meters"""
-        return self.fdmexec.GetPropagate().GetAltitudeASLmeters()
+        return self._position.altitude
 
     @property
     def true_airspeed(self):
         """Returns the true airspeed in meters per second"""
-        airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
-        return convert_feet_to_meters(airspeed)
+        return self._velocities.true_airspeed
 
     @property
     def true_heading(self):
         """Returns the true heading in degrees"""
-        return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+        return self._position.heading
 
 
 class Sensors(object):
