@@ -6,16 +6,15 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          InertialNavigationSystemResource, AircraftResource,
                          FlightControlsResource, SimulatorControlResource,
                          ObjectResource, AccelerationsResource,
-                         VelocitiesResource)
+                         VelocitiesResource, OrientationResource)
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder, Accelerations, Velocities
+from huginn.fdm import FDMBuilder, Accelerations, Velocities, Orientation
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
 from huginn.unit_conversions import convert_feet_to_meters
 
-from mockObjects import MockRequest
 
 class FDMResourceTests(TestCase):
     def test_get_fdm_data(self):
@@ -423,3 +422,21 @@ class VelocitiesResourceTests(TestCase):
         self.assertAlmostEqual(response["calibrated_airspeed"], velocities.calibrated_airspeed, 3)
         self.assertAlmostEqual(response["equivalent_airspeed"], velocities.equivalent_airspeed, 3)
         self.assertAlmostEqual(response["ground_speed"], velocities.ground_speed, 3)
+
+
+class OrientationResourceTests(TestCase):
+    def test_get_orientation_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        orientation_resource = OrientationResource(fdmexec)
+
+        response = orientation_resource.get()
+
+        orientation = Orientation(fdmexec)
+
+        self.assertAlmostEqual(response["phi"], orientation.phi)
+        self.assertAlmostEqual(response["theta"], orientation.theta)
+        self.assertAlmostEqual(response["psi"], orientation.psi)

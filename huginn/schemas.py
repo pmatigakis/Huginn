@@ -26,3 +26,9 @@ class VelocitiesSchema(Schema):
     calibrated_airspeed = fields.Float()
     equivalent_airspeed = fields.Float()
     ground_speed = fields.Float()
+
+
+class OrientationSchema(Schema):
+    phi = fields.Float()
+    theta = fields.Float()
+    psi = fields.Float()

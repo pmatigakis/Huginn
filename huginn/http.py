@@ -94,8 +94,8 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
     def send_fdm_data(self):
         """Send the fdm data"""
         fdm_data = {
-            "roll": self.factory.fdm.orientation.roll,
-            "pitch": self.factory.fdm.orientation.pitch,
+            "roll": self.factory.fdm.orientation.phi,
+            "pitch": self.factory.fdm.orientation.theta,
             "airspeed": self.factory.fdm.velocities.true_airspeed,
             "latitude": self.factory.fdm.position.latitude,
             "longitude": self.factory.fdm.position.longitude,

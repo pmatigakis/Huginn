@@ -132,10 +132,10 @@ class OrientationTests(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
         orientation = Orientation(fdmexec)
 
-        self.assertAlmostEqual(orientation.roll, fdmexec.GetPropagate().GetEulerDeg(1), 3)
-        self.assertAlmostEqual(orientation.pitch, fdmexec.GetPropagate().GetEulerDeg(2), 3)
+        self.assertAlmostEqual(orientation.phi, fdmexec.GetPropagate().GetEulerDeg(1), 3)
+        self.assertAlmostEqual(orientation.theta, fdmexec.GetPropagate().GetEulerDeg(2), 3)
+        self.assertAlmostEqual(orientation.psi, fdmexec.GetPropagate().GetEulerDeg(3), 3)

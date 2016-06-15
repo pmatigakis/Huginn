@@ -283,14 +283,19 @@ class Orientation(object):
         self.fdmexec = fdmexec
 
     @property
-    def roll(self):
-        """Return the roll angle in degrees"""
+    def phi(self):
+        """Return the phi euler angle angle in degrees"""
         return self.fdmexec.GetPropagate().GetEulerDeg(1)
 
     @property
-    def pitch(self):
-        """Return the pitch angle in degrees"""
+    def theta(self):
+        """Return the theta euler angle angle in degrees"""
         return self.fdmexec.GetPropagate().GetEulerDeg(2)
+
+    @property
+    def psi(self):
+        """Return the psi euler angle angle in degrees"""
+        return self.fdmexec.GetPropagate().GetEulerDeg(3)
 
 
 class FDM(object):

@@ -29,6 +29,9 @@ ${IC_W}    -0.712468476
 ${IC_CALIBRATED_AIRSPEED}    27.1740273384
 ${IC_EQUIVALENT_AIRSPEED}    27.1825690536
 ${IC_GROUND_SPEED}    27.572404596
+${IC_PHI}    1.083614
+${IC_THETA}    -2.670314
+${IC_PSI}    46.019295
 
 *** Keywords ***
 Start Huginn
@@ -492,3 +495,22 @@ Is FDM Velocity Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['calibrated_airspeed']}  ${IC_CALIBRATED_AIRSPEED}  precision=4
     Should Be Equal As Numbers    ${response.json()['equivalent_airspeed']}  ${IC_EQUIVALENT_AIRSPEED}  precision=4
     Should Be Equal As Numbers    ${response.json()['ground_speed']}  ${IC_GROUND_SPEED}  precision=4
+
+Get FDM Orientation Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/orientation
+    [Return]    ${resp}
+
+Is Valid FDM Orientation Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  phi
+    JSON Response Should Contain item    ${response}  theta
+    JSON Response Should Contain item    ${response}  psi
+
+Is FDM Orientation Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['phi']}  ${IC_PHI}  precision=4
+    Should Be Equal As Numbers    ${response.json()['theta']}  ${IC_THETA}  precision=4
+    Should Be Equal As Numbers    ${response.json()['psi']}  ${IC_PSI}  precision=4

@@ -32,3 +32,13 @@ FDM Velocities endpoint returns the velocity data
     ${resp} =    Get FDM Velocity Data
     Is Valid FDM Velocity Data Response    ${resp}
     Is FDM Velocity Data Response With Aircraft In The Start Location    ${resp}
+
+FDM Orientation endpoint returns the orientation data
+    [Documentation]    This test checks if the fdm orientation endpoint return the orientation data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Orientation Data
+    Is Valid FDM Orientation Data Response    ${resp}
+    Is FDM Orientation Data Response With Aircraft In The Start Location    ${resp}
+

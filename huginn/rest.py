@@ -4,8 +4,10 @@ The huginn.rest module contains the rest interface endpoints
 
 from flask_restful import Resource, reqparse
 
-from huginn.schemas import AccelerationsSchema, VelocitiesSchema
-from huginn.fdm import Accelerations, Velocities
+from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
+                            OrientationSchema)
+
+from huginn.fdm import Accelerations, Velocities, Orientation
 from huginn.unit_conversions import convert_feet_to_meters
 
 
@@ -408,3 +410,16 @@ class VelocitiesResource(ObjectResource):
 
         super(VelocitiesResource, self).__init__(self.velocities,
                                                  self.velocities_schema)
+
+
+class OrientationResource(ObjectResource):
+    """The OrientationResource object returns the orientations of the
+    aircraft"""
+
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+        self.orientation = Orientation(fdmexec)
+        self.orientation_schema = OrientationSchema()
+
+        super(OrientationResource, self).__init__(self.orientation,
+                                                  self.orientation_schema)
