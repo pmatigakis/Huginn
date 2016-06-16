@@ -2,13 +2,14 @@ import math
 from unittest import TestCase
 
 from huginn.fdm import (FDMBuilder, Accelerations, FDM, Velocities, Position,
-                        Orientation, Atmosphere)
+                        Orientation, Atmosphere, Forces)
 
 from huginn import configuration
 from huginn.unit_conversions import (convert_feet_to_meters,
                                      convert_psf_to_pascal,
                                      convert_rankine_to_kelvin,
-                                     convert_slug_sqr_feet_to_kg_sqr_meters)
+                                     convert_slug_sqr_feet_to_kg_sqr_meters,
+                                     convert_pounds_to_newtons)
 
 #here are defined the accelerations when the JSBSim model is at the initial
 #conditions
@@ -177,3 +178,49 @@ class AtmosphereTests(TestCase):
         self.assertAlmostEqual(atmosphere.sea_level_density,
                                convert_slug_sqr_feet_to_kg_sqr_meters(fdmexec.GetAtmosphere().GetDensitySL()),
                                3)
+
+class ForcesTests(TestCase):
+    def test_get_forces(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        forces = Forces(fdmexec)
+
+        self.assertAlmostEqual(forces.x_body,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(1)),
+                               3)
+
+        self.assertAlmostEqual(forces.y_body,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(2)),
+                               3)
+
+        self.assertAlmostEqual(forces.z_body,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(3)),
+                               3)
+
+        self.assertAlmostEqual(forces.x_wind,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(1)),
+                               3)
+
+        self.assertAlmostEqual(forces.y_wind,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(2)),
+                               3)
+
+        self.assertAlmostEqual(forces.z_wind,
+                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(3)),
+                               3)
+
+        self.assertAlmostEqual(forces.x_total,
+                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(1)),
+                               3)
+
+        self.assertAlmostEqual(forces.y_total,
+                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(2)),
+                               3)
+
+        self.assertAlmostEqual(forces.z_total,
+                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(3)),
+                               3)
+

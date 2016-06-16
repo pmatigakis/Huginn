@@ -41,3 +41,15 @@ class AtmosphereShema(Schema):
     sea_level_temperature = fields.Float()
     density = fields.Float()
     sea_level_density = fields.Float()
+
+
+class ForcesSchema(Schema):
+    x_body = fields.Float()
+    y_body = fields.Float()
+    z_body = fields.Float()
+    x_wind = fields.Float()
+    y_wind = fields.Float()
+    z_wind = fields.Float()
+    x_total = fields.Float()
+    y_total = fields.Float()
+    z_total = fields.Float()

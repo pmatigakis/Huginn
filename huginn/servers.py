@@ -24,7 +24,7 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          EngineResource, FlightControlsResource,
                          SimulatorControlResource, AccelerationsResource,
                          VelocitiesResource, OrientationResource,
-                         AtmosphereResource)
+                         AtmosphereResource, ForcesResource)
 
 
 class SimulationServer(object):
@@ -114,6 +114,9 @@ class SimulationServer(object):
                          resource_class_args=(self.fdmexec,))
 
         api.add_resource(AtmosphereResource, "/fdm/atmosphere",
+                         resource_class_args=(self.fdmexec,))
+
+        api.add_resource(ForcesResource, "/fdm/forces",
                          resource_class_args=(self.fdmexec,))
 
     def _initialize_web_frontend(self):

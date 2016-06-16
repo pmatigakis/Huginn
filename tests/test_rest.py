@@ -7,12 +7,12 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          FlightControlsResource, SimulatorControlResource,
                          ObjectResource, AccelerationsResource,
                          VelocitiesResource, OrientationResource,
-                         AtmosphereResource)
+                         AtmosphereResource, ForcesResource)
 
 from huginn import configuration
 
 from huginn.fdm import (FDMBuilder, Accelerations, Velocities, Orientation,
-                        Atmosphere)
+                        Atmosphere, Forces)
 
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
@@ -441,9 +441,9 @@ class OrientationResourceTests(TestCase):
 
         orientation = Orientation(fdmexec)
 
-        self.assertAlmostEqual(response["phi"], orientation.phi)
-        self.assertAlmostEqual(response["theta"], orientation.theta)
-        self.assertAlmostEqual(response["psi"], orientation.psi)
+        self.assertAlmostEqual(response["phi"], orientation.phi, 3)
+        self.assertAlmostEqual(response["theta"], orientation.theta, 3)
+        self.assertAlmostEqual(response["psi"], orientation.psi, 3)
 
 
 class AtmosphereResourceTests(TestCase):
@@ -459,9 +459,32 @@ class AtmosphereResourceTests(TestCase):
 
         atmosphere = Atmosphere(fdmexec)
 
-        self.assertAlmostEqual(response["pressure"], atmosphere.pressure)
-        self.assertAlmostEqual(response["sea_level_pressure"], atmosphere.sea_level_pressure)
-        self.assertAlmostEqual(response["temperature"], atmosphere.temperature)
-        self.assertAlmostEqual(response["sea_level_temperature"], atmosphere.sea_level_temperature)
-        self.assertAlmostEqual(response["density"], atmosphere.density)
-        self.assertAlmostEqual(response["sea_level_density"], atmosphere.sea_level_density)
+        self.assertAlmostEqual(response["pressure"], atmosphere.pressure, 3)
+        self.assertAlmostEqual(response["sea_level_pressure"], atmosphere.sea_level_pressure, 3)
+        self.assertAlmostEqual(response["temperature"], atmosphere.temperature, 3)
+        self.assertAlmostEqual(response["sea_level_temperature"], atmosphere.sea_level_temperature, 3)
+        self.assertAlmostEqual(response["density"], atmosphere.density, 3)
+        self.assertAlmostEqual(response["sea_level_density"], atmosphere.sea_level_density, 3)
+
+class ForceResourceTests(TestCase):
+    def test_get_forces(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        foces_resource = ForcesResource(fdmexec)
+
+        response = foces_resource.get()
+
+        forces = Forces(fdmexec)
+
+        self.assertAlmostEqual(response["x_body"], forces.x_body, 3)
+        self.assertAlmostEqual(response["y_body"], forces.y_body, 3)
+        self.assertAlmostEqual(response["z_body"], forces.z_body, 3)
+        self.assertAlmostEqual(response["x_wind"], forces.x_wind, 3)
+        self.assertAlmostEqual(response["y_wind"], forces.y_wind, 3)
+        self.assertAlmostEqual(response["z_wind"], forces.z_wind, 3)
+        self.assertAlmostEqual(response["x_total"], forces.x_total, 3)
+        self.assertAlmostEqual(response["y_total"], forces.y_total, 3)
+        self.assertAlmostEqual(response["z_total"], forces.z_total, 3)

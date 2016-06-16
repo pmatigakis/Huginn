@@ -50,3 +50,12 @@ FDM Atmosphere endpoint returns the atmosphere data
     ${resp} =    Get FDM Atmosphere Data
     Is Valid FDM Atmosphere Data Response    ${resp}
     Is FDM Atmosphere Data Response With Aircraft In The Start Location    ${resp}
+
+FDM Forces endpoint returns the aerodynamic forces data
+    [Documentation]    This test checks if the fdm forces endpoint returns the aerodynamic forces data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Forces Data
+    Is Valid FDM Forces Data Response    ${resp}
+    Is FDM Forces Data Response With Aircraft In The Start Location    ${resp}

@@ -37,6 +37,15 @@ ${IC_TEMPERATURE}    286.1993966667
 ${IC_SEA_LEVEL_TEMPERATURE}    288.15
 ${IC_DENSITY}    1.1900096968
 ${IC_SEA_LEVEL_DENSITY}    1.2250554566
+${IC_X_BODY_FORCE}    -15.683521924
+${IC_Y_BODY_FORCE}    1.9859574638
+${IC_Z_BODY_FORCE}    -53.304062524
+${IC_X_WIND_FORCE}    14.30966199
+${IC_Y_WIND_FORCE}    1.9240248744
+${IC_Z_WIND_FORCE}    53.6914492465
+${IC_X_TOTAL_FORCE}    -15.683597544
+${IC_Y_TOTAL_FORCE}    1.9859574638
+${IC_Z_TOTAL_FORCE}    -53.304062524
 
 *** Keywords ***
 Start Huginn
@@ -544,3 +553,34 @@ Is FDM Atmosphere Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['sea_level_temperature']}  ${IC_SEA_LEVEL_TEMPERATURE}  precision=3
     Should Be Equal As Numbers    ${response.json()['density']}  ${IC_DENSITY}  precision=3
     Should Be Equal As Numbers    ${response.json()['sea_level_density']}  ${IC_SEA_LEVEL_DENSITY}  precision=3
+
+Get FDM Forces Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/forces
+    [Return]    ${resp}
+
+Is Valid FDM Forces Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  x_body
+    JSON Response Should Contain item    ${response}  y_body
+    JSON Response Should Contain item    ${response}  z_body
+    JSON Response Should Contain item    ${response}  x_wind
+    JSON Response Should Contain item    ${response}  y_wind
+    JSON Response Should Contain item    ${response}  z_wind
+    JSON Response Should Contain item    ${response}  x_total
+    JSON Response Should Contain item    ${response}  y_total
+    JSON Response Should Contain item    ${response}  z_total
+
+Is FDM Forces Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['x_body']}  ${IC_X_BODY_FORCE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['y_body']}  ${IC_Y_BODY_FORCE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['z_body']}  ${IC_Z_BODY_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['x_wind']}  ${IC_X_WIND_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['y_wind']}  ${IC_Y_WIND_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['z_wind']}  ${IC_Z_WIND_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['x_total']}  ${IC_X_TOTAL_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['y_total']}  ${IC_Y_TOTAL_FORCE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['z_total']}  ${IC_Z_TOTAL_FORCE}  precision=3

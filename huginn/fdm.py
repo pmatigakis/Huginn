@@ -16,7 +16,8 @@ from huginn.unit_conversions import (convert_meters_to_feet,
                                      convert_feet_to_meters,
                                      convert_psf_to_pascal,
                                      convert_rankine_to_kelvin,
-                                     convert_slug_sqr_feet_to_kg_sqr_meters)
+                                     convert_slug_sqr_feet_to_kg_sqr_meters,
+                                     convert_pounds_to_newtons)
 
 
 class FDMBuilder(object):
@@ -356,6 +357,85 @@ class Atmosphere(object):
         density = self.fdmexec.GetAtmosphere().GetDensitySL()
 
         return convert_slug_sqr_feet_to_kg_sqr_meters(density)
+
+
+class Forces(object):
+    """The Forces objects contains the aerodynamics forces"""
+
+    def __init__(self, fdmexec):
+        self.fdmexec = fdmexec
+
+    @property
+    def x_body(self):
+        """Return the force along the x axis in the body frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetForces(1)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def y_body(self):
+        """Return the force along the y axis in the body frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetForces(2)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def z_body(self):
+        """Return the force along the z axis in the body frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetForces(3)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def x_wind(self):
+        """Return the force along the x axis in the wind frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetvFw(1)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def y_wind(self):
+        """Return the force along the y axis in the wind frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetvFw(2)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def z_wind(self):
+        """Return the force along the z axis in the wind frame. The value
+        is in Newtons"""
+        force = self.fdmexec.GetAerodynamics().GetvFw(3)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def x_total(self):
+        """Return the total force along the x axis in the body frame. The
+        value is in Newtons"""
+        force = self.fdmexec.GetAccelerations().GetForces(1)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def y_total(self):
+        """Return the total force along the y axis in the body frame. The
+        value is in Newtons"""
+        force = self.fdmexec.GetAccelerations().GetForces(2)
+
+        return convert_pounds_to_newtons(force)
+
+    @property
+    def z_total(self):
+        """Return the total force along the z axis in the body frame. The
+        value is in Newtons"""
+        force = self.fdmexec.GetAccelerations().GetForces(3)
+
+        return convert_pounds_to_newtons(force)
 
 
 class FDM(object):
