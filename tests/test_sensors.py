@@ -2,8 +2,10 @@ import math
 from unittest import TestCase
 
 from huginn import configuration
-from huginn.unit_conversions import convert_feet_to_meters, convert_rankine_to_kelvin,\
-                                    convert_psf_to_pascal
+from huginn.unit_conversions import convert_jsbsim_temperature,\
+                                    convert_jsbsim_pressure,\
+                                    convert_jsbsim_acceleration,\
+                                    convert_jsbsim_velocity
 from huginn.fdm import FDMBuilder
 from huginn.sensors import Sensors, Accelerometer, Gyroscope, Thermometer,\
                            PressureSensor, PitotTube, InertialNavigationSystem
@@ -18,9 +20,9 @@ class AccelerometerTests(TestCase):
 
         accelerometer = Accelerometer(fdmexec)
 
-        self.assertAlmostEqual(accelerometer.true_x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)), 3)
-        self.assertAlmostEqual(accelerometer.true_y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)), 3)
-        self.assertAlmostEqual(accelerometer.true_z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)), 3)
+        self.assertAlmostEqual(accelerometer.true_x, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(1)), 3)
+        self.assertAlmostEqual(accelerometer.true_y, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(2)), 3)
+        self.assertAlmostEqual(accelerometer.true_z, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(3)), 3)
 
         self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer.bias + accelerometer.measurement_noise, 3)
         self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer.bias + accelerometer.measurement_noise, 3)
@@ -103,7 +105,7 @@ class ThermometerTests(TestCase):
 
         thermometer = Thermometer(fdmexec)
 
-        self.assertAlmostEqual(thermometer.true_temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
+        self.assertAlmostEqual(thermometer.true_temperature, convert_jsbsim_temperature(fdmexec.GetAtmosphere().GetTemperature()))
         self.assertAlmostEqual(thermometer.temperature, thermometer.true_temperature + thermometer.measurement_noise)
 
     def test_thermometer_meaurement_noise_update(self):
@@ -139,7 +141,7 @@ class PressureSensorTests(TestCase):
 
         pressure_sensor = PressureSensor(fdmexec)
 
-        self.assertAlmostEqual(pressure_sensor.true_pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()), 3)
+        self.assertAlmostEqual(pressure_sensor.true_pressure, convert_jsbsim_pressure(fdmexec.GetAtmosphere().GetPressure()), 3)
         self.assertAlmostEqual(pressure_sensor.pressure, pressure_sensor.true_pressure + pressure_sensor.measurement_noise, 3)
 
     def test_pressure_sensor_meaurement_noise_update(self):
@@ -175,7 +177,7 @@ class PitotTubeTests(TestCase):
 
         pitot_tube = PitotTube(fdmexec)
 
-        self.assertAlmostEqual(pitot_tube.true_pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()), 3)
+        self.assertAlmostEqual(pitot_tube.true_pressure, convert_jsbsim_pressure(fdmexec.GetAuxiliary().GetTotalPressure()), 3)
         self.assertAlmostEqual(pitot_tube.pressure, pitot_tube.true_pressure + pitot_tube.measurement_noise, 3)
 
     def test_pitot_tube_meaurement_noise_update(self):
@@ -216,7 +218,7 @@ class InertialNavigationSystemTests(TestCase):
         self.assertAlmostEqual(ins.true_latitude, fdmexec.GetPropagate().GetLatitudeDeg(), 3)
         self.assertAlmostEqual(ins.true_longitude, fdmexec.GetPropagate().GetLongitudeDeg(), 3)
         self.assertAlmostEqual(ins.true_altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
-        self.assertAlmostEqual(ins.true_airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
+        self.assertAlmostEqual(ins.true_airspeed, convert_jsbsim_velocity(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
         self.assertAlmostEqual(ins.true_heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)
 
         self.assertAlmostEqual(ins.roll, ins.true_roll + ins.roll_measurement_noise, 3)
@@ -290,9 +292,9 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.accelerometer.true_x, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(1)))
-        self.assertAlmostEqual(sensors.accelerometer.true_y, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(2)))
-        self.assertAlmostEqual(sensors.accelerometer.true_z, convert_feet_to_meters(fdmexec.GetAuxiliary().GetPilotAccel(3)))
+        self.assertAlmostEqual(sensors.accelerometer.true_x, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(1)))
+        self.assertAlmostEqual(sensors.accelerometer.true_y, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(2)))
+        self.assertAlmostEqual(sensors.accelerometer.true_z, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(3)))
 
     def test_gyroscope(self):
         huginn_data_path = configuration.get_data_path()
@@ -316,7 +318,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.thermometer.true_temperature, convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()))
+        self.assertAlmostEqual(sensors.thermometer.true_temperature, convert_jsbsim_temperature(fdmexec.GetAtmosphere().GetTemperature()))
 
     def test_presure_sensor(self):
         huginn_data_path = configuration.get_data_path()
@@ -327,7 +329,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.pressure_sensor.true_pressure, convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()))
+        self.assertAlmostEqual(sensors.pressure_sensor.true_pressure, convert_jsbsim_pressure(fdmexec.GetAtmosphere().GetPressure()))
 
     def test_pitot_tube(self):
         huginn_data_path = configuration.get_data_path()
@@ -338,7 +340,7 @@ class SensorTests(TestCase):
 
         sensors = Sensors(fdmexec)
 
-        self.assertAlmostEqual(sensors.pitot_tube.true_pressure, convert_psf_to_pascal(fdmexec.GetAuxiliary().GetTotalPressure()))
+        self.assertAlmostEqual(sensors.pitot_tube.true_pressure, convert_jsbsim_pressure(fdmexec.GetAuxiliary().GetTotalPressure()))
 
     def test_inertialNavigationSystem(self):
         huginn_data_path = configuration.get_data_path()
@@ -354,5 +356,5 @@ class SensorTests(TestCase):
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_latitude, fdmexec.GetPropagate().GetLatitudeDeg(), 3)
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_longitude, fdmexec.GetPropagate().GetLongitudeDeg(), 3)
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
-        self.assertAlmostEqual(sensors.inertial_navigation_system.true_airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
+        self.assertAlmostEqual(sensors.inertial_navigation_system.true_airspeed, convert_jsbsim_velocity(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)

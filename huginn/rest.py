@@ -10,7 +10,7 @@ from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces)
 
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import convert_jsbsim_velocity
 
 
 class FDMResource(Resource):
@@ -30,7 +30,7 @@ class FDMResource(Resource):
         """Get the fdm data"""
         sensors = self.aircraft.sensors
 
-        climb_rate = convert_feet_to_meters(
+        climb_rate = convert_jsbsim_velocity(
             -self.fdmexec.GetPropagate().GetVel(3))
 
         flight_data = {

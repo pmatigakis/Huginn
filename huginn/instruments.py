@@ -6,7 +6,7 @@ instruments
 
 from math import degrees
 
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import convert_jsbsim_velocity
 
 
 class GPS(object):
@@ -34,7 +34,7 @@ class GPS(object):
         """Returns the airspeed in meters per second"""
         airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
 
-        return convert_feet_to_meters(airspeed)
+        return convert_jsbsim_velocity(airspeed)
 
     @property
     def heading(self):

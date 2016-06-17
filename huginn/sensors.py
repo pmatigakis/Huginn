@@ -5,9 +5,9 @@ The hugin.sensors module contains classes that simulate the aircraft's sensors
 
 from random import normalvariate
 
-from huginn.unit_conversions import (convert_feet_to_meters,
-                                     convert_rankine_to_kelvin,
-                                     convert_psf_to_pascal)
+from huginn.unit_conversions import (convert_jsbsim_acceleration,
+                                     convert_jsbsim_temperature,
+                                     convert_jsbsim_pressure)
 
 from huginn.fdm import Velocities, Orientation, Position
 
@@ -52,21 +52,21 @@ class Accelerometer(object):
         """The true acceleration along the x axis in meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(1)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(2)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(3)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def x(self):
@@ -217,7 +217,7 @@ class Thermometer(object):
         """return the actual temperature in Kelvin"""
         temperature = self.fdmexec.GetAtmosphere().GetTemperature()
 
-        return convert_rankine_to_kelvin(temperature)
+        return convert_jsbsim_temperature(temperature)
 
     @property
     def temperature(self):
@@ -250,7 +250,7 @@ class PressureSensor(object):
         """Returns the true pressure in Pascal"""
         pressure = self.fdmexec.GetAtmosphere().GetPressure()
 
-        return convert_psf_to_pascal(pressure)
+        return convert_jsbsim_pressure(pressure)
 
     @property
     def pressure(self):
@@ -282,7 +282,7 @@ class PitotTube(object):
     def true_pressure(self):
         """Return the true pressure in pascal"""
         pressure = self.fdmexec.GetAuxiliary().GetTotalPressure()
-        return convert_psf_to_pascal(pressure)
+        return convert_jsbsim_pressure(pressure)
 
     @property
     def pressure(self):

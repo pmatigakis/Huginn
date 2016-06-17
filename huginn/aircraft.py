@@ -4,7 +4,7 @@ and provide access to the simulated components of the aircraft.
 """
 from PyJSBSim import tFull
 
-from huginn.unit_conversions import convert_libra_to_newtons
+from huginn.unit_conversions import convert_jsbsim_force
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
 
@@ -93,7 +93,7 @@ class Engine(object):
                              .GetThruster()\
                              .GetThrust()
 
-        return convert_libra_to_newtons(thrust)
+        return convert_jsbsim_force(thrust)
 
     @property
     def throttle(self):
@@ -135,8 +135,12 @@ class Aircraft(object):
         print("")
         print("Orientation")
         print("===========")
-        print("Roll: %f degrees" % self.inertial_navigation_system.roll)
-        print("Pitch: %f degrees" % self.inertial_navigation_system.pitch)
+
+        roll = self.sensors.inertial_navigation_system.roll
+        print("Roll: %f degrees" % roll)
+
+        pitch = self.sensors.inertial_navigation_system.pitch
+        print("Pitch: %f degrees" % pitch)
         print("")
         print("Engines")
         print("=======")

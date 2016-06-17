@@ -5,39 +5,40 @@ from huginn.fdm import (FDMBuilder, Accelerations, FDM, Velocities, Position,
                         Orientation, Atmosphere, Forces)
 
 from huginn import configuration
-from huginn.unit_conversions import (convert_feet_to_meters,
-                                     convert_psf_to_pascal,
-                                     convert_rankine_to_kelvin,
-                                     convert_slug_sqr_feet_to_kg_sqr_meters,
-                                     convert_pounds_to_newtons)
+from huginn.unit_conversions import (convert_jsbsim_acceleration,
+                                     convert_jsbsim_velocity,
+                                     convert_jsbsim_pressure,
+                                     convert_jsbsim_temperature,
+                                     convert_jsbsim_density,
+                                     convert_jsbsim_force)
 
 #here are defined the accelerations when the JSBSim model is at the initial
 #conditions
-ic_x_acceleration = convert_feet_to_meters(-7.829086)
-ic_y_acceleration = convert_feet_to_meters(0.985110)
-ic_z_acceleration = convert_feet_to_meters(-26.564349)
+ic_x_acceleration = convert_jsbsim_acceleration(-7.829086)
+ic_y_acceleration = convert_jsbsim_acceleration(0.985110)
+ic_z_acceleration = convert_jsbsim_acceleration(-26.564349)
 
 ic_p = math.degrees(0.020975) 
 ic_q = math.degrees(-0.056170)
 ic_r = math.degrees(0.019293)
-ic_u = convert_feet_to_meters(90.448965)
-ic_v = convert_feet_to_meters(-0.391714)
-ic_w = convert_feet_to_meters(-2.337495)
-ic_calibrated_airspeed = convert_feet_to_meters(89.153633)
-ic_equivalent_airspeed = convert_feet_to_meters(89.181657)
+ic_u = convert_jsbsim_acceleration(90.448965)
+ic_v = convert_jsbsim_acceleration(-0.391714)
+ic_w = convert_jsbsim_acceleration(-2.337495)
+ic_calibrated_airspeed = convert_jsbsim_velocity(89.153633)
+ic_equivalent_airspeed = convert_jsbsim_velocity(89.181657)
 
-ic_vtrue = convert_feet_to_meters(90.478887)
-ic_climb_rate = convert_feet_to_meters(-1.871979)
+ic_vtrue = convert_jsbsim_velocity(90.478887)
+ic_climb_rate = convert_jsbsim_velocity(-1.871979)
 
 ic_p_dot = math.degrees(0.008016)
 ic_q_dot = math.degrees(-0.021258)
 ic_r_dot = math.degrees(-0.003549)
 
-ic_u_dot = convert_feet_to_meters(-6.540986)
-ic_v_dot = convert_feet_to_meters(-0.114221)
-ic_w_dot = convert_feet_to_meters(0.359305)
+ic_u_dot = convert_jsbsim_velocity(-6.540986)
+ic_v_dot = convert_jsbsim_velocity(-0.114221)
+ic_w_dot = convert_jsbsim_velocity(0.359305)
 
-ic_gravity_acceleration = convert_feet_to_meters(32.136667)
+ic_gravity_acceleration = convert_jsbsim_acceleration(32.136667)
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
@@ -156,27 +157,27 @@ class AtmosphereTests(TestCase):
         atmosphere = Atmosphere(fdmexec)
 
         self.assertAlmostEqual(atmosphere.pressure,
-                               convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressure()),
+                               convert_jsbsim_pressure(fdmexec.GetAtmosphere().GetPressure()),
                                3)
 
         self.assertAlmostEqual(atmosphere.sea_level_pressure,
-                               convert_psf_to_pascal(fdmexec.GetAtmosphere().GetPressureSL()),
+                               convert_jsbsim_pressure(fdmexec.GetAtmosphere().GetPressureSL()),
                                3)
 
         self.assertAlmostEqual(atmosphere.temperature,
-                               convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperature()),
+                               convert_jsbsim_temperature(fdmexec.GetAtmosphere().GetTemperature()),
                                3)
 
         self.assertAlmostEqual(atmosphere.sea_level_temperature,
-                               convert_rankine_to_kelvin(fdmexec.GetAtmosphere().GetTemperatureSL()),
+                               convert_jsbsim_temperature(fdmexec.GetAtmosphere().GetTemperatureSL()),
                                3)
 
         self.assertAlmostEqual(atmosphere.density,
-                               convert_slug_sqr_feet_to_kg_sqr_meters(fdmexec.GetAtmosphere().GetDensity()),
+                               convert_jsbsim_density(fdmexec.GetAtmosphere().GetDensity()),
                                3)
 
         self.assertAlmostEqual(atmosphere.sea_level_density,
-                               convert_slug_sqr_feet_to_kg_sqr_meters(fdmexec.GetAtmosphere().GetDensitySL()),
+                               convert_jsbsim_density(fdmexec.GetAtmosphere().GetDensitySL()),
                                3)
 
 class ForcesTests(TestCase):
@@ -189,38 +190,38 @@ class ForcesTests(TestCase):
         forces = Forces(fdmexec)
 
         self.assertAlmostEqual(forces.x_body,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(1)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetForces(1)),
                                3)
 
         self.assertAlmostEqual(forces.y_body,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(2)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetForces(2)),
                                3)
 
         self.assertAlmostEqual(forces.z_body,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetForces(3)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetForces(3)),
                                3)
 
         self.assertAlmostEqual(forces.x_wind,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(1)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetvFw(1)),
                                3)
 
         self.assertAlmostEqual(forces.y_wind,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(2)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetvFw(2)),
                                3)
 
         self.assertAlmostEqual(forces.z_wind,
-                               convert_pounds_to_newtons(fdmexec.GetAerodynamics().GetvFw(3)),
+                               convert_jsbsim_force(fdmexec.GetAerodynamics().GetvFw(3)),
                                3)
 
         self.assertAlmostEqual(forces.x_total,
-                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(1)),
+                               convert_jsbsim_force(fdmexec.GetAccelerations().GetForces(1)),
                                3)
 
         self.assertAlmostEqual(forces.y_total,
-                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(2)),
+                               convert_jsbsim_force(fdmexec.GetAccelerations().GetForces(2)),
                                3)
 
         self.assertAlmostEqual(forces.z_total,
-                               convert_pounds_to_newtons(fdmexec.GetAccelerations().GetForces(3)),
+                               convert_jsbsim_force(fdmexec.GetAccelerations().GetForces(3)),
                                3)
 

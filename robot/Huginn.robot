@@ -501,13 +501,13 @@ Is FDM Velocity Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['p']}  ${IC_P}  precision=4
     Should Be Equal As Numbers    ${response.json()['q']}  ${IC_Q}  precision=4
     Should Be Equal As Numbers    ${response.json()['r']}  ${IC_R}  precision=4
-    Should Be Equal As Numbers    ${response.json()['true_airspeed']}  ${IC_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['true_airspeed']}  ${IC_AIRSPEED}  precision=3
     Should Be Equal As Numbers    ${response.json()['climb_rate']}  ${IC_CLIMB_RATE}  precision=4
     Should Be Equal As Numbers    ${response.json()['u']}  ${IC_U}  precision=4
     Should Be Equal As Numbers    ${response.json()['v']}  ${IC_V}  precision=4
     Should Be Equal As Numbers    ${response.json()['w']}  ${IC_W}  precision=4
     Should Be Equal As Numbers    ${response.json()['calibrated_airspeed']}  ${IC_CALIBRATED_AIRSPEED}  precision=4
-    Should Be Equal As Numbers    ${response.json()['equivalent_airspeed']}  ${IC_EQUIVALENT_AIRSPEED}  precision=4
+    Should Be Equal As Numbers    ${response.json()['equivalent_airspeed']}  ${IC_EQUIVALENT_AIRSPEED}  precision=3
     Should Be Equal As Numbers    ${response.json()['ground_speed']}  ${IC_GROUND_SPEED}  precision=4
 
 Get FDM Orientation Data

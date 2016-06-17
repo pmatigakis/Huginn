@@ -17,7 +17,7 @@ from huginn.fdm import (FDMBuilder, Accelerations, Velocities, Orientation,
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import convert_jsbsim_velocity
 
 
 class FDMResourceTests(TestCase):
@@ -57,7 +57,7 @@ class FDMResourceTests(TestCase):
         self.assertAlmostEqual(aircraft.controls.rudder, fdm_data["rudder"], 3)
         self.assertAlmostEqual(aircraft.engine.throttle, fdm_data["throttle"], 3)
 
-        climb_rate = convert_feet_to_meters(-fdmexec.GetPropagate().GetVel(3))
+        climb_rate = convert_jsbsim_velocity(-fdmexec.GetPropagate().GetVel(3))
         
         self.assertAlmostEqual(climb_rate, fdm_data["climb_rate"], 3)
 

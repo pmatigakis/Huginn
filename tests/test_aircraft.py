@@ -4,7 +4,7 @@ import math
 from huginn.aircraft import Aircraft, Engine
 from huginn.fdm import FDMBuilder
 from huginn import configuration
-from huginn.unit_conversions import convert_libra_to_newtons
+from huginn.unit_conversions import convert_jsbsim_force
 
 class EngineTests(TestCase):
     def test_engine(self):
@@ -16,7 +16,7 @@ class EngineTests(TestCase):
 
         engine = Engine(fdmexec)
 
-        self.assertAlmostEqual(engine.thrust, convert_libra_to_newtons(fdmexec.GetPropulsion().GetEngine(0).GetThruster().GetThrust()))
+        self.assertAlmostEqual(engine.thrust, convert_jsbsim_force(fdmexec.GetPropulsion().GetEngine(0).GetThruster().GetThrust()))
         self.assertAlmostEqual(engine.throttle, fdmexec.GetFCS().GetThrottleCmd(0))
 
 class TestControls(TestCase):

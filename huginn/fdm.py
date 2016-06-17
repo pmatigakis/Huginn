@@ -11,13 +11,15 @@ import logging
 from PyJSBSim import FGFDMExec
 
 from huginn import configuration
-from huginn.unit_conversions import (convert_meters_to_feet,
-                                     convert_meters_per_sec_to_knots,
-                                     convert_feet_to_meters,
-                                     convert_psf_to_pascal,
-                                     convert_rankine_to_kelvin,
-                                     convert_slug_sqr_feet_to_kg_sqr_meters,
-                                     convert_pounds_to_newtons)
+from huginn.unit_conversions import (convert_jsbsim_acceleration,
+                                     convert_jsbsim_angular_acceleration,
+                                     convert_jsbsim_angular_velocity,
+                                     convert_jsbsim_velocity,
+                                     convert_jsbsim_pressure,
+                                     convert_jsbsim_temperature,
+                                     convert_jsbsim_density,
+                                     convert_jsbsim_force,
+                                     ur)
 
 
 class FDMBuilder(object):
@@ -54,8 +56,15 @@ class FDMBuilder(object):
 
         fdmexec.LoadModel("Rascal")
 
-        altitude_in_feet = convert_meters_to_feet(self.altitude)
-        airspeed_in_knots = convert_meters_per_sec_to_knots(self.airspeed)
+        altitude = self.altitude * ur.meter
+        altitude.ito(ur.foot)
+
+        altitude_in_feet = altitude.magnitude
+
+        airspeed = self.airspeed * ur.meters_per_second
+        airspeed.ito(ur.knot)
+
+        airspeed_in_knots = airspeed.magnitude
 
         self.logger.debug("Initial latitude: %f degrees", self.latitude)
         self.logger.debug("Initial longitude: %f degrees", self.longitude)
@@ -100,7 +109,7 @@ class Accelerations(object):
         meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(1)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def y(self):
@@ -108,7 +117,7 @@ class Accelerations(object):
         meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(2)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def z(self):
@@ -116,7 +125,7 @@ class Accelerations(object):
         meters/sec^2"""
         acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(3)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def p_dot(self):
@@ -124,7 +133,7 @@ class Accelerations(object):
         degress/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetPQRdot(1)
 
-        return degrees(acceleration)
+        return convert_jsbsim_angular_acceleration(acceleration)
 
     @property
     def q_dot(self):
@@ -132,7 +141,7 @@ class Accelerations(object):
         degress/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetPQRdot(2)
 
-        return degrees(acceleration)
+        return convert_jsbsim_angular_acceleration(acceleration)
 
     @property
     def r_dot(self):
@@ -140,38 +149,38 @@ class Accelerations(object):
         degress/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetPQRdot(3)
 
-        return degrees(acceleration)
+        return convert_jsbsim_angular_acceleration(acceleration)
 
     @property
     def u_dot(self):
         """Returns the u item of the the body axis acceleration in
-        meters/sec"""
+        meters/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetUVWdot(1)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def v_dot(self):
         """Returns the v item of the the body axis acceleration in
-        meters/sec"""
+        meters/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetUVWdot(2)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def w_dot(self):
         """Returns the w item of the the body axis acceleration in
-        meters/sec"""
+        meters/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetUVWdot(3)
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
     @property
     def gravity(self):
         """Returns the acceleration of the gravity in meters/sec^2"""
         acceleration = self.fdmexec.GetAccelerations().GetGravAccelMagnitude()
 
-        return convert_feet_to_meters(acceleration)
+        return convert_jsbsim_acceleration(acceleration)
 
 
 class Velocities(object):
@@ -181,24 +190,30 @@ class Velocities(object):
     @property
     def p(self):
         """Return the p item of the body angular rates in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(1))
+        velocity = self.fdmexec.GetPropagate().GetPQR(1)
+
+        return convert_jsbsim_angular_velocity(velocity)
 
     @property
     def q(self):
         """Return the q item of the body angular rates in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(2))
+        velocity = self.fdmexec.GetPropagate().GetPQR(2)
+
+        return convert_jsbsim_angular_velocity(velocity)
 
     @property
     def r(self):
         """Return the r item of the body angular rates in degrees/sec"""
-        return degrees(self.fdmexec.GetPropagate().GetPQR(3))
+        velocity = self.fdmexec.GetPropagate().GetPQR(3)
+
+        return convert_jsbsim_angular_velocity(velocity)
 
     @property
     def true_airspeed(self):
         """Return the true airspeed in meters/second"""
         airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
 
-        return convert_feet_to_meters(airspeed)
+        return convert_jsbsim_velocity(airspeed)
 
     @property
     def climb_rate(self):
@@ -206,7 +221,7 @@ class Velocities(object):
         # climb_rate = self.fdmexec.GetPropertyValue("velocities/v-down-fps")
         climb_rate = -self.fdmexec.GetPropagate().GetVel(3)
 
-        return convert_feet_to_meters(climb_rate)
+        return convert_jsbsim_velocity(climb_rate)
 
     @property
     def u(self):
@@ -214,7 +229,7 @@ class Velocities(object):
         meters/sec"""
         velocity = self.fdmexec.GetPropagate().GetUVW(1)
 
-        return convert_feet_to_meters(velocity)
+        return convert_jsbsim_velocity(velocity)
 
     @property
     def v(self):
@@ -222,7 +237,7 @@ class Velocities(object):
         meters/sec"""
         velocity = self.fdmexec.GetPropagate().GetUVW(2)
 
-        return convert_feet_to_meters(velocity)
+        return convert_jsbsim_velocity(velocity)
 
     @property
     def w(self):
@@ -230,28 +245,28 @@ class Velocities(object):
         meters/sec"""
         velocity = self.fdmexec.GetPropagate().GetUVW(3)
 
-        return convert_feet_to_meters(velocity)
+        return convert_jsbsim_velocity(velocity)
 
     @property
     def calibrated_airspeed(self):
         """Returns the calibrated airspeed in meters/sec"""
         airspeed = self.fdmexec.GetAuxiliary().GetVcalibratedFPS()
 
-        return convert_feet_to_meters(airspeed)
+        return convert_jsbsim_velocity(airspeed)
 
     @property
     def equivalent_airspeed(self):
         """Returns the equivalent airspeed in meters/sec"""
         airspeed = self.fdmexec.GetAuxiliary().GetVequivalentFPS()
 
-        return convert_feet_to_meters(airspeed)
+        return convert_jsbsim_velocity(airspeed)
 
     @property
     def ground_speed(self):
         """Returns the ground speed in meters/sec"""
         airspeed = self.fdmexec.GetAuxiliary().GetVground()
 
-        return convert_feet_to_meters(airspeed)
+        return convert_jsbsim_velocity(airspeed)
 
 
 class Position(object):
@@ -319,7 +334,7 @@ class Atmosphere(object):
         Pascal"""
         pressure = self.fdmexec.GetAtmosphere().GetPressure()
 
-        return convert_psf_to_pascal(pressure)
+        return convert_jsbsim_pressure(pressure)
 
     @property
     def sea_level_pressure(self):
@@ -327,21 +342,21 @@ class Atmosphere(object):
         Pascal"""
         pressure = self.fdmexec.GetAtmosphere().GetPressureSL()
 
-        return convert_psf_to_pascal(pressure)
+        return convert_jsbsim_pressure(pressure)
 
     @property
     def temperature(self):
         """Returns the temperature in kelvin at the current altitude"""
         temperature = self.fdmexec.GetAtmosphere().GetTemperature()
 
-        return convert_rankine_to_kelvin(temperature)
+        return convert_jsbsim_temperature(temperature)
 
     @property
     def sea_level_temperature(self):
         """Returns the temperature in kelvin at the sea level"""
         temperature = self.fdmexec.GetAtmosphere().GetTemperatureSL()
 
-        return convert_rankine_to_kelvin(temperature)
+        return convert_jsbsim_temperature(temperature)
 
     @property
     def density(self):
@@ -349,14 +364,14 @@ class Atmosphere(object):
         kg/meters^3"""
         density = self.fdmexec.GetAtmosphere().GetDensity()
 
-        return convert_slug_sqr_feet_to_kg_sqr_meters(density)
+        return convert_jsbsim_density(density)
 
     @property
     def sea_level_density(self):
         """Returns the atmospheric density at sea level in kg/meters^3"""
         density = self.fdmexec.GetAtmosphere().GetDensitySL()
 
-        return convert_slug_sqr_feet_to_kg_sqr_meters(density)
+        return convert_jsbsim_density(density)
 
 
 class Forces(object):
@@ -371,7 +386,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetForces(1)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def y_body(self):
@@ -379,7 +394,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetForces(2)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def z_body(self):
@@ -387,7 +402,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetForces(3)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def x_wind(self):
@@ -395,7 +410,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetvFw(1)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def y_wind(self):
@@ -403,7 +418,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetvFw(2)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def z_wind(self):
@@ -411,7 +426,7 @@ class Forces(object):
         is in Newtons"""
         force = self.fdmexec.GetAerodynamics().GetvFw(3)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def x_total(self):
@@ -419,7 +434,7 @@ class Forces(object):
         value is in Newtons"""
         force = self.fdmexec.GetAccelerations().GetForces(1)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def y_total(self):
@@ -427,7 +442,7 @@ class Forces(object):
         value is in Newtons"""
         force = self.fdmexec.GetAccelerations().GetForces(2)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
     @property
     def z_total(self):
@@ -435,7 +450,7 @@ class Forces(object):
         value is in Newtons"""
         force = self.fdmexec.GetAccelerations().GetForces(3)
 
-        return convert_pounds_to_newtons(force)
+        return convert_jsbsim_force(force)
 
 
 class FDM(object):

@@ -4,7 +4,7 @@ from unittest import TestCase
 from huginn import configuration
 from huginn.fdm import FDMBuilder
 from huginn.instruments import Instruments, GPS
-from huginn.unit_conversions import convert_feet_to_meters
+from huginn.unit_conversions import convert_jsbsim_velocity
 
 class GPSTests(TestCase):
     def test_gps(self):
@@ -19,7 +19,7 @@ class GPSTests(TestCase):
         self.assertAlmostEqual(gps.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
         self.assertAlmostEqual(gps.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
         self.assertAlmostEqual(gps.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(gps.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
+        self.assertAlmostEqual(gps.airspeed, convert_jsbsim_velocity(fdmexec.GetAuxiliary().GetVtrueFPS()))
         self.assertAlmostEqual(gps.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))
 
 class InstrumentsTests(TestCase):
@@ -35,5 +35,5 @@ class InstrumentsTests(TestCase):
         self.assertAlmostEqual(instruments.gps.latitude, fdmexec.GetPropagate().GetLatitudeDeg())
         self.assertAlmostEqual(instruments.gps.longitude, fdmexec.GetPropagate().GetLongitudeDeg())
         self.assertAlmostEqual(instruments.gps.altitude, fdmexec.GetPropagate().GetAltitudeASLmeters())
-        self.assertAlmostEqual(instruments.gps.airspeed, convert_feet_to_meters(fdmexec.GetAuxiliary().GetVtrueFPS()))
+        self.assertAlmostEqual(instruments.gps.airspeed, convert_jsbsim_velocity(fdmexec.GetAuxiliary().GetVtrueFPS()))
         self.assertAlmostEqual(instruments.gps.heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)))

@@ -1,88 +1,88 @@
 from unittest import TestCase
 
-from huginn.unit_conversions import (convert_feet_to_meters, convert_knots_to_meters_per_sec,
-                                     convert_rankine_to_kelvin, convert_psf_to_pascal,
-                                     convert_pounds_to_newtons,
-                                     convert_meters_per_sec_to_knots,
-                                     convert_meters_to_feet,
-                                     convert_slug_sqr_feet_to_kg_sqr_meters)
+from huginn.unit_conversions import (convert_jsbsim_acceleration,
+                                     convert_jsbsim_angular_acceleration,
+                                     convert_jsbsim_angular_velocity,
+                                     convert_jsbsim_velocity,
+                                     convert_jsbsim_pressure,
+                                     convert_jsbsim_temperature,
+                                     convert_jsbsim_density,
+                                     convert_jsbsim_force)
 
-class TestConvertFeetToMeters(TestCase):
-    def test_convert_feet_to_meters(self):
-        feet = 10.0
+class AccelerationConversionTests(TestCase):
+    def test_convert_acceleration(self):
+        acceleration = 1.0
         
-        meters = convert_feet_to_meters(feet)
-        
-        expected_meters = 3.048
-        
-        self.assertAlmostEqual(meters, expected_meters, 3)
-        
-class TestConvertKnotsToMetersPerSec(TestCase):
-    def test_convert_knots_to_meters_per_sec(self):
-        knots = 15.0
-        
-        meters_per_sec = convert_knots_to_meters_per_sec(knots)
-        
-        expected_meters_per_sec = 7.71667
-        
-        self.assertAlmostEqual(meters_per_sec, expected_meters_per_sec, 3)
-                        
-class TestConvertRankineToKelvin(TestCase):
-    def test_convert_rankine_to_kelvin(self):
-        temperature_in_rankine = 99.0
-        
-        temperature_in_kelvin = convert_rankine_to_kelvin(temperature_in_rankine)
-        
-        expected_temperature_in_kelvin = 55 
-        
-        self.assertAlmostEqual(temperature_in_kelvin, expected_temperature_in_kelvin, 3)
-        
-class TestConvertPSFToPascal(TestCase):
-    def test_convert_psf_to_pascal(self):
-        pressure_in_psf = 2116.216627
-        
-        pressure_in_pascal = convert_psf_to_pascal(pressure_in_psf)
-        
-        expected_pressure_in_pascal = 101325.0
-        
-        self.assertAlmostEqual(pressure_in_pascal, expected_pressure_in_pascal, 3)
-        
-class TestConvertPoundsToNewtons(TestCase):
-    def test_convert_pounds_to_newtons(self):
-        force_in_pounds = 12.7
-        
-        force_in_newtons = convert_pounds_to_newtons(force_in_pounds)
-        
-        expected_force_in_newtons = 56.4924
-        
-        self.assertAlmostEqual(force_in_newtons, expected_force_in_newtons, 3)
+        expected_acceleration = 0.304799
 
-class TestConvertMetersPerSecondToKnots(TestCase):
-    def test_convert_meters_per_sec_to_knots(self):
-        meters_per_sec = 50.0
+        converted_acceleration = convert_jsbsim_acceleration(acceleration)
 
-        expected_knots = 97.1922
+        self.assertAlmostEqual(converted_acceleration, expected_acceleration, 3)
 
-        knots = convert_meters_per_sec_to_knots(meters_per_sec)
+    def test_convert_angular_acceleration(self):
+        acceleration = 1.0
+        
+        expected_acceleration = 57.2958
 
-        self.assertAlmostEqual(knots, expected_knots, 3)
+        converted_acceleration = convert_jsbsim_angular_acceleration(acceleration)
 
-class TestConvertMetersToFeet(TestCase):
-    def test_convert_meters_to_feet(self):
-        meters = 120.0
+        self.assertAlmostEqual(converted_acceleration, expected_acceleration, 3)
 
-        expected_feet = 393.701
+class VelocityConversionTests(TestCase):
+    def test_convert_angular_velocity(self):
+        velocity = 1.0
+        
+        expected_velocity = 57.2958
 
-        feet = convert_meters_to_feet(meters)
+        converted_velocity = convert_jsbsim_angular_velocity(velocity)
 
-        self.assertAlmostEqual(feet, expected_feet, 3)
+        self.assertAlmostEqual(converted_velocity, expected_velocity, 3)
+
+    def test_convert_velocity(self):
+        velocity = 1.0
+        
+        expected_velocity = 0.3048
+
+        converted_velocity = convert_jsbsim_velocity(velocity)
+
+        self.assertAlmostEqual(converted_velocity, expected_velocity, 3)
+
+class PressureConversionTests(TestCase):
+    def test_convert_pressure(self):
+        pressure = 1.0
+        
+        expected_pressure = 47.8803
+
+        converted_pressure = convert_jsbsim_pressure(pressure)
+
+        self.assertAlmostEqual(converted_pressure, expected_pressure, 3)
+
+class TemperatureConversionTests(TestCase):
+    def test_convert_temperature(self):
+        temperature = 1.0
+        
+        expected_temperature = 0.555556
+
+        converted_temperature = convert_jsbsim_temperature(temperature)
+
+        self.assertAlmostEqual(converted_temperature, expected_temperature, 3)
 
 class DensityConversionTests(TestCase):
-    def test_convert_slug_sqr_feet_to_kg_sqr_meters(self):
-        value = 12.3
+    def test_convert_density(self):
+        density = 1.0
+        
+        expected_density = 515.378819
 
-        expected_value = 6339.159
+        converted_density = convert_jsbsim_density(density)
 
-        converted_value = convert_slug_sqr_feet_to_kg_sqr_meters(value)
+        self.assertAlmostEqual(expected_density, converted_density, 3)
 
-        self.assertAlmostEqual(converted_value, expected_value, 2)
+class ForceConversionTests(TestCase):
+    def test_convert_force(self):
+        force = 1.0
+        
+        expected_force = 4.44822
+
+        converted_force = convert_jsbsim_force(force)
+
+        self.assertAlmostEqual(expected_force, converted_force, 3)
