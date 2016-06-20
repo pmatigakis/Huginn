@@ -59,3 +59,21 @@ FDM Forces endpoint returns the aerodynamic forces data
     ${resp} =    Get FDM Forces Data
     Is Valid FDM Forces Data Response    ${resp}
     Is FDM Forces Data Response With Aircraft In The Start Location    ${resp}
+
+FDM Initial Condition endpoint returns the initial condition data
+    [Documentation]    This test checks if the fdm initial condition endpoint returns the initial condition data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Initial Condition Data
+    Is Valid FDM Initial Condition Data Response    ${resp}
+    Is FDM Initial Condition Data Response With Aircraft In The Start Location    ${resp}    
+
+FDM Position endpoint returns the position data
+    [Documentation]    This test checks if the fdm position returns the position data
+    [Tags]    api    fdm
+    Simulator Is Paused
+    Aircraft Should Be In The Start Location
+    ${resp} =    Get FDM Position Data
+    Is Valid FDM Position Data Response    ${resp}
+    Is FDM Position Data Response With Aircraft In The Start Location    ${resp}

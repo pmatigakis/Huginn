@@ -46,6 +46,11 @@ ${IC_Z_WIND_FORCE}    53.6914492465
 ${IC_X_TOTAL_FORCE}    -15.683597544
 ${IC_Y_TOTAL_FORCE}    1.9859574638
 ${IC_Z_TOTAL_FORCE}    -53.304062524
+${IC_START_LATITUDE}    37.9232547
+${IC_START_LONGITUDE}    23.921773
+${IC_START_HEADING}    45.0
+${IC_START_AIRSPEED}    30.0
+${IC_START_ALTITUDE}    300.0
 
 *** Keywords ***
 Start Huginn
@@ -584,3 +589,57 @@ Is FDM Forces Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['x_total']}  ${IC_X_TOTAL_FORCE}  precision=3
     Should Be Equal As Numbers    ${response.json()['y_total']}  ${IC_Y_TOTAL_FORCE}  precision=3
     Should Be Equal As Numbers    ${response.json()['z_total']}  ${IC_Z_TOTAL_FORCE}  precision=3
+
+Get FDM Initial Condition Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/initial_condition
+    [Return]    ${resp}
+
+Is Valid FDM Initial Condition Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  latitude
+    JSON Response Should Contain item    ${response}  longitude
+    JSON Response Should Contain item    ${response}  airspeed
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  heading
+
+Is FDM Initial Condition Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['latitude']}  ${IC_START_LATITUDE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['longitude']}  ${IC_START_LONGITUDE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['airspeed']}  ${IC_START_AIRSPEED}  precision=3
+    Should Be Equal As Numbers    ${response.json()['altitude']}  ${IC_START_ALTITUDE}  precision=3
+    Should Be Equal As Numbers    ${response.json()['heading']}  ${IC_START_HEADING}  precision=3
+
+Change initial Condition
+    [Arguments]    ${latitude}  ${longitude}  ${airspeed}  ${altitude}  ${heading}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${initial_condition_data} =    Create Dictionary  latitude=${latitude}  longitude=${longitude}  altitude=${altitude}  airspeed=${airspeed}  heading=${heading}
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /fdm/initial_condition  data=${initial_condition_data}  headers=${headers}
+    Log    ${resp}
+    JSON Response Should Contain item    ${resp}  result
+    Should Be Equal    ${resp.json()['result']}  ok
+
+Get FDM Position Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /fdm/position
+    [Return]    ${resp}
+
+Is Valid FDM Position Data Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  latitude
+    JSON Response Should Contain item    ${response}  longitude
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  heading
+
+Is FDM Position Data Response With Aircraft In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['latitude']}  ${IC_START_LATITUDE}  precision=1
+    Should Be Equal As Numbers    ${response.json()['longitude']}  ${IC_START_LONGITUDE}  precision=1
+    Value Close To    ${response.json()['altitude']}  ${IC_START_ALTITUDE}  5.0
+    Value Close To    ${response.json()['heading']}  ${IC_START_HEADING}  5.0

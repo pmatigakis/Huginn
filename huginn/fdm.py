@@ -453,6 +453,105 @@ class Forces(object):
         return convert_jsbsim_force(force)
 
 
+class InitialCondition(object):
+    """The InitialCondition class gets/sets the simulator initial conditions"""
+
+    def __init__(self, fdmexec):
+        """Create a new InitialCondition object
+
+        Arguments:
+        fdmexec: a JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+
+    @property
+    def latitude(self):
+        """Get the starting position latitude in degrees"""
+        return self.fdmexec.GetIC().GetLatitudeDegIC()
+
+    @latitude.setter
+    def latitude(self, value):
+        """Set the starting position latitude
+
+        Arguments:
+        value: the latitude in degrees
+        """
+        self.fdmexec.GetIC().SetLatitudeDegIC(value)
+
+    @property
+    def longitude(self):
+        """Get the starting position longitude in degrees"""
+        return self.fdmexec.GetIC().GetLongitudeDegIC()
+
+    @longitude.setter
+    def longitude(self, value):
+        """Set the starting position longitude
+
+        Arguments:
+        value: the longitude in degrees
+        """
+
+        self.fdmexec.GetIC().SetLongitudeDegIC(value)
+
+    @property
+    def altitude(self):
+        """Get the altitude in meters"""
+        altitude = self.fdmexec.GetIC().GetAltitudeASLFtIC() * ur.foot
+
+        altitude.ito(ur.meter)
+
+        return altitude.magnitude
+
+    @altitude.setter
+    def altitude(self, value):
+        """Set the starting altitude
+
+        Arguments:
+        value: the altitude in meters
+        """
+        altitude = value * ur.meter
+
+        altitude.ito(ur.foot)
+
+        self.fdmexec.GetIC().SetAltitudeASLFtIC(altitude.magnitude)
+
+    @property
+    def heading(self):
+        """Get the heading in degrees"""
+        return self.fdmexec.GetIC().GetPsiDegIC()
+
+    @heading.setter
+    def heading(self, value):
+        """Set the heading
+
+        Arguments:
+        value: the heading in degrees
+        """
+        self.fdmexec.GetIC().SetPsiDegIC(value)
+
+    @property
+    def airspeed(self):
+        """Get the airspeed in meters/second"""
+        airspeed = self.fdmexec.GetIC().GetVtrueKtsIC() * ur.knot
+
+        airspeed.ito(ur.meters_per_second)
+
+        return airspeed.magnitude
+
+    @airspeed.setter
+    def airspeed(self, value):
+        """Set the airspeed
+
+        Arguments:
+        value: the airspeed in meters/second
+        """
+        airspeed = value * ur.meters_per_second
+
+        airspeed.ito(ur.knot)
+
+        self.fdmexec.GetIC().SetVtrueKtsIC(airspeed.magnitude)
+
+
 class FDM(object):
     """The FDM object is a wrapper around the JSBSim objects that contains the
     values of the flight dynamics model."""
@@ -463,3 +562,5 @@ class FDM(object):
         self.position = Position(fdmexec)
         self.orientation = Orientation(fdmexec)
         self.atmosphere = Atmosphere(fdmexec)
+        self.forces = Forces(fdmexec)
+        self.initial_condition = InitialCondition(fdmexec)

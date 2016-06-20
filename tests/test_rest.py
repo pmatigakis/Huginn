@@ -7,12 +7,13 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          FlightControlsResource, SimulatorControlResource,
                          ObjectResource, AccelerationsResource,
                          VelocitiesResource, OrientationResource,
-                         AtmosphereResource, ForcesResource)
+                         AtmosphereResource, ForcesResource,
+                         InitialConditionResource, PositionResource)
 
 from huginn import configuration
 
 from huginn.fdm import (FDMBuilder, Accelerations, Velocities, Orientation,
-                        Atmosphere, Forces)
+                        Atmosphere, Forces, InitialCondition, Position)
 
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
@@ -473,9 +474,9 @@ class ForceResourceTests(TestCase):
         fdm_builder = FDMBuilder(huginn_data_path)
         fdmexec = fdm_builder.create_fdm()
 
-        foces_resource = ForcesResource(fdmexec)
+        forces_resource = ForcesResource(fdmexec)
 
-        response = foces_resource.get()
+        response = forces_resource.get()
 
         forces = Forces(fdmexec)
 
@@ -488,3 +489,66 @@ class ForceResourceTests(TestCase):
         self.assertAlmostEqual(response["x_total"], forces.x_total, 3)
         self.assertAlmostEqual(response["y_total"], forces.y_total, 3)
         self.assertAlmostEqual(response["z_total"], forces.z_total, 3)
+
+class InitialConditionResourceTests(TestCase):
+    def test_get_initial_condition(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        ic_resource = InitialConditionResource(fdmexec)
+
+        response = ic_resource.get()
+
+        ic = InitialCondition(fdmexec)
+
+        self.assertAlmostEqual(response["latitude"], ic.latitude, 3)
+        self.assertAlmostEqual(response["longitude"], ic.longitude, 3)
+        self.assertAlmostEqual(response["altitude"], ic.altitude, 3)
+        self.assertAlmostEqual(response["airspeed"], ic.airspeed, 3)
+        self.assertAlmostEqual(response["heading"], ic.heading, 3)
+
+    def test_update_initial_condition(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        ic_resource = InitialConditionResource(fdmexec)
+        
+        new_ic = {
+            "latitude": 10.0,
+            "longitude": 20.0,
+            "altitude": 150.0,
+            "airspeed": 60.0,
+            "heading": 90.0
+        }
+
+        ic_resource.update_initial_conditions(new_ic)
+
+        response = ic_resource.get()
+
+        self.assertAlmostEqual(response["latitude"], 10.0, 3)
+        self.assertAlmostEqual(response["longitude"], 20.0, 3)
+        self.assertAlmostEqual(response["altitude"], 150.0, 3)
+        self.assertAlmostEqual(response["airspeed"], 60.0, 3)
+        self.assertAlmostEqual(response["heading"], 90.0, 3)
+
+class PositionResourceTests(TestCase):
+    def test_get_position(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        position_resource = PositionResource(fdmexec)
+
+        response = position_resource.get()
+
+        position = Position(fdmexec)
+
+        self.assertAlmostEqual(response["latitude"], position.latitude, 3)
+        self.assertAlmostEqual(response["longitude"], position.longitude, 3)
+        self.assertAlmostEqual(response["altitude"], position.altitude, 3)
+        self.assertAlmostEqual(response["heading"], position.heading, 3)

@@ -1,14 +1,15 @@
 """
 The huginn.rest module contains the rest interface endpoints
 """
-
+from flask import request
 from flask_restful import Resource, reqparse
 
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
-                            OrientationSchema, AtmosphereShema, ForcesSchema)
+                            OrientationSchema, AtmosphereShema, ForcesSchema,
+                            InitialConditionSchema, PositionSchema)
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
-                        Forces)
+                        Forces, InitialCondition, Position)
 
 from huginn.unit_conversions import convert_jsbsim_velocity
 
@@ -465,3 +466,69 @@ class ForcesResource(ObjectResource):
 
         super(ForcesResource, self).__init__(self.forces,
                                              self.forces_schema)
+
+
+class InitialConditionResource(ObjectResource):
+    """The InitialConditionResource object contain the simulator initial
+    conditions"""
+
+    def __init__(self, fdmexec):
+        """Create a new InitialConditionResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self.initial_condition = InitialCondition(fdmexec)
+        self.initial_condition_schema = InitialConditionSchema()
+
+        super(InitialConditionResource, self).__init__(
+            self.initial_condition,
+            self.initial_condition_schema
+        )
+
+    def update_initial_conditions(self, initial_condition):
+        if "latitude" in initial_condition:
+            self.initial_condition.latitude = initial_condition["latitude"]
+
+        if "longitude" in initial_condition:
+            self.initial_condition.longitude = initial_condition["longitude"]
+
+        if "airspeed" in initial_condition:
+            self.initial_condition.airspeed = initial_condition["airspeed"]
+
+        if "altitude" in initial_condition:
+            self.initial_condition.altitude = initial_condition["altitude"]
+
+        if "heading" in initial_condition:
+            self.initial_condition.heading = initial_condition["heading"]
+
+    def post(self):
+        data = request.json
+
+        ic_schema = InitialConditionSchema()
+
+        initial_condition = ic_schema.load(data)
+
+        self.update_initial_conditions(initial_condition.data)
+
+        return {"result": "ok"}
+
+
+class PositionResource(ObjectResource):
+    """The PositionResource object contain the aircraft position data"""
+
+    def __init__(self, fdmexec):
+        """Create a new PositionResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self.position = Position(fdmexec)
+        self.position_schema = PositionSchema()
+
+        super(PositionResource, self).__init__(
+            self.position,
+            self.position_schema
+        )

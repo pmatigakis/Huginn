@@ -53,3 +53,18 @@ class ForcesSchema(Schema):
     x_total = fields.Float()
     y_total = fields.Float()
     z_total = fields.Float()
+
+
+class InitialConditionSchema(Schema):
+    latitude = fields.Float()
+    longitude = fields.Float()
+    airspeed = fields.Float()
+    altitude = fields.Float()
+    heading = fields.Float()
+
+
+class PositionSchema(Schema):
+    latitude = fields.Float()
+    longitude = fields.Float()
+    altitude = fields.Float()
+    heading = fields.Float()

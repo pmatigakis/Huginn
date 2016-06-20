@@ -2,7 +2,7 @@ import math
 from unittest import TestCase
 
 from huginn.fdm import (FDMBuilder, Accelerations, FDM, Velocities, Position,
-                        Orientation, Atmosphere, Forces)
+                        Orientation, Atmosphere, Forces, InitialCondition)
 
 from huginn import configuration
 from huginn.unit_conversions import (convert_jsbsim_acceleration,
@@ -225,3 +225,37 @@ class ForcesTests(TestCase):
                                convert_jsbsim_force(fdmexec.GetAccelerations().GetForces(3)),
                                3)
 
+class InitialConditionTests(TestCase):
+    def test_get_initial_condition(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        ic = InitialCondition(fdmexec)
+
+        self.assertAlmostEqual(ic.latitude, configuration.LATITUDE, 3)
+        self.assertAlmostEqual(ic.longitude, configuration.LONGITUDE, 3)
+        self.assertAlmostEqual(ic.altitude, configuration.ALTITUDE, 3)
+        self.assertAlmostEqual(ic.airspeed, configuration.AIRSPEED, 3)
+        self.assertAlmostEqual(ic.heading, configuration.HEADING, 3)
+
+    def test_set_initial_condition(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        ic = InitialCondition(fdmexec)
+
+        ic.latitude = 10.0
+        ic.longitude = 20.0
+        ic.airspeed = 150.0
+        ic.heading = 90.0
+        ic.altitude = 500.0
+
+        self.assertAlmostEqual(ic.latitude, 10.0, 3)
+        self.assertAlmostEqual(ic.longitude, 20.0, 3)
+        self.assertAlmostEqual(ic.altitude, 500.0, 3)
+        self.assertAlmostEqual(ic.airspeed, 150.0, 3)
+        self.assertAlmostEqual(ic.heading, 90.0, 3)
