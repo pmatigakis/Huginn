@@ -25,7 +25,8 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          SimulatorControlResource, AccelerationsResource,
                          VelocitiesResource, OrientationResource,
                          AtmosphereResource, ForcesResource,
-                         InitialConditionResource, PositionResource)
+                         InitialConditionResource, PositionResource,
+                         AirspeedIndicatorResource)
 
 
 class SimulationServer(object):
@@ -126,6 +127,16 @@ class SimulationServer(object):
         api.add_resource(PositionResource, "/fdm/position",
                          resource_class_args=(self.fdmexec,))
 
+    def _add_instruments(self, api):
+        api.add_resource(GPSResource, "/aircraft/instruments/gps",
+                         resource_class_args=(self.aircraft.instruments.gps,))
+
+        api.add_resource(
+            AirspeedIndicatorResource,
+            "/aircraft/instruments/airspeed_indicator",
+            resource_class_args=(self.aircraft.instruments.airspeed_indicator,)
+        )
+
     def _initialize_web_frontend(self):
         app = Flask(__name__)
 
@@ -136,8 +147,7 @@ class SimulationServer(object):
         api.add_resource(AircraftResource, "/aircraft",
                          resource_class_args=(self.aircraft,))
 
-        api.add_resource(GPSResource, "/aircraft/instruments/gps",
-                         resource_class_args=(self.aircraft.instruments.gps,))
+        self._add_instruments(api)
 
         api.add_resource(
             AccelerometerResource,

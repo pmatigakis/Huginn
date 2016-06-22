@@ -8,7 +8,8 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          ObjectResource, AccelerationsResource,
                          VelocitiesResource, OrientationResource,
                          AtmosphereResource, ForcesResource,
-                         InitialConditionResource, PositionResource)
+                         InitialConditionResource, PositionResource,
+                         AirspeedIndicatorResource)
 
 from huginn import configuration
 
@@ -19,6 +20,7 @@ from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
 from huginn.unit_conversions import convert_jsbsim_velocity
+from huginn.instruments import AirspeedIndicator
 
 
 class FDMResourceTests(TestCase):
@@ -552,3 +554,18 @@ class PositionResourceTests(TestCase):
         self.assertAlmostEqual(response["longitude"], position.longitude, 3)
         self.assertAlmostEqual(response["altitude"], position.altitude, 3)
         self.assertAlmostEqual(response["heading"], position.heading, 3)
+
+class AirspeedIndicatorResourceTests(TestCase):
+    def test_get_airspeed(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        airspeed_indicator = AirspeedIndicator(fdmexec)
+
+        airspeed_indicator_resource = AirspeedIndicatorResource(airspeed_indicator)
+
+        response = airspeed_indicator_resource.get()
+
+        self.assertAlmostEqual(response["airspeed"], airspeed_indicator.airspeed, 3)

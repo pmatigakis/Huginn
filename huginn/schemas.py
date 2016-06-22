@@ -68,3 +68,7 @@ class PositionSchema(Schema):
     longitude = fields.Float()
     altitude = fields.Float()
     heading = fields.Float()
+
+
+class AirspeedIndicatorSchema(Schema):
+    airspeed = fields.Float()

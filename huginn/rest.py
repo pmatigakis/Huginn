@@ -6,7 +6,8 @@ from flask_restful import Resource, reqparse
 
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
                             OrientationSchema, AtmosphereShema, ForcesSchema,
-                            InitialConditionSchema, PositionSchema)
+                            InitialConditionSchema, PositionSchema,
+                            AirspeedIndicatorSchema)
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
@@ -531,4 +532,23 @@ class PositionResource(ObjectResource):
         super(PositionResource, self).__init__(
             self.position,
             self.position_schema
+        )
+
+
+class AirspeedIndicatorResource(ObjectResource):
+    """The AirspeedIndicatorResource object returns the aircraft's true
+    airspeed"""
+
+    def __init__(self, airspeed_indicator):
+        """Create a new AirspeedindicatorResource object
+
+        Arguments:
+        fdmexec: a jsbsim FGFDMExec object
+        """
+        self.airspeed_indicator = airspeed_indicator
+        self.airspeed_indicator_schema = AirspeedIndicatorSchema()
+
+        super(AirspeedIndicatorResource, self).__init__(
+            self.airspeed_indicator,
+            self.airspeed_indicator_schema
         )

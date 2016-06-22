@@ -68,3 +68,10 @@ Flight controls endpoint returns the flight controls data
     ${response} =    Get The Flight Controls Data
     Should Be Valid Flight Control Response    ${response}
     Should be Valid Flight Controls Response With Flight Controls Idle    ${response}
+
+Airspeed Indicator endpoint returns the gps data
+    [Documentation]    This test checks if the airspeed indicator  endpoint returns the airspeed indicator data
+    [Tags]    api    fdm    sensors
+    ${response} =    Get Airspeed Indicator Data
+    Should Be Valid Airspeed Indicator Response    ${response}
+    Should Be Airspeed Indicator Response When Aircraft Is In The Start Location    ${response}

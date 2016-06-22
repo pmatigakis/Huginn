@@ -51,6 +51,7 @@ ${IC_START_LONGITUDE}    23.921773
 ${IC_START_HEADING}    45.0
 ${IC_START_AIRSPEED}    30.0
 ${IC_START_ALTITUDE}    300.0
+${IC_AIRSPEED_IN_KNOTS}    53.6079420899
 
 *** Keywords ***
 Start Huginn
@@ -643,3 +644,18 @@ Is FDM Position Data Response With Aircraft In The Start Location
     Should Be Equal As Numbers    ${response.json()['longitude']}  ${IC_START_LONGITUDE}  precision=1
     Value Close To    ${response.json()['altitude']}  ${IC_START_ALTITUDE}  5.0
     Value Close To    ${response.json()['heading']}  ${IC_START_HEADING}  5.0
+
+Get Airspeed Indicator Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/airspeed_indicator
+    [Return]    ${resp}
+
+Should Be Valid Airspeed Indicator Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  airspeed
+
+Should Be Airspeed Indicator Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['airspeed']}  ${IC_AIRSPEED_IN_KNOTS}  precision=1
