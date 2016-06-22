@@ -5,11 +5,10 @@ The hugin.sensors module contains classes that simulate the aircraft's sensors
 
 from random import normalvariate
 
-from huginn.unit_conversions import (convert_jsbsim_acceleration,
-                                     convert_jsbsim_temperature,
-                                     convert_jsbsim_pressure)
+from huginn.unit_conversions import convert_jsbsim_pressure
 
-from huginn.fdm import Velocities, Orientation, Position
+from huginn.fdm import (Velocities, Orientation, Position, Accelerations,
+                        Atmosphere)
 
 
 class Accelerometer(object):
@@ -35,6 +34,8 @@ class Accelerometer(object):
 
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
+        self._acceleration = Accelerations(fdmexec)
+
     @property
     def measurement_noise(self):
         """The measurement noise in meters/sec^2"""
@@ -50,23 +51,17 @@ class Accelerometer(object):
     @property
     def true_x(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(1)
-
-        return convert_jsbsim_acceleration(acceleration)
+        return self._acceleration.x
 
     @property
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(2)
-
-        return convert_jsbsim_acceleration(acceleration)
+        return self._acceleration.y
 
     @property
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        acceleration = self.fdmexec.GetAuxiliary().GetPilotAccel(3)
-
-        return convert_jsbsim_acceleration(acceleration)
+        return self._acceleration.z
 
     @property
     def x(self):
@@ -202,6 +197,7 @@ class Thermometer(object):
         self.sigma = 0.5
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
         self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+        self._atmosphere = Atmosphere(fdmexec)
 
     @property
     def measurement_noise(self):
@@ -215,9 +211,7 @@ class Thermometer(object):
     @property
     def true_temperature(self):
         """return the actual temperature in Kelvin"""
-        temperature = self.fdmexec.GetAtmosphere().GetTemperature()
-
-        return convert_jsbsim_temperature(temperature)
+        return self._atmosphere.temperature
 
     @property
     def temperature(self):
@@ -235,6 +229,7 @@ class PressureSensor(object):
         self.sigma = 10.0
         self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
         self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+        self._atmosphere = Atmosphere(fdmexec)
 
     @property
     def measurement_noise(self):
@@ -248,9 +243,7 @@ class PressureSensor(object):
     @property
     def true_pressure(self):
         """Returns the true pressure in Pascal"""
-        pressure = self.fdmexec.GetAtmosphere().GetPressure()
-
-        return convert_jsbsim_pressure(pressure)
+        return self._atmosphere.pressure
 
     @property
     def pressure(self):
@@ -282,6 +275,7 @@ class PitotTube(object):
     def true_pressure(self):
         """Return the true pressure in pascal"""
         pressure = self.fdmexec.GetAuxiliary().GetTotalPressure()
+
         return convert_jsbsim_pressure(pressure)
 
     @property

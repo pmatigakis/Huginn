@@ -4,42 +4,40 @@ instruments
 """
 
 
-from math import degrees
-
-from huginn.unit_conversions import convert_jsbsim_velocity
+from huginn.fdm import Position, Velocities
 
 
 class GPS(object):
     """The GPS class simulates the aircraft's GPS system."""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
+        self._position = Position(fdmexec)
+        self._velocities = Velocities(fdmexec)
 
     @property
     def latitude(self):
         """Returns the latitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLatitudeDeg()
+        return self._position.latitude
 
     @property
     def longitude(self):
         """Returns the longitude in degrees"""
-        return self.fdmexec.GetPropagate().GetLongitudeDeg()
+        return self._position.longitude
 
     @property
     def altitude(self):
         """Returns the altitude in meters"""
-        return self.fdmexec.GetPropagate().GetAltitudeASLmeters()
+        return self._position.altitude
 
     @property
     def airspeed(self):
         """Returns the airspeed in meters per second"""
-        airspeed = self.fdmexec.GetAuxiliary().GetVtrueFPS()
-
-        return convert_jsbsim_velocity(airspeed)
+        return self._velocities.true_airspeed
 
     @property
     def heading(self):
         """Returns the heading in degrees"""
-        return degrees(self.fdmexec.GetPropagate().GetEuler(3))
+        return self._position.heading
 
 
 class Instruments(object):
