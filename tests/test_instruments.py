@@ -5,9 +5,11 @@ from huginn import configuration
 from huginn.fdm import FDMBuilder, Atmosphere
 
 from huginn.instruments import (Instruments, GPS, true_airspeed,
-                                AirspeedIndicator)
+                                AirspeedIndicator, pressure_altitude,
+                                Altimeter)
 
-from huginn.unit_conversions import convert_jsbsim_velocity, convert_jsbsim_pressure
+from huginn.unit_conversions import convert_jsbsim_velocity, convert_jsbsim_pressure, ur
+from huginn.constants import p0
 
 class GPSTests(TestCase):
     def test_gps(self):
@@ -74,4 +76,38 @@ class AirspeedIndicatorTests(TestCase):
 
         self.assertAlmostEqual(airspeed_indicator.airspeed,
                                expected_airspeed,
+                               3)
+
+class PressureAltitudeEquationTests(TestCase):
+    def test_pressure_altitude(self):
+        static_pressure = 97771.6992237
+        temperature = 286.1993966667
+
+        expected_altitude = 300.0
+
+        calculated_altitude = pressure_altitude(p0, static_pressure, temperature)
+
+        self.assertGreater(calculated_altitude, expected_altitude - 10.0)
+        self.assertLess(calculated_altitude, expected_altitude + 10.0)
+
+class AltimeterTests(TestCase):
+    def test_altitude(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        altimeter = Altimeter(fdmexec)
+
+        atmosphere = Atmosphere(fdmexec)
+
+        expected_altitude = pressure_altitude(atmosphere.sea_level_pressure,
+                                              atmosphere.pressure,
+                                              atmosphere.temperature)
+
+        calculated_altitude = altimeter.altitude * ur.foot
+        calculated_altitude.ito(ur.meter)
+
+        self.assertAlmostEqual(calculated_altitude.magnitude,
+                               expected_altitude,
                                3)

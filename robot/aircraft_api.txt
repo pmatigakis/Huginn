@@ -57,21 +57,28 @@ Inertial navigation system endpoint returns the inertial navigation system data
 
 Engine endpoint returns the engine data
     [Documentation]    This test checks if the engine endpoint returns the engine data
-    [Tags]    api    fdm    sensors
+    [Tags]    api    fdm    engines
     ${response} =    Get Engine Data
     Should Be Valid Engine Response    ${response}
     Should Be Valid Engine Response With Engine On Idle    ${response}
 
 Flight controls endpoint returns the flight controls data
     [Documentation]    This test checks if the flight controls endpoint returns the flight controls data
-    [Tags]    api    fdm    sensors
+    [Tags]    api    fdm    controls
     ${response} =    Get The Flight Controls Data
     Should Be Valid Flight Control Response    ${response}
     Should be Valid Flight Controls Response With Flight Controls Idle    ${response}
 
-Airspeed Indicator endpoint returns the gps data
+Airspeed Indicator endpoint returns the airspeed indicator data
     [Documentation]    This test checks if the airspeed indicator  endpoint returns the airspeed indicator data
-    [Tags]    api    fdm    sensors
+    [Tags]    api    fdm    instruments
     ${response} =    Get Airspeed Indicator Data
     Should Be Valid Airspeed Indicator Response    ${response}
     Should Be Airspeed Indicator Response When Aircraft Is In The Start Location    ${response}
+
+Altimeter endpoint returns the altimeter data
+    [Documentation]    This test checks if the altimeter  endpoint returns the altimeter data
+    [Tags]    api    fdm    instruments
+    ${response} =    Get Altimeter Data
+    Should Be Valid Altimeter Response    ${response}
+    Should Be Altimeter Response When Aircraft Is In The Start Location    ${response}

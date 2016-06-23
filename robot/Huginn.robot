@@ -52,6 +52,9 @@ ${IC_START_HEADING}    45.0
 ${IC_START_AIRSPEED}    30.0
 ${IC_START_ALTITUDE}    300.0
 ${IC_AIRSPEED_IN_KNOTS}    53.6079420899
+${IC_ALTIMETER_ALTITUDE}    984.252
+${IC_ALTIMETER_PRESSURE}    29.92130302799185
+
 
 *** Keywords ***
 Start Huginn
@@ -659,3 +662,20 @@ Should Be Valid Airspeed Indicator Response
 Should Be Airspeed Indicator Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
     Should Be Equal As Numbers    ${response.json()['airspeed']}  ${IC_AIRSPEED_IN_KNOTS}  precision=1
+
+Get Altimeter Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/altimeter
+    [Return]    ${resp}
+
+Should Be Valid Altimeter Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  altitude
+    JSON Response Should Contain item    ${response}  pressure
+
+Should Be Altimeter Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Value Close To    ${response.json()['altitude']}  ${IC_ALTIMETER_ALTITUDE}  20.0
+    Should Be Equal As Numbers    ${response.json()['pressure']}  ${IC_ALTIMETER_PRESSURE}  precision=3

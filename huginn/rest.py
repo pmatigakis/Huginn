@@ -7,7 +7,7 @@ from flask_restful import Resource, reqparse
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
                             OrientationSchema, AtmosphereShema, ForcesSchema,
                             InitialConditionSchema, PositionSchema,
-                            AirspeedIndicatorSchema)
+                            AirspeedIndicatorSchema, AltimeterSchema)
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
@@ -543,7 +543,7 @@ class AirspeedIndicatorResource(ObjectResource):
         """Create a new AirspeedindicatorResource object
 
         Arguments:
-        fdmexec: a jsbsim FGFDMExec object
+        airspeed_indicator: an AirspeedIndicator object
         """
         self.airspeed_indicator = airspeed_indicator
         self.airspeed_indicator_schema = AirspeedIndicatorSchema()
@@ -551,4 +551,22 @@ class AirspeedIndicatorResource(ObjectResource):
         super(AirspeedIndicatorResource, self).__init__(
             self.airspeed_indicator,
             self.airspeed_indicator_schema
+        )
+
+
+class AltimeterResource(ObjectResource):
+    """The AltimeterResource object returns the aircraft's altimeter data"""
+
+    def __init__(self, altimeter):
+        """Create a new AltimeterResource object
+
+        Arguments:
+        altimeter: an Altimeter object
+        """
+        self.altimeter = altimeter
+        self.altimeter_schema = AltimeterSchema()
+
+        super(AltimeterResource, self).__init__(
+            self.altimeter,
+            self.altimeter_schema
         )

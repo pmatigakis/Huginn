@@ -2,11 +2,11 @@
 The hugin.instruments module contains classes that simulate the aircraft's
 instruments
 """
-from math import pow, sqrt
+from math import pow, sqrt, log
 
 from huginn.fdm import Position, Velocities, Atmosphere
-from huginn.constants import a0, T0
-from huginn.unit_conversions import convert_jsbsim_pressure
+from huginn.constants import a0, T0, g, M, R
+from huginn.unit_conversions import convert_jsbsim_pressure, ur
 
 
 def true_airspeed(total_pressure, static_pressure, temperature):
@@ -25,6 +25,10 @@ def true_airspeed(total_pressure, static_pressure, temperature):
     q_p = impact_pressure / static_pressure
 
     return a0 * sqrt(5.0 * (pow(q_p + 1.0, 2.0/7.0) - 1.0) * t_t0)
+
+
+def pressure_altitude(sea_level_pressure, pressure, temperature):
+    return log(sea_level_pressure/pressure) * ((R * temperature) / (g * M))
 
 
 class GPS(object):
@@ -61,7 +65,7 @@ class GPS(object):
 
 
 class AirspeedIndicator(object):
-    """The AirspeedIndicator class simulates the aircraft air speed
+    """The AirspeedIndicator class simulates the aircraft airspeed
     indicator"""
 
     def __init__(self, fdmexec):
@@ -85,8 +89,51 @@ class AirspeedIndicator(object):
                              self._atmosphere.temperature)
 
 
+class Altimeter(object):
+    """The Altimeter class simulates the aircraft altimeter"""
+
+    def __init__(self, fdmexec):
+        """Create a new Altimeter object
+
+        Arguments:
+        fdmexec: A JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self._atmosphere = Atmosphere(fdmexec)
+        self._pressure = 29.92130302799185 * ur.in_Hg
+
+    @property
+    def altitude(self):
+        """Return the altitude in feet"""
+        sea_level_pressure = self._pressure.to(ur.pascal)
+
+        altitude = pressure_altitude(sea_level_pressure.magnitude,
+                                     self._atmosphere.pressure,
+                                     self._atmosphere.temperature)
+
+        altitude = altitude * ur.meter
+        altitude.ito(ur.foot)
+
+        return altitude.magnitude
+
+    @property
+    def pressure(self):
+        """Return the instrument's pressure setting in inHg"""
+        return self._pressure.magnitude
+
+    @pressure.setter
+    def pressure(self, value):
+        """Set the instrument's pressure setting
+
+        Arguments:
+        value: the pressure in inHg
+        """
+        self._pressure = value * ur.in_Hg
+
+
 class Instruments(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.gps = GPS(fdmexec)
         self.airspeed_indicator = AirspeedIndicator(fdmexec)
+        self.altimeter = Altimeter(fdmexec)

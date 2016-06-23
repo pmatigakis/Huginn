@@ -72,3 +72,8 @@ class PositionSchema(Schema):
 
 class AirspeedIndicatorSchema(Schema):
     airspeed = fields.Float()
+
+
+class AltimeterSchema(Schema):
+    altitude = fields.Float()
+    pressure = fields.Float()
