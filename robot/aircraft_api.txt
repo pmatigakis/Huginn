@@ -82,3 +82,10 @@ Altimeter endpoint returns the altimeter data
     ${response} =    Get Altimeter Data
     Should Be Valid Altimeter Response    ${response}
     Should Be Altimeter Response When Aircraft Is In The Start Location    ${response}
+
+Attitude Indicator endpoint returns the Attitude Indicator data
+    [Documentation]    This test checks if the attitude indicator endpoint returns the attitude indicator data
+    [Tags]    api    fdm    instruments
+    ${response} =    Get Attitude Indicator Data
+    Should Be Valid Attitude Indicator Response    ${response}
+    Should Be Attitude Indicator Response When Aircraft Is In The Start Location    ${response}

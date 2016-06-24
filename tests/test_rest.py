@@ -9,7 +9,8 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          VelocitiesResource, OrientationResource,
                          AtmosphereResource, ForcesResource,
                          InitialConditionResource, PositionResource,
-                         AirspeedIndicatorResource, AltimeterResource)
+                         AirspeedIndicatorResource, AltimeterResource,
+                         AttitudeIndicatorResource)
 
 from huginn import configuration
 
@@ -20,7 +21,7 @@ from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
 from huginn.unit_conversions import convert_jsbsim_velocity
-from huginn.instruments import AirspeedIndicator, Altimeter
+from huginn.instruments import AirspeedIndicator, Altimeter, AttitudeIndicator
 
 
 class FDMResourceTests(TestCase):
@@ -585,3 +586,19 @@ class AltimeterResourceTests(TestCase):
 
         self.assertAlmostEqual(response["altitude"], altimeter.altitude, 3)
         self.assertAlmostEqual(response["pressure"], altimeter.pressure, 3)
+
+class AttitudeindicatorResourceTests(TestCase):
+    def test_get_attitude_indicator(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        attitude_indicator = AttitudeIndicator(fdmexec)
+
+        attitude_indicator_resource = AttitudeIndicatorResource(attitude_indicator)
+
+        response = attitude_indicator_resource.get()
+
+        self.assertAlmostEqual(response["roll"], attitude_indicator.roll, 3)
+        self.assertAlmostEqual(response["pitch"], attitude_indicator.pitch, 3)

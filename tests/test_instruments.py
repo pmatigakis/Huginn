@@ -2,11 +2,11 @@ import math
 from unittest import TestCase
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder, Atmosphere
+from huginn.fdm import FDMBuilder, Atmosphere, Orientation
 
 from huginn.instruments import (Instruments, GPS, true_airspeed,
                                 AirspeedIndicator, pressure_altitude,
-                                Altimeter)
+                                Altimeter, AttitudeIndicator)
 
 from huginn.unit_conversions import convert_jsbsim_velocity, convert_jsbsim_pressure, ur
 from huginn.constants import p0
@@ -111,3 +111,17 @@ class AltimeterTests(TestCase):
         self.assertAlmostEqual(calculated_altitude.magnitude,
                                expected_altitude,
                                3)
+
+class AttitudeindicatorTest(TestCase):
+    def test_get_attitude_indicator_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        attitude_indicator = AttitudeIndicator(fdmexec)
+
+        orientation = Orientation(fdmexec)
+
+        self.assertAlmostEqual(attitude_indicator.roll, orientation.phi, 3)
+        self.assertAlmostEqual(attitude_indicator.pitch, orientation.theta, 3)

@@ -7,7 +7,8 @@ from flask_restful import Resource, reqparse
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
                             OrientationSchema, AtmosphereShema, ForcesSchema,
                             InitialConditionSchema, PositionSchema,
-                            AirspeedIndicatorSchema, AltimeterSchema)
+                            AirspeedIndicatorSchema, AltimeterSchema,
+                            AttitudeIndicatorSchema)
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
@@ -569,4 +570,23 @@ class AltimeterResource(ObjectResource):
         super(AltimeterResource, self).__init__(
             self.altimeter,
             self.altimeter_schema
+        )
+
+
+class AttitudeIndicatorResource(ObjectResource):
+    """The AttitudeIndicatorResource object returns the aircraft's attitude
+    indicator data"""
+
+    def __init__(self, attitude_indicator):
+        """Create a new AttitudeIndicatorResource object
+
+        Arguments:
+        attitude_indicator: an AttitudeIndicator object
+        """
+        self.attitude_indicator = attitude_indicator
+        self.attitude_indicator_schema = AttitudeIndicatorSchema()
+
+        super(AttitudeIndicatorResource, self).__init__(
+            self.attitude_indicator,
+            self.attitude_indicator_schema
         )

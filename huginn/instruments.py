@@ -4,7 +4,7 @@ instruments
 """
 from math import pow, sqrt, log
 
-from huginn.fdm import Position, Velocities, Atmosphere
+from huginn.fdm import Position, Velocities, Atmosphere, Orientation
 from huginn.constants import a0, T0, g, M, R
 from huginn.unit_conversions import convert_jsbsim_pressure, ur
 
@@ -131,9 +131,34 @@ class Altimeter(object):
         self._pressure = value * ur.in_Hg
 
 
+class AttitudeIndicator(object):
+    """The AttitudeIndicator class simulates the attitude indicator
+    instrument"""
+
+    def __init__(self, fdmexec):
+        """Create a new AttitudeIndicator object
+
+        Arguments:
+        fdmexec: a JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self._orientation = Orientation(fdmexec)
+
+    @property
+    def roll(self):
+        """Return the roll angle ikn degrees"""
+        return self._orientation.phi
+
+    @property
+    def pitch(self):
+        """Return the pitch angle in degrees"""
+        return self._orientation.theta
+
+
 class Instruments(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.gps = GPS(fdmexec)
         self.airspeed_indicator = AirspeedIndicator(fdmexec)
         self.altimeter = Altimeter(fdmexec)
+        self.attitude_indicator = AttitudeIndicator(fdmexec)

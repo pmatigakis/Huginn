@@ -679,3 +679,20 @@ Should Be Altimeter Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
     Value Close To    ${response.json()['altitude']}  ${IC_ALTIMETER_ALTITUDE}  20.0
     Should Be Equal As Numbers    ${response.json()['pressure']}  ${IC_ALTIMETER_PRESSURE}  precision=3
+
+Get Attitude indicator Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/attitude_indicator
+    [Return]    ${resp}
+
+Should Be Valid Attitude Indicator Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  roll
+    JSON Response Should Contain item    ${response}  pitch
+
+Should Be Attitude Indicator Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['roll']}  ${IC_PHI}  precision=3
+    Should Be Equal As Numbers    ${response.json()['pitch']}  ${IC_THETA}  precision=3
