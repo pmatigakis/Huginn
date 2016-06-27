@@ -155,6 +155,25 @@ class AttitudeIndicator(object):
         return self._orientation.theta
 
 
+class HeadingIndicator(object):
+    """The HeadingIndicator class simulates the heading indicator
+    instrument"""
+
+    def __init__(self, fdmexec):
+        """Create a new HeadingIndicator object
+
+        Arguments:
+        fdmexec: a JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self._orientation = Orientation(fdmexec)
+
+    @property
+    def heading(self):
+        """Return the heading in degrees"""
+        return self._orientation.psi
+
+
 class Instruments(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
@@ -162,3 +181,4 @@ class Instruments(object):
         self.airspeed_indicator = AirspeedIndicator(fdmexec)
         self.altimeter = Altimeter(fdmexec)
         self.attitude_indicator = AttitudeIndicator(fdmexec)
+        self.heading_indicator = HeadingIndicator(fdmexec)

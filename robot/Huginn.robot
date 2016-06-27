@@ -696,3 +696,18 @@ Should Be Attitude Indicator Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
     Should Be Equal As Numbers    ${response.json()['roll']}  ${IC_PHI}  precision=3
     Should Be Equal As Numbers    ${response.json()['pitch']}  ${IC_THETA}  precision=3
+
+Get Heading indicator Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/heading_indicator
+    [Return]    ${resp}
+
+Should Be Valid Heading Indicator Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  heading
+
+Should Be Heading Indicator Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['heading']}  ${IC_PSI}  precision=3

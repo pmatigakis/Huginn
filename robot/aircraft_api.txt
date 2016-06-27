@@ -89,3 +89,10 @@ Attitude Indicator endpoint returns the Attitude Indicator data
     ${response} =    Get Attitude Indicator Data
     Should Be Valid Attitude Indicator Response    ${response}
     Should Be Attitude Indicator Response When Aircraft Is In The Start Location    ${response}
+
+Heading Indicator endpoint returns the Heading Indicator data
+    [Documentation]    This test checks if the heading indicator endpoint returns the heading indicator data
+    [Tags]    api    fdm    instruments
+    ${response} =    Get Heading Indicator Data
+    Should Be Valid Heading Indicator Response    ${response}
+    Should Be Heading Indicator Response When Aircraft Is In The Start Location    ${response}

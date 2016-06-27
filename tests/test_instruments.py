@@ -6,7 +6,7 @@ from huginn.fdm import FDMBuilder, Atmosphere, Orientation
 
 from huginn.instruments import (Instruments, GPS, true_airspeed,
                                 AirspeedIndicator, pressure_altitude,
-                                Altimeter, AttitudeIndicator)
+                                Altimeter, AttitudeIndicator, HeadingIndicator)
 
 from huginn.unit_conversions import convert_jsbsim_velocity, convert_jsbsim_pressure, ur
 from huginn.constants import p0
@@ -125,3 +125,16 @@ class AttitudeindicatorTest(TestCase):
 
         self.assertAlmostEqual(attitude_indicator.roll, orientation.phi, 3)
         self.assertAlmostEqual(attitude_indicator.pitch, orientation.theta, 3)
+
+class HeadingIndicatorTests(TestCase):
+    def test_get_heading_indicator_data(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        heading_indicator = HeadingIndicator(fdmexec)
+
+        orientation = Orientation(fdmexec)
+
+        self.assertAlmostEqual(heading_indicator.heading, orientation.psi, 3)

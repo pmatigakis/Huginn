@@ -27,7 +27,7 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          AtmosphereResource, ForcesResource,
                          InitialConditionResource, PositionResource,
                          AirspeedIndicatorResource, AltimeterResource,
-                         AttitudeIndicatorResource)
+                         AttitudeIndicatorResource, HeadingIndicatorResource)
 
 
 class SimulationServer(object):
@@ -148,6 +148,12 @@ class SimulationServer(object):
             AttitudeIndicatorResource,
             "/aircraft/instruments/attitude_indicator",
             resource_class_args=(self.aircraft.instruments.attitude_indicator,)
+        )
+
+        api.add_resource(
+            HeadingIndicatorResource,
+            "/aircraft/instruments/heading_indicator",
+            resource_class_args=(self.aircraft.instruments.heading_indicator,)
         )
 
     def _initialize_web_frontend(self):

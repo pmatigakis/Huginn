@@ -82,3 +82,7 @@ class AltimeterSchema(Schema):
 class AttitudeIndicatorSchema(Schema):
     roll = fields.Float()
     pitch = fields.Float()
+
+
+class HeadingIndicatorSchema(Schema):
+    heading = fields.Float()
