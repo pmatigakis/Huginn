@@ -1,0 +1,32 @@
+language: python
+sudo: required
+os: linux
+dist: trusty
+python:
+  - "2.6"
+  - "2.7"
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y swig
+  - git clone https://github.com/pmatigakis/jsbsim.git
+  - cd jsbsim
+  - mkdir build
+  - cd build
+  - cmake -DBUILD_SHARED_LIBS=true ..
+  - make
+  - sudo make install
+  - sudo ldconfig
+  - cd ../..
+  - git clone https://github.com/pmatigakis/PyJSBSim.git
+  - cd PyJSBSim
+  - python setup.py build_ext install
+  - cd ..
+install:
+  - python setup.py install
+before_script:
+  - pip install robotframework
+  - pip install robotframework-requests
+script:
+  - python setup.py nosetests
+  - cd robot
+  - pybot aircraft_api.txt simulator_control.txt fdm.txt frontend.txt fdm_initial_condition.txt
