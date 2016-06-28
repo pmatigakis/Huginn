@@ -25,7 +25,10 @@ install:
 before_script:
   - pip install robotframework
   - pip install robotframework-requests
+  - pip install flake8
 script:
   - python setup.py nosetests
   - cd robot
   - pybot aircraft_api.txt simulator_control.txt fdm.txt frontend.txt fdm_initial_condition.txt
+  - cd ..
+  - flake8 huginn
