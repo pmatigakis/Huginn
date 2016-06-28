@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pmatigakis/Huginn.svg?branch=master)](https://travis-ci.org/pmatigakis/Huginn)
+
 Huginn is a flight simulator designed for software-in-the-loop and
 hardware-in-the-loop simulations.
 
