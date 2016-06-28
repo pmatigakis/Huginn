@@ -27,7 +27,7 @@ before_script:
   - pip install robotframework-requests
   - pip install flake8
 script:
-  - python setup.py nosetests --with-coverage
+  - python setup.py nosetests --with-coverage --cover-xml
   - cd robot
   - pybot aircraft_api.txt simulator_control.txt fdm.txt frontend.txt fdm_initial_condition.txt
   - cd ..
