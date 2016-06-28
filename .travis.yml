@@ -32,3 +32,5 @@ script:
   - pybot aircraft_api.txt simulator_control.txt fdm.txt frontend.txt fdm_initial_condition.txt
   - cd ..
   - flake8 huginn
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
