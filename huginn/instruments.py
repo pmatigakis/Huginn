@@ -180,7 +180,7 @@ class VerticalSpeedIndicator(object):
 
     def __init__(self, fdmexec):
         """Create a new VerticalSpeedIndicator object
-        
+
         Arguments:
         fdmexec: a JSBSim FGFDMExec object
         """
