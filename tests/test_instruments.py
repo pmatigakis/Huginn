@@ -2,11 +2,12 @@ import math
 from unittest import TestCase
 
 from huginn import configuration
-from huginn.fdm import FDMBuilder, Atmosphere, Orientation
+from huginn.fdm import FDMBuilder, Atmosphere, Orientation, Velocities
 
 from huginn.instruments import (Instruments, GPS, true_airspeed,
                                 AirspeedIndicator, pressure_altitude,
-                                Altimeter, AttitudeIndicator, HeadingIndicator)
+                                Altimeter, AttitudeIndicator, HeadingIndicator,
+                                VerticalSpeedIndicator)
 
 from huginn.unit_conversions import convert_jsbsim_velocity, convert_jsbsim_pressure, ur
 from huginn.constants import p0
@@ -138,3 +139,19 @@ class HeadingIndicatorTests(TestCase):
         orientation = Orientation(fdmexec)
 
         self.assertAlmostEqual(heading_indicator.heading, orientation.psi, 3)
+
+class VerticalSpeedindicatorTests(TestCase):
+    def test_get_climb_rate(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        vertial_speed_indicator = VerticalSpeedIndicator(fdmexec)
+
+        velocities = Velocities(fdmexec)
+
+        expected_climb_rate = velocities.climb_rate * ur.meters_per_second
+        expected_climb_rate.ito(ur.feet_per_minute)
+
+        self.assertAlmostEqual(vertial_speed_indicator.climb_rate, expected_climb_rate.magnitude, 3)

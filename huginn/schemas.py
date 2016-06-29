@@ -86,3 +86,7 @@ class AttitudeIndicatorSchema(Schema):
 
 class HeadingIndicatorSchema(Schema):
     heading = fields.Float()
+
+
+class VerticalSpeedIndicatorSchema(Schema):
+    climb_rate = fields.Float()

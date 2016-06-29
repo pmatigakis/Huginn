@@ -10,7 +10,8 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          AtmosphereResource, ForcesResource,
                          InitialConditionResource, PositionResource,
                          AirspeedIndicatorResource, AltimeterResource,
-                         AttitudeIndicatorResource, HeadingIndicatorResource)
+                         AttitudeIndicatorResource, HeadingIndicatorResource,
+                         VerticalSpeedIndicatorResource)
 
 from huginn import configuration
 
@@ -23,7 +24,8 @@ from huginn.schemas import AccelerationsSchema
 from huginn.unit_conversions import convert_jsbsim_velocity
 
 from huginn.instruments import (AirspeedIndicator, Altimeter,
-                                AttitudeIndicator, HeadingIndicator)
+                                AttitudeIndicator, HeadingIndicator,
+                                VerticalSpeedIndicator)
 
 
 class FDMResourceTests(TestCase):
@@ -619,3 +621,18 @@ class HeadingindicatorResourceTests(TestCase):
         response = heading_indicator_resource.get()
 
         self.assertAlmostEqual(response["heading"], heading_indicator.heading, 3)
+
+class VertialSpeedIndicatorResourceTests(TestCase):
+    def test_get_climb_rate(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdmexec = fdm_builder.create_fdm()
+
+        vertical_speed_indicator = VerticalSpeedIndicator(fdmexec)
+
+        vertical_speed_indicator_resource = VerticalSpeedIndicatorResource(vertical_speed_indicator)
+
+        response = vertical_speed_indicator_resource.get()
+
+        self.assertAlmostEqual(response["climb_rate"], vertical_speed_indicator.climb_rate, 3)

@@ -7,7 +7,8 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
                                      convert_jsbsim_pressure,
                                      convert_jsbsim_temperature,
                                      convert_jsbsim_density,
-                                     convert_jsbsim_force)
+                                     convert_jsbsim_force,
+                                     ur)
 
 class AccelerationConversionTests(TestCase):
     def test_convert_acceleration(self):
@@ -86,3 +87,14 @@ class ForceConversionTests(TestCase):
         converted_force = convert_jsbsim_force(force)
 
         self.assertAlmostEqual(expected_force, converted_force, 3)
+
+class MPStoFPMConversionTests(TestCase):
+    def test_mps_to_fpm_conversion(self):
+        meters_per_second = 23.4 * ur.meters_per_second
+
+        feet_per_minute = meters_per_second.to(ur.feet_per_minute)
+
+        expected_feet_per_minute = 4606.299
+
+        self.assertAlmostEqual(feet_per_minute.magnitude, expected_feet_per_minute, 3)
+        

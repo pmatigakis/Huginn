@@ -96,3 +96,10 @@ Heading Indicator endpoint returns the Heading Indicator data
     ${response} =    Get Heading Indicator Data
     Should Be Valid Heading Indicator Response    ${response}
     Should Be Heading Indicator Response When Aircraft Is In The Start Location    ${response}
+
+Vertical Speed Indicator endpoint returns the Vertical Speed Indicator data
+    [Documentation]    This test checks if the vertical speed indicator endpoint returns the vertical speed indicator data
+    [Tags]    api    fdm    instruments
+    ${response} =    Get Vertical Speed Indicator Data
+    Should Be Valid Vertical Speed Indicator Response    ${response}
+    Should Be Vertical Speed Indicator Response When Aircraft Is In The Start Location    ${response}

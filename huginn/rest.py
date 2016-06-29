@@ -8,7 +8,8 @@ from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
                             OrientationSchema, AtmosphereShema, ForcesSchema,
                             InitialConditionSchema, PositionSchema,
                             AirspeedIndicatorSchema, AltimeterSchema,
-                            AttitudeIndicatorSchema, HeadingIndicatorSchema)
+                            AttitudeIndicatorSchema, HeadingIndicatorSchema,
+                            VerticalSpeedIndicatorSchema)
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
@@ -608,4 +609,23 @@ class HeadingIndicatorResource(ObjectResource):
         super(HeadingIndicatorResource, self).__init__(
             self.heading_indicator,
             self.heading_indicator_schema
+        )
+
+
+class VerticalSpeedIndicatorResource(ObjectResource):
+    """The VerticalSpeedIndicatorResource object returns the aircraft's heading
+    indicator data"""
+
+    def __init__(self, vertical_speed_indicator):
+        """Create a new VerticalSpeedIndicatorResource object
+
+        Arguments:
+        vertical_speed_indicator: a VerticalSpeedIndicator object
+        """
+        self.vertical_speed_indicator = vertical_speed_indicator
+        self.vertical_speed_indicator_schema = VerticalSpeedIndicatorSchema()
+
+        super(VerticalSpeedIndicatorResource, self).__init__(
+            self.vertical_speed_indicator,
+            self.vertical_speed_indicator_schema
         )

@@ -174,6 +174,28 @@ class HeadingIndicator(object):
         return self._orientation.psi
 
 
+class VerticalSpeedIndicator(object):
+    """The VerticalSpeedIndicator simulates the aircraft's vertical speed
+    indicator instrument"""
+
+    def __init__(self, fdmexec):
+        """Create a new VerticalSpeedIndicator object
+        
+        Arguments:
+        fdmexec: a JSBSim FGFDMExec object
+        """
+        self.fdmexec = fdmexec
+        self._velocities = Velocities(fdmexec)
+
+    @property
+    def climb_rate(self):
+        """Return the climb rate in feet per minutes"""
+        climb_rate = self._velocities.climb_rate * ur.meters_per_second
+        climb_rate.ito(ur.feet_per_minute)
+
+        return climb_rate.magnitude
+
+
 class Instruments(object):
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
@@ -182,3 +204,4 @@ class Instruments(object):
         self.altimeter = Altimeter(fdmexec)
         self.attitude_indicator = AttitudeIndicator(fdmexec)
         self.heading_indicator = HeadingIndicator(fdmexec)
+        self.vertical_speed_indicator = VerticalSpeedIndicator(fdmexec)

@@ -54,6 +54,7 @@ ${IC_START_ALTITUDE}    300.0
 ${IC_AIRSPEED_IN_KNOTS}    53.6079420899
 ${IC_ALTIMETER_ALTITUDE}    984.252
 ${IC_ALTIMETER_PRESSURE}    29.92130302799185
+${IC_CLIMB_RATE_FPM}    -112.31874
 
 
 *** Keywords ***
@@ -711,3 +712,18 @@ Should Be Valid Heading Indicator Response
 Should Be Heading Indicator Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
     Should Be Equal As Numbers    ${response.json()['heading']}  ${IC_PSI}  precision=3
+
+Get Vertical Speed indicator Data
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /aircraft/instruments/vertical_speed_indicator
+    [Return]    ${resp}
+
+Should Be Valid Vertical Speed Indicator Response
+    [Arguments]    ${response}
+    Should be Equal As Strings    ${response.status_code}  200
+    Response Content Type Should Be JSON    ${response}
+    JSON Response Should Contain item    ${response}  climb_rate
+
+Should Be Vertical Speed Indicator Response When Aircraft Is In The Start Location
+    [Arguments]    ${response}
+    Should Be Equal As Numbers    ${response.json()['climb_rate']}  ${IC_CLIMB_RATE_FPM}  precision=1
