@@ -195,7 +195,13 @@ $(document).ready(function(){
 		follow_aircraft = this.checked;
 	});
 	
-	var viewer = new Cesium.Viewer('cesiumContainer');
+	var viewer = new Cesium.Viewer('cesiumContainer', {
+	    imageryProvider : Cesium.createOpenStreetMapImageryProvider({
+	        url : 'https://a.tile.openstreetmap.org/'
+	    }),
+	    geocoder: false,
+	    baseLayerPicker : false
+	});
 	
 	var position = Cesium.Cartesian3.fromDegrees(-123.0744619, 44.0503706, 5000.0);
 	var heading = Cesium.Math.toRadians(135);

@@ -10,3 +10,5 @@ instructions on how to build and use Huginn.
 The web interface of Huginn is using the jQuery Flight Indicators by Sébastien Matton.
 
 jQuery Flight Indicators: https://github.com/sebmatton/jQuery-Flight-Indicators  
+
+![Huginn flight simulator](/docs/images/huginn.png?raw=true "Huginn flight simulator")
