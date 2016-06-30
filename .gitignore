@@ -19,3 +19,4 @@ robot/*.html
 robot/*.xml
 *.*~
 pylint.html
+.settings/

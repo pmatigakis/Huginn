@@ -107,6 +107,59 @@ Returns the measurements from the gps module
         "heading": 46.01929472213956
     }
 
+GET **/aircraft/instruments/altimeter**
+
+Returns the measurements from the altimeter
+
+.. code-block:: javascript
+
+    {
+        "pressure": 29.92130302799185,
+        "altitude": 981.0291228342326
+    }
+
+GET **/aircraft/instruments/airspeed_indicator**
+
+Returns the measurements from the airspeed indicator
+
+.. code-block:: javascript
+
+    {
+        "airspeed": 53.5894684193083
+    }
+
+GET **/aircraft/instruments/heading_indicator**
+
+Returns the measurements from the heading indicator
+
+.. code-block:: javascript
+
+    {
+        "heading": 46.019292545195896
+    }
+
+GET **/aircraft/instruments/vertical_speed_indicator**
+
+Returns the measurements from the vertical speed indicator
+
+.. code-block:: javascript
+
+    {
+        "climb_rate": -112.32738356856616
+    }
+
+GET **/aircraft/instruments/attitude_indicator**
+
+Returns the measurements from the attitude indicator
+
+.. code-block:: javascript
+
+    {
+        "roll": 1.0836109923818789,
+        "pitch": -2.6704085917889877
+    }
+
+
 Engine
 ------
 
