@@ -32,7 +32,7 @@ cd PyJSBSim
 python setup.py build_ext install    
 ```
 
-Clone the Huginn repositiry and install it
+Clone the Huginn repository and install it
 
 ```bash
 git clone git@github.com:pmatigakis/Huginn.git
@@ -60,7 +60,8 @@ view the web front-end by connecting with your browser to http://localhost:8090/
 Documentation
 =============
 You can find more information about the simulator and how to use it by reading
-the deocumentation. First you have to build the documentation.
+the documentation. First you have to build the documentation. This step requires
+that you have Sphinx installed
 
 ```bash
 cd docs
