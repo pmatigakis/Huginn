@@ -1,8 +1,6 @@
 """
 The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
-
-
 from random import normalvariate
 
 from huginn.unit_conversions import convert_jsbsim_pressure
@@ -11,72 +9,110 @@ from huginn.fdm import (Velocities, Orientation, Position, Accelerations,
                         Atmosphere)
 
 
-class Accelerometer(object):
+class Sensor(object):
+    """The Sensor class must be implemented by any object that simulates an
+    aircraft sensor"""
+
+    def __init__(self, fdmexec, update_rate):
+        """initialize the Sensor object
+
+        Arguments:
+        fdmexec: an JSBSim FGFDMExec object
+        update_rate: the sensor update rate in Hz
+        """
+        self.fdmexec = fdmexec
+        self.update_rate = update_rate
+
+        self._update_sensor()
+        self._schedule_update()
+
+    def _schedule_update(self):
+        self._update_at = self.fdmexec.GetSimTime() + (1.0/self.update_rate)
+
+    def _needs_update(self):
+        return self.fdmexec.GetSimTime() > self._update_at
+
+    def _update_sensor(self):
+        """This method must be implemented by any subclass of the Sensor
+        object"""
+        raise NotImplemented()
+
+    @staticmethod
+    def sensor_measurement(f):
+        """The sensor_measurement decorator is used to define with properties
+        are sensor measurements and updated them according to the update
+        rate"""
+        def wrapper(self, *args, **kwargs):
+            if self._needs_update():
+                self._update_sensor()
+                self._schedule_update()
+
+            return f(self, *args, **kwargs)
+        return wrapper
+
+
+class Accelerometer(Sensor):
     """The Accelerometer class returns the acceleration forces on the body
     frame.
-
 
     This class simulates an accelerometer using the following model.
 
     acceleration = true_acceleration + bias + measurement_noise
     """
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.update_rate = 250.0
-        self.bias_sigma = 0.02
-        self.bias_mu = -0.2
-        self.noise_sigma = 0.005
-        self.noise_mu = 0.06
-        self.bias = normalvariate(self.bias_mu, self.bias_sigma)
+    def __init__(self, fdmexec, update_rate=250.0):
+        self.x_noise_mu = 0.0
+        self.x_noise_sigma = 0.09
+        self.y_noise_mu = 0.0
+        self.y_noise_sigma = 0.09
+        self.z_noise_mu = 0.0
+        self.z_noise_sigma = 0.09
 
-        self._measurement_noise = normalvariate(self.noise_mu,
-                                                self.noise_sigma)
+        self._accelerations = Accelerations(fdmexec)
 
-        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+        super(Accelerometer, self).__init__(fdmexec, update_rate)
 
-        self._acceleration = Accelerations(fdmexec)
+    def _update_sensor(self):
+        self.x_measurement_noise = normalvariate(self.x_noise_mu,
+                                                 self.x_noise_sigma)
 
-    @property
-    def measurement_noise(self):
-        """The measurement noise in meters/sec^2"""
-        if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = normalvariate(self.noise_mu,
-                                                    self.noise_sigma)
+        self.y_measurement_noise = normalvariate(self.y_noise_mu,
+                                                 self.y_noise_sigma)
 
-            self._update_at += (self.fdmexec.GetSimTime() +
-                                (1.0/self.update_rate))
-
-        return self._measurement_noise
+        self.z_measurement_noise = normalvariate(self.z_noise_mu,
+                                                 self.z_noise_sigma)
 
     @property
+    @Sensor.sensor_measurement
     def true_x(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._acceleration.x
+        return self._accelerations.x
 
     @property
+    @Sensor.sensor_measurement
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._acceleration.y
+        return self._accelerations.y
 
     @property
+    @Sensor.sensor_measurement
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._acceleration.z
+        return self._accelerations.z
 
     @property
     def x(self):
         """Return the acceleration along the x axis in meters/sec^2"""
-        return self.true_x + self.bias + self.measurement_noise
+        return self.true_x + self.x_measurement_noise
 
     @property
     def y(self):
         """Return the acceleration along the y axis in meters/sec^2"""
-        return self.true_y + self.bias + self.measurement_noise
+        return self.true_y + self.y_measurement_noise
 
     @property
     def z(self):
         """Return the acceleration along the z axis in meters/sec^2"""
-        return self.true_z + self.bias + self.measurement_noise
+        return self.true_z + self.z_measurement_noise
 
 
 class Gyroscope(object):
