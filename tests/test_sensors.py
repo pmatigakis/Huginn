@@ -23,9 +23,9 @@ class AccelerometerTests(TestCase):
         self.assertAlmostEqual(accelerometer.true_y, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(2)), 3)
         self.assertAlmostEqual(accelerometer.true_z, convert_jsbsim_acceleration(fdmexec.GetAuxiliary().GetPilotAccel(3)), 3)
 
-        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer.x_measurement_noise, 3)
-        self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer.y_measurement_noise, 3)
-        self.assertAlmostEqual(accelerometer.z, accelerometer.true_z + accelerometer.z_measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer._x_measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer._y_measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.z, accelerometer.true_z + accelerometer._z_measurement_noise, 3)
 
     def test_accelerometer_bias_and_noise_modification_updates(self):
         huginn_data_path = configuration.get_data_path()
@@ -35,11 +35,11 @@ class AccelerometerTests(TestCase):
 
         accelerometer = Accelerometer(fdmexec)
 
-        accelerometer.x_measurement_noise = 0.0
+        accelerometer._x_measurement_noise = 0.0
 
         fdmexec.Run()
         
-        self.assertEqual(accelerometer.x_measurement_noise, 0.0)
+        self.assertEqual(accelerometer._x_measurement_noise, 0.0)
 
         #make sure the model is not paused
         fdmexec.Resume()
@@ -48,11 +48,9 @@ class AccelerometerTests(TestCase):
         while fdmexec.GetSimTime() < run_until:
             fdmexec.Run()
 
-        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer.x_measurement_noise, 3)
-        self.assertAlmostEqual(accelerometer.y, accelerometer.true_y + accelerometer.y_measurement_noise, 3)
-        self.assertAlmostEqual(accelerometer.z, accelerometer.true_z + accelerometer.z_measurement_noise, 3)
+        self.assertAlmostEqual(accelerometer.x, accelerometer.true_x + accelerometer._x_measurement_noise, 3)
 
-        self.assertNotEqual(accelerometer.x_measurement_noise, 0.0)
+        self.assertNotEqual(accelerometer._x_measurement_noise, 0.0)
 
 class GyroscopeTests(TestCase):
     def test_gyroscope(self):
@@ -68,15 +66,14 @@ class GyroscopeTests(TestCase):
         self.assertAlmostEqual(gyroscope.true_pitch_rate, math.degrees(fdmexec.GetPropagate().GetPQR(2)), 3)
         self.assertAlmostEqual(gyroscope.true_yaw_rate, math.degrees(fdmexec.GetPropagate().GetPQR(3)), 3)
 
-        self.assertAlmostEqual(gyroscope.roll_rate, gyroscope.true_roll_rate + gyroscope.roll_rate_bias + gyroscope.roll_rate_measurement_noise, 3)
-        self.assertAlmostEqual(gyroscope.pitch_rate, gyroscope.true_pitch_rate + gyroscope.pitch_rate_bias + gyroscope.pitch_rate_measurement_noise, 3)
-        self.assertAlmostEqual(gyroscope.yaw_rate, gyroscope.true_yaw_rate + gyroscope.yaw_rate_bias + gyroscope.yaw_rate_measurement_noise, 3)
+        self.assertAlmostEqual(gyroscope.roll_rate, gyroscope.true_roll_rate + gyroscope._roll_rate_measurement_noise, 3)
+        self.assertAlmostEqual(gyroscope.pitch_rate, gyroscope.true_pitch_rate + gyroscope._pitch_rate_measurement_noise, 3)
+        self.assertAlmostEqual(gyroscope.yaw_rate, gyroscope.true_yaw_rate + gyroscope._yaw_rate_measurement_noise, 3)
 
     def test_gyroscope_bias_and_measurement_noise_update(self):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
         gyroscope = Gyroscope(fdmexec)
@@ -91,7 +88,9 @@ class GyroscopeTests(TestCase):
         while fdmexec.GetSimTime() < run_until:
             fdmexec.Run()
 
-        self.assertNotEqual(gyroscope.roll_rate_measurement_noise, 0.0)
+        self.assertAlmostEqual(gyroscope.roll_rate, gyroscope.true_roll_rate + gyroscope._roll_rate_measurement_noise, 3)
+
+        self.assertNotEqual(gyroscope._roll_rate_measurement_noise, 0.0)
 
 class ThermometerTests(TestCase):
     def test_thermometer(self):

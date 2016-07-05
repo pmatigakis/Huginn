@@ -72,119 +72,79 @@ class Accelerometer(Sensor):
         super(Accelerometer, self).__init__(fdmexec, update_rate)
 
     def _update_sensor(self):
-        self.x_measurement_noise = normalvariate(self.x_noise_mu,
-                                                 self.x_noise_sigma)
+        self._x_measurement_noise = normalvariate(self.x_noise_mu,
+                                                  self.x_noise_sigma)
 
-        self.y_measurement_noise = normalvariate(self.y_noise_mu,
-                                                 self.y_noise_sigma)
+        self._y_measurement_noise = normalvariate(self.y_noise_mu,
+                                                  self.y_noise_sigma)
 
-        self.z_measurement_noise = normalvariate(self.z_noise_mu,
-                                                 self.z_noise_sigma)
+        self._z_measurement_noise = normalvariate(self.z_noise_mu,
+                                                  self.z_noise_sigma)
 
     @property
-    @Sensor.sensor_measurement
     def true_x(self):
         """The true acceleration along the x axis in meters/sec^2"""
         return self._accelerations.x
 
     @property
-    @Sensor.sensor_measurement
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
         return self._accelerations.y
 
     @property
-    @Sensor.sensor_measurement
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
         return self._accelerations.z
 
     @property
+    @Sensor.sensor_measurement
     def x(self):
         """Return the acceleration along the x axis in meters/sec^2"""
-        return self.true_x + self.x_measurement_noise
+        return self.true_x + self._x_measurement_noise
 
     @property
+    @Sensor.sensor_measurement
     def y(self):
         """Return the acceleration along the y axis in meters/sec^2"""
-        return self.true_y + self.y_measurement_noise
+        return self.true_y + self._y_measurement_noise
 
     @property
+    @Sensor.sensor_measurement
     def z(self):
         """Return the acceleration along the z axis in meters/sec^2"""
-        return self.true_z + self.z_measurement_noise
+        return self.true_z + self._z_measurement_noise
 
 
-class Gyroscope(object):
+class Gyroscope(Sensor):
     """The Gyroscope class contains the angular velocities measured on the
     body axis."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.update_rate = 100.0
-        self.bias_sigma = 0.0005
-        self.bias_mu = 0.002
-        self.noise_sigma = 0.00001
-        self.noise_mu = 0.0
-        self.roll_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
-        self.pitch_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
-        self.yaw_rate_bias = normalvariate(self.bias_mu, self.bias_sigma)
-
-        self._roll_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                          self.noise_sigma)
-
-        self._pitch_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                           self.noise_sigma)
-
-        self._yaw_rate_measurement_noise = normalvariate(self.noise_mu,
-                                                         self.noise_sigma)
-
-        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
+    def __init__(self, fdmexec, update_rate=100.0):
+        self.roll_rate_noise_sigma = 0.0005
+        self.roll_rate_noise_mu = 0.002
+        self.pitch_rate_noise_sigma = 0.0005
+        self.pitch_rate_noise_mu = 0.002
+        self.yaw_rate_noise_sigma = 0.0005
+        self.yaw_rate_noise_mu = 0.002
 
         self._velocities = Velocities(fdmexec)
 
-    def _update_measurements(self):
-        """This function checks if the simulation time is greater than the
-        time that this sensor has to update it's measurements. If it is it
-        updates the measurements"""
-        if self.fdmexec.GetSimTime() > self._update_at:
-            self._roll_rate_measurement_noise = normalvariate(
-                self.noise_mu,
-                self.noise_sigma
-            )
+        super(Gyroscope, self).__init__(fdmexec, update_rate)
 
-            self._pitch_rate_measurement_noise = normalvariate(
-                self.noise_mu,
-                self.noise_sigma
-            )
+    def _update_sensor(self):
+        self._roll_rate_measurement_noise = normalvariate(
+            self.roll_rate_noise_mu,
+            self.roll_rate_noise_sigma
+        )
 
-            self._yaw_rate_measurement_noise = normalvariate(
-                self.noise_mu,
-                self.noise_sigma
-            )
+        self._pitch_rate_measurement_noise = normalvariate(
+            self.pitch_rate_noise_mu,
+            self.pitch_rate_noise_sigma
+        )
 
-            self._update_at += (self.fdmexec.GetSimTime() +
-                                (1.0/self.update_rate))
-
-    @property
-    def roll_rate_measurement_noise(self):
-        """The roll rate measurement noise in regrees/sec"""
-        self._update_measurements()
-
-        return self._roll_rate_measurement_noise
-
-    @property
-    def pitch_rate_measurement_noise(self):
-        """The pitch rate measurement noise in regrees/sec"""
-        self._update_measurements()
-
-        return self._pitch_rate_measurement_noise
-
-    @property
-    def yaw_rate_measurement_noise(self):
-        """The yaw rate measurement noise in regrees/sec"""
-        self._update_measurements()
-
-        return self._yaw_rate_measurement_noise
+        self._yaw_rate_measurement_noise = normalvariate(
+            self.yaw_rate_noise_mu,
+            self.yaw_rate_noise_sigma
+        )
 
     @property
     def true_roll_rate(self):
@@ -202,25 +162,25 @@ class Gyroscope(object):
         return self._velocities.r
 
     @property
+    @Sensor.sensor_measurement
     def roll_rate(self):
         """The roll rate in degrees/sec"""
         return (self.true_roll_rate +
-                self.roll_rate_bias +
-                self.roll_rate_measurement_noise)
+                self._roll_rate_measurement_noise)
 
     @property
+    @Sensor.sensor_measurement
     def pitch_rate(self):
         """The pitch rate in degrees/sec"""
         return (self.true_pitch_rate +
-                self.pitch_rate_bias +
-                self.pitch_rate_measurement_noise)
+                self._pitch_rate_measurement_noise)
 
     @property
+    @Sensor.sensor_measurement
     def yaw_rate(self):
         """The yaw rate in degrees/sec"""
         return (self.true_yaw_rate +
-                self.yaw_rate_bias +
-                self.yaw_rate_measurement_noise)
+                self._yaw_rate_measurement_noise)
 
 
 class Thermometer(object):
