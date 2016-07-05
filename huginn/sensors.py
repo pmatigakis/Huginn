@@ -82,20 +82,24 @@ class Accelerometer(Sensor):
         self._z_measurement_noise = normalvariate(self.z_noise_mu,
                                                   self.z_noise_sigma)
 
-    @property
+        self._true_x = self._accelerations.x
+        self._true_y = self._accelerations.y
+        self._true_z = self._accelerations.z
+
+    @Sensor.sensor_property
     def true_x(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._accelerations.x
+        return self._true_x
 
-    @property
+    @Sensor.sensor_property
     def true_y(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._accelerations.y
+        return self._true_y
 
-    @property
+    @Sensor.sensor_property
     def true_z(self):
         """The true acceleration along the x axis in meters/sec^2"""
-        return self._accelerations.z
+        return self._true_z
 
     @Sensor.sensor_property
     def x(self):
@@ -159,20 +163,24 @@ class Gyroscope(Sensor):
             self.yaw_rate_noise_sigma
         )
 
-    @property
+        self._true_roll_rate = self._velocities.p
+        self._true_pitch_rate = self._velocities.q
+        self._true_yaw_rate = self._velocities.r
+
+    @Sensor.sensor_property
     def true_roll_rate(self):
         """Return the actual roll rate in degrees/sec"""
-        return self._velocities.p
+        return self._true_roll_rate
 
-    @property
+    @Sensor.sensor_property
     def true_pitch_rate(self):
         """Return the actual pitch rate in degrees/sec"""
-        return self._velocities.q
+        return self._true_pitch_rate
 
-    @property
+    @Sensor.sensor_property
     def true_yaw_rate(self):
         """Return the actual yaw rate in degrees/sec"""
-        return self._velocities.r
+        return self._true_yaw_rate
 
     @Sensor.sensor_property
     def roll_rate(self):
