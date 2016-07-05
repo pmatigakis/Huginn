@@ -38,10 +38,11 @@ class Sensor(object):
         raise NotImplemented()
 
     @staticmethod
-    def sensor_measurement(f):
+    def sensor_property(f):
         """The sensor_measurement decorator is used to define with properties
         are sensor measurements and updated them according to the update
         rate"""
+        @property
         def wrapper(self, *args, **kwargs):
             if self._needs_update():
                 self._update_sensor()
@@ -96,23 +97,35 @@ class Accelerometer(Sensor):
         """The true acceleration along the x axis in meters/sec^2"""
         return self._accelerations.z
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def x(self):
         """Return the acceleration along the x axis in meters/sec^2"""
-        return self.true_x + self._x_measurement_noise
+        return self.true_x + self.x_measurement_noise
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def y(self):
         """Return the acceleration along the y axis in meters/sec^2"""
-        return self.true_y + self._y_measurement_noise
+        return self.true_y + self.y_measurement_noise
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def z(self):
         """Return the acceleration along the z axis in meters/sec^2"""
-        return self.true_z + self._z_measurement_noise
+        return self.true_z + self.z_measurement_noise
+
+    @Sensor.sensor_property
+    def x_measurement_noise(self):
+        """Return the noise on the x axis in meters/sec^2"""
+        return self._x_measurement_noise
+
+    @Sensor.sensor_property
+    def y_measurement_noise(self):
+        """Return the noise on the y axis in meters/sec^2"""
+        return self._y_measurement_noise
+
+    @Sensor.sensor_property
+    def z_measurement_noise(self):
+        """Return the noise on the z axis in meters/sec^2"""
+        return self._z_measurement_noise
 
 
 class Gyroscope(Sensor):
@@ -161,26 +174,38 @@ class Gyroscope(Sensor):
         """Return the actual yaw rate in degrees/sec"""
         return self._velocities.r
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def roll_rate(self):
         """The roll rate in degrees/sec"""
         return (self.true_roll_rate +
-                self._roll_rate_measurement_noise)
+                self.roll_rate_measurement_noise)
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def pitch_rate(self):
         """The pitch rate in degrees/sec"""
         return (self.true_pitch_rate +
-                self._pitch_rate_measurement_noise)
+                self.pitch_rate_measurement_noise)
 
-    @property
-    @Sensor.sensor_measurement
+    @Sensor.sensor_property
     def yaw_rate(self):
         """The yaw rate in degrees/sec"""
         return (self.true_yaw_rate +
-                self._yaw_rate_measurement_noise)
+                self.yaw_rate_measurement_noise)
+
+    @Sensor.sensor_property
+    def roll_rate_measurement_noise(self):
+        """The roll rate noise in degrees/sec"""
+        return self._roll_rate_measurement_noise
+
+    @Sensor.sensor_property
+    def pitch_rate_measurement_noise(self):
+        """The pitch rate noise in degrees/sec"""
+        return self._pitch_rate_measurement_noise
+
+    @Sensor.sensor_property
+    def yaw_rate_measurement_noise(self):
+        """The yaw rate noise in degrees/sec"""
+        return self._yaw_rate_measurement_noise
 
 
 class Thermometer(object):
