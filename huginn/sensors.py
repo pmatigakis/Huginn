@@ -276,34 +276,30 @@ class PressureSensor(Sensor):
         return self.true_pressure + self.measurement_noise
 
 
-class PitotTube(object):
+class PitotTube(Sensor):
     """The PitosTure class simulates the aircraft's pitot system."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.update_rate = 250.0
-        self.bias = 100.0
+    def __init__(self, fdmexec, update_rate=250.0):
+        self.mu = 100.0
         self.sigma = 10.0
-        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
-        self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
 
-    @property
+        super(PitotTube, self).__init__(fdmexec, update_rate)
+
+    def _update_sensor(self):
+        self._measurement_noise = normalvariate(self.mu, self.sigma)
+
+    @Sensor.sensor_property
     def measurement_noise(self):
         """Returns the measurement noise in Pascal"""
-        if self.fdmexec.GetSimTime() > self._update_at:
-            noise = normalvariate(0.0, self.sigma)
-
-            self._measurement_noise = self.bias + noise
-
         return self._measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def true_pressure(self):
         """Return the true pressure in pascal"""
         pressure = self.fdmexec.GetAuxiliary().GetTotalPressure()
 
         return convert_jsbsim_pressure(pressure)
 
-    @property
+    @Sensor.sensor_property
     def pressure(self):
         """Return the pressure in pascal"""
         return self.true_pressure + self.measurement_noise

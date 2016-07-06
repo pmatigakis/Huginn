@@ -196,7 +196,7 @@ class PitotTubeTests(TestCase):
             fdmexec.Run()
 
         self.assertNotEqual(pitot_tube.measurement_noise, 0.0)
-        self.assertNotEqual(pitot_tube._measurement_noise, 0.0)
+        self.assertEqual(pitot_tube.measurement_noise, pitot_tube._measurement_noise)
 
 class InertialNavigationSystemTests(TestCase):
     def test_inertialNavigationSystem(self):
