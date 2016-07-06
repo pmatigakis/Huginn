@@ -160,7 +160,7 @@ class PressureSensorTests(TestCase):
             fdmexec.Run()
 
         self.assertNotEqual(pressure_sensor.measurement_noise, 0.0)
-        self.assertNotEqual(pressure_sensor._measurement_noise, 0.0)
+        self.assertEqual(pressure_sensor.measurement_noise, pressure_sensor._measurement_noise)
 
 class PitotTubeTests(TestCase):
     def test_pitot_tube(self):
