@@ -216,33 +216,31 @@ class Gyroscope(Sensor):
         return self._yaw_rate_measurement_noise
 
 
-class Thermometer(object):
+class Thermometer(Sensor):
     """The Thermometer class contains the temperature measured by the
     aircraft's sensors."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.update_rate = 50.0
-        self.bias = 0.1
+    def __init__(self, fdmexec, update_rate=50.0):
+        self.mu = 0.1
         self.sigma = 0.5
-        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
-        self._measurement_noise = self.bias + normalvariate(0.0, self.sigma)
+
         self._atmosphere = Atmosphere(fdmexec)
 
-    @property
+        super(Thermometer, self).__init__(fdmexec, update_rate)
+
+    def _update_sensor(self):
+        self._measurement_noise = normalvariate(self.mu, self.sigma)
+
+    @Sensor.sensor_property
     def measurement_noise(self):
         """Returns the measurement noise in Kelvin"""
-        if self.fdmexec.GetSimTime() > self._update_at:
-            self._measurement_noise = self.bias + normalvariate(0.0,
-                                                                self.sigma)
-
         return self._measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def true_temperature(self):
         """return the actual temperature in Kelvin"""
         return self._atmosphere.temperature
 
-    @property
+    @Sensor.sensor_property
     def temperature(self):
         """return the temperature in Kelvin"""
         return self.true_temperature + self.measurement_noise

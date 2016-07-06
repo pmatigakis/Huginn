@@ -124,7 +124,7 @@ class ThermometerTests(TestCase):
             fdmexec.Run()
 
         self.assertNotEqual(thermometer.measurement_noise, 0.0)
-        self.assertNotEqual(thermometer._measurement_noise, 0.0)
+        self.assertEqual(thermometer.measurement_noise, thermometer._measurement_noise)
 
 class PressureSensorTests(TestCase):
     def test_presure_sensor(self):
