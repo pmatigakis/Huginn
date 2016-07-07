@@ -305,208 +305,156 @@ class PitotTube(Sensor):
         return self.true_pressure + self.measurement_noise
 
 
-class InertialNavigationSystem(object):
+class InertialNavigationSystem(Sensor):
     """The InertialNavigationSystem class is used to simulate the aircraft's
     inertial navigation system."""
-    def __init__(self, fdmexec):
-        self.fdmexec = fdmexec
-        self.update_rate = 5.0
-        self.roll_bias = 1.0
+    def __init__(self, fdmexec, update_rate=5.0):
+        self.roll_mu = 1.0
         self.roll_sigma = 0.5
-        self.pitch_bias = 0.7
+        self.pitch_mu = 0.7
         self.pitch_sigma = 0.2
-        self.heading_bias = 2.1
+        self.heading_mu = 2.1
         self.heading_sigma = 0.4
-        self.latitude_bias = 0.0001
+        self.latitude_mu = 0.0001
         self.latitude_sigma = 0.00005
-        self.longitude_bias = 0.0001
+        self.longitude_mu = 0.0001
         self.longitude_sigma = 0.00005
-        self.airspeed_bias = 3.0
+        self.airspeed_mu = 3.0
         self.airspeed_sigma = 1.0
-        self.altitude_bias = 7.0
+        self.altitude_mu = 7.0
         self.altitude_sigma = 3.0
-
-        self._roll_measurement_noise = normalvariate(self.roll_bias,
-                                                     self.roll_sigma)
-
-        self._pitch_measurement_noise = normalvariate(self.pitch_bias,
-                                                      self.pitch_sigma)
-
-        self._heading_measurement_noise = normalvariate(self.heading_bias,
-                                                        self.heading_sigma)
-
-        self._latitude_measurement_noise = normalvariate(self.latitude_bias,
-                                                         self.latitude_sigma)
-
-        self._longitude_measurement_noise = normalvariate(
-            self.longitude_bias,
-            self.longitude_sigma
-        )
-
-        self._altitude_measurement_noise = normalvariate(self.altitude_bias,
-                                                         self.altitude_sigma)
-
-        self._airspeed_measurement_noise = normalvariate(self.airspeed_bias,
-                                                         self.airspeed_sigma)
-
-        self._update_at = fdmexec.GetSimTime() + (1.0/self.update_rate)
 
         self._velocities = Velocities(fdmexec)
         self._position = Position(fdmexec)
         self._orientation = Orientation(fdmexec)
 
-    def _update_measurement_noise(self):
-        """Check if the measurements noise needs to update and update it"""
-        if self.fdmexec.GetSimTime() > self._update_at:
-            self._roll_measurement_noise = normalvariate(self.roll_bias,
-                                                         self.roll_sigma)
+        super(InertialNavigationSystem, self).__init__(fdmexec, update_rate)
 
-            self._pitch_measurement_noise = normalvariate(self.pitch_bias,
-                                                          self.pitch_sigma)
+    def _update_sensor(self):
+        self._roll_measurement_noise = normalvariate(self.roll_mu,
+                                                     self.roll_sigma)
 
-            self._heading_measurement_noise = normalvariate(
-                self.heading_bias,
-                self.heading_sigma
-            )
+        self._pitch_measurement_noise = normalvariate(self.pitch_mu,
+                                                      self.pitch_sigma)
 
-            self._latitude_measurement_noise = normalvariate(
-                self.latitude_bias,
-                self.latitude_sigma
-            )
+        self._heading_measurement_noise = normalvariate(self.heading_mu,
+                                                        self.heading_sigma)
 
-            self._longitude_measurement_noise = normalvariate(
-                self.longitude_bias,
-                self.longitude_sigma
-            )
+        self._latitude_measurement_noise = normalvariate(self.latitude_mu,
+                                                         self.latitude_sigma)
 
-            self._altitude_measurement_noise = normalvariate(
-                self.altitude_bias,
-                self.altitude_sigma
-            )
+        self._longitude_measurement_noise = normalvariate(
+            self.longitude_mu,
+            self.longitude_sigma
+        )
 
-            self._airspeed_measurement_noise = normalvariate(
-                self.airspeed_bias,
-                self.airspeed_sigma
-            )
+        self._altitude_measurement_noise = normalvariate(self.altitude_mu,
+                                                         self.altitude_sigma)
 
-            self._update_at = (self.fdmexec.GetSimTime() +
-                               (1.0/self.update_rate))
+        self._airspeed_measurement_noise = normalvariate(self.airspeed_mu,
+                                                         self.airspeed_sigma)
 
-    @property
+    @Sensor.sensor_property
     def roll_measurement_noise(self):
         """Returns the roll measurement error in degrees"""
-        self._update_measurement_noise()
-
         return self._roll_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def pitch_measurement_noise(self):
         """Returns the pitch measurement error in degrees"""
-        self._update_measurement_noise()
-
         return self._pitch_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def heading_measurement_noise(self):
         """Returns the heading measurement error in degrees"""
-        self._update_measurement_noise()
-
         return self._heading_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def latitude_measurement_noise(self):
         """Returns the latitude measurement error in degrees"""
-        self._update_measurement_noise()
-
         return self._latitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def longitude_measurement_noise(self):
         """Returns the longitude measurement error in degrees"""
-        self._update_measurement_noise()
-
         return self._longitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def airspeed_measurement_noise(self):
         """Returns the airspeed measurement error in meters/second"""
-        self._update_measurement_noise()
-
         return self._airspeed_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def altitude_measurement_noise(self):
         """Returns the altitude measurement error in meters"""
-        self._update_measurement_noise()
-
         return self._altitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def roll(self):
         """Returns the roll in degrees"""
         return self.true_roll + self.roll_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def pitch(self):
         """Returns the pitch in degrees"""
         return self.true_pitch + self.pitch_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def heading(self):
         """Returns the heading in degrees"""
         return self.true_heading + self.heading_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def latitude(self):
         """Returns the latitude in degrees"""
         return self.true_latitude + self.latitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def longitude(self):
         """Returns the longitude in degrees"""
         return self.true_longitude + self.longitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def altitude(self):
         """Returns the altitude in meters"""
         return self.true_altitude + self.altitude_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def airspeed(self):
         """Returns the airspeed in meters/second"""
         return self.true_airspeed + self.airspeed_measurement_noise
 
-    @property
+    @Sensor.sensor_property
     def true_roll(self):
         """Return the true roll angle in degrees"""
         return self._orientation.phi
 
-    @property
+    @Sensor.sensor_property
     def true_pitch(self):
         """Return the true pitch angle in degrees"""
         return self._orientation.theta
 
-    @property
+    @Sensor.sensor_property
     def true_latitude(self):
         """Returns the true latitude in degrees"""
         return self._position.latitude
 
-    @property
+    @Sensor.sensor_property
     def true_longitude(self):
         """Returns the true longitude in degrees"""
         return self._position.longitude
 
-    @property
+    @Sensor.sensor_property
     def true_altitude(self):
         """Returns the true altitude in meters"""
         return self._position.altitude
 
-    @property
+    @Sensor.sensor_property
     def true_airspeed(self):
         """Returns the true airspeed in meters per second"""
         return self._velocities.true_airspeed
 
-    @property
+    @Sensor.sensor_property
     def true_heading(self):
         """Returns the true heading in degrees"""
         return self._position.heading

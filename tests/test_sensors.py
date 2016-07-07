@@ -263,19 +263,19 @@ class InertialNavigationSystemTests(TestCase):
             fdmexec.Run()
 
         self.assertNotEqual(ins.roll_measurement_noise, 0.0)
-        self.assertNotEqual(ins._roll_measurement_noise, 0.0)
+        self.assertEqual(ins._roll_measurement_noise, ins.roll_measurement_noise)
         self.assertNotEqual(ins.pitch_measurement_noise, 0.0)
-        self.assertNotEqual(ins._pitch_measurement_noise, 0.0)
+        self.assertEqual(ins._pitch_measurement_noise, ins.pitch_measurement_noise)
         self.assertNotEqual(ins.heading_measurement_noise, 0.0)
-        self.assertNotEqual(ins._heading_measurement_noise, 0.0)
+        self.assertEqual(ins._heading_measurement_noise, ins.heading_measurement_noise)
         self.assertNotEqual(ins.latitude_measurement_noise, 0.0)
-        self.assertNotEqual(ins._latitude_measurement_noise, 0.0)
+        self.assertEqual(ins._latitude_measurement_noise, ins.latitude_measurement_noise)
         self.assertNotEqual(ins.longitude_measurement_noise, 0.0)
-        self.assertNotEqual(ins._longitude_measurement_noise, 0.0)
+        self.assertEqual(ins._longitude_measurement_noise, ins.longitude_measurement_noise)
         self.assertNotEqual(ins.altitude_measurement_noise, 0.0)
-        self.assertNotEqual(ins._altitude_measurement_noise, 0.0)
+        self.assertEqual(ins._altitude_measurement_noise, ins.altitude_measurement_noise)
         self.assertNotEqual(ins.airspeed_measurement_noise, 0.0)
-        self.assertNotEqual(ins._airspeed_measurement_noise, 0.0)
+        self.assertEqual(ins._airspeed_measurement_noise, ins.airspeed_measurement_noise)
 
 class SensorTests(TestCase):
     def test_accelerometer(self):
