@@ -13,6 +13,9 @@ var airspeed_indicator;
 var heading_indicator;
 var variometer_indicator;
 
+var fdm_data_request_timer = null;
+var socket = null;
+
 aircraft_info.onAdd = function(map){
 	this._div = L.DomUtil.create("div", "aircraft-info");
 	this.update();
@@ -104,36 +107,52 @@ function update_indicators(roll, pitch, altitude, airspeed, heading, climb_rate)
     variometer_indicator.setVario(vario);
 }
 
-function start_data_update(){
-	var socket = new WebSocket("ws://localhost:8091");
+function start_data_update(){	
+	socket = new WebSocket("ws://localhost:8091");
 
+	socket.onopen = function(){
+		fdm_data_request_timer = setInterval(function(){
+			socket.send(JSON.stringify({"command": "flight_data"}));
+		}, 40);
+	}
+	
 	socket.onmessage = function(msg){
-		data = JSON.parse(msg.data);
+		response = JSON.parse(msg.data);
 
-		var roll = data["roll"];
-		var pitch = data["pitch"];
-		var airspeed = data["airspeed"];
-		var altitude = data["altitude"];
-		var heading = data["heading"];
-		var latitude = data["latitude"];
-		var longitude = data["longitude"];
-		var climb_rate = data["climb_rate"];
+		if (response["command"] == "flight_data"){		
+			var roll = response["data"]["roll"];
+			var pitch = response["data"]["pitch"];
+			var airspeed = response["data"]["airspeed"];
+			var altitude = response["data"]["altitude"];
+			var heading = response["data"]["heading"];
+			var latitude = response["data"]["latitude"];
+			var longitude = response["data"]["longitude"];
+			var climb_rate = response["data"]["climb_rate"];
 		
-		update_hud(altitude, airspeed, heading, roll, pitch);
+			update_hud(altitude, airspeed, heading, roll, pitch);
 		
-		//the -90 is required because the model is facing east
-		update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
+			//the -90 is required because the model is facing east
+			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
 
-		var airspeed_in_knots = airspeed * 1.94384;
-		var altitude_in_feet = altitude * 3.28084;
-		var climb_rate_in_feet = climb_rate * 3.28084;
-		update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading, climb_rate_in_feet);
+			var airspeed_in_knots = airspeed * 1.94384;
+			var altitude_in_feet = altitude * 3.28084;
+			var climb_rate_in_feet = climb_rate * 3.28084;
+			update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading, climb_rate_in_feet);
+		}
 	}
 	
 	socket.onclose = function(){
+		if (fdm_data_request_timer != null){
+			clearInterval(fdm_data_request_timer);
+		}
+
 		setTimeout(function(){
 			start_data_update();
-		}, 3000)
+		}, 1000);
+	}
+	
+	socket.onerror = function(){
+		socket.close();
 	}
 }
 

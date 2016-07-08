@@ -3,13 +3,15 @@ This module contains classes that are used by Huginn's web server and web
 clients
 """
 
-
+import logging
 import json
 
 import requests
-from twisted.internet import reactor
 from autobahn.twisted.websocket import (WebSocketServerFactory,
                                         WebSocketServerProtocol)
+
+
+logger = logging.getLogger("huginn")
 
 
 class WebClient(object):
@@ -88,24 +90,38 @@ class FDMDataWebSocketFactory(WebSocketServerFactory):
 class FDMDataWebSocketProtocol(WebSocketServerProtocol):
     """The FDMDataWebSocketProtocol class if the protocol class that transmits
     the fdm data using a web socket"""
-    def onConnect(self, request):
-        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)
+    def onMessage(self, payload, isBinary):
+        try:
+            request = json.loads(payload)
+        except:
+            logger.exception("failed to parse websocket command")
+            return
 
-    def send_fdm_data(self):
+        if "command" not in request:
+            logger.debug("The request doesn't contain a command field")
+            return
+
+        command = request["command"]
+
+        if command == "flight_data":
+            self.send_flight_data()
+
+    def send_flight_data(self):
         """Send the fdm data"""
-        fdm_data = {
-            "roll": self.factory.fdm.orientation.phi,
-            "pitch": self.factory.fdm.orientation.theta,
-            "airspeed": self.factory.fdm.velocities.true_airspeed,
-            "latitude": self.factory.fdm.position.latitude,
-            "longitude": self.factory.fdm.position.longitude,
-            "altitude": self.factory.fdm.position.altitude,
-            "heading": self.factory.fdm.position.heading,
-            "climb_rate": self.factory.fdm.velocities.climb_rate
+        flight_data = {
+            "command": "flight_data",
+            "data": {
+                "roll": self.factory.fdm.orientation.phi,
+                "pitch": self.factory.fdm.orientation.theta,
+                "airspeed": self.factory.fdm.velocities.true_airspeed,
+                "latitude": self.factory.fdm.position.latitude,
+                "longitude": self.factory.fdm.position.longitude,
+                "altitude": self.factory.fdm.position.altitude,
+                "heading": self.factory.fdm.position.heading,
+                "climb_rate": self.factory.fdm.velocities.climb_rate
+            },
         }
 
-        payload = json.dumps(fdm_data).encode("utf8")
+        payload = json.dumps(flight_data).encode("utf8")
 
         self.sendMessage(payload, False)
-
-        reactor.callLater(1.0/self.factory.update_rate, self.send_fdm_data)
