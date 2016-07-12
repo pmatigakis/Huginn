@@ -31,10 +31,7 @@ def get_arguments():
                         default=configuration.CONTROLS_PORT,
                         help="The controls port")
 
-    parser.add_argument("--log_level", action="store",
-                        choices=["critical", "error", "warning",
-                                 "info", "debug"],
-                        default="debug",
+    parser.add_argument("--debug", action="store_true",
                         help="Enable debug logs")
 
     parser.add_argument("--dt", action="store", type=float,
@@ -42,7 +39,6 @@ def get_arguments():
                         help="the simulation timestep")
 
     parser.add_argument("--log", action="store",
-                        default=configuration.LOG_FILE,
                         help="The output log file")
 
     parser.add_argument("--trim", action="store_true",
@@ -105,36 +101,27 @@ def validate_arguments(args, logger):
     return True
 
 
-def initialize_logger(output_file, log_level):
-    if log_level == "critical":
-        logger_log_level = logging.CRITICAL
-    elif log_level == "error":
-        logger_log_level = logging.ERROR
-    elif log_level == "warning":
-        logger_log_level = logging.WARNING
-    elif log_level == "info":
-        logger_log_level = logging.INFO
-    elif log_level == "debug":
-        logger_log_level = logging.DEBUG
-    else:
-        print("Unknown log level %s" % log_level)
-        exit(1)
+def initialize_logger(output_file, debug):
+    logger = logging.getLogger()
 
-    logger = logging.getLogger("huginn")
+    logger_log_level = logging.INFO
+    if debug:
+        logger_log_level = logging.DEBUG
+
     logger.setLevel(logger_log_level)
 
     formater = logging.Formatter("%(asctime)s - %(module)s - "
                                  "%(levelname)s - %(message)s")
 
-    file_logging_handler = logging.FileHandler(output_file)
-    file_logging_handler.setLevel(logger_log_level)
-    file_logging_handler.setFormatter(formater)
+    if output_file:
+        file_logging_handler = logging.FileHandler(output_file)
+        file_logging_handler.setLevel(logger_log_level)
+        file_logging_handler.setFormatter(formater)
+        logger.addHandler(file_logging_handler)
 
     console_logging_handler = logging.StreamHandler()
     console_logging_handler.setLevel(logger_log_level)
     console_logging_handler.setFormatter(formater)
-
-    logger.addHandler(file_logging_handler)
     logger.addHandler(console_logging_handler)
 
     return logger
@@ -143,7 +130,7 @@ def initialize_logger(output_file, log_level):
 def main():
     args = get_arguments()
 
-    logger = initialize_logger(args.log, args.log_level)
+    logger = initialize_logger(args.log, args.debug)
 
     logger.info("Starting the Huginn flight simulator")
 

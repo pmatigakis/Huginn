@@ -11,7 +11,7 @@ from autobahn.twisted.websocket import (WebSocketServerFactory,
                                         WebSocketServerProtocol)
 
 
-logger = logging.getLogger("huginn")
+logger = logging.getLogger(__name__)
 
 
 class WebClient(object):

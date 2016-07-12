@@ -31,6 +31,9 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          VerticalSpeedIndicatorResource)
 
 
+logger = logging.getLogger(__name__)
+
+
 class SimulationServer(object):
     """This class is the network front-end for the simulator. It will create
     and initialize the interfaces that can be used to control and receive
@@ -46,12 +49,11 @@ class SimulationServer(object):
         self.sensors_port = configuration.SENSORS_PORT
         self.websocket_port = configuration.WEBSOCKET_PORT
         self.websocket_update_rate = configuration.WEBSOCKET_UPDATE_RATE
-        self.logger = logging.getLogger("huginn")
 
     def _initialize_controls_server(self):
         """Initialize the controls server"""
-        self.logger.debug("Starting aircraft controls server at port %d",
-                          self.controls_port)
+        logger.debug("Starting aircraft controls server at port %d",
+                     self.controls_port)
 
         controls_protocol = ControlsProtocol(self.fdmexec)
 
@@ -61,8 +63,8 @@ class SimulationServer(object):
         """Initialize the fdm data server"""
         for fdm_client in self.fdm_clients:
             client_address, client_port, dt = fdm_client
-            self.logger.debug("Sending fdm data to %s:%d", client_address,
-                              client_port)
+            logger.debug("Sending fdm data to %s:%d", client_address,
+                         client_port)
 
             fdm_data_protocol = FDMDataProtocol(self.fdmexec,
                                                 self.aircraft,
@@ -78,7 +80,7 @@ class SimulationServer(object):
         result = self.simulator.run()
 
         if not result:
-            self.logger.error("The simulator has failed to run")
+            logger.error("The simulator has failed to run")
             reactor.stop()
 
     def _initialize_simulator_updater(self):
@@ -86,8 +88,8 @@ class SimulationServer(object):
         fdm_updater.start(self.dt)
 
     def _initialize_sensors_server(self):
-        self.logger.debug("Starting the sensor server at port %d",
-                          self.sensors_port)
+        logger.debug("Starting the sensor server at port %d",
+                     self.sensors_port)
 
         sensor_data_factory = SensorDataFactory(self.aircraft)
 
@@ -251,11 +253,11 @@ class SimulationServer(object):
         self._initialize_websocket_server()
         self._initialize_web_frontend()
 
-        self.logger.info("Starting the simulator server")
+        logger.info("Starting the simulator server")
         reactor.run()  # @UndefinedVariable
-        self.logger.info("The simulator server has stopped")
+        logger.info("The simulator server has stopped")
 
     def stop(self):
         """Stop the simulator server"""
-        self.logger.info("Shutting down the simulator server")
+        logger.info("Shutting down the simulator server")
         reactor.stop()  # @UndefinedVariable

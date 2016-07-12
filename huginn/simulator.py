@@ -11,6 +11,9 @@ from huginn.aircraft import Aircraft
 from huginn.fdm import FDM, FDMBuilder
 
 
+logger = logging.getLogger(__name__)
+
+
 class SimulationError(Exception):
     """SimulationError raised when an error occurs during simulation"""
     pass
@@ -31,8 +34,6 @@ class SimulationBuilder(object):
 
         self.trim = False
 
-        self.logger = logging.getLogger("huginn")
-
     def create_simulator(self):
         """Create the Simulator object"""
         fdm_builder = FDMBuilder(self.data_path)
@@ -50,7 +51,7 @@ class SimulationBuilder(object):
         aircraft.start_engines()
 
         if self.trim:
-            self.logger.debug("trimming the aircraft")
+            logger.debug("trimming the aircraft")
             aircraft.trim()
 
         simulator = Simulator(fdmexec)
@@ -60,7 +61,7 @@ class SimulationBuilder(object):
             result = simulator.step()
 
             if not result:
-                self.logger.error("Failed to execute simulator run")
+                logger.error("Failed to execute simulator run")
                 return None
 
         return simulator
@@ -78,7 +79,6 @@ class Simulator(object):
         self.aircraft = Aircraft(fdmexec)
         self.fdmexec = fdmexec
         self.fdm = FDM(fdmexec)
-        self.logger = logging.getLogger("huginn")
         self.start_trimmed = False
 
     @property
@@ -105,14 +105,14 @@ class Simulator(object):
 
     def reset(self):
         """Reset the simulation"""
-        self.logger.debug("Reseting the aircraft")
+        logger.debug("Reseting the aircraft")
 
         self.resume()
 
         self.fdmexec.ResetToInitialConditions(0)
 
         if not self.fdmexec.RunIC():
-            self.logger.error("Failed to run initial condition")
+            logger.error("Failed to run initial condition")
             return False
 
         self.aircraft.controls.aileron = 0.0
@@ -120,16 +120,16 @@ class Simulator(object):
         self.aircraft.controls.rudder = 0.0
         self.aircraft.controls.throttle = 0.0
 
-        self.logger.debug("starting the aircraft's engines")
+        logger.debug("starting the aircraft's engines")
         self.aircraft.start_engines()
 
         while self.simulation_time < 1.0:
             if not self.step():
-                self.logger.error("Failed to execute initial run")
+                logger.error("Failed to execute initial run")
                 return False
 
-        self.logger.debug("Engine thrust after simulation reset %f",
-                          self.aircraft.engine.thrust)
+        logger.debug("Engine thrust after simulation reset %f",
+                     self.aircraft.engine.thrust)
 
         self.pause()
 
@@ -158,7 +158,7 @@ class Simulator(object):
             if was_paused:
                 self.pause()
 
-            self.logger.error("The simulator has failed to run")
+            logger.error("The simulator has failed to run")
             return False
 
     def run_for(self, time_to_run):
@@ -168,8 +168,9 @@ class Simulator(object):
         time_to_run: the time in seconds that the simulator will run
         """
         if time_to_run < 0.0:
-            self.logger.error("Invalid simulator run time length %f",
-                              time_to_run)
+            logger.error("Invalid simulator run time length %f",
+                         time_to_run)
+
             return False
 
         start_time = self.fdmexec.GetSimTime()

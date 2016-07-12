@@ -22,6 +22,9 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
                                      ur)
 
 
+logger = logging.getLogger(__name__)
+
+
 class FDMBuilder(object):
     """The FDMBuilder creates the flight dynamics model object that will be
     used by the simulator"""
@@ -37,21 +40,19 @@ class FDMBuilder(object):
         self.airspeed = configuration.AIRSPEED
         self.heading = configuration.HEADING
 
-        self.logger = logging.getLogger("huginn")
-
     def create_fdm(self):
         """Create the flight dynamics model"""
 
         fdmexec = FGFDMExec()
 
-        self.logger.debug("Using jsbsim data at %s", self.data_path)
+        logger.debug("Using jsbsim data at %s", self.data_path)
 
         fdmexec.SetRootDir(self.data_path)
         fdmexec.SetAircraftPath("")
         fdmexec.SetEnginePath(self.data_path + "/Engines")
         fdmexec.SetSystemsPath(self.data_path + "/Systems")
 
-        self.logger.debug("JSBSim dt is %f", self.dt)
+        logger.debug("JSBSim dt is %f", self.dt)
         fdmexec.Setdt(self.dt)
 
         fdmexec.LoadModel("Rascal")
@@ -66,11 +67,11 @@ class FDMBuilder(object):
 
         airspeed_in_knots = airspeed.magnitude
 
-        self.logger.debug("Initial latitude: %f degrees", self.latitude)
-        self.logger.debug("Initial longitude: %f degrees", self.longitude)
-        self.logger.debug("Initial altitude: %f meters", self.altitude)
-        self.logger.debug("Initial airspeed: %f meters/second", self.airspeed)
-        self.logger.debug("Initial heading: %f degrees", self.heading)
+        logger.debug("Initial latitude: %f degrees", self.latitude)
+        logger.debug("Initial longitude: %f degrees", self.longitude)
+        logger.debug("Initial altitude: %f meters", self.altitude)
+        logger.debug("Initial airspeed: %f meters/second", self.airspeed)
+        logger.debug("Initial heading: %f degrees", self.heading)
 
         fdmexec.GetIC().SetLatitudeDegIC(self.latitude)
         fdmexec.GetIC().SetLongitudeDegIC(self.longitude)
@@ -79,7 +80,7 @@ class FDMBuilder(object):
         fdmexec.GetIC().SetVtrueKtsIC(airspeed_in_knots)
 
         if not fdmexec.RunIC():
-            self.logger.error("Failed to run initial condition")
+            logger.error("Failed to run initial condition")
             return None
 
         # Run the simulation for 1 second in order to make sure that
@@ -89,7 +90,7 @@ class FDMBuilder(object):
             fdmexec.CheckIncrementalHold()
 
             if not fdmexec.Run():
-                self.logger.error("Failed to execute initial run")
+                logger.error("Failed to execute initial run")
                 return None
 
         fdmexec.PrintSimulationConfiguration()

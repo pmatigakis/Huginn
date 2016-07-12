@@ -14,12 +14,14 @@ from google.protobuf.message import DecodeError
 from huginn import fdm_pb2
 
 
+logger = logging.getLogger(__name__)
+
+
 class ControlsProtocol(DatagramProtocol):
     """The ControlsProtocol is used to receive and update tha aircraft's
     controls"""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
-        self.logger = logging.getLogger("huginn")
 
     def update_aircraft_controls(self, aileron, elevator, rudder, throttle):
         """Set the new aircraft controls values"""
@@ -58,7 +60,7 @@ class ControlsProtocol(DatagramProtocol):
         try:
             controls.ParseFromString(datagram)
         except DecodeError:
-            logging.exception("Failed to parse control data")
+            logger.exception("Failed to parse control data")
             print("Failed to parse control data")
             return
 
