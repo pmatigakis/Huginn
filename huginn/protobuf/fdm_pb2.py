@@ -14,7 +14,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='fdm.proto',
   package='huginn',
-  serialized_pb='\n\tfdm.proto\x12\x06huginn\"_\n\x03GPS\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x04 \x02(\x01\x12\x0f\n\x07heading\x18\x05 \x02(\x01\"W\n\rAccelerometer\x12\x16\n\x0ex_acceleration\x18\x01 \x02(\x01\x12\x16\n\x0ey_acceleration\x18\x02 \x02(\x01\x12\x16\n\x0ez_acceleration\x18\x03 \x02(\x01\"D\n\tGyroscope\x12\x11\n\troll_rate\x18\x01 \x02(\x01\x12\x12\n\npitch_rate\x18\x02 \x02(\x01\x12\x10\n\x08yaw_rate\x18\x03 \x02(\x01\"\"\n\x0bThermometer\x12\x13\n\x0btemperature\x18\x01 \x02(\x01\"\"\n\x0ePressureSensor\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"\x1d\n\tPitotTube\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"*\n\x06\x45ngine\x12\x0e\n\x06thrust\x18\x01 \x02(\x01\x12\x10\n\x08throttle\x18\x02 \x02(\x01\"O\n\x08\x43ontrols\x12\x0f\n\x07\x61ileron\x18\x01 \x02(\x01\x12\x10\n\x08\x65levator\x18\x02 \x02(\x01\x12\x0e\n\x06rudder\x18\x03 \x02(\x01\x12\x10\n\x08throttle\x18\x04 \x02(\x01\"\"\n\x03INS\x12\x0c\n\x04roll\x18\x01 \x02(\x01\x12\r\n\x05pitch\x18\x02 \x02(\x01\"\xe5\x02\n\x07\x46\x44MData\x12\x0c\n\x04time\x18\x01 \x02(\x01\x12\x18\n\x03gps\x18\x02 \x02(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x02(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x02(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x02(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x02(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x02(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x02(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x02(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x02(\x0b\x32\x0b.huginn.INS\"@\n\x11SensorDataRequest\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\"\x8f\x03\n\x12SensorDataResponse\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\x12\x18\n\x03gps\x18\x02 \x01(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x01(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x01(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x01(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x01(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x01(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x01(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x01(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x01(\x0b\x32\x0b.huginn.INS*\xf8\x01\n\x15SensorDataRequestType\x12\x13\n\x0fINVALID_REQUEST\x10\x00\x12\x0f\n\x0bGPS_REQUEST\x10\x01\x12\x19\n\x15\x41\x43\x43\x45LEROMETER_REQUEST\x10\x02\x12\x15\n\x11GYROSCOPE_REQUEST\x10\x03\x12\x17\n\x13THERMOMETER_REQUEST\x10\x04\x12\x1b\n\x17PRESSURE_SENSOR_REQUEST\x10\x05\x12\x16\n\x12PITOT_TUBE_REQUEST\x10\x06\x12\x12\n\x0e\x45NGINE_REQUEST\x10\x07\x12\x14\n\x10\x43ONTROLS_REQUEST\x10\x08\x12\x0f\n\x0bINS_REQUEST\x10\t')
+  serialized_pb='\n\tfdm.proto\x12\x06huginn\"_\n\x03GPS\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x04 \x02(\x01\x12\x0f\n\x07heading\x18\x05 \x02(\x01\"0\n\rAccelerometer\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\"D\n\tGyroscope\x12\x11\n\troll_rate\x18\x01 \x02(\x01\x12\x12\n\npitch_rate\x18\x02 \x02(\x01\x12\x10\n\x08yaw_rate\x18\x03 \x02(\x01\"\"\n\x0bThermometer\x12\x13\n\x0btemperature\x18\x01 \x02(\x01\"\"\n\x0ePressureSensor\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"\x1d\n\tPitotTube\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"*\n\x06\x45ngine\x12\x0e\n\x06thrust\x18\x01 \x02(\x01\x12\x10\n\x08throttle\x18\x02 \x02(\x01\"O\n\x08\x43ontrols\x12\x0f\n\x07\x61ileron\x18\x01 \x02(\x01\x12\x10\n\x08\x65levator\x18\x02 \x02(\x01\x12\x0e\n\x06rudder\x18\x03 \x02(\x01\x12\x10\n\x08throttle\x18\x04 \x02(\x01\"|\n\x03INS\x12\x0c\n\x04roll\x18\x01 \x02(\x01\x12\r\n\x05pitch\x18\x02 \x02(\x01\x12\x10\n\x08latitude\x18\x03 \x02(\x01\x12\x11\n\tlongitude\x18\x04 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x05 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x06 \x02(\x01\x12\x0f\n\x07heading\x18\x07 \x02(\x01\"\xeb\x02\n\rSimulatorData\x12\x0c\n\x04time\x18\x01 \x02(\x01\x12\x18\n\x03gps\x18\x02 \x02(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x02(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x02(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x02(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x02(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x02(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x02(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x02(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x02(\x0b\x32\x0b.huginn.INS\"@\n\x11SensorDataRequest\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\"\x8f\x03\n\x12SensorDataResponse\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\x12\x18\n\x03gps\x18\x02 \x01(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x01(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x01(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x01(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x01(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x01(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x01(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x01(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x01(\x0b\x32\x0b.huginn.INS*\xf8\x01\n\x15SensorDataRequestType\x12\x13\n\x0fINVALID_REQUEST\x10\x00\x12\x0f\n\x0bGPS_REQUEST\x10\x01\x12\x19\n\x15\x41\x43\x43\x45LEROMETER_REQUEST\x10\x02\x12\x15\n\x11GYROSCOPE_REQUEST\x10\x03\x12\x17\n\x13THERMOMETER_REQUEST\x10\x04\x12\x1b\n\x17PRESSURE_SENSOR_REQUEST\x10\x05\x12\x16\n\x12PITOT_TUBE_REQUEST\x10\x06\x12\x12\n\x0e\x45NGINE_REQUEST\x10\x07\x12\x14\n\x10\x43ONTROLS_REQUEST\x10\x08\x12\x0f\n\x0bINS_REQUEST\x10\t')
 
 _SENSORDATAREQUESTTYPE = _descriptor.EnumDescriptor(
   name='SensorDataRequestType',
@@ -65,8 +65,8 @@ _SENSORDATAREQUESTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1370,
-  serialized_end=1618,
+  serialized_start=1427,
+  serialized_end=1675,
 )
 
 SensorDataRequestType = enum_type_wrapper.EnumTypeWrapper(_SENSORDATAREQUESTTYPE)
@@ -147,21 +147,21 @@ _ACCELEROMETER = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='x_acceleration', full_name='huginn.Accelerometer.x_acceleration', index=0,
+      name='x', full_name='huginn.Accelerometer.x', index=0,
       number=1, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='y_acceleration', full_name='huginn.Accelerometer.y_acceleration', index=1,
+      name='y', full_name='huginn.Accelerometer.y', index=1,
       number=2, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='z_acceleration', full_name='huginn.Accelerometer.z_acceleration', index=2,
+      name='z', full_name='huginn.Accelerometer.z', index=2,
       number=3, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -177,7 +177,7 @@ _ACCELEROMETER = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=118,
-  serialized_end=205,
+  serialized_end=166,
 )
 
 
@@ -218,8 +218,8 @@ _GYROSCOPE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=207,
-  serialized_end=275,
+  serialized_start=168,
+  serialized_end=236,
 )
 
 
@@ -246,8 +246,8 @@ _THERMOMETER = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=277,
-  serialized_end=311,
+  serialized_start=238,
+  serialized_end=272,
 )
 
 
@@ -274,8 +274,8 @@ _PRESSURESENSOR = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=313,
-  serialized_end=347,
+  serialized_start=274,
+  serialized_end=308,
 )
 
 
@@ -302,8 +302,8 @@ _PITOTTUBE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=349,
-  serialized_end=378,
+  serialized_start=310,
+  serialized_end=339,
 )
 
 
@@ -337,8 +337,8 @@ _ENGINE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=380,
-  serialized_end=422,
+  serialized_start=341,
+  serialized_end=383,
 )
 
 
@@ -386,8 +386,8 @@ _CONTROLS = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=424,
-  serialized_end=503,
+  serialized_start=385,
+  serialized_end=464,
 )
 
 
@@ -412,6 +412,41 @@ _INS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='latitude', full_name='huginn.INS.latitude', index=2,
+      number=3, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='longitude', full_name='huginn.INS.longitude', index=3,
+      number=4, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='altitude', full_name='huginn.INS.altitude', index=4,
+      number=5, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='airspeed', full_name='huginn.INS.airspeed', index=5,
+      number=6, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='heading', full_name='huginn.INS.heading', index=6,
+      number=7, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -421,83 +456,83 @@ _INS = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=505,
-  serialized_end=539,
+  serialized_start=466,
+  serialized_end=590,
 )
 
 
-_FDMDATA = _descriptor.Descriptor(
-  name='FDMData',
-  full_name='huginn.FDMData',
+_SIMULATORDATA = _descriptor.Descriptor(
+  name='SimulatorData',
+  full_name='huginn.SimulatorData',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='time', full_name='huginn.FDMData.time', index=0,
+      name='time', full_name='huginn.SimulatorData.time', index=0,
       number=1, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='gps', full_name='huginn.FDMData.gps', index=1,
+      name='gps', full_name='huginn.SimulatorData.gps', index=1,
       number=2, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='accelerometer', full_name='huginn.FDMData.accelerometer', index=2,
+      name='accelerometer', full_name='huginn.SimulatorData.accelerometer', index=2,
       number=3, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='gyroscope', full_name='huginn.FDMData.gyroscope', index=3,
+      name='gyroscope', full_name='huginn.SimulatorData.gyroscope', index=3,
       number=4, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='thermometer', full_name='huginn.FDMData.thermometer', index=4,
+      name='thermometer', full_name='huginn.SimulatorData.thermometer', index=4,
       number=5, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='pressure_sensor', full_name='huginn.FDMData.pressure_sensor', index=5,
+      name='pressure_sensor', full_name='huginn.SimulatorData.pressure_sensor', index=5,
       number=6, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='pitot_tube', full_name='huginn.FDMData.pitot_tube', index=6,
+      name='pitot_tube', full_name='huginn.SimulatorData.pitot_tube', index=6,
       number=7, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='engine', full_name='huginn.FDMData.engine', index=7,
+      name='engine', full_name='huginn.SimulatorData.engine', index=7,
       number=8, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='controls', full_name='huginn.FDMData.controls', index=8,
+      name='controls', full_name='huginn.SimulatorData.controls', index=8,
       number=9, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='ins', full_name='huginn.FDMData.ins', index=9,
+      name='ins', full_name='huginn.SimulatorData.ins', index=9,
       number=10, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -512,8 +547,8 @@ _FDMDATA = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=542,
-  serialized_end=899,
+  serialized_start=593,
+  serialized_end=956,
 )
 
 
@@ -540,8 +575,8 @@ _SENSORDATAREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=901,
-  serialized_end=965,
+  serialized_start=958,
+  serialized_end=1022,
 )
 
 
@@ -631,19 +666,19 @@ _SENSORDATARESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=968,
-  serialized_end=1367,
+  serialized_start=1025,
+  serialized_end=1424,
 )
 
-_FDMDATA.fields_by_name['gps'].message_type = _GPS
-_FDMDATA.fields_by_name['accelerometer'].message_type = _ACCELEROMETER
-_FDMDATA.fields_by_name['gyroscope'].message_type = _GYROSCOPE
-_FDMDATA.fields_by_name['thermometer'].message_type = _THERMOMETER
-_FDMDATA.fields_by_name['pressure_sensor'].message_type = _PRESSURESENSOR
-_FDMDATA.fields_by_name['pitot_tube'].message_type = _PITOTTUBE
-_FDMDATA.fields_by_name['engine'].message_type = _ENGINE
-_FDMDATA.fields_by_name['controls'].message_type = _CONTROLS
-_FDMDATA.fields_by_name['ins'].message_type = _INS
+_SIMULATORDATA.fields_by_name['gps'].message_type = _GPS
+_SIMULATORDATA.fields_by_name['accelerometer'].message_type = _ACCELEROMETER
+_SIMULATORDATA.fields_by_name['gyroscope'].message_type = _GYROSCOPE
+_SIMULATORDATA.fields_by_name['thermometer'].message_type = _THERMOMETER
+_SIMULATORDATA.fields_by_name['pressure_sensor'].message_type = _PRESSURESENSOR
+_SIMULATORDATA.fields_by_name['pitot_tube'].message_type = _PITOTTUBE
+_SIMULATORDATA.fields_by_name['engine'].message_type = _ENGINE
+_SIMULATORDATA.fields_by_name['controls'].message_type = _CONTROLS
+_SIMULATORDATA.fields_by_name['ins'].message_type = _INS
 _SENSORDATAREQUEST.fields_by_name['type'].enum_type = _SENSORDATAREQUESTTYPE
 _SENSORDATARESPONSE.fields_by_name['type'].enum_type = _SENSORDATAREQUESTTYPE
 _SENSORDATARESPONSE.fields_by_name['gps'].message_type = _GPS
@@ -664,7 +699,7 @@ DESCRIPTOR.message_types_by_name['PitotTube'] = _PITOTTUBE
 DESCRIPTOR.message_types_by_name['Engine'] = _ENGINE
 DESCRIPTOR.message_types_by_name['Controls'] = _CONTROLS
 DESCRIPTOR.message_types_by_name['INS'] = _INS
-DESCRIPTOR.message_types_by_name['FDMData'] = _FDMDATA
+DESCRIPTOR.message_types_by_name['SimulatorData'] = _SIMULATORDATA
 DESCRIPTOR.message_types_by_name['SensorDataRequest'] = _SENSORDATAREQUEST
 DESCRIPTOR.message_types_by_name['SensorDataResponse'] = _SENSORDATARESPONSE
 
@@ -722,11 +757,11 @@ class INS(_message.Message):
 
   # @@protoc_insertion_point(class_scope:huginn.INS)
 
-class FDMData(_message.Message):
+class SimulatorData(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _FDMDATA
+  DESCRIPTOR = _SIMULATORDATA
 
-  # @@protoc_insertion_point(class_scope:huginn.FDMData)
+  # @@protoc_insertion_point(class_scope:huginn.SimulatorData)
 
 class SensorDataRequest(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType

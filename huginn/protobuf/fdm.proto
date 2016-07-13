@@ -9,9 +9,9 @@ message GPS{
 }
 
 message Accelerometer{
-    required double x_acceleration = 1;
-    required double y_acceleration = 2;
-    required double z_acceleration = 3;
+    required double x = 1;
+    required double y = 2;
+    required double z = 3;
 }
 
 message Gyroscope{
@@ -47,9 +47,14 @@ message Controls{
 message INS{
     required double roll = 1;
     required double pitch = 2;
+    required double latitude = 3;
+    required double longitude = 4;
+    required double altitude = 5;
+    required double airspeed = 6;
+    required double heading = 7;
 }
 
-message FDMData{
+message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
     required Accelerometer accelerometer = 3;

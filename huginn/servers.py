@@ -14,7 +14,7 @@ from flask import Flask, render_template
 from flask_restful import Api
 
 from huginn import configuration
-from huginn.protocols import ControlsProtocol, FDMDataProtocol,\
+from huginn.protocols import ControlsProtocol, SimulatorDataProtocol,\
                              SensorDataFactory
 from huginn.http import FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.rest import (FDMResource, AircraftResource, GPSResource,
@@ -66,15 +66,17 @@ class SimulationServer(object):
             logger.debug("Sending fdm data to %s:%d", client_address,
                          client_port)
 
-            fdm_data_protocol = FDMDataProtocol(self.fdmexec,
-                                                self.aircraft,
-                                                client_address,
-                                                client_port)
+            simulator_data_protocol = SimulatorDataProtocol(self.fdmexec,
+                                                            self.aircraft,
+                                                            client_address,
+                                                            client_port)
 
-            reactor.listenUDP(0, fdm_data_protocol)
+            reactor.listenUDP(0, simulator_data_protocol)
 
-            fdm_data_updater = LoopingCall(fdm_data_protocol.send_fdm_data)
-            fdm_data_updater.start(dt)
+            simulator_data_updater = LoopingCall(
+                simulator_data_protocol.send_simulator_data)
+
+            simulator_data_updater.start(dt)
 
     def _run_simulator(self):
         result = self.simulator.run()

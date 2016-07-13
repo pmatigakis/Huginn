@@ -1,7 +1,7 @@
 from math import degrees
 
-from huginn.protocols import FDMDataListener
-from huginn import fdm_pb2
+from huginn.protocols import SimulatorDataListener
+from huginn.protobuf import fdm_pb2
 
 class MockAuxiliary(object):
     def __init__(self):
@@ -261,7 +261,7 @@ class MockRequest(object):
     def __init__(self):
         self.args = {}
 
-class MockFDMDataDatagram(object):
+class MockSimulatorDataDatagram(object):
     def __init__(self):
         self.simulation_time = 10.234
         self.latitude = 35.00000
@@ -287,37 +287,42 @@ class MockFDMDataDatagram(object):
         self.throttle = 0.9
 
     def create_datagram(self):
-        fdm_data = fdm_pb2.FDMData()
+        simulator_data = fdm_pb2.SimulatorData()
         
-        fdm_data.time = self.simulation_time
-        fdm_data.gps.latitude = self.latitude
-        fdm_data.gps.longitude = self.longitude
-        fdm_data.gps.altitude = self.altitude
-        fdm_data.gps.airspeed = self.airspeed
-        fdm_data.gps.heading = self.heading
-        fdm_data.accelerometer.x_acceleration = self.x_acceleration
-        fdm_data.accelerometer.y_acceleration = self.y_acceleration
-        fdm_data.accelerometer.z_acceleration = self.z_acceleration
-        fdm_data.gyroscope.roll_rate = self.roll_rate
-        fdm_data.gyroscope.pitch_rate = self.pitch_rate
-        fdm_data.gyroscope.yaw_rate = self.yaw_rate
-        fdm_data.thermometer.temperature = self.temperature
-        fdm_data.pressure_sensor.pressure = self.static_pressure
-        fdm_data.pitot_tube.pressure = self.total_pressure
-        fdm_data.ins.roll = self.roll
-        fdm_data.ins.pitch = self.pitch
-        fdm_data.engine.thrust = self.thrust
-        fdm_data.engine.throttle = self.throttle
-        fdm_data.controls.aileron = self.aileron
-        fdm_data.controls.elevator = self.elevator
-        fdm_data.controls.rudder = self.rudder
-        fdm_data.controls.throttle = self.throttle
+        simulator_data.time = self.simulation_time
+        simulator_data.gps.latitude = self.latitude
+        simulator_data.gps.longitude = self.longitude
+        simulator_data.gps.altitude = self.altitude
+        simulator_data.gps.airspeed = self.airspeed
+        simulator_data.gps.heading = self.heading
+        simulator_data.accelerometer.x = self.x_acceleration
+        simulator_data.accelerometer.y = self.y_acceleration
+        simulator_data.accelerometer.z = self.z_acceleration
+        simulator_data.gyroscope.roll_rate = self.roll_rate
+        simulator_data.gyroscope.pitch_rate = self.pitch_rate
+        simulator_data.gyroscope.yaw_rate = self.yaw_rate
+        simulator_data.thermometer.temperature = self.temperature
+        simulator_data.pressure_sensor.pressure = self.static_pressure
+        simulator_data.pitot_tube.pressure = self.total_pressure
+        simulator_data.ins.roll = self.roll
+        simulator_data.ins.pitch = self.pitch
+        simulator_data.ins.latitude = self.latitude
+        simulator_data.ins.longitude = self.longitude
+        simulator_data.ins.altitude = self.altitude
+        simulator_data.ins.airspeed = self.airspeed
+        simulator_data.ins.heading = self.heading
+        simulator_data.engine.thrust = self.thrust
+        simulator_data.engine.throttle = self.throttle
+        simulator_data.controls.aileron = self.aileron
+        simulator_data.controls.elevator = self.elevator
+        simulator_data.controls.rudder = self.rudder
+        simulator_data.controls.throttle = self.throttle
 
-        return fdm_data.SerializeToString()
+        return simulator_data.SerializeToString()
 
-class MockFDMDataListener(FDMDataListener):
+class MockSimulatorDataListener(SimulatorDataListener):
     def __init__(self):
-        FDMDataListener.__init__(self)
+        SimulatorDataListener.__init__(self)
 
     def fdm_data_received(self, fdm_data):
         pass

@@ -11,7 +11,7 @@ from twisted.internet.protocol import DatagramProtocol, Factory
 from twisted.protocols.basic import Int32StringReceiver
 from google.protobuf.message import DecodeError
 
-from huginn import fdm_pb2
+from huginn.protobuf import fdm_pb2
 
 
 logger = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ class ControlsProtocol(DatagramProtocol):
                                       controls.throttle)
 
 
-class FDMDataProtocol(DatagramProtocol):
+class SimulatorDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
     data to the client"""
     def __init__(self, fdmexec, aircraft, remote_host, port):
@@ -79,98 +79,133 @@ class FDMDataProtocol(DatagramProtocol):
         self.remote_host = remote_host
         self.port = port
 
-    def get_fdm_data(self):
-        """Return the fdm data"""
-        fdm_data = fdm_pb2.FDMData()
+    def _fill_gps_data(self, simulator_data):
+        simulator_data.gps.latitude = self.aircraft.instruments.gps.latitude
+        simulator_data.gps.longitude = self.aircraft.instruments.gps.longitude
+        simulator_data.gps.altitude = self.aircraft.instruments.gps.altitude
+        simulator_data.gps.airspeed = self.aircraft.instruments.gps.airspeed
+        simulator_data.gps.heading = self.aircraft.instruments.gps.heading
 
-        fdm_data.time = self.fdmexec.GetSimTime()
-
-        fdm_data.gps.latitude = self.aircraft.instruments.gps.latitude
-        fdm_data.gps.longitude = self.aircraft.instruments.gps.longitude
-        fdm_data.gps.altitude = self.aircraft.instruments.gps.altitude
-        fdm_data.gps.airspeed = self.aircraft.instruments.gps.airspeed
-        fdm_data.gps.heading = self.aircraft.instruments.gps.heading
-
+    def _fill_accelerometer_data(self, simulator_data):
         sensors = self.aircraft.sensors
-        fdm_data.accelerometer.x_acceleration = sensors.accelerometer.x
-        fdm_data.accelerometer.y_acceleration = sensors.accelerometer.y
-        fdm_data.accelerometer.z_acceleration = sensors.accelerometer.z
 
-        fdm_data.gyroscope.roll_rate = sensors.gyroscope.roll_rate
-        fdm_data.gyroscope.pitch_rate = sensors.gyroscope.pitch_rate
-        fdm_data.gyroscope.yaw_rate = sensors.gyroscope.yaw_rate
+        simulator_data.accelerometer.x = sensors.accelerometer.x
+        simulator_data.accelerometer.y = sensors.accelerometer.y
+        simulator_data.accelerometer.z = sensors.accelerometer.z
 
-        fdm_data.thermometer.temperature = sensors.thermometer.temperature
+    def _fill_gyroscope_data(self, simulator_data):
+        sensors = self.aircraft.sensors
 
-        fdm_data.pressure_sensor.pressure = sensors.pressure_sensor.pressure
-        fdm_data.pitot_tube.pressure = sensors.pitot_tube.pressure
+        simulator_data.gyroscope.roll_rate = sensors.gyroscope.roll_rate
+        simulator_data.gyroscope.pitch_rate = sensors.gyroscope.pitch_rate
+        simulator_data.gyroscope.yaw_rate = sensors.gyroscope.yaw_rate
 
-        fdm_data.engine.thrust = self.aircraft.engine.thrust
-        fdm_data.engine.throttle = self.aircraft.engine.throttle
+    def _fill_thermometer_data(self, simulator_data):
+        thermometer = self.aircraft.sensors.thermometer
 
-        fdm_data.controls.aileron = self.aircraft.controls.aileron
-        fdm_data.controls.elevator = self.aircraft.controls.elevator
-        fdm_data.controls.rudder = self.aircraft.controls.rudder
-        fdm_data.controls.throttle = self.aircraft.controls.throttle
+        simulator_data.thermometer.temperature = thermometer.temperature
 
-        fdm_data.ins.roll = sensors.inertial_navigation_system.roll
-        fdm_data.ins.pitch = sensors.inertial_navigation_system.pitch
+    def _fill_pressure_sensor_data(self, simulator_data):
+        pressure_sensor = self.aircraft.sensors.pressure_sensor
+        pitot_tube = self.aircraft.sensors.pitot_tube
 
-        return fdm_data
+        simulator_data.pressure_sensor.pressure = pressure_sensor.pressure
+        simulator_data.pitot_tube.pressure = pitot_tube.pressure
 
-    def send_fdm_data(self):
-        """Transmit the fdm data"""
-        fdm_data = self.get_fdm_data()
+    def _fill_engine_data(self, simulator_data):
+        simulator_data.engine.thrust = self.aircraft.engine.thrust
+        simulator_data.engine.throttle = self.aircraft.engine.throttle
 
-        datagram = fdm_data.SerializeToString()
+    def _fill_aircraft_controls_data(self, simulator_data):
+        simulator_data.controls.aileron = self.aircraft.controls.aileron
+        simulator_data.controls.elevator = self.aircraft.controls.elevator
+        simulator_data.controls.rudder = self.aircraft.controls.rudder
+        simulator_data.controls.throttle = self.aircraft.controls.throttle
+
+    def _fill_ins_data(self, simulator_data):
+        ins = self.aircraft.sensors.inertial_navigation_system
+
+        simulator_data.ins.roll = ins.roll
+        simulator_data.ins.pitch = ins.pitch
+        simulator_data.ins.latitude = ins.latitude
+        simulator_data.ins.longitude = ins.longitude
+        simulator_data.ins.altitude = ins.altitude
+        simulator_data.ins.airspeed = ins.airspeed
+        simulator_data.ins.heading = ins.heading
+
+    def get_simulator_data(self):
+        """Return the simulator data"""
+        simulator_data = fdm_pb2.SimulatorData()
+
+        simulator_data.time = self.fdmexec.GetSimTime()
+
+        self._fill_gps_data(simulator_data)
+        self._fill_accelerometer_data(simulator_data)
+        self._fill_gyroscope_data(simulator_data)
+        self._fill_thermometer_data(simulator_data)
+        self._fill_pressure_sensor_data(simulator_data)
+        self._fill_engine_data(simulator_data)
+        self._fill_aircraft_controls_data(simulator_data)
+        self._fill_ins_data(simulator_data)
+
+        return simulator_data
+
+    def send_simulator_data(self):
+        """Transmit the simulator data"""
+        simulator_data = self.get_simulator_data()
+
+        datagram = simulator_data.SerializeToString()
 
         self.transport.write(datagram, (self.remote_host, self.port))
 
 
-class FDMDataListener(object):
+class SimulatorDataListener(object):
     """The methods of the FDMDataListener class must be implemented by any
     object that wants to handle the fdm data received from Huginn"""
     __metaclass = ABCMeta
 
     @abstractmethod
-    def fdm_data_received(self, fdm_data):
-        """This function is called when fdm data have been received so that
-        the implementing class can handler them
+    def simulator_data_received(self, simulator_data):
+        """This function is called when simulator data have been received so
+        that the implementing class can handler them
 
         Arguments:
-        fdm_data: a protocol buffer object that contains the fdm data
+        simulator_data: a protocol buffer object that contains the fdm data
         """
         pass
 
 
-class FDMDataClient(DatagramProtocol):
-    """The FDMDataClient is used to receive fdm data from Huginn"""
+class SimulatorDataClient(DatagramProtocol):
+    """The SimulatorDataClient is used to receive simulator data from
+    Huginn"""
+
     def __init__(self):
         self.listeners = []
 
-    def add_fdm_data_listener(self, listener):
-        """Add an fdm data listener"""
+    def add_simulator_data_listener(self, listener):
+        """Add an simulator data listener"""
         self.listeners.append(listener)
 
-    def remove_fdm_data_listener(self, listener):
-        """Remove an fdm data listener"""
+    def remove_simulator_data_listener(self, listener):
+        """Remove an simulator data listener"""
         self.listeners.remove(listener)
 
-    def _notify_fdm_data_listeners(self, fdm_data):
-        """Update the fdm data listeners
+    def _notify_simulator_data_listeners(self, simulator_data):
+        """Update the simulator data listeners
 
         Arguments:
-        fdm_data: a protocol buffer object that contains the fdm data
+        simulator_data: a protocol buffer object that contains the simulator
+            data
         """
-        for fdm_data_listener in self.listeners:
-            fdm_data_listener.fdm_data_received(fdm_data)
+        for simulator_data_listener in self.listeners:
+            simulator_data_listener.simulator_data_received(simulator_data)
 
     def datagramReceived(self, datagram, addr):
-        fdm_data = fdm_pb2.FDMData()
+        simulator_data = fdm_pb2.SimulatorData()
 
-        fdm_data.ParseFromString(datagram)
+        simulator_data.ParseFromString(datagram)
 
-        self._notify_fdm_data_listeners(fdm_data)
+        self._notify_simulator_data_listeners(simulator_data)
 
 
 class ControlsClient(DatagramProtocol):
@@ -220,9 +255,9 @@ class SensorDataProtocol(Int32StringReceiver):
 
         accelerometer = self.factory.aircraft.sensors.accelerometer
 
-        sensor_data_response.accelerometer.x_acceleration = accelerometer.x
-        sensor_data_response.accelerometer.y_acceleration = accelerometer.y
-        sensor_data_response.accelerometer.z_acceleration = accelerometer.z
+        sensor_data_response.accelerometer.x = accelerometer.x
+        sensor_data_response.accelerometer.y = accelerometer.y
+        sensor_data_response.accelerometer.z = accelerometer.z
 
     def fill_gyroscope_data(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.GYROSCOPE_REQUEST
@@ -280,6 +315,11 @@ class SensorDataProtocol(Int32StringReceiver):
 
         sensor_data_response.ins.roll = ins.roll
         sensor_data_response.ins.pitch = ins.pitch
+        sensor_data_response.ins.latitude = ins.latitude
+        sensor_data_response.ins.longitude = ins.longitude
+        sensor_data_response.ins.altitude = ins.altitude
+        sensor_data_response.ins.airspeed = ins.airspeed
+        sensor_data_response.ins.heading = ins.heading
 
     def fill_error_response(self, sensor_data_response):
         sensor_data_response.type = fdm_pb2.INVALID_REQUEST

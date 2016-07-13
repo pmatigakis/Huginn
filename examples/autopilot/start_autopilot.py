@@ -3,7 +3,7 @@ from math import radians, sin, cos, asin, sqrt, atan2, pi, fmod, degrees
 
 from twisted.internet import reactor, task
 
-from huginn.protocols import FDMDataClient, FDMDataListener, ControlsClient 
+from huginn.protocols import SimulatorDataClient, SimulatorDataListener, ControlsClient 
 from huginn.control import SimulatorControlClient
 
 def haversine_distance(latitude1, longitude1, latitude2, longitude2):
@@ -54,7 +54,7 @@ class PID(object):
 
         return result
 
-class Autopilot(FDMDataListener):
+class Autopilot(SimulatorDataListener):
     def __init__(self, controls_client, waypoints):
         self.controls_client = controls_client
 
@@ -188,7 +188,7 @@ class Autopilot(FDMDataListener):
         print("throttle %f" % self.throttle)
         print("")
 
-    def fdm_data_received(self, fdm_data):
+    def simulator_data_received(self, fdm_data):
         self.latitude = fdm_data.gps.latitude
         self.longitude = fdm_data.gps.longitude
         self.altitude = fdm_data.gps.altitude
@@ -223,9 +223,9 @@ def main():
     
     autopilot = Autopilot(controls_client, waypoints)
     
-    fdm_data_client = FDMDataClient()
-    fdm_data_client.add_fdm_data_listener(autopilot)
-    reactor.listenUDP(10302, fdm_data_client)
+    simulator_data_client = SimulatorDataClient()
+    simulator_data_client.add_simulator_data_listener(autopilot)
+    reactor.listenUDP(10302, simulator_data_client)
     
     log_updater = task.LoopingCall(autopilot.print_log)
     log_updater.start(1.0)
