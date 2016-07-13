@@ -73,13 +73,19 @@ class ControlsProtocol(DatagramProtocol):
 class SimulatorDataProtocol(DatagramProtocol):
     """The FDMDataProtocol class is used to transmit the flight dynamics model
     data to the client"""
-    def __init__(self, fdmexec, aircraft, remote_host, port):
-        self.fdmexec = fdmexec
-        self.aircraft = aircraft
+    def __init__(self, simulator, remote_host, port):
+        self.simulator = simulator
+        self.fdmexec = simulator.fdmexec
+        self.aircraft = simulator.aircraft
         self.remote_host = remote_host
         self.port = port
 
     def _fill_gps_data(self, simulator_data):
+        """Fill the gps data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         simulator_data.gps.latitude = self.aircraft.instruments.gps.latitude
         simulator_data.gps.longitude = self.aircraft.instruments.gps.longitude
         simulator_data.gps.altitude = self.aircraft.instruments.gps.altitude
@@ -87,6 +93,11 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.gps.heading = self.aircraft.instruments.gps.heading
 
     def _fill_accelerometer_data(self, simulator_data):
+        """Fill the accelerometer data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         sensors = self.aircraft.sensors
 
         simulator_data.accelerometer.x = sensors.accelerometer.x
@@ -94,6 +105,11 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.accelerometer.z = sensors.accelerometer.z
 
     def _fill_gyroscope_data(self, simulator_data):
+        """Fill the gyroscope data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         sensors = self.aircraft.sensors
 
         simulator_data.gyroscope.roll_rate = sensors.gyroscope.roll_rate
@@ -101,11 +117,21 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.gyroscope.yaw_rate = sensors.gyroscope.yaw_rate
 
     def _fill_thermometer_data(self, simulator_data):
+        """Fill the thermometer data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         thermometer = self.aircraft.sensors.thermometer
 
         simulator_data.thermometer.temperature = thermometer.temperature
 
     def _fill_pressure_sensor_data(self, simulator_data):
+        """Fill the pressure sensor data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         pressure_sensor = self.aircraft.sensors.pressure_sensor
         pitot_tube = self.aircraft.sensors.pitot_tube
 
@@ -113,16 +139,32 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.pitot_tube.pressure = pitot_tube.pressure
 
     def _fill_engine_data(self, simulator_data):
+        """Fill the engine data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         simulator_data.engine.thrust = self.aircraft.engine.thrust
         simulator_data.engine.throttle = self.aircraft.engine.throttle
 
     def _fill_aircraft_controls_data(self, simulator_data):
+        """Fill the aircraft controls data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         simulator_data.controls.aileron = self.aircraft.controls.aileron
         simulator_data.controls.elevator = self.aircraft.controls.elevator
         simulator_data.controls.rudder = self.aircraft.controls.rudder
         simulator_data.controls.throttle = self.aircraft.controls.throttle
 
     def _fill_ins_data(self, simulator_data):
+        """Fill the inertial navigation system data in the SimulatorData
+        object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
         ins = self.aircraft.sensors.inertial_navigation_system
 
         simulator_data.ins.roll = ins.roll
@@ -132,6 +174,25 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.ins.altitude = ins.altitude
         simulator_data.ins.airspeed = ins.airspeed
         simulator_data.ins.heading = ins.heading
+
+    def _fill_accelerations(self, simulator_data):
+        """Fill the fdm accelerations data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        accelerations = self.simulator.fdm.accelerations
+
+        simulator_data.accelerations.x = accelerations.x
+        simulator_data.accelerations.y = accelerations.y
+        simulator_data.accelerations.z = accelerations.z
+        simulator_data.accelerations.p_dot = accelerations.p_dot
+        simulator_data.accelerations.q_dot = accelerations.q_dot
+        simulator_data.accelerations.r_dot = accelerations.r_dot
+        simulator_data.accelerations.u_dot = accelerations.u_dot
+        simulator_data.accelerations.v_dot = accelerations.v_dot
+        simulator_data.accelerations.w_dot = accelerations.w_dot
+        simulator_data.accelerations.gravity = accelerations.gravity
 
     def get_simulator_data(self):
         """Return the simulator data"""
@@ -147,6 +208,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_engine_data(simulator_data)
         self._fill_aircraft_controls_data(simulator_data)
         self._fill_ins_data(simulator_data)
+        self._fill_accelerations(simulator_data)
 
         return simulator_data
 

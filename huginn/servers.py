@@ -66,8 +66,7 @@ class SimulationServer(object):
             logger.debug("Sending fdm data to %s:%d", client_address,
                          client_port)
 
-            simulator_data_protocol = SimulatorDataProtocol(self.fdmexec,
-                                                            self.aircraft,
+            simulator_data_protocol = SimulatorDataProtocol(self.simulator,
                                                             client_address,
                                                             client_port)
 

@@ -2,7 +2,8 @@
 The hugin.instruments module contains classes that simulate the aircraft's
 instruments
 """
-from math import pow, sqrt, log
+import math
+from math import sqrt, log
 
 from huginn.fdm import Position, Velocities, Atmosphere, Orientation
 from huginn.constants import a0, T0, g, M, R
@@ -24,7 +25,7 @@ def true_airspeed(total_pressure, static_pressure, temperature):
     t_t0 = temperature / T0
     q_p = impact_pressure / static_pressure
 
-    return a0 * sqrt(5.0 * (pow(q_p + 1.0, 2.0/7.0) - 1.0) * t_t0)
+    return a0 * sqrt(5.0 * (math.pow(q_p + 1.0, 2.0/7.0) - 1.0) * t_t0)
 
 
 def pressure_altitude(sea_level_pressure, pressure, temperature):

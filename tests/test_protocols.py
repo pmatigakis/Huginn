@@ -7,8 +7,9 @@ from huginn.protocols import ControlsProtocol, SimulatorDataProtocol,\
                              SensorDataFactory
 from huginn.aircraft import Aircraft
 from huginn.protobuf import fdm_pb2
-from huginn.fdm import FDMBuilder
+from huginn.fdm import FDMBuilder, FDM
 from huginn import configuration
+from huginn.simulator import Simulator
 
 from test_common import isclose
 
@@ -54,12 +55,14 @@ class TestSimulatorDataProtocol(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
         fdmexec = fdm_builder.create_fdm()
 
-        aircraft = Aircraft(fdmexec)
+        simulator = Simulator(fdmexec)
 
-        simulator_data_protocol = SimulatorDataProtocol(fdmexec, aircraft, "127.0.0.1", 12345)
+        aircraft = simulator.aircraft
+        fdm = simulator.fdm
+
+        simulator_data_protocol = SimulatorDataProtocol(simulator, "127.0.0.1", 12345)
 
         simulator_data = simulator_data_protocol.get_simulator_data()
 
@@ -91,64 +94,58 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.controls.elevator, aircraft.controls.elevator, 3)
         self.assertAlmostEqual(simulator_data.controls.rudder, aircraft.controls.rudder, 3)
         self.assertAlmostEqual(simulator_data.controls.throttle, aircraft.controls.throttle, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.x, fdm.accelerations.x, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.y, fdm.accelerations.y, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.z, fdm.accelerations.z, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.p_dot, fdm.accelerations.p_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.q_dot, fdm.accelerations.q_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.r_dot, fdm.accelerations.r_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.u_dot, fdm.accelerations.u_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.v_dot, fdm.accelerations.v_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.w_dot, fdm.accelerations.w_dot, 3)
+        self.assertAlmostEqual(simulator_data.accelerations.gravity, fdm.accelerations.gravity, 3)
 
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
         mock_simulator_data_datagram = MockSimulatorDataDatagram()
 
         if not isclose(fdm_data.time, mock_simulator_data_datagram.simulation_time, 0.001): return False
-
         if not isclose(fdm_data.gps.latitude, mock_simulator_data_datagram.latitude, 0.001): return False
-
         if not isclose(fdm_data.gps.longitude, mock_simulator_data_datagram.longitude, 0.001): return False
-
         if not isclose(fdm_data.gps.altitude, mock_simulator_data_datagram.altitude, 0.001): return False
-
         if not isclose(fdm_data.gps.airspeed, mock_simulator_data_datagram.airspeed, 0.001): return False
-
         if not isclose(fdm_data.gps.heading, mock_simulator_data_datagram.heading, 0.001): return False
-
         if not isclose(fdm_data.accelerometer.x, mock_simulator_data_datagram.x_acceleration, 0.001): return False
-
         if not isclose(fdm_data.accelerometer.y, mock_simulator_data_datagram.y_acceleration, 0.001): return False
-
         if not isclose(fdm_data.accelerometer.z, mock_simulator_data_datagram.z_acceleration, 0.001): return False
-
         if not isclose(fdm_data.gyroscope.roll_rate, mock_simulator_data_datagram.roll_rate, 0.001): return False
-
         if not isclose(fdm_data.gyroscope.pitch_rate, mock_simulator_data_datagram.pitch_rate, 0.001): return False
-
         if not isclose(fdm_data.gyroscope.yaw_rate, mock_simulator_data_datagram.yaw_rate, 0.001): return False
-
         if not isclose(fdm_data.thermometer.temperature, mock_simulator_data_datagram.temperature, 0.001): return False
-
         if not isclose(fdm_data.pressure_sensor.pressure, mock_simulator_data_datagram.static_pressure, 0.001): return False
-
         if not isclose(fdm_data.pitot_tube.pressure, mock_simulator_data_datagram.total_pressure, 0.001): return False
-
         if not isclose(fdm_data.ins.roll, mock_simulator_data_datagram.roll, 0.001): return False
-
         if not isclose(fdm_data.ins.pitch, mock_simulator_data_datagram.pitch, 0.001): return False
-
         if not isclose(fdm_data.ins.latitude, mock_simulator_data_datagram.latitude, 0.001): return False
-
         if not isclose(fdm_data.ins.longitude, mock_simulator_data_datagram.longitude, 0.001): return False
-
         if not isclose(fdm_data.ins.altitude, mock_simulator_data_datagram.altitude, 0.001): return False
-
         if not isclose(fdm_data.ins.airspeed, mock_simulator_data_datagram.airspeed, 0.001): return False
-
         if not isclose(fdm_data.ins.heading, mock_simulator_data_datagram.heading, 0.001): return False
-
         if not isclose(fdm_data.engine.thrust, mock_simulator_data_datagram.thrust, 0.001): return False
-
         if not isclose(fdm_data.controls.aileron, mock_simulator_data_datagram.aileron, 0.001): return False
-
         if not isclose(fdm_data.controls.elevator, mock_simulator_data_datagram.elevator, 0.001): return False
-
         if not isclose(fdm_data.controls.rudder, mock_simulator_data_datagram.rudder, 0.001): return False
-
         if not isclose(fdm_data.controls.throttle, mock_simulator_data_datagram.throttle, 0.001): return False
+        if not isclose(fdm_data.accelerations.x, mock_simulator_data_datagram.fdm_x_acceleration, 0.001): return False
+        if not isclose(fdm_data.accelerations.y, mock_simulator_data_datagram.fdm_y_acceleration, 0.001): return False
+        if not isclose(fdm_data.accelerations.z, mock_simulator_data_datagram.fdm_z_acceleration, 0.001): return False
+        if not isclose(fdm_data.accelerations.p_dot, mock_simulator_data_datagram.p_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.q_dot, mock_simulator_data_datagram.q_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.r_dot, mock_simulator_data_datagram.r_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.u_dot, mock_simulator_data_datagram.u_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.v_dot, mock_simulator_data_datagram.v_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.w_dot, mock_simulator_data_datagram.w_dot, 0.001): return False
+        if not isclose(fdm_data.accelerations.gravity, mock_simulator_data_datagram.gravity, 0.001): return False
 
         return True
 

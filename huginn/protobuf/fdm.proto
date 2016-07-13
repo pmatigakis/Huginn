@@ -54,6 +54,19 @@ message INS{
     required double heading = 7;
 }
 
+message Accelerations{
+    required double x = 1;
+    required double y = 2;
+    required double z = 3;
+    required double p_dot = 4;
+    required double q_dot = 5;
+    required double r_dot = 6;
+    required double u_dot = 7;
+    required double v_dot = 8;
+    required double w_dot = 9;
+    required double gravity = 10;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -64,7 +77,8 @@ message SimulatorData{
     required PitotTube pitot_tube = 7;
     required Engine engine = 8;
     required Controls controls = 9;
-    required INS ins = 10; 
+    required INS ins = 10;
+    required Accelerations accelerations = 11; 
 }
 
 enum SensorDataRequestType{

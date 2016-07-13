@@ -285,6 +285,16 @@ class MockSimulatorDataDatagram(object):
         self.elevator = 0.7
         self.rudder = 0.8
         self.throttle = 0.9
+        self.fdm_x_acceleration = 0.33
+        self.fdm_y_acceleration = 0.22
+        self.fdm_z_acceleration = 10.5
+        self.p_dot = 0.123
+        self.q_dot = 0.345
+        self.r_dot = 0.678
+        self.u_dot = 0.111
+        self.v_dot = 0.222
+        self.w_dot = 0.333
+        self.gravity = 9.9999
 
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
@@ -317,6 +327,16 @@ class MockSimulatorDataDatagram(object):
         simulator_data.controls.elevator = self.elevator
         simulator_data.controls.rudder = self.rudder
         simulator_data.controls.throttle = self.throttle
+        simulator_data.accelerations.x = self.fdm_x_acceleration
+        simulator_data.accelerations.y = self.fdm_y_acceleration
+        simulator_data.accelerations.z = self.fdm_z_acceleration
+        simulator_data.accelerations.p_dot = self.p_dot
+        simulator_data.accelerations.q_dot = self.q_dot
+        simulator_data.accelerations.r_dot = self.r_dot
+        simulator_data.accelerations.u_dot = self.u_dot
+        simulator_data.accelerations.v_dot = self.v_dot
+        simulator_data.accelerations.w_dot = self.w_dot
+        simulator_data.accelerations.gravity = self.gravity
 
         return simulator_data.SerializeToString()
 
