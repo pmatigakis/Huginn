@@ -265,7 +265,25 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.atmosphere.density = atmosphere.density
 
         sea_level_density = atmosphere.sea_level_density
-        simulator_data.atmosphere.sea_level_density = sea_level_density 
+        simulator_data.atmosphere.sea_level_density = sea_level_density
+
+    def _fill_forces(self, simulator_data):
+        """Fill the fdm atmospheric data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        forces = self.simulator.fdm.forces
+
+        simulator_data.forces.x_body = forces.x_body
+        simulator_data.forces.y_body = forces.y_body
+        simulator_data.forces.z_body = forces.z_body
+        simulator_data.forces.x_wind = forces.x_wind
+        simulator_data.forces.y_wind = forces.y_wind
+        simulator_data.forces.z_wind = forces.z_wind
+        simulator_data.forces.x_total = forces.x_total
+        simulator_data.forces.y_total = forces.y_total
+        simulator_data.forces.z_total = forces.z_total
 
     def get_simulator_data(self):
         """Return the simulator data"""
@@ -286,6 +304,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_position(simulator_data)
         self._fill_orientation(simulator_data)
         self._fill_atmosphere(simulator_data)
+        self._fill_forces(simulator_data)
 
         return simulator_data
 

@@ -14,7 +14,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='fdm.proto',
   package='huginn',
-  serialized_pb='\n\tfdm.proto\x12\x06huginn\"_\n\x03GPS\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x04 \x02(\x01\x12\x0f\n\x07heading\x18\x05 \x02(\x01\"0\n\rAccelerometer\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\"D\n\tGyroscope\x12\x11\n\troll_rate\x18\x01 \x02(\x01\x12\x12\n\npitch_rate\x18\x02 \x02(\x01\x12\x10\n\x08yaw_rate\x18\x03 \x02(\x01\"\"\n\x0bThermometer\x12\x13\n\x0btemperature\x18\x01 \x02(\x01\"\"\n\x0ePressureSensor\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"\x1d\n\tPitotTube\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"*\n\x06\x45ngine\x12\x0e\n\x06thrust\x18\x01 \x02(\x01\x12\x10\n\x08throttle\x18\x02 \x02(\x01\"O\n\x08\x43ontrols\x12\x0f\n\x07\x61ileron\x18\x01 \x02(\x01\x12\x10\n\x08\x65levator\x18\x02 \x02(\x01\x12\x0e\n\x06rudder\x18\x03 \x02(\x01\x12\x10\n\x08throttle\x18\x04 \x02(\x01\"|\n\x03INS\x12\x0c\n\x04roll\x18\x01 \x02(\x01\x12\r\n\x05pitch\x18\x02 \x02(\x01\x12\x10\n\x08latitude\x18\x03 \x02(\x01\x12\x11\n\tlongitude\x18\x04 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x05 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x06 \x02(\x01\x12\x0f\n\x07heading\x18\x07 \x02(\x01\"\x9b\x01\n\rAccelerations\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\x12\r\n\x05p_dot\x18\x04 \x02(\x01\x12\r\n\x05q_dot\x18\x05 \x02(\x01\x12\r\n\x05r_dot\x18\x06 \x02(\x01\x12\r\n\x05u_dot\x18\x07 \x02(\x01\x12\r\n\x05v_dot\x18\x08 \x02(\x01\x12\r\n\x05w_dot\x18\t \x02(\x01\x12\x0f\n\x07gravity\x18\n \x02(\x01\"\xc9\x01\n\nVelocities\x12\t\n\x01p\x18\x01 \x02(\x01\x12\t\n\x01q\x18\x02 \x02(\x01\x12\t\n\x01r\x18\x03 \x02(\x01\x12\x15\n\rtrue_airspeed\x18\x04 \x02(\x01\x12\x12\n\nclimb_rate\x18\x05 \x02(\x01\x12\t\n\x01u\x18\x06 \x02(\x01\x12\t\n\x01v\x18\x07 \x02(\x01\x12\t\n\x01w\x18\x08 \x02(\x01\x12\x1b\n\x13\x63\x61librated_airspeed\x18\t \x02(\x01\x12\x1b\n\x13\x65quivalent_airspeed\x18\n \x02(\x01\x12\x14\n\x0cground_speed\x18\x0b \x02(\x01\"R\n\x08Position\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x0f\n\x07heading\x18\x04 \x02(\x01\"6\n\x0bOrientation\x12\x0b\n\x03phi\x18\x01 \x02(\x01\x12\r\n\x05theta\x18\x02 \x02(\x01\x12\x0b\n\x03psi\x18\x03 \x02(\x01\"\x9a\x01\n\nAtmosphere\x12\x10\n\x08pressure\x18\x01 \x02(\x01\x12\x1a\n\x12sea_level_pressure\x18\x02 \x02(\x01\x12\x13\n\x0btemperature\x18\x03 \x02(\x01\x12\x1d\n\x15sea_level_temperature\x18\x04 \x02(\x01\x12\x0f\n\x07\x64\x65nsity\x18\x05 \x02(\x01\x12\x19\n\x11sea_level_density\x18\x06 \x02(\x01\"\xb7\x04\n\rSimulatorData\x12\x0c\n\x04time\x18\x01 \x02(\x01\x12\x18\n\x03gps\x18\x02 \x02(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x02(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x02(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x02(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x02(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x02(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x02(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x02(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x02(\x0b\x32\x0b.huginn.INS\x12,\n\raccelerations\x18\x0b \x02(\x0b\x32\x15.huginn.Accelerations\x12&\n\nvelocities\x18\x0c \x02(\x0b\x32\x12.huginn.Velocities\x12\"\n\x08position\x18\r \x02(\x0b\x32\x10.huginn.Position\x12(\n\x0borientation\x18\x0e \x02(\x0b\x32\x13.huginn.Orientation\x12&\n\natmosphere\x18\x0f \x02(\x0b\x32\x12.huginn.Atmosphere\"@\n\x11SensorDataRequest\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\"\x8f\x03\n\x12SensorDataResponse\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\x12\x18\n\x03gps\x18\x02 \x01(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x01(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x01(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x01(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x01(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x01(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x01(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x01(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x01(\x0b\x32\x0b.huginn.INS*\xf8\x01\n\x15SensorDataRequestType\x12\x13\n\x0fINVALID_REQUEST\x10\x00\x12\x0f\n\x0bGPS_REQUEST\x10\x01\x12\x19\n\x15\x41\x43\x43\x45LEROMETER_REQUEST\x10\x02\x12\x15\n\x11GYROSCOPE_REQUEST\x10\x03\x12\x17\n\x13THERMOMETER_REQUEST\x10\x04\x12\x1b\n\x17PRESSURE_SENSOR_REQUEST\x10\x05\x12\x16\n\x12PITOT_TUBE_REQUEST\x10\x06\x12\x12\n\x0e\x45NGINE_REQUEST\x10\x07\x12\x14\n\x10\x43ONTROLS_REQUEST\x10\x08\x12\x0f\n\x0bINS_REQUEST\x10\t')
+  serialized_pb='\n\tfdm.proto\x12\x06huginn\"_\n\x03GPS\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x04 \x02(\x01\x12\x0f\n\x07heading\x18\x05 \x02(\x01\"0\n\rAccelerometer\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\"D\n\tGyroscope\x12\x11\n\troll_rate\x18\x01 \x02(\x01\x12\x12\n\npitch_rate\x18\x02 \x02(\x01\x12\x10\n\x08yaw_rate\x18\x03 \x02(\x01\"\"\n\x0bThermometer\x12\x13\n\x0btemperature\x18\x01 \x02(\x01\"\"\n\x0ePressureSensor\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"\x1d\n\tPitotTube\x12\x10\n\x08pressure\x18\x01 \x02(\x01\"*\n\x06\x45ngine\x12\x0e\n\x06thrust\x18\x01 \x02(\x01\x12\x10\n\x08throttle\x18\x02 \x02(\x01\"O\n\x08\x43ontrols\x12\x0f\n\x07\x61ileron\x18\x01 \x02(\x01\x12\x10\n\x08\x65levator\x18\x02 \x02(\x01\x12\x0e\n\x06rudder\x18\x03 \x02(\x01\x12\x10\n\x08throttle\x18\x04 \x02(\x01\"|\n\x03INS\x12\x0c\n\x04roll\x18\x01 \x02(\x01\x12\r\n\x05pitch\x18\x02 \x02(\x01\x12\x10\n\x08latitude\x18\x03 \x02(\x01\x12\x11\n\tlongitude\x18\x04 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x05 \x02(\x01\x12\x10\n\x08\x61irspeed\x18\x06 \x02(\x01\x12\x0f\n\x07heading\x18\x07 \x02(\x01\"\x9b\x01\n\rAccelerations\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\x12\r\n\x05p_dot\x18\x04 \x02(\x01\x12\r\n\x05q_dot\x18\x05 \x02(\x01\x12\r\n\x05r_dot\x18\x06 \x02(\x01\x12\r\n\x05u_dot\x18\x07 \x02(\x01\x12\r\n\x05v_dot\x18\x08 \x02(\x01\x12\r\n\x05w_dot\x18\t \x02(\x01\x12\x0f\n\x07gravity\x18\n \x02(\x01\"\xc9\x01\n\nVelocities\x12\t\n\x01p\x18\x01 \x02(\x01\x12\t\n\x01q\x18\x02 \x02(\x01\x12\t\n\x01r\x18\x03 \x02(\x01\x12\x15\n\rtrue_airspeed\x18\x04 \x02(\x01\x12\x12\n\nclimb_rate\x18\x05 \x02(\x01\x12\t\n\x01u\x18\x06 \x02(\x01\x12\t\n\x01v\x18\x07 \x02(\x01\x12\t\n\x01w\x18\x08 \x02(\x01\x12\x1b\n\x13\x63\x61librated_airspeed\x18\t \x02(\x01\x12\x1b\n\x13\x65quivalent_airspeed\x18\n \x02(\x01\x12\x14\n\x0cground_speed\x18\x0b \x02(\x01\"R\n\x08Position\x12\x10\n\x08latitude\x18\x01 \x02(\x01\x12\x11\n\tlongitude\x18\x02 \x02(\x01\x12\x10\n\x08\x61ltitude\x18\x03 \x02(\x01\x12\x0f\n\x07heading\x18\x04 \x02(\x01\"6\n\x0bOrientation\x12\x0b\n\x03phi\x18\x01 \x02(\x01\x12\r\n\x05theta\x18\x02 \x02(\x01\x12\x0b\n\x03psi\x18\x03 \x02(\x01\"\x9a\x01\n\nAtmosphere\x12\x10\n\x08pressure\x18\x01 \x02(\x01\x12\x1a\n\x12sea_level_pressure\x18\x02 \x02(\x01\x12\x13\n\x0btemperature\x18\x03 \x02(\x01\x12\x1d\n\x15sea_level_temperature\x18\x04 \x02(\x01\x12\x0f\n\x07\x64\x65nsity\x18\x05 \x02(\x01\x12\x19\n\x11sea_level_density\x18\x06 \x02(\x01\"\x9b\x01\n\x06\x46orces\x12\x0e\n\x06x_body\x18\x01 \x02(\x01\x12\x0e\n\x06y_body\x18\x02 \x02(\x01\x12\x0e\n\x06z_body\x18\x03 \x02(\x01\x12\x0e\n\x06x_wind\x18\x04 \x02(\x01\x12\x0e\n\x06y_wind\x18\x05 \x02(\x01\x12\x0e\n\x06z_wind\x18\x06 \x02(\x01\x12\x0f\n\x07x_total\x18\x07 \x02(\x01\x12\x0f\n\x07y_total\x18\x08 \x02(\x01\x12\x0f\n\x07z_total\x18\t \x02(\x01\"\xd7\x04\n\rSimulatorData\x12\x0c\n\x04time\x18\x01 \x02(\x01\x12\x18\n\x03gps\x18\x02 \x02(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x02(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x02(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x02(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x02(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x02(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x02(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x02(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x02(\x0b\x32\x0b.huginn.INS\x12,\n\raccelerations\x18\x0b \x02(\x0b\x32\x15.huginn.Accelerations\x12&\n\nvelocities\x18\x0c \x02(\x0b\x32\x12.huginn.Velocities\x12\"\n\x08position\x18\r \x02(\x0b\x32\x10.huginn.Position\x12(\n\x0borientation\x18\x0e \x02(\x0b\x32\x13.huginn.Orientation\x12&\n\natmosphere\x18\x0f \x02(\x0b\x32\x12.huginn.Atmosphere\x12\x1e\n\x06\x66orces\x18\x10 \x02(\x0b\x32\x0e.huginn.Forces\"@\n\x11SensorDataRequest\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\"\x8f\x03\n\x12SensorDataResponse\x12+\n\x04type\x18\x01 \x02(\x0e\x32\x1d.huginn.SensorDataRequestType\x12\x18\n\x03gps\x18\x02 \x01(\x0b\x32\x0b.huginn.GPS\x12,\n\raccelerometer\x18\x03 \x01(\x0b\x32\x15.huginn.Accelerometer\x12$\n\tgyroscope\x18\x04 \x01(\x0b\x32\x11.huginn.Gyroscope\x12(\n\x0bthermometer\x18\x05 \x01(\x0b\x32\x13.huginn.Thermometer\x12/\n\x0fpressure_sensor\x18\x06 \x01(\x0b\x32\x16.huginn.PressureSensor\x12%\n\npitot_tube\x18\x07 \x01(\x0b\x32\x11.huginn.PitotTube\x12\x1e\n\x06\x65ngine\x18\x08 \x01(\x0b\x32\x0e.huginn.Engine\x12\"\n\x08\x63ontrols\x18\t \x01(\x0b\x32\x10.huginn.Controls\x12\x18\n\x03ins\x18\n \x01(\x0b\x32\x0b.huginn.INS*\xf8\x01\n\x15SensorDataRequestType\x12\x13\n\x0fINVALID_REQUEST\x10\x00\x12\x0f\n\x0bGPS_REQUEST\x10\x01\x12\x19\n\x15\x41\x43\x43\x45LEROMETER_REQUEST\x10\x02\x12\x15\n\x11GYROSCOPE_REQUEST\x10\x03\x12\x17\n\x13THERMOMETER_REQUEST\x10\x04\x12\x1b\n\x17PRESSURE_SENSOR_REQUEST\x10\x05\x12\x16\n\x12PITOT_TUBE_REQUEST\x10\x06\x12\x12\n\x0e\x45NGINE_REQUEST\x10\x07\x12\x14\n\x10\x43ONTROLS_REQUEST\x10\x08\x12\x0f\n\x0bINS_REQUEST\x10\t')
 
 _SENSORDATAREQUESTTYPE = _descriptor.EnumDescriptor(
   name='SensorDataRequestType',
@@ -65,8 +65,8 @@ _SENSORDATAREQUESTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2290,
-  serialized_end=2538,
+  serialized_start=2480,
+  serialized_end=2728,
 )
 
 SensorDataRequestType = enum_type_wrapper.EnumTypeWrapper(_SENSORDATAREQUESTTYPE)
@@ -804,6 +804,90 @@ _ATMOSPHERE = _descriptor.Descriptor(
 )
 
 
+_FORCES = _descriptor.Descriptor(
+  name='Forces',
+  full_name='huginn.Forces',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='x_body', full_name='huginn.Forces.x_body', index=0,
+      number=1, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='y_body', full_name='huginn.Forces.y_body', index=1,
+      number=2, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='z_body', full_name='huginn.Forces.z_body', index=2,
+      number=3, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='x_wind', full_name='huginn.Forces.x_wind', index=3,
+      number=4, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='y_wind', full_name='huginn.Forces.y_wind', index=4,
+      number=5, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='z_wind', full_name='huginn.Forces.z_wind', index=5,
+      number=6, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='x_total', full_name='huginn.Forces.x_total', index=6,
+      number=7, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='y_total', full_name='huginn.Forces.y_total', index=7,
+      number=8, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='z_total', full_name='huginn.Forces.z_total', index=8,
+      number=9, type=1, cpp_type=5, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=1252,
+  serialized_end=1407,
+)
+
+
 _SIMULATORDATA = _descriptor.Descriptor(
   name='SimulatorData',
   full_name='huginn.SimulatorData',
@@ -916,6 +1000,13 @@ _SIMULATORDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='forces', full_name='huginn.SimulatorData.forces', index=15,
+      number=16, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -925,8 +1016,8 @@ _SIMULATORDATA = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=1252,
-  serialized_end=1819,
+  serialized_start=1410,
+  serialized_end=2009,
 )
 
 
@@ -953,8 +1044,8 @@ _SENSORDATAREQUEST = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=1821,
-  serialized_end=1885,
+  serialized_start=2011,
+  serialized_end=2075,
 )
 
 
@@ -1044,8 +1135,8 @@ _SENSORDATARESPONSE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=1888,
-  serialized_end=2287,
+  serialized_start=2078,
+  serialized_end=2477,
 )
 
 _SIMULATORDATA.fields_by_name['gps'].message_type = _GPS
@@ -1062,6 +1153,7 @@ _SIMULATORDATA.fields_by_name['velocities'].message_type = _VELOCITIES
 _SIMULATORDATA.fields_by_name['position'].message_type = _POSITION
 _SIMULATORDATA.fields_by_name['orientation'].message_type = _ORIENTATION
 _SIMULATORDATA.fields_by_name['atmosphere'].message_type = _ATMOSPHERE
+_SIMULATORDATA.fields_by_name['forces'].message_type = _FORCES
 _SENSORDATAREQUEST.fields_by_name['type'].enum_type = _SENSORDATAREQUESTTYPE
 _SENSORDATARESPONSE.fields_by_name['type'].enum_type = _SENSORDATAREQUESTTYPE
 _SENSORDATARESPONSE.fields_by_name['gps'].message_type = _GPS
@@ -1087,6 +1179,7 @@ DESCRIPTOR.message_types_by_name['Velocities'] = _VELOCITIES
 DESCRIPTOR.message_types_by_name['Position'] = _POSITION
 DESCRIPTOR.message_types_by_name['Orientation'] = _ORIENTATION
 DESCRIPTOR.message_types_by_name['Atmosphere'] = _ATMOSPHERE
+DESCRIPTOR.message_types_by_name['Forces'] = _FORCES
 DESCRIPTOR.message_types_by_name['SimulatorData'] = _SIMULATORDATA
 DESCRIPTOR.message_types_by_name['SensorDataRequest'] = _SENSORDATAREQUEST
 DESCRIPTOR.message_types_by_name['SensorDataResponse'] = _SENSORDATARESPONSE
@@ -1174,6 +1267,12 @@ class Atmosphere(_message.Message):
   DESCRIPTOR = _ATMOSPHERE
 
   # @@protoc_insertion_point(class_scope:huginn.Atmosphere)
+
+class Forces(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _FORCES
+
+  # @@protoc_insertion_point(class_scope:huginn.Forces)
 
 class SimulatorData(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType

@@ -133,6 +133,16 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.atmosphere.density, fdm.atmosphere.density, 3)
         self.assertAlmostEqual(simulator_data.atmosphere.sea_level_density, fdm.atmosphere.sea_level_density, 3)
 
+        self.assertAlmostEqual(simulator_data.forces.x_body, fdm.forces.x_body, 3)
+        self.assertAlmostEqual(simulator_data.forces.y_body, fdm.forces.y_body, 3)
+        self.assertAlmostEqual(simulator_data.forces.z_body, fdm.forces.z_body, 3)
+        self.assertAlmostEqual(simulator_data.forces.x_wind, fdm.forces.x_wind, 3)
+        self.assertAlmostEqual(simulator_data.forces.y_wind, fdm.forces.y_wind, 3)
+        self.assertAlmostEqual(simulator_data.forces.z_wind, fdm.forces.z_wind, 3)
+        self.assertAlmostEqual(simulator_data.forces.x_total, fdm.forces.x_total, 3)
+        self.assertAlmostEqual(simulator_data.forces.y_total, fdm.forces.y_total, 3)
+        self.assertAlmostEqual(simulator_data.forces.z_total, fdm.forces.z_total, 3)
+
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
         mock_simulator_data_datagram = MockSimulatorDataDatagram()
@@ -202,6 +212,16 @@ class SimulatorDataMatcher(object):
         if not isclose(fdm_data.atmosphere.sea_level_temperature, mock_simulator_data_datagram.fdm_sea_level_temperature, 0.001): return False
         if not isclose(fdm_data.atmosphere.density, mock_simulator_data_datagram.fdm_density, 0.001): return False
         if not isclose(fdm_data.atmosphere.sea_level_density, mock_simulator_data_datagram.fdm_sea_level_density, 0.001): return False
+
+        if not isclose(fdm_data.forces.x_body, mock_simulator_data_datagram.x_body, 0.001): return False
+        if not isclose(fdm_data.forces.y_body, mock_simulator_data_datagram.y_body, 0.001): return False
+        if not isclose(fdm_data.forces.z_body, mock_simulator_data_datagram.z_body, 0.001): return False
+        if not isclose(fdm_data.forces.x_wind, mock_simulator_data_datagram.x_wind, 0.001): return False
+        if not isclose(fdm_data.forces.y_wind, mock_simulator_data_datagram.y_wind, 0.001): return False
+        if not isclose(fdm_data.forces.z_wind, mock_simulator_data_datagram.z_wind, 0.001): return False
+        if not isclose(fdm_data.forces.x_total, mock_simulator_data_datagram.x_total, 0.001): return False
+        if not isclose(fdm_data.forces.y_total, mock_simulator_data_datagram.y_total, 0.001): return False
+        if not isclose(fdm_data.forces.z_total, mock_simulator_data_datagram.z_total, 0.001): return False
 
         return True
 

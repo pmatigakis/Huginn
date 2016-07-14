@@ -103,6 +103,18 @@ message Atmosphere{
     required double sea_level_density = 6;
 }
 
+message Forces{
+    required double x_body = 1;
+    required double y_body = 2;
+    required double z_body = 3;
+    required double x_wind = 4;
+    required double y_wind = 5;
+    required double z_wind = 6;
+    required double x_total = 7;
+    required double y_total = 8;
+    required double z_total = 9;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -119,6 +131,7 @@ message SimulatorData{
     required Position position = 13;
     required Orientation orientation = 14;
     required Atmosphere atmosphere = 15;
+    required Forces forces = 16;
 }
 
 enum SensorDataRequestType{

@@ -323,6 +323,16 @@ class MockSimulatorDataDatagram(object):
         self.fdm_density = 999.0
         self.fdm_sea_level_density = 1999.0
 
+        self.x_body = 65.78
+        self.y_body = 56.78
+        self.z_body = 75.78
+        self.x_wind = 165.78
+        self.y_wind = 156.78
+        self.z_wind = 175.78
+        self.x_total = 265.78
+        self.y_total = 256.78
+        self.z_total = 275.78
+
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
         
@@ -392,6 +402,16 @@ class MockSimulatorDataDatagram(object):
         simulator_data.atmosphere.sea_level_temperature = self.fdm_sea_level_temperature
         simulator_data.atmosphere.density = self.fdm_density
         simulator_data.atmosphere.sea_level_density = self.fdm_sea_level_density
+
+        simulator_data.forces.x_body = self.x_body
+        simulator_data.forces.y_body = self.y_body
+        simulator_data.forces.z_body = self.z_body
+        simulator_data.forces.x_wind = self.x_wind
+        simulator_data.forces.y_wind = self.y_wind
+        simulator_data.forces.z_wind = self.z_wind
+        simulator_data.forces.x_total = self.x_total
+        simulator_data.forces.y_total = self.y_total
+        simulator_data.forces.z_total = self.z_total
 
         return simulator_data.SerializeToString()
 
