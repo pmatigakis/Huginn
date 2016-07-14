@@ -194,6 +194,31 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.accelerations.w_dot = accelerations.w_dot
         simulator_data.accelerations.gravity = accelerations.gravity
 
+    def _fill_velocities(self, simulator_data):
+        """Fill the fdm velocities data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        velocities = self.simulator.fdm.velocities
+
+        simulator_data.velocities.p = velocities.p
+        simulator_data.velocities.q = velocities.q
+        simulator_data.velocities.r = velocities.r
+        simulator_data.velocities.u = velocities.u
+        simulator_data.velocities.v = velocities.v
+        simulator_data.velocities.w = velocities.w
+        simulator_data.velocities.true_airspeed = velocities.true_airspeed
+
+        calibrated_airspeed = velocities.calibrated_airspeed
+        simulator_data.velocities.calibrated_airspeed = calibrated_airspeed
+
+        equivalent_airspeed = velocities.equivalent_airspeed
+        simulator_data.velocities.equivalent_airspeed = equivalent_airspeed
+
+        simulator_data.velocities.climb_rate = velocities.climb_rate
+        simulator_data.velocities.ground_speed = velocities.ground_speed
+
     def get_simulator_data(self):
         """Return the simulator data"""
         simulator_data = fdm_pb2.SimulatorData()
@@ -209,6 +234,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_aircraft_controls_data(simulator_data)
         self._fill_ins_data(simulator_data)
         self._fill_accelerations(simulator_data)
+        self._fill_velocities(simulator_data)
 
         return simulator_data
 

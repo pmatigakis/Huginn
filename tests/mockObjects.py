@@ -295,6 +295,17 @@ class MockSimulatorDataDatagram(object):
         self.v_dot = 0.222
         self.w_dot = 0.333
         self.gravity = 9.9999
+        self.u = 1.1
+        self.v = 2.2
+        self.w = 3.3
+        self.p = 11.1
+        self.q = 22.2
+        self.r = 33.3
+        self.true_airspeed = 67.4
+        self.calibrated_airspeed = 66.9
+        self.climb_rate = 1.9
+        self.equivalent_airspeed = 69.9
+        self.ground_speed = 87.4
 
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
@@ -337,6 +348,18 @@ class MockSimulatorDataDatagram(object):
         simulator_data.accelerations.v_dot = self.v_dot
         simulator_data.accelerations.w_dot = self.w_dot
         simulator_data.accelerations.gravity = self.gravity
+
+        simulator_data.velocities.p = self.p
+        simulator_data.velocities.q = self.q
+        simulator_data.velocities.r = self.r
+        simulator_data.velocities.u = self.u
+        simulator_data.velocities.v = self.v
+        simulator_data.velocities.w = self.w
+        simulator_data.velocities.true_airspeed = self.true_airspeed
+        simulator_data.velocities.calibrated_airspeed = self.calibrated_airspeed
+        simulator_data.velocities.equivalent_airspeed = self.equivalent_airspeed
+        simulator_data.velocities.ground_speed = self.ground_speed
+        simulator_data.velocities.climb_rate = self.climb_rate
 
         return simulator_data.SerializeToString()
 

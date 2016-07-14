@@ -67,6 +67,20 @@ message Accelerations{
     required double gravity = 10;
 }
 
+message Velocities{
+    required double p = 1;
+    required double q = 2;
+    required double r = 3;
+    required double true_airspeed = 4;
+    required double climb_rate = 5;
+    required double u = 6;
+    required double v = 7;
+    required double w = 8;
+    required double calibrated_airspeed = 9;
+    required double equivalent_airspeed = 10;
+    required double ground_speed = 11;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -78,7 +92,8 @@ message SimulatorData{
     required Engine engine = 8;
     required Controls controls = 9;
     required INS ins = 10;
-    required Accelerations accelerations = 11; 
+    required Accelerations accelerations = 11;
+    required Velocities velocities = 12;
 }
 
 enum SensorDataRequestType{

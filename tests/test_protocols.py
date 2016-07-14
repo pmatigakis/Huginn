@@ -104,6 +104,19 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.accelerations.v_dot, fdm.accelerations.v_dot, 3)
         self.assertAlmostEqual(simulator_data.accelerations.w_dot, fdm.accelerations.w_dot, 3)
         self.assertAlmostEqual(simulator_data.accelerations.gravity, fdm.accelerations.gravity, 3)
+        
+        self.assertAlmostEqual(simulator_data.velocities.p, fdm.velocities.p, 3)
+        self.assertAlmostEqual(simulator_data.velocities.q, fdm.velocities.q, 3)
+        self.assertAlmostEqual(simulator_data.velocities.r, fdm.velocities.r, 3)
+        self.assertAlmostEqual(simulator_data.velocities.true_airspeed, fdm.velocities.true_airspeed, 3)
+        self.assertAlmostEqual(simulator_data.velocities.climb_rate, fdm.velocities.climb_rate, 3)
+        self.assertAlmostEqual(simulator_data.velocities.u, fdm.velocities.u, 3)
+        self.assertAlmostEqual(simulator_data.velocities.v, fdm.velocities.v, 3)
+        self.assertAlmostEqual(simulator_data.velocities.w, fdm.velocities.w, 3)
+        self.assertAlmostEqual(simulator_data.velocities.calibrated_airspeed, fdm.velocities.calibrated_airspeed, 3)
+        self.assertAlmostEqual(simulator_data.velocities.equivalent_airspeed, fdm.velocities.equivalent_airspeed, 3)
+        self.assertAlmostEqual(simulator_data.velocities.ground_speed, fdm.velocities.ground_speed, 3)
+
 
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
@@ -146,6 +159,18 @@ class SimulatorDataMatcher(object):
         if not isclose(fdm_data.accelerations.v_dot, mock_simulator_data_datagram.v_dot, 0.001): return False
         if not isclose(fdm_data.accelerations.w_dot, mock_simulator_data_datagram.w_dot, 0.001): return False
         if not isclose(fdm_data.accelerations.gravity, mock_simulator_data_datagram.gravity, 0.001): return False
+        
+        if not isclose(fdm_data.velocities.p, mock_simulator_data_datagram.p, 0.001): return False
+        if not isclose(fdm_data.velocities.q, mock_simulator_data_datagram.q, 0.001): return False
+        if not isclose(fdm_data.velocities.r, mock_simulator_data_datagram.r, 0.001): return False
+        if not isclose(fdm_data.velocities.true_airspeed, mock_simulator_data_datagram.true_airspeed, 0.001): return False
+        if not isclose(fdm_data.velocities.climb_rate, mock_simulator_data_datagram.climb_rate, 0.001): return False
+        if not isclose(fdm_data.velocities.u, mock_simulator_data_datagram.u, 0.001): return False
+        if not isclose(fdm_data.velocities.v, mock_simulator_data_datagram.v, 0.001): return False
+        if not isclose(fdm_data.velocities.w, mock_simulator_data_datagram.w, 0.001): return False
+        if not isclose(fdm_data.velocities.calibrated_airspeed, mock_simulator_data_datagram.calibrated_airspeed, 0.001): return False
+        if not isclose(fdm_data.velocities.equivalent_airspeed, mock_simulator_data_datagram.equivalent_airspeed, 0.001): return False
+        if not isclose(fdm_data.velocities.ground_speed, mock_simulator_data_datagram.ground_speed, 0.001): return False
 
         return True
 
