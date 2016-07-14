@@ -189,7 +189,6 @@ class Autopilot(SimulatorDataListener):
         print("")
 
     def simulator_data_received(self, fdm_data):
-        print fdm_data.velocities.p
         self.latitude = fdm_data.gps.latitude
         self.longitude = fdm_data.gps.longitude
         self.altitude = fdm_data.gps.altitude
