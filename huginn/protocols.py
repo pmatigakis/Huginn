@@ -244,6 +244,29 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.orientation.theta = orientation.theta
         simulator_data.orientation.psi = orientation.psi
 
+    def _fill_atmosphere(self, simulator_data):
+        """Fill the fdm atmospheric data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        atmosphere = self.simulator.fdm.atmosphere
+
+        simulator_data.atmosphere.pressure = atmosphere.pressure
+
+        sea_level_pressure = atmosphere.sea_level_pressure
+        simulator_data.atmosphere.sea_level_pressure = sea_level_pressure
+
+        simulator_data.atmosphere.temperature = atmosphere.temperature
+
+        sea_level_temperature = atmosphere.sea_level_temperature
+        simulator_data.atmosphere.sea_level_temperature = sea_level_temperature
+
+        simulator_data.atmosphere.density = atmosphere.density
+
+        sea_level_density = atmosphere.sea_level_density
+        simulator_data.atmosphere.sea_level_density = sea_level_density 
+
     def get_simulator_data(self):
         """Return the simulator data"""
         simulator_data = fdm_pb2.SimulatorData()
@@ -262,6 +285,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_velocities(simulator_data)
         self._fill_position(simulator_data)
         self._fill_orientation(simulator_data)
+        self._fill_atmosphere(simulator_data)
 
         return simulator_data
 

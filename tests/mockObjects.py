@@ -316,6 +316,13 @@ class MockSimulatorDataDatagram(object):
         self.theta = 11.99
         self.psi = 19.19
 
+        self.fdm_pressure = 12345.99
+        self.fdm_sea_level_pressure = 13345.99
+        self.fdm_temperature = 250.0
+        self.fdm_sea_level_temperature = 280.0
+        self.fdm_density = 999.0
+        self.fdm_sea_level_density = 1999.0
+
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
         
@@ -378,6 +385,13 @@ class MockSimulatorDataDatagram(object):
         simulator_data.orientation.phi = self.phi
         simulator_data.orientation.theta = self.theta
         simulator_data.orientation.psi = self.psi
+
+        simulator_data.atmosphere.pressure = self.fdm_pressure
+        simulator_data.atmosphere.sea_level_pressure = self.fdm_sea_level_pressure
+        simulator_data.atmosphere.temperature = self.fdm_temperature
+        simulator_data.atmosphere.sea_level_temperature = self.fdm_sea_level_temperature
+        simulator_data.atmosphere.density = self.fdm_density
+        simulator_data.atmosphere.sea_level_density = self.fdm_sea_level_density
 
         return simulator_data.SerializeToString()
 

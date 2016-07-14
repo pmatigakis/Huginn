@@ -94,6 +94,15 @@ message Orientation{
     required double psi = 3;
 }
 
+message Atmosphere{
+    required double pressure = 1;
+    required double sea_level_pressure = 2;
+    required double temperature = 3;
+    required double sea_level_temperature = 4;
+    required double density = 5;
+    required double sea_level_density = 6;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -109,6 +118,7 @@ message SimulatorData{
     required Velocities velocities = 12;
     required Position position = 13;
     required Orientation orientation = 14;
+    required Atmosphere atmosphere = 15;
 }
 
 enum SensorDataRequestType{

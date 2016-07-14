@@ -126,6 +126,13 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.orientation.theta, fdm.orientation.theta, 3)
         self.assertAlmostEqual(simulator_data.orientation.psi, fdm.orientation.psi, 3)
 
+        self.assertAlmostEqual(simulator_data.atmosphere.pressure, fdm.atmosphere.pressure, 3)
+        self.assertAlmostEqual(simulator_data.atmosphere.sea_level_pressure, fdm.atmosphere.sea_level_pressure, 3)
+        self.assertAlmostEqual(simulator_data.atmosphere.temperature, fdm.atmosphere.temperature, 3)
+        self.assertAlmostEqual(simulator_data.atmosphere.sea_level_temperature, fdm.atmosphere.sea_level_temperature, 3)
+        self.assertAlmostEqual(simulator_data.atmosphere.density, fdm.atmosphere.density, 3)
+        self.assertAlmostEqual(simulator_data.atmosphere.sea_level_density, fdm.atmosphere.sea_level_density, 3)
+
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
         mock_simulator_data_datagram = MockSimulatorDataDatagram()
@@ -188,6 +195,13 @@ class SimulatorDataMatcher(object):
         if not isclose(fdm_data.orientation.phi, mock_simulator_data_datagram.phi, 0.001): return False
         if not isclose(fdm_data.orientation.theta, mock_simulator_data_datagram.theta, 0.001): return False
         if not isclose(fdm_data.orientation.psi, mock_simulator_data_datagram.psi, 0.001): return False
+
+        if not isclose(fdm_data.atmosphere.pressure, mock_simulator_data_datagram.fdm_pressure, 0.001): return False
+        if not isclose(fdm_data.atmosphere.sea_level_pressure, mock_simulator_data_datagram.fdm_sea_level_pressure, 0.001): return False
+        if not isclose(fdm_data.atmosphere.temperature, mock_simulator_data_datagram.fdm_temperature, 0.001): return False
+        if not isclose(fdm_data.atmosphere.sea_level_temperature, mock_simulator_data_datagram.fdm_sea_level_temperature, 0.001): return False
+        if not isclose(fdm_data.atmosphere.density, mock_simulator_data_datagram.fdm_density, 0.001): return False
+        if not isclose(fdm_data.atmosphere.sea_level_density, mock_simulator_data_datagram.fdm_sea_level_density, 0.001): return False
 
         return True
 
