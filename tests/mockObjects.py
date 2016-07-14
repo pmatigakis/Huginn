@@ -312,6 +312,10 @@ class MockSimulatorDataDatagram(object):
         self.fdm_altitude = 123.123
         self.fdm_heading = 55.55
 
+        self.phi = 99.11
+        self.theta = 11.99
+        self.psi = 19.19
+
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
         
@@ -370,6 +374,10 @@ class MockSimulatorDataDatagram(object):
         simulator_data.position.longitude = self.fdm_longitude
         simulator_data.position.altitude = self.fdm_altitude
         simulator_data.position.heading = self.fdm_heading
+
+        simulator_data.orientation.phi = self.phi
+        simulator_data.orientation.theta = self.theta
+        simulator_data.orientation.psi = self.psi
 
         return simulator_data.SerializeToString()
 

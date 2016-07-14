@@ -88,6 +88,12 @@ message Position{
     required double heading = 4;
 }
 
+message Orientation{
+    required double phi = 1;
+    required double theta = 2;
+    required double psi = 3;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -102,6 +108,7 @@ message SimulatorData{
     required Accelerations accelerations = 11;
     required Velocities velocities = 12;
     required Position position = 13;
+    required Orientation orientation = 14;
 }
 
 enum SensorDataRequestType{

@@ -232,6 +232,18 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.position.altitude = position.altitude
         simulator_data.position.heading = position.heading
 
+    def _fill_orientation(self, simulator_data):
+        """Fill the fdm orientation data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        orientation = self.simulator.fdm.orientation
+
+        simulator_data.orientation.phi = orientation.phi
+        simulator_data.orientation.theta = orientation.theta
+        simulator_data.orientation.psi = orientation.psi
+
     def get_simulator_data(self):
         """Return the simulator data"""
         simulator_data = fdm_pb2.SimulatorData()
@@ -249,6 +261,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_accelerations(simulator_data)
         self._fill_velocities(simulator_data)
         self._fill_position(simulator_data)
+        self._fill_orientation(simulator_data)
 
         return simulator_data
 

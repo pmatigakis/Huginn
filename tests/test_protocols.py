@@ -122,6 +122,9 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.position.altitude, fdm.position.altitude, 3)
         self.assertAlmostEqual(simulator_data.position.heading, fdm.position.heading, 3)
 
+        self.assertAlmostEqual(simulator_data.orientation.phi, fdm.orientation.phi, 3)
+        self.assertAlmostEqual(simulator_data.orientation.theta, fdm.orientation.theta, 3)
+        self.assertAlmostEqual(simulator_data.orientation.psi, fdm.orientation.psi, 3)
 
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
@@ -181,6 +184,10 @@ class SimulatorDataMatcher(object):
         if not isclose(fdm_data.position.longitude, mock_simulator_data_datagram.fdm_longitude, 0.001): return False
         if not isclose(fdm_data.position.altitude, mock_simulator_data_datagram.fdm_altitude, 0.001): return False
         if not isclose(fdm_data.position.heading, mock_simulator_data_datagram.fdm_heading, 0.001): return False
+
+        if not isclose(fdm_data.orientation.phi, mock_simulator_data_datagram.phi, 0.001): return False
+        if not isclose(fdm_data.orientation.theta, mock_simulator_data_datagram.theta, 0.001): return False
+        if not isclose(fdm_data.orientation.psi, mock_simulator_data_datagram.psi, 0.001): return False
 
         return True
 
