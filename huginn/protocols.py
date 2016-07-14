@@ -219,6 +219,19 @@ class SimulatorDataProtocol(DatagramProtocol):
         simulator_data.velocities.climb_rate = velocities.climb_rate
         simulator_data.velocities.ground_speed = velocities.ground_speed
 
+    def _fill_position(self, simulator_data):
+        """Fill the fdm position data in the SimulatorData object
+
+        Arguments:
+        simulator_data: the protocol buffer SimulatorData object
+        """
+        position = self.simulator.fdm.position
+
+        simulator_data.position.latitude = position.latitude
+        simulator_data.position.longitude = position.longitude
+        simulator_data.position.altitude = position.altitude
+        simulator_data.position.heading = position.heading
+
     def get_simulator_data(self):
         """Return the simulator data"""
         simulator_data = fdm_pb2.SimulatorData()
@@ -235,6 +248,7 @@ class SimulatorDataProtocol(DatagramProtocol):
         self._fill_ins_data(simulator_data)
         self._fill_accelerations(simulator_data)
         self._fill_velocities(simulator_data)
+        self._fill_position(simulator_data)
 
         return simulator_data
 

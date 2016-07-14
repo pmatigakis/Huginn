@@ -81,6 +81,13 @@ message Velocities{
     required double ground_speed = 11;
 }
 
+message Position{
+    required double latitude = 1;
+    required double longitude = 2;
+    required double altitude = 3;
+    required double heading = 4;
+}
+
 message SimulatorData{
     required double time = 1;
     required GPS gps = 2;
@@ -94,6 +101,7 @@ message SimulatorData{
     required INS ins = 10;
     required Accelerations accelerations = 11;
     required Velocities velocities = 12;
+    required Position position = 13;
 }
 
 enum SensorDataRequestType{

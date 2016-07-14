@@ -307,6 +307,11 @@ class MockSimulatorDataDatagram(object):
         self.equivalent_airspeed = 69.9
         self.ground_speed = 87.4
 
+        self.fdm_latitude = 34.67
+        self.fdm_longitude = 24.33
+        self.fdm_altitude = 123.123
+        self.fdm_heading = 55.55
+
     def create_datagram(self):
         simulator_data = fdm_pb2.SimulatorData()
         
@@ -360,6 +365,11 @@ class MockSimulatorDataDatagram(object):
         simulator_data.velocities.equivalent_airspeed = self.equivalent_airspeed
         simulator_data.velocities.ground_speed = self.ground_speed
         simulator_data.velocities.climb_rate = self.climb_rate
+
+        simulator_data.position.latitude = self.fdm_latitude
+        simulator_data.position.longitude = self.fdm_longitude
+        simulator_data.position.altitude = self.fdm_altitude
+        simulator_data.position.heading = self.fdm_heading
 
         return simulator_data.SerializeToString()
 

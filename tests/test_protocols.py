@@ -117,6 +117,11 @@ class TestSimulatorDataProtocol(TestCase):
         self.assertAlmostEqual(simulator_data.velocities.equivalent_airspeed, fdm.velocities.equivalent_airspeed, 3)
         self.assertAlmostEqual(simulator_data.velocities.ground_speed, fdm.velocities.ground_speed, 3)
 
+        self.assertAlmostEqual(simulator_data.position.latitude, fdm.position.latitude, 3)
+        self.assertAlmostEqual(simulator_data.position.longitude, fdm.position.longitude, 3)
+        self.assertAlmostEqual(simulator_data.position.altitude, fdm.position.altitude, 3)
+        self.assertAlmostEqual(simulator_data.position.heading, fdm.position.heading, 3)
+
 
 class SimulatorDataMatcher(object):
     def __eq__(self, fdm_data):
@@ -171,6 +176,11 @@ class SimulatorDataMatcher(object):
         if not isclose(fdm_data.velocities.calibrated_airspeed, mock_simulator_data_datagram.calibrated_airspeed, 0.001): return False
         if not isclose(fdm_data.velocities.equivalent_airspeed, mock_simulator_data_datagram.equivalent_airspeed, 0.001): return False
         if not isclose(fdm_data.velocities.ground_speed, mock_simulator_data_datagram.ground_speed, 0.001): return False
+
+        if not isclose(fdm_data.position.latitude, mock_simulator_data_datagram.fdm_latitude, 0.001): return False
+        if not isclose(fdm_data.position.longitude, mock_simulator_data_datagram.fdm_longitude, 0.001): return False
+        if not isclose(fdm_data.position.altitude, mock_simulator_data_datagram.fdm_altitude, 0.001): return False
+        if not isclose(fdm_data.position.heading, mock_simulator_data_datagram.fdm_heading, 0.001): return False
 
         return True
 
