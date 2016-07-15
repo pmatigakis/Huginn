@@ -70,9 +70,18 @@ make html
 
 With your browser open the file */docs/build/html/index.html*
 
+License
+=======
+This software package is released under the BSD 3-Clause License except some of the
+included third party components that fall under the licenses specified by their
+owners. 
+
 Third party components
 ======================
 The web interface of Huginn is using the jQuery Flight Indicators by Sébastien Matton.
 
 jQuery Flight Indicators: https://github.com/sebmatton/jQuery-Flight-Indicators  
 
+The Rascal JSBSim aircraft model used by the simulator is taken from the PX4 autopilot
+
+PX4 HIL: https://github.com/PX4/HIL
