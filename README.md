@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/pmatigakis/Huginn.svg?branch=master)](https://travis-ci.org/pmatigakis/Huginn)
 [![codecov](https://codecov.io/gh/pmatigakis/Huginn/branch/master/graph/badge.svg)](https://codecov.io/gh/pmatigakis/Huginn)
+[![GitHub license](https://img.shields.io/badge/license-New%20BSD-blue.svg)](https://raw.githubusercontent.com/pmatigakis/Huginn/master/LICENSE.txt)
 
 Introduction
 ============
