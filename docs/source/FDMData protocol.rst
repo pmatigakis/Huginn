@@ -12,4 +12,4 @@ To send fdm data to an external application use the --fdm argument in hugin_star
   huginn_start.py --fdm 127.0.0.1,10302,0.1 
 
 The flight data will be encoded using Protocol Buffers. See the file
-protobuf/fdm.proto for the schema used.
+huginn/protobuf/fdm.proto for the schema used.

@@ -14,8 +14,7 @@ from flask import Flask, render_template
 from flask_restful import Api
 
 from huginn import configuration
-from huginn.protocols import ControlsProtocol, SimulatorDataProtocol,\
-                             SensorDataFactory
+from huginn.protocols import ControlsProtocol, SimulatorDataProtocol
 from huginn.http import FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          AccelerometerResource, GyroscopeResource,
@@ -46,7 +45,6 @@ class SimulationServer(object):
         self.controls_port = configuration.CONTROLS_PORT
         self.fdm_clients = []
         self.web_server_port = configuration.WEB_SERVER_PORT
-        self.sensors_port = configuration.SENSORS_PORT
         self.websocket_port = configuration.WEBSOCKET_PORT
         self.websocket_update_rate = configuration.WEBSOCKET_UPDATE_RATE
 
@@ -87,14 +85,6 @@ class SimulationServer(object):
     def _initialize_simulator_updater(self):
         fdm_updater = LoopingCall(self._run_simulator)
         fdm_updater.start(self.dt)
-
-    def _initialize_sensors_server(self):
-        logger.debug("Starting the sensor server at port %d",
-                     self.sensors_port)
-
-        sensor_data_factory = SensorDataFactory(self.aircraft)
-
-        reactor.listenTCP(self.sensors_port, sensor_data_factory)
 
     def _initialize_websocket_server(self):
         factory = FDMDataWebSocketFactory(
@@ -249,7 +239,6 @@ class SimulationServer(object):
         """Start the simulator server"""
         self._initialize_controls_server()
         self._initialize_fdm_data_server()
-        self._initialize_sensors_server()
         self._initialize_simulator_updater()
         self._initialize_websocket_server()
         self._initialize_web_frontend()
