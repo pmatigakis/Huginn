@@ -300,7 +300,8 @@ class SimulatorControlResource(Resource):
         simulator_state = {
             "time": self.simulator.simulation_time,
             "dt": self.simulator.dt,
-            "running": not self.simulator.is_paused()
+            "running": not self.simulator.is_paused(),
+            "crashed": self.simulator.crashed
         }
 
         return simulator_state

@@ -234,6 +234,7 @@ class SimulatorControlResourceTests(TestCase):
 
         response = simulator_control_resource.get()
         
+        self.assertFalse(response["crashed"])
         self.assertTrue(response["running"])
         self.assertAlmostEqual(response["dt"], configuration.DT, 3)
         self.assertAlmostEqual(response["time"], fdmexec.GetSimTime(), 3)

@@ -80,6 +80,12 @@ class Simulator(object):
         self.fdmexec = fdmexec
         self.fdm = FDM(fdmexec)
         self.start_trimmed = False
+        self._crashed = False
+
+    @property
+    def crashed(self):
+        """Returns True if the aircraft has crashed"""
+        return self._crashed
 
     @property
     def dt(self):
@@ -97,6 +103,14 @@ class Simulator(object):
 
     def resume(self):
         """Resume the simulation"""
+        if self.crashed:
+            logger.debug("Not resuming simulation because the aircraft has "
+                         "crashed")
+            return
+
+        if self.fdmexec.IntegrationSuspended():
+            self.fdmexec.ResumeIntegration()
+
         self.fdmexec.Resume()
 
     def is_paused(self):
@@ -106,6 +120,7 @@ class Simulator(object):
     def reset(self):
         """Reset the simulation"""
         logger.debug("Reseting the aircraft")
+        self._crashed = False
 
         self.resume()
 
@@ -137,6 +152,17 @@ class Simulator(object):
 
     def step(self):
         """Run the simulation one time"""
+        if not self.crashed and self.fdm.position.altitude < 0.0:
+            logger.debug("Aircraft has crashed. Pausing simulator")
+            self.pause()
+            self._crashed = True
+            return True
+
+        if self.crashed:
+            logger.debug("Not executing simulation step because aircraft has "
+                         "crashed")
+            return True
+
         was_paused = self.is_paused()
 
         if was_paused:
