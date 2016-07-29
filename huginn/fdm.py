@@ -3,8 +3,7 @@ The huginn.fdm module contains classes and functions that can be used to
 initialize the flight dynamics model and create a model for a simulated
 aircraft
 """
-
-
+from os import path
 from math import degrees
 import logging
 
@@ -47,15 +46,24 @@ class FDMBuilder(object):
 
         logger.debug("Using jsbsim data at %s", self.data_path)
 
+        aircraft_data_path = self.data_path
+        engine_data_path = path.join(self.data_path, "Engines")
+        systems_data_path = path.join(self.data_path, "Systems")
+
+        logger.debug("Using aircraft data at %s", aircraft_data_path)
+        logger.debug("Using engine data at %s", engine_data_path)
+        logger.debug("Using systems data at %s", systems_data_path)
+
         fdmexec.SetRootDir(self.data_path)
         fdmexec.SetAircraftPath("")
-        fdmexec.SetEnginePath(self.data_path + "/Engines")
-        fdmexec.SetSystemsPath(self.data_path + "/Systems")
+        fdmexec.SetEnginePath(engine_data_path)
+        fdmexec.SetSystemsPath(systems_data_path)
 
         logger.debug("JSBSim dt is %f", self.dt)
         fdmexec.Setdt(self.dt)
 
-        fdmexec.LoadModel("Rascal")
+        logger.debug("Loading '%s' aircraft model", self.aircraft)
+        fdmexec.LoadModel(self.aircraft)
 
         altitude = self.altitude * ur.meter
         altitude.ito(ur.foot)
@@ -93,9 +101,8 @@ class FDMBuilder(object):
                 logger.error("Failed to execute initial run")
                 return None
 
-        fdmexec.PrintSimulationConfiguration()
-
-        fdmexec.GetPropagate().DumpState()
+        logger.debug("Simulation time after initialization: %f seconds",
+                     fdmexec.GetSimTime())
 
         return fdmexec
 
