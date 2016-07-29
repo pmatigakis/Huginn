@@ -29,6 +29,13 @@ def true_airspeed(total_pressure, static_pressure, temperature):
 
 
 def pressure_altitude(sea_level_pressure, pressure, temperature):
+    """Calculate the pressure altitude
+
+    Arguments:
+    sea_level_pressure: the pressure at sea level in Pascal
+    pressure: the pressure at the current altitude in Pascal
+    temperature: the temperature in Kelvin
+    """
     return log(sea_level_pressure/pressure) * ((R * temperature) / (g * M))
 
 
@@ -198,6 +205,8 @@ class VerticalSpeedIndicator(object):
 
 
 class Instruments(object):
+    """The Instruments class contains the instances of the aircraft's
+    instruments"""
     def __init__(self, fdmexec):
         self.fdmexec = fdmexec
         self.gps = GPS(fdmexec)
