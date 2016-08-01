@@ -54,10 +54,8 @@ class PID(object):
 
         return result
 
-class Autopilot(SimulatorDataListener):
-    def __init__(self, controls_client, waypoints):
-        self.controls_client = controls_client
-
+class Autopilot(object):
+    def __init__(self, waypoints):
         self.waypoints = waypoints
 
         self.current_waypoint_index = 0
@@ -188,26 +186,34 @@ class Autopilot(SimulatorDataListener):
         print("throttle %f" % self.throttle)
         print("")
 
+class AutopilotAdapter(SimulatorDataListener):
+    def __init__(self, autopilot, controls_client):
+        self.autopilot = autopilot
+        self.controls_client = controls_client
+
     def simulator_data_received(self, fdm_data):
-        self.latitude = fdm_data.gps.latitude
-        self.longitude = fdm_data.gps.longitude
-        self.altitude = fdm_data.gps.altitude
-        self.airspeed = fdm_data.gps.airspeed
-        self.heading = fdm_data.gps.heading
+        self.autopilot.latitude = fdm_data.gps.latitude
+        self.autopilot.longitude = fdm_data.gps.longitude
+        self.autopilot.altitude = fdm_data.gps.altitude
+        self.autopilot.airspeed = fdm_data.gps.airspeed
+        self.autopilot.heading = fdm_data.gps.heading
 
-        self.roll = fdm_data.ins.roll
-        self.pitch = fdm_data.ins.pitch
+        self.autopilot.roll = fdm_data.ins.roll
+        self.autopilot.pitch = fdm_data.ins.pitch
 
-        self.run()
+        self.autopilot.run()
 
-        self.controls_client.transmit_controls(self.aileron,
-                                               self.elevator,
-                                               self.rudder,
-                                               self.throttle)
+        self.controls_client.transmit_controls(self.autopilot.aileron,
+                                               self.autopilot.elevator,
+                                               self.autopilot.rudder,
+                                               self.autopilot.throttle)
 
 def main():
     controls_client = ControlsClient("127.0.0.1", 10301)
     reactor.listenUDP(0, controls_client)
+
+    simulator_data_client = SimulatorDataClient()
+    reactor.listenUDP(10302, simulator_data_client)
     
     altitude = 300.0
     airspeed = 30.0
@@ -221,11 +227,11 @@ def main():
             waypoint = [float(row[1]), float(row[2]), altitude, airspeed]
             waypoints.append(waypoint)
     
-    autopilot = Autopilot(controls_client, waypoints)
+    autopilot = Autopilot(waypoints)
+
+    autopilot_adapter = AutopilotAdapter(autopilot, controls_client)
     
-    simulator_data_client = SimulatorDataClient()
-    simulator_data_client.add_simulator_data_listener(autopilot)
-    reactor.listenUDP(10302, simulator_data_client)
+    simulator_data_client.add_simulator_data_listener(autopilot_adapter)
     
     log_updater = task.LoopingCall(autopilot.print_log)
     log_updater.start(1.0)
