@@ -6,12 +6,19 @@ The huginn_start script starts the simulator and the simulator server
 import logging
 from argparse import ArgumentParser
 
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
+
 from huginn import configuration
 from huginn.simulator import SimulationBuilder
 from huginn.validators import port_number, fdm_data_endpoint,\
                               is_valid_latitude, is_valid_longitude,\
                               is_valid_heading
-from huginn.servers import SimulationServer
+
+from huginn.servers import (initialize_controls_server,
+                            initialize_simulator_data_server,
+                            initialize_websocket_server,
+                            initialize_web_server)
 
 
 def get_arguments():
@@ -163,14 +170,28 @@ def main():
     simulator.pause()
     simulator.start_trimmed = args.trim
 
-    logger.debug("creating the simulator server")
-    simulator_server = SimulationServer(simulator)
+    initialize_controls_server(reactor, simulator.fdmexec, args.controls)
+    initialize_simulator_data_server(reactor, simulator, args.fdm)
 
-    simulator_server.fdm_clients = args.fdm
+    initialize_websocket_server(
+        reactor,
+        simulator.fdm,
+        configuration.WEBSOCKET_HOST,
+        configuration.WEBSOCKET_PORT,
+        configuration.WEBSOCKET_UPDATE_RATE
+    )
 
-    simulator_server.controls_port = args.controls
+    initialize_web_server(reactor, simulator, args.web)
 
-    simulator_server.web_server_port = args.web
+    def run_simulator():
+        result = simulator.run()
+
+        if not result:
+            logger.error("The simulator has failed to run")
+            reactor.stop()
+
+    fdm_updater = LoopingCall(run_simulator)
+    fdm_updater.start(args.dt)
 
     logger.debug("starting the simulator server")
-    simulator_server.start()
+    reactor.run()

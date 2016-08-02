@@ -6,14 +6,12 @@ a simulator that transmits and receives data from/to the network
 
 import logging
 
-from twisted.internet import reactor
 from twisted.web import server
 from twisted.internet.task import LoopingCall
 from twisted.web.wsgi import WSGIResource
 from flask import Flask, render_template
 from flask_restful import Api
 
-from huginn import configuration
 from huginn.protocols import ControlsProtocol, SimulatorDataProtocol
 from huginn.http import FDMDataWebSocketFactory, FDMDataWebSocketProtocol
 from huginn.rest import (FDMResource, AircraftResource, GPSResource,
@@ -33,221 +31,209 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
 logger = logging.getLogger(__name__)
 
 
-class SimulationServer(object):
-    """This class is the network front-end for the simulator. It will create
-    and initialize the interfaces that can be used to control and receive
-    simulation data."""
-    def __init__(self, simulator):
-        self.simulator = simulator
-        self.fdmexec = simulator.fdmexec
-        self.aircraft = simulator.aircraft
-        self.dt = simulator.fdmexec.GetDeltaT()
-        self.controls_port = configuration.CONTROLS_PORT
-        self.fdm_clients = []
-        self.web_server_port = configuration.WEB_SERVER_PORT
-        self.websocket_port = configuration.WEBSOCKET_PORT
-        self.websocket_update_rate = configuration.WEBSOCKET_UPDATE_RATE
+def initialize_controls_server(reactor, fdmexec, port):
+    """Initialize the controls server
 
-    def _initialize_controls_server(self):
-        """Initialize the controls server"""
-        logger.debug("Starting aircraft controls server at port %d",
-                     self.controls_port)
+    Arguments:
+    reactor: a Twisted reactor to use
+    fdmexec: an JSBSim FGFDMExec object
+    port: the ports to listen for the flight control data
+    """
+    logger.debug("Starting aircraft controls server at port %d", port)
 
-        controls_protocol = ControlsProtocol(self.fdmexec)
+    controls_protocol = ControlsProtocol(fdmexec)
 
-        reactor.listenUDP(self.controls_port, controls_protocol)
+    reactor.listenUDP(port, controls_protocol)
 
-    def _initialize_fdm_data_server(self):
-        """Initialize the fdm data server"""
-        for fdm_client in self.fdm_clients:
-            client_address, client_port, dt = fdm_client
-            logger.debug("Sending fdm data to %s:%d", client_address,
-                         client_port)
 
-            simulator_data_protocol = SimulatorDataProtocol(self.simulator,
-                                                            client_address,
-                                                            client_port)
+def initialize_simulator_data_server(reactor, simulator, clients):
+    """Initialize the simulator data server
 
-            reactor.listenUDP(0, simulator_data_protocol)
+    Arguments:
+    reactor: a Twisted reactor to use
+    simulator: a Simulator object
+    clients: a list of (address, port) tuples of the listening clients
+    """
+    for address, port, update_rate in clients:
+        logger.debug("Sending fdm data to %s:%d every %f seconds",
+                     address, port, update_rate)
 
-            simulator_data_updater = LoopingCall(
-                simulator_data_protocol.send_simulator_data)
+        simulator_data_protocol = SimulatorDataProtocol(simulator,
+                                                        address,
+                                                        port)
 
-            simulator_data_updater.start(dt)
+        reactor.listenUDP(0, simulator_data_protocol)
 
-    def _run_simulator(self):
-        result = self.simulator.run()
+        simulator_data_updater = LoopingCall(
+            simulator_data_protocol.send_simulator_data)
 
-        if not result:
-            logger.error("The simulator has failed to run")
-            reactor.stop()
+        simulator_data_updater.start(update_rate)
 
-    def _initialize_simulator_updater(self):
-        fdm_updater = LoopingCall(self._run_simulator)
-        fdm_updater.start(self.dt)
 
-    def _initialize_websocket_server(self):
-        factory = FDMDataWebSocketFactory(
-            self.simulator.fdm,
-            self.websocket_update_rate,
-            "ws://localhost:%d" % self.websocket_port
-        )
+def initialize_websocket_server(reactor, fdm, host, port, update_rate):
+    """Initialize the web socket server
 
-        factory.protocol = FDMDataWebSocketProtocol
+    Arguments:
+    reactor: a twisted reactor object
+    fdm: an FDM object
+    host: the server host
+    port: the port to listen to
+    update_rate: the websocket data update rate in Hz
+    """
+    logger.debug("The websocket interface runs on %s:%d", host, port)
+    logger.debug("The web socket interface update rate is %f Hz", update_rate)
 
-        reactor.listenTCP(self.websocket_port, factory)
+    factory = FDMDataWebSocketFactory(
+        fdm,
+        update_rate,
+        "ws://%s:%d" % (host, port)
+    )
 
-    def _add_fdm_resources(self, api):
-        api.add_resource(FDMResource, "/fdm",
-                         resource_class_args=(self.fdmexec, self.aircraft))
+    factory.protocol = FDMDataWebSocketProtocol
 
-        api.add_resource(AccelerationsResource, "/fdm/accelerations",
-                         resource_class_args=(self.fdmexec,))
+    reactor.listenTCP(port, factory)
 
-        api.add_resource(VelocitiesResource, "/fdm/velocities",
-                         resource_class_args=(self.fdmexec,))
 
-        api.add_resource(OrientationResource, "/fdm/orientation",
-                         resource_class_args=(self.fdmexec,))
+def _add_fdm_resources(api, fdmexec, aircraft):
+    api.add_resource(FDMResource, "/fdm",
+                     resource_class_args=(fdmexec, aircraft))
 
-        api.add_resource(AtmosphereResource, "/fdm/atmosphere",
-                         resource_class_args=(self.fdmexec,))
+    api.add_resource(AccelerationsResource, "/fdm/accelerations",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(ForcesResource, "/fdm/forces",
-                         resource_class_args=(self.fdmexec,))
+    api.add_resource(VelocitiesResource, "/fdm/velocities",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(InitialConditionResource, "/fdm/initial_condition",
-                         resource_class_args=(self.fdmexec,))
+    api.add_resource(OrientationResource, "/fdm/orientation",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(PositionResource, "/fdm/position",
-                         resource_class_args=(self.fdmexec,))
+    api.add_resource(AtmosphereResource, "/fdm/atmosphere",
+                     resource_class_args=(fdmexec,))
 
-    def _add_instruments(self, api):
-        api.add_resource(GPSResource, "/aircraft/instruments/gps",
-                         resource_class_args=(self.aircraft.instruments.gps,))
+    api.add_resource(ForcesResource, "/fdm/forces",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(
-            AirspeedIndicatorResource,
-            "/aircraft/instruments/airspeed_indicator",
-            resource_class_args=(self.aircraft.instruments.airspeed_indicator,)
-        )
+    api.add_resource(InitialConditionResource, "/fdm/initial_condition",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(
-            AltimeterResource,
-            "/aircraft/instruments/altimeter",
-            resource_class_args=(self.aircraft.instruments.altimeter,)
-        )
+    api.add_resource(PositionResource, "/fdm/position",
+                     resource_class_args=(fdmexec,))
 
-        api.add_resource(
-            AttitudeIndicatorResource,
-            "/aircraft/instruments/attitude_indicator",
-            resource_class_args=(self.aircraft.instruments.attitude_indicator,)
-        )
 
-        api.add_resource(
-            HeadingIndicatorResource,
-            "/aircraft/instruments/heading_indicator",
-            resource_class_args=(self.aircraft.instruments.heading_indicator,)
-        )
+def _add_instruments(api, instruments):
+    api.add_resource(GPSResource, "/aircraft/instruments/gps",
+                     resource_class_args=(instruments.gps,))
 
-        api.add_resource(
-            VerticalSpeedIndicatorResource,
-            "/aircraft/instruments/vertical_speed_indicator",
-            resource_class_args=(
-                self.aircraft.instruments.vertical_speed_indicator,)
-        )
+    api.add_resource(
+        AirspeedIndicatorResource,
+        "/aircraft/instruments/airspeed_indicator",
+        resource_class_args=(instruments.airspeed_indicator,)
+    )
 
-    def _initialize_web_frontend(self):
-        app = Flask(__name__)
+    api.add_resource(
+        AltimeterResource,
+        "/aircraft/instruments/altimeter",
+        resource_class_args=(instruments.altimeter,)
+    )
 
-        api = Api()
+    api.add_resource(
+        AttitudeIndicatorResource,
+        "/aircraft/instruments/attitude_indicator",
+        resource_class_args=(instruments.attitude_indicator,)
+    )
 
-        self._add_fdm_resources(api)
+    api.add_resource(
+        HeadingIndicatorResource,
+        "/aircraft/instruments/heading_indicator",
+        resource_class_args=(instruments.heading_indicator,)
+    )
 
-        api.add_resource(AircraftResource, "/aircraft",
-                         resource_class_args=(self.aircraft,))
+    api.add_resource(
+        VerticalSpeedIndicatorResource,
+        "/aircraft/instruments/vertical_speed_indicator",
+        resource_class_args=(instruments.vertical_speed_indicator,)
+    )
 
-        self._add_instruments(api)
 
-        api.add_resource(
-            AccelerometerResource,
-            "/aircraft/sensors/accelerometer",
-            resource_class_args=(self.aircraft.sensors.accelerometer,)
-        )
+def _add_sensors(api, sensors):
+    api.add_resource(
+        AccelerometerResource,
+        "/aircraft/sensors/accelerometer",
+        resource_class_args=(sensors.accelerometer,)
+    )
 
-        api.add_resource(
-            GyroscopeResource,
-            "/aircraft/sensors/gyroscope",
-            resource_class_args=(self.aircraft.sensors.gyroscope,)
-        )
+    api.add_resource(
+        GyroscopeResource,
+        "/aircraft/sensors/gyroscope",
+        resource_class_args=(sensors.gyroscope,)
+    )
 
-        api.add_resource(
-            ThermometerResource,
-            "/aircraft/sensors/thermometer",
-            resource_class_args=(self.aircraft.sensors.thermometer,)
-        )
+    api.add_resource(
+        ThermometerResource,
+        "/aircraft/sensors/thermometer",
+        resource_class_args=(sensors.thermometer,)
+    )
 
-        api.add_resource(
-            PressureSensorResource,
-            "/aircraft/sensors/pressure_sensor",
-            resource_class_args=(self.aircraft.sensors.pressure_sensor,)
-        )
+    api.add_resource(
+        PressureSensorResource,
+        "/aircraft/sensors/pressure_sensor",
+        resource_class_args=(sensors.pressure_sensor,)
+    )
 
-        api.add_resource(
-            PitotTubeResource,
-            "/aircraft/sensors/pitot_tube",
-            resource_class_args=(self.aircraft.sensors.pitot_tube,)
-        )
+    api.add_resource(
+        PitotTubeResource,
+        "/aircraft/sensors/pitot_tube",
+        resource_class_args=(sensors.pitot_tube,)
+    )
 
-        api.add_resource(
-            InertialNavigationSystemResource,
-            "/aircraft/sensors/ins",
-            resource_class_args=(
-                self.aircraft.sensors.inertial_navigation_system,)
-        )
+    api.add_resource(
+        InertialNavigationSystemResource,
+        "/aircraft/sensors/ins",
+        resource_class_args=(sensors.inertial_navigation_system,)
+    )
 
-        api.add_resource(
-            EngineResource,
-            "/aircraft/engine",
-            resource_class_args=(self.aircraft.engine,)
-        )
 
-        api.add_resource(
-            FlightControlsResource,
-            "/aircraft/controls",
-            resource_class_args=(self.aircraft.controls,)
-        )
+def initialize_web_server(reactor, simulator, port):
+    logger.debug("The web server will listen at port %d", port)
 
-        api.add_resource(
-            SimulatorControlResource,
-            "/simulator",
-            resource_class_args=(self.simulator,)
-        )
+    app = Flask(__name__)
 
-        api.init_app(app)
+    api = Api()
 
-        @app.route("/")
-        def index():
-            return render_template("index.html")
+    _add_fdm_resources(api, simulator.fdmexec, simulator.aircraft)
 
-        resource = WSGIResource(reactor, reactor.getThreadPool(), app)
-        site = server.Site(resource)
+    _add_instruments(api, simulator.aircraft.instruments)
 
-        reactor.listenTCP(self.web_server_port, site)
+    _add_sensors(api, simulator.aircraft.sensors)
 
-    def start(self):
-        """Start the simulator server"""
-        self._initialize_controls_server()
-        self._initialize_fdm_data_server()
-        self._initialize_simulator_updater()
-        self._initialize_websocket_server()
-        self._initialize_web_frontend()
+    api.add_resource(AircraftResource, "/aircraft",
+                     resource_class_args=(simulator.aircraft,))
 
-        logger.info("Starting the simulator server")
-        reactor.run()  # @UndefinedVariable
-        logger.info("The simulator server has stopped")
+    api.add_resource(
+        EngineResource,
+        "/aircraft/engine",
+        resource_class_args=(simulator.aircraft.engine,)
+    )
 
-    def stop(self):
-        """Stop the simulator server"""
-        logger.info("Shutting down the simulator server")
-        reactor.stop()  # @UndefinedVariable
+    api.add_resource(
+        FlightControlsResource,
+        "/aircraft/controls",
+        resource_class_args=(simulator.aircraft.controls,)
+    )
+
+    api.add_resource(
+        SimulatorControlResource,
+        "/simulator",
+        resource_class_args=(simulator,)
+    )
+
+    api.init_app(app)
+
+    @app.route("/")
+    def index():
+        return render_template("index.html")
+
+    resource = WSGIResource(reactor, reactor.getThreadPool(), app)
+    site = server.Site(resource)
+
+    reactor.listenTCP(port, site)
