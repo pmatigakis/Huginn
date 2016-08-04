@@ -14,54 +14,44 @@ from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
 
-from huginn.unit_conversions import convert_jsbsim_velocity
-
 
 class FDMResource(Resource):
     """The FDMResource will return the data from the flight dynamics model"""
 
-    def __init__(self, fdmexec, aircraft):
+    def __init__(self, fdm, aircraft):
         """Create a new FDMResource object
 
         Arguments:
-        fdmexec: A jsbsim FGFDMExec object
+        fdm: an FDM object
         aircraft: an aircraft object
         """
-        self.fdmexec = fdmexec
+        self.fdm = fdm
         self.aircraft = aircraft
 
     def get(self):
         """Get the fdm data"""
         sensors = self.aircraft.sensors
 
-        climb_rate = convert_jsbsim_velocity(
-            -self.fdmexec.GetPropagate().GetVel(3))
-
         flight_data = {
-            "time": self.fdmexec.GetSimTime(),
-            "dt": self.fdmexec.GetDeltaT(),
-            "latitude": self.aircraft.instruments.gps.latitude,
-            "longitude": self.aircraft.instruments.gps.longitude,
-            "altitude": self.aircraft.instruments.gps.altitude,
-            "airspeed": self.aircraft.instruments.gps.airspeed,
-            "heading": self.aircraft.instruments.gps.heading,
-            "x_acceleration": sensors.accelerometer.true_x,
-            "y_acceleration": sensors.accelerometer.true_y,
-            "z_acceleration": sensors.accelerometer.true_z,
-            "roll_rate": sensors.gyroscope.true_roll_rate,
-            "pitch_rate": sensors.gyroscope.true_pitch_rate,
-            "yaw_rate": sensors.gyroscope.true_yaw_rate,
-            "temperature": sensors.thermometer.true_temperature,
-            "static_pressure": sensors.pressure_sensor.true_pressure,
+            "time": self.fdm.fdmexec.GetSimTime(),
+            "dt": self.fdm.fdmexec.GetDeltaT(),
+            "latitude": self.fdm.position.latitude,
+            "longitude": self.fdm.position.longitude,
+            "altitude": self.fdm.position.altitude,
+            "airspeed": self.fdm.velocities.true_airspeed,
+            "heading": self.fdm.orientation.psi,
+            "x_acceleration": self.fdm.accelerations.x,
+            "y_acceleration": self.fdm.accelerations.y,
+            "z_acceleration": self.fdm.accelerations.z,
+            "roll_rate": self.fdm.velocities.p,
+            "pitch_rate": self.fdm.velocities.q,
+            "yaw_rate": self.fdm.velocities.r,
+            "temperature": self.fdm.atmosphere.temperature,
+            "static_pressure": self.fdm.atmosphere.pressure,
             "total_pressure": sensors.pitot_tube.true_pressure,
-            "roll": sensors.inertial_navigation_system.true_roll,
-            "pitch": sensors.inertial_navigation_system.true_pitch,
-            "thrust": self.aircraft.engine.thrust,
-            "aileron": self.aircraft.controls.aileron,
-            "elevator": self.aircraft.controls.elevator,
-            "rudder": self.aircraft.controls.rudder,
-            "throttle": self.aircraft.engine.throttle,
-            "climb_rate": climb_rate
+            "roll": self.fdm.orientation.phi,
+            "pitch": self.fdm.orientation.theta,
+            "climb_rate": self.fdm.velocities.climb_rate
         }
 
         return flight_data

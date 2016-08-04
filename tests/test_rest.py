@@ -18,6 +18,7 @@ from huginn import configuration
 from huginn.fdm import (FDMBuilder, Accelerations, Velocities, Orientation,
                         Atmosphere, Forces, InitialCondition, Position)
 
+from huginn.fdm import FDM
 from huginn.aircraft import Aircraft
 from huginn.simulator import Simulator
 from huginn.schemas import AccelerationsSchema
@@ -36,34 +37,30 @@ class FDMResourceTests(TestCase):
         fdmexec = fdm_builder.create_fdm()
 
         aircraft = Aircraft(fdmexec)
-
-        resource = FDMResource(fdmexec, aircraft)
+        fdm = FDM(fdmexec)
+        
+        resource = FDMResource(fdm, aircraft)
 
         fdm_data = resource.get()
 
-        self.assertAlmostEqual(fdmexec.GetSimTime(), fdm_data["time"], 3)
-        self.assertAlmostEqual(fdmexec.GetDeltaT(), fdm_data["dt"], 3)
-        self.assertAlmostEqual(aircraft.instruments.gps.latitude, fdm_data["latitude"], 3)
-        self.assertAlmostEqual(aircraft.instruments.gps.longitude, fdm_data["longitude"], 3)
-        self.assertAlmostEqual(aircraft.instruments.gps.altitude, fdm_data["altitude"], 3)
-        self.assertAlmostEqual(aircraft.instruments.gps.airspeed, fdm_data["airspeed"], 3)
-        self.assertAlmostEqual(aircraft.instruments.gps.heading, fdm_data["heading"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_x, fdm_data["x_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_y, fdm_data["y_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.accelerometer.true_z, fdm_data["z_acceleration"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_roll_rate, fdm_data["roll_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_pitch_rate, fdm_data["pitch_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.gyroscope.true_yaw_rate, fdm_data["yaw_rate"], 3)
-        self.assertAlmostEqual(aircraft.sensors.thermometer.true_temperature, fdm_data["temperature"], 3)
-        self.assertAlmostEqual(aircraft.sensors.pressure_sensor.true_pressure, fdm_data["static_pressure"], 3)
+        self.assertAlmostEqual(fdm.fdmexec.GetSimTime(), fdm_data["time"], 3)
+        self.assertAlmostEqual(fdm.fdmexec.GetDeltaT(), fdm_data["dt"], 3)
+        self.assertAlmostEqual(fdm.position.latitude, fdm_data["latitude"], 3)
+        self.assertAlmostEqual(fdm.position.longitude, fdm_data["longitude"], 3)
+        self.assertAlmostEqual(fdm.position.altitude, fdm_data["altitude"], 3)
+        self.assertAlmostEqual(fdm.velocities.true_airspeed, fdm_data["airspeed"], 3)
+        self.assertAlmostEqual(fdm.position.heading, fdm_data["heading"], 3)
+        self.assertAlmostEqual(fdm.accelerations.x, fdm_data["x_acceleration"], 3)
+        self.assertAlmostEqual(fdm.accelerations.y, fdm_data["y_acceleration"], 3)
+        self.assertAlmostEqual(fdm.accelerations.z, fdm_data["z_acceleration"], 3)
+        self.assertAlmostEqual(fdm.velocities.p, fdm_data["roll_rate"], 3)
+        self.assertAlmostEqual(fdm.velocities.q, fdm_data["pitch_rate"], 3)
+        self.assertAlmostEqual(fdm.velocities.r, fdm_data["yaw_rate"], 3)
+        self.assertAlmostEqual(fdm.atmosphere.temperature, fdm_data["temperature"], 3)
+        self.assertAlmostEqual(fdm.atmosphere.pressure, fdm_data["static_pressure"], 3)
         self.assertAlmostEqual(aircraft.sensors.pitot_tube.true_pressure, fdm_data["total_pressure"], 3)
-        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.true_roll, fdm_data["roll"], 3)
-        self.assertAlmostEqual(aircraft.sensors.inertial_navigation_system.true_pitch, fdm_data["pitch"], 3)
-        self.assertAlmostEqual(aircraft.engine.thrust, fdm_data["thrust"], 3)
-        self.assertAlmostEqual(aircraft.controls.aileron, fdm_data["aileron"], 3)
-        self.assertAlmostEqual(aircraft.controls.elevator, fdm_data["elevator"], 3)
-        self.assertAlmostEqual(aircraft.controls.rudder, fdm_data["rudder"], 3)
-        self.assertAlmostEqual(aircraft.engine.throttle, fdm_data["throttle"], 3)
+        self.assertAlmostEqual(fdm.orientation.phi, fdm_data["roll"], 3)
+        self.assertAlmostEqual(fdm.orientation.theta, fdm_data["pitch"], 3)
 
         climb_rate = convert_jsbsim_velocity(-fdmexec.GetPropagate().GetVel(3))
         

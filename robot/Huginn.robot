@@ -6,55 +6,55 @@ Library    Collections
 
 *** Variables ***
 ${HUGINN_URL}    http://localhost:8090
-${IC_X_ACCELERATION}    -2.3863054128
-${IC_Y_ACCELERATION}    0.300261528
-${IC_Z_ACCELERATION}    -8.0968135752
-${IC_P}    1.2017789753
-${IC_Q}    -3.2183
-${IC_R}    1.1054074741
-${IC_PRESSURE}    97771.68
+${IC_X_ACCELERATION}    -2.3969
+${IC_Y_ACCELERATION}    0.1655
+${IC_Z_ACCELERATION}    -19.5633 
+${IC_P}    0.0
+${IC_Q}    -0.1957
+${IC_R}    0.0759
+${IC_PRESSURE}    97772.9481972
 ${IC_SEA_LEVEL_PRESSURE}    101325.16146586795
-${IC_TOTAL_PRESSURE}    98224.25
-${IC_AIRSPEED}    27.5779647576
-${IC_CLIMB_RATE}    -0.5705791992
-${IC_U_DOT}    -1.9936925328
-${IC_V_DOT}    -0.0348145608
-${IC_W_DOT}    0.109516164
-${IC_P_DOT}    0.45928296858
-${IC_Q_DOT}    -1.2179936809
-${IC_R_DOT}    -0.20334272149
+${IC_TOTAL_PRESSURE}    98309.2437122
+${IC_AIRSPEED}    29.991
+${IC_CLIMB_RATE}    0.0341
+${IC_U_DOT}    -2.4923
+${IC_V_DOT}    -0.0147
+${IC_W_DOT}    -9.8528
+${IC_P_DOT}    0.2879
+${IC_Q_DOT}    -52.9971
+${IC_R_DOT}    22.4635 
 ${IC_GRAVITY}    9.7952561016
-${IC_U}    27.568844532
-${IC_V}    -0.1193944272
-${IC_W}    -0.712468476
-${IC_CALIBRATED_AIRSPEED}    27.1740273384
-${IC_EQUIVALENT_AIRSPEED}    27.1825690536
-${IC_GROUND_SPEED}    27.5724
-${IC_PHI}    1.083614
-${IC_THETA}    -2.6704
-${IC_PSI}    46.019295
-${IC_TEMPERATURE}    286.1993966667
+${IC_U}    29.9915
+${IC_V}    0.0001
+${IC_W}    -0.0341
+${IC_CALIBRATED_AIRSPEED}    29.5623
+${IC_EQUIVALENT_AIRSPEED}    29.561
+${IC_GROUND_SPEED}    29.9915
+${IC_PHI}    0.0
+${IC_THETA}    0.0
+${IC_PSI}    45.0
+${IC_TEMPERATURE}    286.2
 ${IC_SEA_LEVEL_TEMPERATURE}    288.15
 ${IC_DENSITY}    1.1900096968
 ${IC_SEA_LEVEL_DENSITY}    1.2250554566
-${IC_X_BODY_FORCE}    -15.683521924
-${IC_Y_BODY_FORCE}    1.9859574638
-${IC_Z_BODY_FORCE}    -53.304062524
-${IC_X_WIND_FORCE}    14.30966199
-${IC_Y_WIND_FORCE}    1.9240248744
-${IC_Z_WIND_FORCE}    53.6914492465
-${IC_X_TOTAL_FORCE}    -15.683597544
-${IC_Y_TOTAL_FORCE}    1.9859574638
-${IC_Z_TOTAL_FORCE}    -53.304062524
+${IC_X_BODY_FORCE}    -16.2
+${IC_Y_BODY_FORCE}    0.0
+${IC_Z_BODY_FORCE}    -128.399
+${IC_X_WIND_FORCE}    16.097
+${IC_Y_WIND_FORCE}    -0.001
+${IC_Z_WIND_FORCE}    128.417
+${IC_X_TOTAL_FORCE}    -16.243
+${IC_Y_TOTAL_FORCE}    -0.002
+${IC_Z_TOTAL_FORCE}    -128.399 
 ${IC_START_LATITUDE}    37.9232547
 ${IC_START_LONGITUDE}    23.921773
 ${IC_START_HEADING}    45.0
 ${IC_START_AIRSPEED}    30.0
 ${IC_START_ALTITUDE}    300.0
-${IC_AIRSPEED_IN_KNOTS}    53.6079420899
+${IC_AIRSPEED_IN_KNOTS}    58.3
 ${IC_ALTIMETER_ALTITUDE}    984.252
 ${IC_ALTIMETER_PRESSURE}    29.92130302799185
-${IC_CLIMB_RATE_FPM}    -112.31874
+${IC_CLIMB_RATE_FPM}    6.7
 
 
 *** Keywords ***
@@ -65,7 +65,7 @@ Start Huginn
     Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
     Simulator Is Paused
     Simulator DT Should Be    0.003333
-    Simulation Time Should Be Close To    1.0  0.1
+    Simulation Time Should Be    0.003333
     
 Stop Huginn
     Terminate All Processes
@@ -137,6 +137,15 @@ Simulator DT Should Be
     Response Content Type Should Be JSON    ${resp}
     JSON Response Should Contain item    ${resp}  dt
     Should Be Equal As Numbers    ${resp.json()['dt']}  ${dt}
+
+Simulation Time Should Be
+    [Arguments]    ${time}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /simulator
+    Response Status Code Should Be    ${resp}  200
+    Response Content Type Should Be JSON    ${resp}
+    JSON Response Should Contain item    ${resp}  time
+    Should Be Equal As Numbers    ${resp.json()['time']}  ${time}
 
 Simulation Time Should Be Close To
     [Arguments]    ${time}  ${difference}=0.1
@@ -236,10 +245,6 @@ Is Valid FDM Data Response
     JSON Response Should Contain item    ${response}  altitude
     JSON Response Should Contain item    ${response}  airspeed
     JSON Response Should Contain item    ${response}  heading
-    JSON Response Should Contain item    ${response}  aileron
-    JSON Response Should Contain item    ${response}  elevator
-    JSON Response Should Contain item    ${response}  rudder
-    JSON Response Should Contain item    ${response}  throttle
     JSON Response Should Contain item    ${response}  x_acceleration
     JSON Response Should Contain item    ${response}  y_acceleration
     JSON Response Should Contain item    ${response}  z_acceleration
@@ -251,7 +256,6 @@ Is Valid FDM Data Response
     JSON Response Should Contain item    ${response}  total_pressure
     JSON Response Should Contain item    ${response}  roll
     JSON Response Should Contain item    ${response}  pitch
-    JSON Response Should Contain item    ${response}  thrust
 
 Is FDM Data Response With Aircraft In The Start Location
     [Arguments]    ${response}
@@ -260,10 +264,6 @@ Is FDM Data Response With Aircraft In The Start Location
     Value Close To    ${response.json()['altitude']}  300.00000  10.0
     Value Close To    ${response.json()['airspeed']}  30.00000  5.0
     Value Close To    ${response.json()['heading']}  45.00000  5.0
-    Should Be Equal As Numbers    ${response.json()['aileron']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${response.json()['elevator']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${response.json()['rudder']}  0.00000  precision=4
-    Should Be Equal As Numbers    ${response.json()['throttle']}  0.00000  precision=4
     Value Close To    ${response.json()['roll']}  0.00000  5.0
     Value Close To    ${response.json()['pitch']}  0.00000  5.0
     Should Be Equal As Numbers    ${response.json()['x_acceleration']}  ${IC_X_ACCELERATION}  precision=4
@@ -315,7 +315,7 @@ Should Be Accelerometer Response With Aircraft Almost Level
     [Arguments]    ${response}
     Value Close To    ${response.json()['x']}  0.0  5.0
     Value Close To    ${response.json()['y']}  0.0  5.0
-    Value Close To    ${response.json()['z']}  -9.8  5.0
+    Value Close To    ${response.json()['z']}  -19.0  5.0
 
 Get Gyroscope Data
     Create Session    huginn_web_server  ${HUGINN_URL}

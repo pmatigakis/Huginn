@@ -66,12 +66,11 @@ class SimulationBuilder(object):
         simulator = Simulator(fdmexec)
         simulator.trim_mode = self.trim_mode
 
-        while simulator.simulation_time < 1.0:
-            result = simulator.step()
+        result = simulator.step()
 
-            if not result:
-                logger.error("Failed to execute simulator run")
-                return None
+        if not result:
+            logger.error("Failed to execute simulator run")
+            return None
 
         return simulator
 
@@ -131,7 +130,7 @@ class Simulator(object):
         logger.debug("Reseting the aircraft")
         self._crashed = False
 
-        self.resume()
+        self.pause()
 
         self.aircraft.controls.aileron = 0.0
         self.aircraft.controls.elevator = 0.0
@@ -158,15 +157,12 @@ class Simulator(object):
             self.aircraft.controls.rudder = 0.0
             self.aircraft.controls.throttle = 0.0
 
-        while self.simulation_time < 1.0:
-            if not self.step():
-                logger.error("Failed to execute initial run")
-                return False
+        if not self.step():
+            logger.error("Failed to execute initial run")
+            return False
 
         logger.debug("Engine thrust after simulation reset %f",
                      self.aircraft.engine.thrust)
-
-        self.pause()
 
         return True
 

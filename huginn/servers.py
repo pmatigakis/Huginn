@@ -94,30 +94,30 @@ def initialize_websocket_server(reactor, fdm, host, port, update_rate):
     reactor.listenTCP(port, factory)
 
 
-def _add_fdm_resources(api, fdmexec, aircraft):
+def _add_fdm_resources(api, fdm, aircraft):
     api.add_resource(FDMResource, "/fdm",
-                     resource_class_args=(fdmexec, aircraft))
+                     resource_class_args=(fdm, aircraft))
 
     api.add_resource(AccelerationsResource, "/fdm/accelerations",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(VelocitiesResource, "/fdm/velocities",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(OrientationResource, "/fdm/orientation",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(AtmosphereResource, "/fdm/atmosphere",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(ForcesResource, "/fdm/forces",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(InitialConditionResource, "/fdm/initial_condition",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
     api.add_resource(PositionResource, "/fdm/position",
-                     resource_class_args=(fdmexec,))
+                     resource_class_args=(fdm.fdmexec,))
 
 
 def _add_instruments(api, instruments):
@@ -200,7 +200,7 @@ def initialize_web_server(reactor, simulator, port):
 
     api = Api()
 
-    _add_fdm_resources(api, simulator.fdmexec, simulator.aircraft)
+    _add_fdm_resources(api, simulator.fdm, simulator.aircraft)
 
     _add_instruments(api, simulator.aircraft.instruments)
 

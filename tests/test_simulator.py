@@ -14,7 +14,7 @@ class SimulatorBuilderTests(TestCase):
         simulator = simulation_builder.create_simulator()
 
         self.assertIsNotNone(simulator)
-        self.assertGreaterEqual(simulator.simulation_time, 0.5)
+        self.assertEqual(simulator.simulation_time, configuration.DT)
 
 class TestSimulator(TestCase):
     def test_run_with_real_fdmexec(self):
