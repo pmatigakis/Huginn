@@ -100,21 +100,6 @@ class FDMBuilder(object):
 
         return fdmexec
 
-        # Run the simulation for 1 second in order to make sure that
-        # everything is ok
-        while fdmexec.GetSimTime() < 1.0:
-            fdmexec.ProcessMessage()
-            fdmexec.CheckIncrementalHold()
-
-            if not fdmexec.Run():
-                logger.error("Failed to execute initial run")
-                return None
-
-        logger.debug("Simulation time after initialization: %f seconds",
-                     fdmexec.GetSimTime())
-
-        return fdmexec
-
 
 class Accelerations(object):
     def __init__(self, fdmexec):
