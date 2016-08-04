@@ -1,5 +1,5 @@
 import math
-from unittest import TestCase
+from unittest import TestCase, main
 
 from huginn.fdm import (FDMBuilder, Accelerations, FDM, Velocities, Position,
                         Orientation, Atmosphere, Forces, InitialCondition)
@@ -10,7 +10,8 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
                                      convert_jsbsim_pressure,
                                      convert_jsbsim_temperature,
                                      convert_jsbsim_density,
-                                     convert_jsbsim_force)
+                                     convert_jsbsim_force,
+                                     ur)
 
 #here are defined the accelerations when the JSBSim model is at the initial
 #conditions
@@ -48,6 +49,26 @@ class TestCreateFDMExec(TestCase):
         fdm = fdm_builder.create_fdm()
 
         self.assertIsNotNone(fdm)
+
+        self.assertEqual(fdm.GetSimTime(), 0.0)
+        self.assertEqual(fdm.GetDeltaT(), configuration.DT)
+        self.assertAlmostEqual(fdm.GetIC().GetLatitudeDegIC(), configuration.LATITUDE, 3)
+        self.assertAlmostEqual(fdm.GetIC().GetLongitudeDegIC(), configuration.LONGITUDE, 3)
+        self.assertAlmostEqual(fdm.GetIC().GetPsiDegIC(), configuration.HEADING, 3)
+
+        altitude = configuration.ALTITUDE * ur.meter
+        altitude.ito(ur.foot)
+
+        altitude_in_feet = altitude.magnitude
+
+        self.assertAlmostEqual(fdm.GetIC().GetAltitudeASLFtIC(), altitude_in_feet, 3)
+
+        airspeed = configuration.AIRSPEED * ur.meters_per_second
+        airspeed.ito(ur.knot)
+
+        airspeed_in_knots = airspeed.magnitude
+        
+        self.assertAlmostEqual(fdm.GetIC().GetVtrueKtsIC(), airspeed_in_knots, 3)
 
 class AccelerationsTests(TestCase):
     def test_accelerations(self):
@@ -259,3 +280,6 @@ class InitialConditionTests(TestCase):
         self.assertAlmostEqual(ic.altitude, 500.0, 3)
         self.assertAlmostEqual(ic.airspeed, 150.0, 3)
         self.assertAlmostEqual(ic.heading, 90.0, 3)
+
+if __name__ == "__main__":
+    main()
