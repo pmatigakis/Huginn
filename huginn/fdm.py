@@ -24,6 +24,13 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
 logger = logging.getLogger(__name__)
 
 
+TRIM_MODE_LONGITUDINAL = 0
+TRIM_MODE_FULL = 1
+TRIM_MODE_GROUND = 2
+TRIM_MODE_PULLUP = 3
+TRIM_MODE_TURN = 5
+
+
 class FDMBuilder(object):
     """The FDMBuilder creates the flight dynamics model object that will be
     used by the simulator"""
@@ -90,6 +97,8 @@ class FDMBuilder(object):
         if not fdmexec.RunIC():
             logger.error("Failed to run initial condition")
             return None
+
+        return fdmexec
 
         # Run the simulation for 1 second in order to make sure that
         # everything is ok

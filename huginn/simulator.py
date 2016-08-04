@@ -8,7 +8,7 @@ import logging
 
 from huginn import configuration
 from huginn.aircraft import Aircraft
-from huginn.fdm import FDM, FDMBuilder
+from huginn.fdm import FDM, FDMBuilder, TRIM_MODE_FULL
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class SimulationBuilder(object):
         self.airspeed = configuration.AIRSPEED
         self.heading = configuration.HEADING
 
-        self.trim = False
+        self.trim_mode = TRIM_MODE_FULL
 
     def create_simulator(self):
         """Create the Simulator object"""
@@ -50,12 +50,21 @@ class SimulationBuilder(object):
 
         aircraft.start_engines()
 
-        if self.trim:
-            logger.debug("trimming the aircraft")
-            aircraft.trim()
+        logger.debug("trimming the aircraft at mode %d", self.trim_mode)
+
+        trim_result = aircraft.trim(self.trim_mode)
+        if not trim_result:
+            logger.warning("Failed to trim the aircraft")
+
+            # reset the aircraft control because the trim operation might
+            # have messed them up
+            aircraft.controls.aileron = 0.0
+            aircraft.controls.elevator = 0.0
+            aircraft.controls.rudder = 0.0
+            aircraft.controls.throttle = 0.0
 
         simulator = Simulator(fdmexec)
-        simulator.start_trimmed = self.trim
+        simulator.trim_mode = self.trim_mode
 
         while simulator.simulation_time < 1.0:
             result = simulator.step()
@@ -79,7 +88,7 @@ class Simulator(object):
         self.aircraft = Aircraft(fdmexec)
         self.fdmexec = fdmexec
         self.fdm = FDM(fdmexec)
-        self.start_trimmed = False
+        self.trim_mode = TRIM_MODE_FULL
         self._crashed = False
 
     @property
@@ -124,19 +133,30 @@ class Simulator(object):
 
         self.resume()
 
+        self.aircraft.controls.aileron = 0.0
+        self.aircraft.controls.elevator = 0.0
+        self.aircraft.controls.rudder = 0.0
+        self.aircraft.controls.throttle = 0.0
+
         self.fdmexec.ResetToInitialConditions(0)
 
         if not self.fdmexec.RunIC():
             logger.error("Failed to run initial condition")
             return False
 
-        self.aircraft.controls.aileron = 0.0
-        self.aircraft.controls.elevator = 0.0
-        self.aircraft.controls.rudder = 0.0
-        self.aircraft.controls.throttle = 0.0
-
         logger.debug("starting the aircraft's engines")
         self.aircraft.start_engines()
+
+        trim_result = self.aircraft.trim(self.trim_mode)
+        if not trim_result:
+            logger.warning("Failed to trim the aircraft")
+
+            # reset the controls because the trim operation might have messed
+            # them up
+            self.aircraft.controls.aileron = 0.0
+            self.aircraft.controls.elevator = 0.0
+            self.aircraft.controls.rudder = 0.0
+            self.aircraft.controls.throttle = 0.0
 
         while self.simulation_time < 1.0:
             if not self.step():

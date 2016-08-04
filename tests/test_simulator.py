@@ -106,4 +106,4 @@ class TestSimulator(TestCase):
         result = simulator.run_for(time_to_run)
 
         self.assertTrue(result)
-        self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 3)
+        self.assertAlmostEqual(expected_end_time, simulator.simulation_time, 2)

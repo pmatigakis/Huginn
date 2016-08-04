@@ -20,6 +20,21 @@ from huginn.servers import (initialize_controls_server,
                             initialize_websocket_server,
                             initialize_web_server)
 
+from huginn.fdm import (TRIM_MODE_FULL, TRIM_MODE_GROUND,
+                        TRIM_MODE_LONGITUDINAL, TRIM_MODE_PULLUP,
+                        TRIM_MODE_TURN)
+
+
+TRIM_MODES = {
+    "longitudinal": TRIM_MODE_LONGITUDINAL,
+    "full": TRIM_MODE_FULL,
+    "ground": TRIM_MODE_GROUND,
+    "pullup": TRIM_MODE_PULLUP,
+    # custom trim will not be supported by the simulator
+    # "custom": 4,
+    "turn": TRIM_MODE_TURN
+}
+
 
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
@@ -48,8 +63,8 @@ def get_arguments():
     parser.add_argument("--log", action="store",
                         help="The output log file")
 
-    parser.add_argument("--trim", action="store_true",
-                        help="trim the aircraft")
+    parser.add_argument("--trim", action="store", choices=TRIM_MODES.keys(),
+                        default="full", help="trim the aircraft")
 
     parser.add_argument("--latitude", action="store", type=float,
                         default=configuration.LATITUDE,
@@ -147,8 +162,10 @@ def main():
         logger.error("Invalid simulator arguments")
         exit(1)
 
+    logger.debug("Selected trim mode is %s", args.trim)
+
     simulator_builder = SimulationBuilder(huginn_data_path)
-    simulator_builder.trim = args.trim
+    simulator_builder.trim_mode = TRIM_MODES[args.trim]
     simulator_builder.dt = args.dt
 
     simulator_builder.latitude = args.latitude
@@ -168,7 +185,6 @@ def main():
     # start the simulator paused
     logger.debug("The simulator will start paused")
     simulator.pause()
-    simulator.start_trimmed = args.trim
 
     initialize_controls_server(reactor, simulator.fdmexec, args.controls)
     initialize_simulator_data_server(reactor, simulator, args.fdm)

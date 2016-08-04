@@ -4,11 +4,10 @@ and provide access to the simulated components of the aircraft.
 """
 import logging
 
-from PyJSBSim import tFull
-
 from huginn.unit_conversions import convert_jsbsim_force
 from huginn.sensors import Sensors
 from huginn.instruments import Instruments
+from huginn.fdm import TRIM_MODE_FULL
 
 
 logger = logging.getLogger(__name__)
@@ -123,11 +122,17 @@ class Aircraft(object):
             logger.debug("Starting engine %d", i)
             self.fdmexec.GetPropulsion().GetEngine(i).SetRunning(1)
 
-    def trim(self, mode=tFull):
+    def trim(self, mode=TRIM_MODE_FULL):
         """Trim the aircraft"""
-        logger.debug("Executing trim with mode=%d", mode)
+        logger.debug("Executing trim with mode = %d", mode)
 
-        self.fdmexec.DoTrim(mode)
+        try:
+            self.fdmexec.DoTrim(mode)
+        except:
+            logger.warning("Failed to trim the aircraft in mode %d", mode)
+            return False
+
+        return True
 
     def print_aircraft_state(self):
         """Print the aircraft state"""

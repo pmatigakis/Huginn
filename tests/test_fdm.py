@@ -14,29 +14,29 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
 
 #here are defined the accelerations when the JSBSim model is at the initial
 #conditions
-ic_x_acceleration = convert_jsbsim_acceleration(-7.829086)
-ic_y_acceleration = convert_jsbsim_acceleration(0.985110)
-ic_z_acceleration = convert_jsbsim_acceleration(-26.564349)
+ic_x_acceleration = -2.1684955116282985
+ic_y_acceleration = 0.13504071310147797
+ic_z_acceleration = -19.273096239317525
 
-ic_p = math.degrees(0.020975) 
-ic_q = math.degrees(-0.056170)
-ic_r = math.degrees(0.019293)
-ic_u = convert_jsbsim_acceleration(90.448965)
-ic_v = convert_jsbsim_acceleration(-0.391714)
-ic_w = convert_jsbsim_acceleration(-2.337495)
-ic_calibrated_airspeed = convert_jsbsim_velocity(89.153633)
-ic_equivalent_airspeed = convert_jsbsim_velocity(89.181657)
+ic_p = 0.0 #math.degrees(0.020975)
+ic_q = 0.0 #math.degrees(-0.056170)
+ic_r = 0.0 #math.degrees(0.019293)
+ic_u = 30.0 #convert_jsbsim_acceleration(90.448965)
+ic_v = 0.0 #convert_jsbsim_acceleration(-0.391714)
+ic_w = 0.0 #convert_jsbsim_acceleration(-2.337495)
+ic_calibrated_airspeed = convert_jsbsim_velocity(97.016659)
+ic_equivalent_airspeed = convert_jsbsim_velocity(97.013340)
 
-ic_vtrue = convert_jsbsim_velocity(90.478887)
-ic_climb_rate = convert_jsbsim_velocity(-1.871979)
+ic_vtrue = 30.0 #convert_jsbsim_velocity(90.478887)
+ic_climb_rate = 0.0 #convert_jsbsim_velocity(-1.871979)
 
-ic_p_dot = math.degrees(0.008016)
-ic_q_dot = math.degrees(-0.021258)
-ic_r_dot = math.degrees(-0.003549)
+ic_p_dot = 0.0007954234992649408
+ic_q_dot = -58.697486202139515
+ic_r_dot = 22.765392500429837
 
-ic_u_dot = convert_jsbsim_velocity(-6.540986)
-ic_v_dot = convert_jsbsim_velocity(-0.114221)
-ic_w_dot = convert_jsbsim_velocity(0.359305)
+ic_u_dot = -2.461306940365588
+ic_v_dot = 0.025224422806454053
+ic_w_dot = -10.218232433766243
 
 ic_gravity_acceleration = convert_jsbsim_acceleration(32.136667)
 

@@ -330,7 +330,7 @@ class SimulatorControlResourceTests(TestCase):
 
         simulator_control_resource = SimulatorControlResource(simulator)
 
-        simulator_control_resource.execute_command("run_for", {"time_to_run": 1.0})
+        simulator_control_resource.execute_command("run_for", {"time_to_run": 2.0})
 
         start_time = simulator.simulation_time
 
