@@ -11,35 +11,9 @@ from huginn.unit_conversions import (convert_jsbsim_acceleration,
                                      convert_jsbsim_temperature,
                                      convert_jsbsim_density,
                                      convert_jsbsim_force,
+                                     convert_jsbsim_angular_acceleration,
+                                     convert_jsbsim_angular_velocity,
                                      ur)
-
-#here are defined the accelerations when the JSBSim model is at the initial
-#conditions
-ic_x_acceleration = -2.1684955116282985
-ic_y_acceleration = 0.13504071310147797
-ic_z_acceleration = -19.273096239317525
-
-ic_p = 0.0 #math.degrees(0.020975)
-ic_q = 0.0 #math.degrees(-0.056170)
-ic_r = 0.0 #math.degrees(0.019293)
-ic_u = 30.0 #convert_jsbsim_acceleration(90.448965)
-ic_v = 0.0 #convert_jsbsim_acceleration(-0.391714)
-ic_w = 0.0 #convert_jsbsim_acceleration(-2.337495)
-ic_calibrated_airspeed = convert_jsbsim_velocity(97.016659)
-ic_equivalent_airspeed = convert_jsbsim_velocity(97.013340)
-
-ic_vtrue = 30.0 #convert_jsbsim_velocity(90.478887)
-ic_climb_rate = 0.0 #convert_jsbsim_velocity(-1.871979)
-
-ic_p_dot = 0.0007954234992649408
-ic_q_dot = -58.697486202139515
-ic_r_dot = 22.765392500429837
-
-ic_u_dot = -2.461306940365588
-ic_v_dot = 0.025224422806454053
-ic_w_dot = -10.218232433766243
-
-ic_gravity_acceleration = convert_jsbsim_acceleration(32.136667)
 
 class TestCreateFDMExec(TestCase):
     def test_create_fdmexec(self):
@@ -79,45 +53,46 @@ class AccelerationsTests(TestCase):
 
         accelerations = Accelerations(fdmexec)
 
-        self.assertAlmostEqual(accelerations.x, ic_x_acceleration, 3)
-        self.assertAlmostEqual(accelerations.y, ic_y_acceleration, 3)
-        self.assertAlmostEqual(accelerations.z, ic_z_acceleration, 3)
-        self.assertAlmostEqual(accelerations.p_dot, ic_p_dot, 3)
-        self.assertAlmostEqual(accelerations.q_dot, ic_q_dot, 3)
-        self.assertAlmostEqual(accelerations.r_dot, ic_r_dot, 3)
-        self.assertAlmostEqual(accelerations.u_dot, ic_u_dot, 3)
-        self.assertAlmostEqual(accelerations.v_dot, ic_v_dot, 3)
-        self.assertAlmostEqual(accelerations.w_dot, ic_w_dot, 3)
-        self.assertAlmostEqual(accelerations.gravity, ic_gravity_acceleration, 3)
+        x_acceleration = fdmexec.GetAuxiliary().GetPilotAccel(1)
+        expected_x_acceleration = convert_jsbsim_acceleration(x_acceleration)
+        self.assertAlmostEqual(accelerations.x, expected_x_acceleration, 3)
 
-class FDMTests(TestCase):
-    def setUp(self):
-        huginn_data_path = configuration.get_data_path()
+        y_acceleration = fdmexec.GetAuxiliary().GetPilotAccel(2)
+        expected_y_acceleration = convert_jsbsim_acceleration(y_acceleration)
+        self.assertAlmostEqual(accelerations.y, expected_y_acceleration, 3)
 
-        fdm_builder = FDMBuilder(huginn_data_path)
-        fdm_builder.aircraft = "Rascal"
-        self.fdmexec = fdm_builder.create_fdm()
-    
-    def test_fdm_accelerations(self):
-        fdm = FDM(self.fdmexec)
+        z_acceleration = fdmexec.GetAuxiliary().GetPilotAccel(3)
+        expected_z_acceleration = convert_jsbsim_acceleration(z_acceleration)
+        self.assertAlmostEqual(accelerations.z, expected_z_acceleration, 3)
 
-        self.assertAlmostEqual(fdm.accelerations.x, ic_x_acceleration, 3)
-        self.assertAlmostEqual(fdm.accelerations.y, ic_y_acceleration, 3)
-        self.assertAlmostEqual(fdm.accelerations.z, ic_z_acceleration, 3)
+        p_dot = fdmexec.GetAccelerations().GetPQRdot(1)
+        expected_p_dot = convert_jsbsim_angular_acceleration(p_dot)
+        self.assertAlmostEqual(accelerations.p_dot, expected_p_dot, 3)
 
-    def test_velocities(self):
-        fdm = FDM(self.fdmexec)
+        q_dot = fdmexec.GetAccelerations().GetPQRdot(2)
+        expected_q_dot = convert_jsbsim_angular_acceleration(q_dot)
+        self.assertAlmostEqual(accelerations.q_dot, expected_q_dot, 3)
 
-        self.assertAlmostEqual(fdm.velocities.p, ic_p, 3)
-        self.assertAlmostEqual(fdm.velocities.q, ic_q, 3)
-        self.assertAlmostEqual(fdm.velocities.r, ic_r, 3)
-        self.assertAlmostEqual(fdm.velocities.u, ic_u, 3)
-        self.assertAlmostEqual(fdm.velocities.v, ic_v, 3)
-        self.assertAlmostEqual(fdm.velocities.w, ic_w, 3)
-        self.assertAlmostEqual(fdm.velocities.climb_rate, ic_climb_rate, 3)
-        self.assertAlmostEqual(fdm.velocities.true_airspeed, ic_vtrue, 3)
-        self.assertAlmostEqual(fdm.velocities.calibrated_airspeed, ic_calibrated_airspeed, 3)
-        self.assertAlmostEqual(fdm.velocities.equivalent_airspeed, ic_equivalent_airspeed, 3)
+        r_dot = fdmexec.GetAccelerations().GetPQRdot(3)
+        expected_r_dot = convert_jsbsim_angular_acceleration(r_dot)
+        self.assertAlmostEqual(accelerations.r_dot, expected_r_dot, 3)
+
+        u_dot = fdmexec.GetAccelerations().GetUVWdot(1)
+        expected_u_dot = convert_jsbsim_acceleration(u_dot)
+        self.assertAlmostEqual(accelerations.u_dot, expected_u_dot, 3)
+
+        v_dot = fdmexec.GetAccelerations().GetUVWdot(2)
+        expected_v_dot = convert_jsbsim_acceleration(v_dot)
+        self.assertAlmostEqual(accelerations.v_dot, expected_v_dot, 3)
+
+        w_dot = fdmexec.GetAccelerations().GetUVWdot(3)
+        expected_w_dot = convert_jsbsim_acceleration(w_dot)
+        self.assertAlmostEqual(accelerations.w_dot, expected_w_dot, 3)
+
+        gravity_acceleration = fdmexec.GetAccelerations().GetGravAccelMagnitude()
+        expected_gravity_acceleration = convert_jsbsim_acceleration(gravity_acceleration)
+        self.assertAlmostEqual(accelerations.gravity, expected_gravity_acceleration, 3)
+
 
 class VelocitiesTests(TestCase):
     def test_accelerations(self):
@@ -129,16 +104,45 @@ class VelocitiesTests(TestCase):
 
         velocities = Velocities(fdmexec)
 
-        self.assertAlmostEqual(velocities.p, ic_p, 3)
-        self.assertAlmostEqual(velocities.q, ic_q, 3)
-        self.assertAlmostEqual(velocities.r, ic_r, 3)
-        self.assertAlmostEqual(velocities.true_airspeed, ic_vtrue, 3)
-        self.assertAlmostEqual(velocities.climb_rate, ic_climb_rate, 3)
-        self.assertAlmostEqual(velocities.u, ic_u, 3)
-        self.assertAlmostEqual(velocities.v, ic_v, 3)
-        self.assertAlmostEqual(velocities.w, ic_w, 3)
-        self.assertAlmostEqual(velocities.calibrated_airspeed, ic_calibrated_airspeed, 3)
-        self.assertAlmostEqual(velocities.equivalent_airspeed, ic_equivalent_airspeed, 3)
+        velocity = fdmexec.GetPropagate().GetPQR(1)
+        expected_velocity = convert_jsbsim_angular_velocity(velocity)
+        self.assertAlmostEqual(velocities.p, expected_velocity, 3)
+
+        velocity = fdmexec.GetPropagate().GetPQR(2)
+        expected_velocity = convert_jsbsim_angular_velocity(velocity)
+        self.assertAlmostEqual(velocities.q, expected_velocity, 3)
+
+        velocity = fdmexec.GetPropagate().GetPQR(3)
+        expected_velocity = convert_jsbsim_angular_velocity(velocity)
+        self.assertAlmostEqual(velocities.r, expected_velocity, 3)
+
+        airspeed = fdmexec.GetAuxiliary().GetVtrueFPS()
+        expected_airspeed =  convert_jsbsim_velocity(airspeed)
+        self.assertAlmostEqual(velocities.true_airspeed, expected_airspeed, 3)
+
+        climb_rate = -fdmexec.GetPropagate().GetVel(3)
+        expected_climb_rate = convert_jsbsim_velocity(climb_rate)
+        self.assertAlmostEqual(velocities.climb_rate, expected_climb_rate, 3)
+
+        velocity = fdmexec.GetPropagate().GetUVW(1)
+        expected_velocity = convert_jsbsim_velocity(velocity)
+        self.assertAlmostEqual(velocities.u, expected_velocity, 3)
+
+        velocity = fdmexec.GetPropagate().GetUVW(2)
+        expected_velocity = convert_jsbsim_velocity(velocity)
+        self.assertAlmostEqual(velocities.v, expected_velocity, 3)
+
+        velocity = fdmexec.GetPropagate().GetUVW(3)
+        expected_velocity = convert_jsbsim_velocity(velocity)
+        self.assertAlmostEqual(velocities.w, expected_velocity, 3)
+
+        airspeed = fdmexec.GetAuxiliary().GetVcalibratedFPS()
+        expected_airspeed = convert_jsbsim_velocity(airspeed)
+        self.assertAlmostEqual(velocities.calibrated_airspeed, expected_airspeed, 3)
+
+        airspeed = fdmexec.GetAuxiliary().GetVequivalentFPS()
+        expected_airspeed = convert_jsbsim_velocity(airspeed)
+        self.assertAlmostEqual(velocities.equivalent_airspeed, expected_airspeed, 3)
 
 class PositionTests(TestCase):
     def test_aircraft_position(self):
