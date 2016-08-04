@@ -131,8 +131,7 @@ function start_data_update(){
 		
 			update_hud(altitude, airspeed, heading, roll, pitch);
 		
-			//the -90 is required because the model is facing east
-			update_3dmap(latitude, longitude, altitude, airspeed, heading-90.0, roll, pitch);
+			update_3dmap(latitude, longitude, altitude, airspeed, heading+90.0, -roll, -pitch);
 
 			var airspeed_in_knots = airspeed * 1.94384;
 			var altitude_in_feet = altitude * 3.28084;
@@ -233,7 +232,7 @@ $(document).ready(function(){
 	        position : position,
 	        orientation : orientation,
 	        model : {
-	            uri : "static/models/Cesium_Air.glb",
+	            uri : "static/models/Rascal110-000-013.gltf",
 	            minimumPixelSize : 128,
 	            maximumScale : 20000
 	        }
