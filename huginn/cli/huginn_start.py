@@ -11,9 +11,6 @@ from twisted.internet.task import LoopingCall
 
 from huginn import configuration
 from huginn.simulator import SimulationBuilder
-from huginn.validators import port_number, fdm_data_endpoint,\
-                              is_valid_latitude, is_valid_longitude,\
-                              is_valid_heading
 
 from huginn.servers import (initialize_controls_server,
                             initialize_simulator_data_server,
@@ -24,6 +21,7 @@ from huginn.fdm import (TRIM_MODE_FULL, TRIM_MODE_GROUND,
                         TRIM_MODE_LONGITUDINAL, TRIM_MODE_PULLUP,
                         TRIM_MODE_TURN)
 
+from huginn.cli import argtypes
 
 TRIM_MODES = {
     "longitudinal": TRIM_MODE_LONGITUDINAL,
@@ -39,24 +37,25 @@ TRIM_MODES = {
 def get_arguments():
     parser = ArgumentParser(description="Huginn flight simulator")
 
-    parser.add_argument("--web", action="store", type=port_number,
+    parser.add_argument("--web", action="store", type=argtypes.port_number,
                         default=configuration.WEB_SERVER_PORT,
                         help="The web server port")
 
     parser.add_argument("--fdm",
                         action="append",
-                        type=fdm_data_endpoint,
+                        type=argtypes.fdm_data_endpoint,
                         default=[],
                         help="The fdm data endpoint")
 
-    parser.add_argument("--controls", action="store", type=port_number,
+    parser.add_argument("--controls", action="store",
+                        type=argtypes.port_number,
                         default=configuration.CONTROLS_PORT,
                         help="The controls port")
 
     parser.add_argument("--debug", action="store_true",
                         help="Enable debug logs")
 
-    parser.add_argument("--dt", action="store", type=float,
+    parser.add_argument("--dt", action="store", type=argtypes.update_rate,
                         default=configuration.DT,
                         help="the simulation timestep")
 
@@ -66,23 +65,23 @@ def get_arguments():
     parser.add_argument("--trim", action="store", choices=TRIM_MODES.keys(),
                         default="full", help="trim the aircraft")
 
-    parser.add_argument("--latitude", action="store", type=float,
+    parser.add_argument("--latitude", action="store", type=argtypes.latitude,
                         default=configuration.LATITUDE,
                         help="The starting latitude")
 
-    parser.add_argument("--longitude", action="store", type=float,
+    parser.add_argument("--longitude", action="store", type=argtypes.longitude,
                         default=configuration.LONGITUDE,
                         help="The starting longitude")
 
-    parser.add_argument("--altitude", action="store", type=float,
+    parser.add_argument("--altitude", action="store", type=argtypes.altitude,
                         default=configuration.ALTITUDE,
                         help="The starting altitude")
 
-    parser.add_argument("--airspeed", action="store", type=float,
+    parser.add_argument("--airspeed", action="store", type=argtypes.airspeed,
                         default=configuration.AIRSPEED,
                         help="The starting airspeed")
 
-    parser.add_argument("--heading", action="store", type=float,
+    parser.add_argument("--heading", action="store", type=argtypes.heading,
                         default=configuration.HEADING,
                         help="The starting heading")
 
@@ -90,40 +89,6 @@ def get_arguments():
                         help="Start the simulator paused")
 
     return parser.parse_args()
-
-
-def validate_arguments(args, logger):
-    """Check if the script arguments have valid values
-
-    Arguments:
-    args: an ArgumentParser object
-    logger: the Logger object that will record the error messages
-    """
-    if args.dt <= 0.0:
-        logger.error("Invalid simulation timestep %f", args.dt)
-        return False
-
-    if args.airspeed < 0.0:
-        logger.error("Invalid aircraft airspeed %f", args.airspeed)
-        return False
-
-    if not is_valid_latitude(args.latitude):
-        logger.error("Invalid latitude %f", args.latitude)
-        return False
-
-    if not is_valid_longitude(args.longitude):
-        logger.error("Invalid longitude %f", args.longitude)
-        return False
-
-    if not is_valid_heading(args.heading):
-        logger.error("Invalid heading %f", args.heading)
-        return False
-
-    if args.altitude < 0.0:
-        logger.error("Invalid altitude %f", args.altitude)
-        return False
-
-    return True
 
 
 def initialize_logger(output_file, debug):
@@ -160,10 +125,6 @@ def main():
     logger.info("Starting the Huginn flight simulator")
 
     huginn_data_path = configuration.get_data_path()
-
-    if not validate_arguments(args, logger):
-        logger.error("Invalid simulator arguments")
-        exit(1)
 
     logger.debug("Selected trim mode is %s", args.trim)
 
