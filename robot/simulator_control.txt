@@ -77,3 +77,12 @@ Run the simulator for 100 milliseconds
     Simulator is Paused
     ${current_time} =    Get Simulator Time
     Value Close To    ${current_time}  ${starting_time + 0.1}  0.1
+
+Start Huginn With Simulator Running
+    Stop Huginn
+    ${huginn_process_id} =    Start Process    huginn_start    shell=true
+    Process Should Be Running    ${huginn_process_id}
+    Create Session    huginn_web_server    ${HUGINN_URL}
+    Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
+    Simulator Is Running
+    Simulator DT Should Be    0.003333

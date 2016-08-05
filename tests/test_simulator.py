@@ -9,12 +9,24 @@ class SimulatorBuilderTests(TestCase):
         huginn_data_path = configuration.get_data_path()
 
         simulation_builder = SimulationBuilder(huginn_data_path)
-        simulation_builder.aircraft = "Rascal"
 
         simulator = simulation_builder.create_simulator()
 
         self.assertIsNotNone(simulator)
         self.assertEqual(simulator.simulation_time, configuration.DT)
+        self.assertFalse(simulator.is_paused())
+
+    def test_create_simulation_with_the_simulator_paused(self):
+        huginn_data_path = configuration.get_data_path()
+
+        simulation_builder = SimulationBuilder(huginn_data_path)
+        simulation_builder.start_paused = True
+
+        simulator = simulation_builder.create_simulator()
+
+        self.assertIsNotNone(simulator)
+        self.assertEqual(simulator.simulation_time, configuration.DT)
+        self.assertTrue(simulator.is_paused())
 
 class TestSimulator(TestCase):
     def test_run_with_real_fdmexec(self):

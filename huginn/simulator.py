@@ -33,6 +33,7 @@ class SimulationBuilder(object):
         self.heading = configuration.HEADING
 
         self.trim_mode = TRIM_MODE_FULL
+        self.start_paused = False
 
     def create_simulator(self):
         """Create the Simulator object"""
@@ -65,12 +66,16 @@ class SimulationBuilder(object):
 
         simulator = Simulator(fdmexec)
         simulator.trim_mode = self.trim_mode
+        simulator.start_paused = self.start_paused
 
         result = simulator.step()
 
         if not result:
             logger.error("Failed to execute simulator run")
             return None
+
+        if self.start_paused:
+            simulator.pause()
 
         return simulator
 
@@ -89,6 +94,7 @@ class Simulator(object):
         self.fdm = FDM(fdmexec)
         self.trim_mode = TRIM_MODE_FULL
         self._crashed = False
+        self.start_paused = False
 
     @property
     def crashed(self):
@@ -163,6 +169,9 @@ class Simulator(object):
 
         logger.debug("Engine thrust after simulation reset %f",
                      self.aircraft.engine.thrust)
+
+        if not self.start_paused:
+            self.resume()
 
         return True
 

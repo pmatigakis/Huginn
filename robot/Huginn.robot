@@ -59,14 +59,14 @@ ${IC_CLIMB_RATE_FPM}    6.7
 
 *** Keywords ***
 Start Huginn
-    ${huginn_process_id} =    Start Process    huginn_start    shell=true
+    ${huginn_process_id} =    Start Process    huginn_start  --paused  shell=true
     Process Should Be Running    ${huginn_process_id}
     Create Session    huginn_web_server    ${HUGINN_URL}
     Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
     Simulator Is Paused
     Simulator DT Should Be    0.003333
     Simulation Time Should Be    0.003333
-    
+
 Stop Huginn
     Terminate All Processes
 

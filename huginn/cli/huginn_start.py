@@ -86,6 +86,9 @@ def get_arguments():
                         default=configuration.HEADING,
                         help="The starting heading")
 
+    parser.add_argument("--paused", action="store_true",
+                        help="Start the simulator paused")
+
     return parser.parse_args()
 
 
@@ -164,6 +167,9 @@ def main():
 
     logger.debug("Selected trim mode is %s", args.trim)
 
+    if args.paused:
+        logger.info("The simulator will start paused")
+
     simulator_builder = SimulationBuilder(huginn_data_path)
     simulator_builder.trim_mode = TRIM_MODES[args.trim]
     simulator_builder.dt = args.dt
@@ -173,6 +179,7 @@ def main():
     simulator_builder.altitude = args.altitude
     simulator_builder.airspeed = args.airspeed
     simulator_builder.heading = args.heading
+    simulator_builder.start_paused = args.paused
 
     logger.debug("Creating the simulator")
     simulator = simulator_builder.create_simulator()
@@ -181,10 +188,6 @@ def main():
         logger.error("Failed to create the simulator using the aircraft "
                      "model '%s'", args.aircraft)
         exit(1)
-
-    # start the simulator paused
-    logger.debug("The simulator will start paused")
-    simulator.pause()
 
     initialize_controls_server(reactor, simulator.fdmexec, args.controls)
     initialize_simulator_data_server(reactor, simulator, args.fdm)
