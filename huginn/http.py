@@ -105,6 +105,8 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
 
         if command == "flight_data":
             self.send_flight_data()
+        else:
+            logger.warning("Unknown web socket command %s", command)
 
     def send_flight_data(self):
         """Send the fdm data"""
