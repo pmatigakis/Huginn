@@ -77,19 +77,18 @@ class WebClient(object):
         return self._get_json_data_from_endpoint("controls")
 
 
-class FDMDataWebSocketFactory(WebSocketServerFactory):
-    """The FDMDataWebSocketFactory class is a factory that creates the
-    protocol objects for the fdm data transmission through web sockets"""
-    def __init__(self, fdm, update_rate, *args, **kwargs):
+class SimulatorDataWebSocketFactory(WebSocketServerFactory):
+    """The SimulatorDataWebSocketFactory class is a factory that creates the
+    protocol objects for the simulator data transmission through web sockets"""
+    def __init__(self, simulator, *args, **kwargs):
         WebSocketServerFactory.__init__(self, *args, **kwargs)
 
-        self.fdm = fdm
-        self.update_rate = update_rate
+        self.simulator = simulator
 
 
-class FDMDataWebSocketProtocol(WebSocketServerProtocol):
-    """The FDMDataWebSocketProtocol class if the protocol class that transmits
-    the fdm data using a web socket"""
+class SimulatorDataWebSocketProtocol(WebSocketServerProtocol):
+    """The SimulatorDataWebSocketProtocol class if the protocol class that
+    transmits the simulator data using a web socket"""
     def onMessage(self, payload, isBinary):
         try:
             request = json.loads(payload)
@@ -110,17 +109,19 @@ class FDMDataWebSocketProtocol(WebSocketServerProtocol):
 
     def send_flight_data(self):
         """Send the fdm data"""
+        fdm = self.factory.simulator.fdm
+
         flight_data = {
             "command": "flight_data",
             "data": {
-                "roll": self.factory.fdm.orientation.phi,
-                "pitch": self.factory.fdm.orientation.theta,
-                "airspeed": self.factory.fdm.velocities.true_airspeed,
-                "latitude": self.factory.fdm.position.latitude,
-                "longitude": self.factory.fdm.position.longitude,
-                "altitude": self.factory.fdm.position.altitude,
-                "heading": self.factory.fdm.position.heading,
-                "climb_rate": self.factory.fdm.velocities.climb_rate
+                "roll": fdm.orientation.phi,
+                "pitch": fdm.orientation.theta,
+                "airspeed": fdm.velocities.true_airspeed,
+                "latitude": fdm.position.latitude,
+                "longitude": fdm.position.longitude,
+                "altitude": fdm.position.altitude,
+                "heading": fdm.position.heading,
+                "climb_rate": fdm.velocities.climb_rate
             },
         }
 

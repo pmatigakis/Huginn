@@ -155,10 +155,9 @@ def main():
 
     initialize_websocket_server(
         reactor,
-        simulator.fdm,
+        simulator,
         configuration.WEBSOCKET_HOST,
         configuration.WEBSOCKET_PORT,
-        configuration.WEBSOCKET_UPDATE_RATE
     )
 
     initialize_web_server(reactor, simulator, args.web)

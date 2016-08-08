@@ -13,7 +13,9 @@ from flask import Flask, render_template
 from flask_restful import Api
 
 from huginn.protocols import ControlsProtocol, SimulatorDataProtocol
-from huginn.http import FDMDataWebSocketFactory, FDMDataWebSocketProtocol
+from huginn.http import (SimulatorDataWebSocketFactory,
+                         SimulatorDataWebSocketProtocol)
+
 from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          AccelerometerResource, GyroscopeResource,
                          ThermometerResource, PressureSensorResource,
@@ -70,26 +72,22 @@ def initialize_simulator_data_server(reactor, simulator, clients):
         simulator_data_updater.start(update_rate)
 
 
-def initialize_websocket_server(reactor, fdm, host, port, update_rate):
+def initialize_websocket_server(reactor, simulator, host, port):
     """Initialize the web socket server
 
     Arguments:
     reactor: a twisted reactor object
-    fdm: an FDM object
+    simulator: an Simulator object
     host: the server host
     port: the port to listen to
-    update_rate: the websocket data update rate in Hz
     """
     logger.debug("The websocket interface runs on %s:%d", host, port)
-    logger.debug("The web socket interface update rate is %f Hz", update_rate)
-
-    factory = FDMDataWebSocketFactory(
-        fdm,
-        update_rate,
+    factory = SimulatorDataWebSocketFactory(
+        simulator,
         "ws://%s:%d" % (host, port)
     )
 
-    factory.protocol = FDMDataWebSocketProtocol
+    factory.protocol = SimulatorDataWebSocketProtocol
 
     reactor.listenTCP(port, factory)
 
