@@ -118,7 +118,7 @@ def _add_fdm_resources(api, fdm, aircraft):
                      resource_class_args=(fdm.fdmexec,))
 
 
-def _add_instruments(api, instruments):
+def _add_instrument_resources(api, instruments):
     api.add_resource(GPSResource, "/aircraft/instruments/gps",
                      resource_class_args=(instruments.gps,))
 
@@ -153,7 +153,7 @@ def _add_instruments(api, instruments):
     )
 
 
-def _add_sensors(api, sensors):
+def _add_sensor_resources(api, sensors):
     api.add_resource(
         AccelerometerResource,
         "/aircraft/sensors/accelerometer",
@@ -192,6 +192,12 @@ def _add_sensors(api, sensors):
 
 
 def initialize_web_server(reactor, simulator, port):
+    """Initialize the web server
+
+    :param reactor: the twisted reactor to use
+    :param simulator: the Simulator ubject that will be used
+    :param port: the port that the server will listen to
+    """
     logger.debug("The web server will listen at port %d", port)
 
     app = Flask(__name__)
@@ -200,9 +206,9 @@ def initialize_web_server(reactor, simulator, port):
 
     _add_fdm_resources(api, simulator.fdm, simulator.aircraft)
 
-    _add_instruments(api, simulator.aircraft.instruments)
+    _add_instrument_resources(api, simulator.aircraft.instruments)
 
-    _add_sensors(api, simulator.aircraft.sensors)
+    _add_sensor_resources(api, simulator.aircraft.sensors)
 
     api.add_resource(AircraftResource, "/aircraft",
                      resource_class_args=(simulator.aircraft,))
