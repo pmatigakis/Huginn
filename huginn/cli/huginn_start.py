@@ -22,6 +22,8 @@ from huginn.fdm import (TRIM_MODE_FULL, TRIM_MODE_GROUND,
                         TRIM_MODE_TURN)
 
 from huginn.cli import argtypes
+from huginn.database import create_database
+
 
 TRIM_MODES = {
     "longitudinal": TRIM_MODE_LONGITUDINAL,
@@ -153,14 +155,17 @@ def main():
     initialize_controls_server(reactor, simulator.fdmexec, args.controls)
     initialize_simulator_data_server(reactor, simulator, args.fdm)
 
+    db = create_database()
+
     initialize_websocket_server(
         reactor,
         simulator,
         configuration.WEBSOCKET_HOST,
         configuration.WEBSOCKET_PORT,
+        db
     )
 
-    initialize_web_server(reactor, simulator, args.web)
+    initialize_web_server(reactor, simulator, args.web, db)
 
     def run_simulator():
         result = simulator.run()

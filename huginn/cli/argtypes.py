@@ -11,6 +11,11 @@ def latitude(value):
     Return the latitude or raises ArgumentTypeError if the latitude is not
     valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value > 90.0 or value < -90.0:
         raise ArgumentTypeError("Invalid latitude")
 
@@ -26,6 +31,11 @@ def longitude(value):
     Return the longitude or raises ArgumentTypeError if the longitude is not
     valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value > 180.0 or value < -180.0:
         raise ArgumentTypeError("Invalid longitude")
 
@@ -41,6 +51,11 @@ def altitude(value):
     Return the altitude or raises ArgumentTypeError if the altitude is not
     valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value < 0.0:
         raise ArgumentTypeError("Invalid altitude")
 
@@ -56,6 +71,11 @@ def heading(value):
     Return the heading or raises ArgumentTypeError if the heading is not
     valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value < 0.0 or value > 360.0:
         raise ArgumentTypeError("Invalid heading")
 
@@ -71,6 +91,11 @@ def airspeed(value):
     Return the heading or raises ArgumentTypeError if the heading is not
     valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value < 0.0:
         raise ArgumentTypeError("Invalid airspeed")
 
@@ -86,6 +111,11 @@ def update_rate(value):
     Return the update rate or raises ArgumentTypeError if the update rate is
     not valid
     """
+    try:
+        value = float(value)
+    except ValueError:
+        raise ArgumentTypeError("{} is not a number".format(value))
+
     if value < 0.00001:
         raise ArgumentTypeError("Invalid update rate")
 

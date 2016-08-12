@@ -1,8 +1,11 @@
 """
 The huginn.rest module contains the rest interface endpoints
 """
+from logging import getLogger
+
 from flask import request
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, marshal_with, abort
+from tinydb import Query
 
 from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
                             OrientationSchema, AtmosphereShema, ForcesSchema,
@@ -13,6 +16,12 @@ from huginn.schemas import (AccelerationsSchema, VelocitiesSchema,
 
 from huginn.fdm import (Accelerations, Velocities, Orientation, Atmosphere,
                         Forces, InitialCondition, Position)
+
+from huginn import request_models
+from huginn import request_parsers
+
+
+logger = getLogger(__name__)
 
 
 class FDMResource(Resource):
@@ -620,3 +629,69 @@ class VerticalSpeedIndicatorResource(ObjectResource):
             self.vertical_speed_indicator,
             self.vertical_speed_indicator_schema
         )
+
+
+class WaypointResource(Resource):
+    """The WaypointResource is used to ad, delete and update waypoints"""
+    def __init__(self, db):
+        self.db = db
+
+    @marshal_with(request_models.waypoint)
+    def get(self, name):
+        """Get the waypoint's data"""
+        Document = Query()
+
+        waypoints = self.db.search(Document.type == "waypoints")[0]
+
+        waypoint = waypoints["waypoints"].get(name)
+
+        if waypoint is not None:
+            return waypoint
+        else:
+            abort(404, error="waypoint doesn't exist", name=name)
+
+    @marshal_with(request_models.waypoint)
+    def post(self, name):
+        """Add a new waypoint or update an existing waypoint's data"""
+        waypoint = request_parsers.waypoint.parse_args()
+        waypoint["name"] = name
+
+        Document = Query()
+
+        waypoints = self.db.search(Document.type == "waypoints")[0]
+
+        waypoints["waypoints"][name] = waypoint
+
+        self.db.update(waypoints, Document.type == "waypoints")
+
+        return waypoint
+
+    @marshal_with(request_models.waypoint)
+    def delete(self, name):
+        """Delete a waypoint"""
+        Document = Query()
+
+        waypoints = self.db.search(Document.type == "waypoints")[0]
+
+        waypoint = waypoints["waypoints"].get(name)
+
+        if waypoint is not None:
+            del waypoints["waypoints"][name]
+            return waypoint
+        else:
+            abort(404, error="waypoint doesn't exist", name=name)
+
+
+class WaypointsResource(Resource):
+    """The WaypointsResource is used to retrieve all the available waypoints"""
+    def __init__(self, db):
+        self.db = db
+
+    @marshal_with(request_models.waypoint)
+    def get(self):
+        """Get a list of the available waypoints"""
+        Document = Query()
+
+        waypoints = self.db.search(Document.type == "waypoints")[0]
+
+        return waypoints["waypoints"].values()

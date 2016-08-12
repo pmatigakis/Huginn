@@ -1,4 +1,7 @@
-from unittest import TestCase
+from unittest import TestCase, main
+
+from tinydb import TinyDB, Query
+from tinydb.storages import MemoryStorage
 
 from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          GPSResource, ThermometerResource, PitotTubeResource,
@@ -11,7 +14,8 @@ from huginn.rest import (FDMResource, AccelerometerResource, GyroscopeResource,
                          InitialConditionResource, PositionResource,
                          AirspeedIndicatorResource, AltimeterResource,
                          AttitudeIndicatorResource, HeadingIndicatorResource,
-                         VerticalSpeedIndicatorResource)
+                         VerticalSpeedIndicatorResource, WaypointResource,
+                         WaypointsResource)
 
 from huginn import configuration
 
@@ -634,3 +638,100 @@ class VertialSpeedIndicatorResourceTests(TestCase):
         response = vertical_speed_indicator_resource.get()
 
         self.assertAlmostEqual(response["climb_rate"], vertical_speed_indicator.climb_rate, 3)
+
+class WaypointResourceTests(TestCase):
+    def setUp(self):
+        self.db = TinyDB(storage=MemoryStorage)
+
+        self.db.insert({
+            "type": "waypoints",
+            "waypoints": {
+                "waypoint_1": {
+                    "name": "waypoint_2",
+                    "latitude": 10.0,
+                    "longitude": 20.0,
+                    "altitude": 30.0
+                }
+            }
+        })
+
+    def test_get_waypoint(self):
+        resource = WaypointResource(self.db)
+
+        waypoint = resource.get("waypoint_1")
+
+        expected_waypoint = {
+            "name": "waypoint_2",
+            "latitude": 10.0,
+            "longitude": 20.0,
+            "altitude": 30.0
+        }
+
+        self.assertDictEqual(waypoint, expected_waypoint)
+
+    def test_delete_waypoint(self):
+        resource = WaypointResource(self.db)
+
+        waypoint = resource.delete("waypoint_1")
+
+        expected_waypoint = {
+            "name": "waypoint_2",
+            "latitude": 10.0,
+            "longitude": 20.0,
+            "altitude": 30.0
+        }
+
+        self.assertDictEqual(waypoint, expected_waypoint)
+
+        Document = Query()
+
+        waypoints = self.db.search(Document.type == "waypoints")[0]
+
+        self.assertEqual(len(waypoints["waypoints"]), 0)
+
+class WaypointsResourceTests(TestCase):
+    def setUp(self):
+        self.db = TinyDB(storage=MemoryStorage)
+
+        self.db.insert({
+            "type": "waypoints",
+            "waypoints": {
+                "waypoint_1": {
+                    "name": "waypoint_1",
+                    "latitude": 10.0,
+                    "longitude": 20.0,
+                    "altitude": 30.0
+                },
+                "waypoint_2": {
+                    "name": "waypoint_2",
+                    "latitude": 40.0,
+                    "longitude": 50.0,
+                    "altitude": 60.0
+                }
+            }
+        })
+
+    def test_get_multiple_waypoints(self):
+        resource = WaypointsResource(self.db)
+
+        waypoints = resource.get()
+
+        expected_waypoints = [
+            {
+                "name": "waypoint_2",
+                "latitude": 40.0,
+                "longitude": 50.0,
+                "altitude": 60.0
+            },
+            {
+                "name": "waypoint_1",
+                "latitude": 10.0,
+                "longitude": 20.0,
+                "altitude": 30.0
+            },
+        ]
+
+        self.assertItemsEqual(waypoints, expected_waypoints)
+
+if __name__ == "__main__":
+    main()

@@ -727,3 +727,68 @@ Should Be Valid Vertical Speed Indicator Response
 Should Be Vertical Speed Indicator Response When Aircraft Is In The Start Location
     [Arguments]    ${response}
     Should Be Equal As Numbers    ${response.json()['climb_rate']}  ${IC_CLIMB_RATE_FPM}  precision=1
+
+Is A Waypoint Add Response
+    [Arguments]    ${resp}
+    JSON Response Should Contain item    ${resp}  name
+    JSON Response Should Contain item    ${resp}  latitude
+    JSON Response Should Contain item    ${resp}  longitude
+    JSON Response Should Contain item    ${resp}  altitude
+
+Add Waypoint Response Equal
+    [Arguments]    ${resp}    ${name}  ${latitude}  ${longitude}  ${altitude}
+    Should Be Equal    ${resp.json()['name']}  ${name}
+    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${latitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${longitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${altitude}  precision=3
+
+Is A Waypoint Retrieval Response
+    [Arguments]    ${resp}
+    JSON Response Should Contain item    ${resp}  name
+    JSON Response Should Contain item    ${resp}  latitude
+    JSON Response Should Contain item    ${resp}  longitude
+    JSON Response Should Contain item    ${resp}  altitude
+
+Retrieve Waypoint Response Equal
+    [Arguments]    ${resp}    ${name}  ${latitude}  ${longitude}  ${altitude}
+    Should Be Equal    ${resp.json()['name']}  ${name}
+    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${latitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${longitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${altitude}  precision=3
+
+Is A Waypoint Delete Response
+    [Arguments]    ${resp}
+    JSON Response Should Contain item    ${resp}  name
+    JSON Response Should Contain item    ${resp}  latitude
+    JSON Response Should Contain item    ${resp}  longitude
+    JSON Response Should Contain item    ${resp}  altitude
+
+Delete Waypoint Response Equal
+    [Arguments]    ${resp}    ${name}  ${latitude}  ${longitude}  ${altitude}
+    Should Be Equal    ${resp.json()['name']}  ${name}
+    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${latitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${longitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${altitude}  precision=3
+
+Add A Waypoint Using An API Call
+    [Arguments]    ${name}  ${latitude}  ${longitude}  ${altitude}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${command_data} =    Create Dictionary  latitude=${latitude}  longitude=${longitude}  altitude=${altitude}
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /map/waypoint/${name}  data=${command_data}  headers=${headers}
+    Response Status Code Should Be    ${resp}  200
+    Response Content Type Should Be JSON    ${resp}
+    Is A Waypoint Add Response    ${resp}
+    Add Waypoint Response equal    ${resp}  ${name}  ${latitude}  ${longitude}  ${altitude}
+
+Get Waypoint
+    [Arguments]    ${name}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Get Request    huginn_web_server  /map/waypoint/${name}
+    [Return]    ${resp}
+
+Delete Waypoint
+    [Arguments]    ${name}
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${resp} =    Delete Request    huginn_web_server  /map/waypoint/${name}
+    [Return]    ${resp}

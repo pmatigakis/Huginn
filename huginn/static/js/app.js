@@ -3,7 +3,7 @@ var follow_aircraft;
 var aircraft_marker;
 var myhud;
 var entity;
-var markers = [];
+var waypoints = new Object();
 
 var aircraft_info = L.control();
 
@@ -114,6 +114,10 @@ function start_data_update(){
 		fdm_data_request_timer = setInterval(function(){
 			socket.send(JSON.stringify({"command": "flight_data"}));
 		}, 40);
+
+		fdm_data_request_timer = setInterval(function(){
+			socket.send(JSON.stringify({"command": "waypoints"}));
+		}, 1000);
 	}
 	
 	socket.onmessage = function(msg){
@@ -137,6 +141,32 @@ function start_data_update(){
 			var altitude_in_feet = altitude * 3.28084;
 			var climb_rate_in_feet = climb_rate * 3.28084;
 			update_indicators(roll, pitch, altitude_in_feet, airspeed_in_knots, heading, climb_rate_in_feet);
+		} else if (response["command"] == "waypoints"){
+		    var existing_waypoints = [];
+
+		    for(var i = 0; i < response["data"].length; i++){
+		        existing_waypoints.push(response["data"][i]["name"]);
+
+                var w = waypoints[response["data"][i]["name"]];
+
+                if(!w){
+                    var marker =  L.marker([response["data"][i]["latitude"], response["data"][i]["longitude"]]);
+                    marker.addTo(map);
+                    waypoints[response["data"][i]["name"]] = marker;
+                }else{
+                    w.setLatLng(L.latLng(response["data"][i]["latitude"], response["data"][i]["longitude"]));
+                }
+		    }
+
+		    for(var key in waypoints){
+		        if(waypoints.hasOwnProperty(key)){
+		            if(existing_waypoints.indexOf(key) == -1){
+		                var w = waypoints[key];
+		                map.removeLayer(w);
+		                delete waypoints[key];
+		            }
+		        }
+		    }
 		}
 	}
 	

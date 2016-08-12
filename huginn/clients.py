@@ -5,7 +5,6 @@ and control huginn
 
 
 import csv
-import json
 
 import requests
 
@@ -13,19 +12,18 @@ from huginn import configuration
 
 
 class MapClient(object):
-    """The MapClient is used to load a weypoint file to the simulator so that
-    waypoints can be seen on the web frontend"""
+    """The MapClient is used to load waypoints to the simulator"""
     def __init__(self,
                  host=configuration.WEB_SERVER_PORT,
                  port=configuration.WEB_SERVER_PORT):
         self.host = host
         self.port = port
 
-    def load_from_csv(self, waypoint_file):
+    def load(self, waypoint_file):
         """Load waypoints from a csv file. Every row must be in the following
         format
 
-        waypoint_name,latitude,longitude
+        waypoint_name,latitude,longitude,altitude
         """
         waypoints = []
 
@@ -35,17 +33,67 @@ class MapClient(object):
             for row in reader:
                 waypoint = {"name": row[0],
                             "latitude": float(row[1]),
-                            'longitude': float(row[2])}
+                            'longitude': float(row[2]),
+                            "altitude": float(row[3])}
 
                 waypoints.append(waypoint)
 
-        response = requests.post("http://%s:%d/map" % (self.host, self.port),
+        for waypoint in waypoints:
+            url = "http://{}:{}/map/waypoint/{}".format(
+                self.host, self.port, waypoint["name"])
+
+            response = requests.post(
+                url,
+                headers={'Content-Type': 'application/json'},
+                json=waypoint
+            )
+
+            if response.status_code != 200:
+                return None
+
+        return waypoints
+
+    def add_waypoint(self, name, latitude, longitude, altitude=0.0):
+        """Add a waypoint
+
+        Arguments:
+        name: the waypoint's name
+        latitude: the waypoint's latitude
+        longitude: the waypoint's longitude
+        altitude: the waypoint's altitude
+
+        Returns a dictionary with the waypoint data
+        """
+        waypoint = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "altitude": altitude
+        }
+
+        url = "http://{}:{}/map/waypoint/{}".format(self.host, self.port, name)
+
+        response = requests.post(url,
                                  headers={'Content-Type': 'application/json'},
-                                 json=waypoints)
+                                 json=waypoint)
 
-        response = json.loads(response.text)
+        if response.status_code != 200:
+            return None
 
-        if response["result"] != "ok":
-            return False
+        return waypoint
 
-        return True
+    def delete_waypoint(self, name):
+        """Delete a waypoint
+
+        Arguments:
+        name: the waypoint's altitude
+
+        Returns a dictionary with the waypoint data
+        """
+        url = "http://{}:{}/map/waypoint/{}".format(self.host, self.port, name)
+
+        response = requests.delete(url)
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()

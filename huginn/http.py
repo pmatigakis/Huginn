@@ -10,6 +10,8 @@ import requests
 from autobahn.twisted.websocket import (WebSocketServerFactory,
                                         WebSocketServerProtocol)
 
+from tinydb import Query
+
 
 logger = logging.getLogger(__name__)
 
@@ -80,10 +82,11 @@ class WebClient(object):
 class SimulatorDataWebSocketFactory(WebSocketServerFactory):
     """The SimulatorDataWebSocketFactory class is a factory that creates the
     protocol objects for the simulator data transmission through web sockets"""
-    def __init__(self, simulator, *args, **kwargs):
+    def __init__(self, simulator, database, *args, **kwargs):
         WebSocketServerFactory.__init__(self, *args, **kwargs)
 
         self.simulator = simulator
+        self.database = database
 
 
 class SimulatorDataWebSocketProtocol(WebSocketServerProtocol):
@@ -104,6 +107,8 @@ class SimulatorDataWebSocketProtocol(WebSocketServerProtocol):
 
         if command == "flight_data":
             self.send_flight_data()
+        elif command == "waypoints":
+            self.send_waypoint_data()
         else:
             logger.warning("Unknown web socket command %s", command)
 
@@ -126,5 +131,21 @@ class SimulatorDataWebSocketProtocol(WebSocketServerProtocol):
         }
 
         payload = json.dumps(flight_data).encode("utf8")
+
+        self.sendMessage(payload, False)
+
+    def send_waypoint_data(self):
+        """Send the waypoint information"""
+        Document = Query()
+
+        waypoints = self.factory.database.search(
+            Document.type == "waypoints")[0]
+
+        response = {
+            "command": "waypoints",
+            "data": waypoints["waypoints"].values()
+        }
+
+        payload = json.dumps(response).encode("utf8")
 
         self.sendMessage(payload, False)

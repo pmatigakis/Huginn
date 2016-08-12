@@ -27,7 +27,8 @@ from huginn.rest import (FDMResource, AircraftResource, GPSResource,
                          InitialConditionResource, PositionResource,
                          AirspeedIndicatorResource, AltimeterResource,
                          AttitudeIndicatorResource, HeadingIndicatorResource,
-                         VerticalSpeedIndicatorResource)
+                         VerticalSpeedIndicatorResource, WaypointResource,
+                         WaypointsResource)
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ def initialize_simulator_data_server(reactor, simulator, clients):
         simulator_data_updater.start(update_rate)
 
 
-def initialize_websocket_server(reactor, simulator, host, port):
+def initialize_websocket_server(reactor, simulator, host, port, database):
     """Initialize the web socket server
 
     Arguments:
@@ -80,11 +81,14 @@ def initialize_websocket_server(reactor, simulator, host, port):
     simulator: an Simulator object
     host: the server host
     port: the port to listen to
+    database: the database that contains the simulator data
     """
     logger.debug("The websocket interface runs on %s:%d", host, port)
+
     factory = SimulatorDataWebSocketFactory(
         simulator,
-        "ws://%s:%d" % (host, port)
+        database,
+        "ws://%s:%d" % (host, port),
     )
 
     factory.protocol = SimulatorDataWebSocketProtocol
@@ -191,12 +195,13 @@ def _add_sensor_resources(api, sensors):
     )
 
 
-def initialize_web_server(reactor, simulator, port):
+def initialize_web_server(reactor, simulator, port, database):
     """Initialize the web server
 
     :param reactor: the twisted reactor to use
     :param simulator: the Simulator ubject that will be used
     :param port: the port that the server will listen to
+    :param database: the database to use
     """
     logger.debug("The web server will listen at port %d", port)
 
@@ -230,6 +235,12 @@ def initialize_web_server(reactor, simulator, port):
         "/simulator",
         resource_class_args=(simulator,)
     )
+
+    api.add_resource(WaypointResource, "/map/waypoint/<name>",
+                     resource_class_args=(database,))
+
+    api.add_resource(WaypointsResource, "/map/waypoints",
+                     resource_class_args=(database,))
 
     api.init_app(app)
 

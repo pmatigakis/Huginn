@@ -51,7 +51,8 @@ setup(name="huginn",
                           "Flask>=0.11.1",
                           "Flask-RESTful>=0.3.5",
                           "marshmallow>=2.7.3",
-                          "Pint>=0.7.2"],
+                          "Pint>=0.7.2",
+                          "tinydb==3.2.1"],
       setup_requires=["nose>=1.3.7"],
       tests_require=["coverage>=4.0.3",
                      "mock>=1.3.0",
@@ -62,6 +63,7 @@ setup(name="huginn",
       entry_points={"console_scripts": ["huginn_start=huginn.cli.huginn_start:main",
                                         "huginn_control=huginn.cli.huginn_control:main",
                                         "huginn_record=huginn.cli.huginn_record:main",
-                                        "huginn_data=huginn.cli.huginn_data:main"]
+                                        "huginn_data=huginn.cli.huginn_data:main",
+                                        "huginn_waypoints=huginn.cli.huginn_waypoints:main"]
                     }
       )
