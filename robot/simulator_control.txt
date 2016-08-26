@@ -29,7 +29,7 @@ Check if the simulator is reset properly
     Simulation Time Should Be    0.003333
     Aircraft Should Be In The Start Location
     Resume Simulation
-    Sleep    2 seconds
+    Sleep    3 seconds
     Simulator Is Running
     Simulation Time Should Be Greater Than    2.0
     Reset Simulator
@@ -44,7 +44,7 @@ Pause the simulator
     Simulator is Paused
     Simulation Time Should Be    0.003333
     Resume Simulation
-    Sleep    2 seconds
+    Sleep    3 seconds
     Simulator Is Running
     Simulation Time Should Be Greater Than    2.0
     Pause Simulator

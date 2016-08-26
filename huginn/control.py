@@ -5,8 +5,16 @@ control the state of the simulator (pause, resume etc)
 
 
 import json
+import logging
 
 import requests
+
+
+logger = logging.getLogger(__name__)
+
+
+class SimulatorControlError(Exception):
+    pass
 
 
 class SimulatorControlClient(object):
@@ -78,6 +86,61 @@ class SimulatorControlClient(object):
                                            data={"time_to_run": time_to_run})
 
         if response_data["result"] != "ok":
+            return False
+
+        return True
+
+    def set_initial_condition(self, latitude, longitude, altitude, heading,
+                              airspeed):
+        """Set the aircraft initial condition
+
+        Arguments:
+        latitude: the starting latitude
+        longitude: the starting longitude
+        altitude: the starting altitude
+        heading: the starting heading
+        airspeed: the starting airspeed
+        """
+        url = "http://%s:%d/fdm/initial_condition" % (
+            self.huginn_host, self.simulator_controls_port)
+
+        response = requests.post(
+            url,
+            json={
+                "latitude": latitude,
+                "longitude": longitude,
+                "altitude": altitude,
+                "heading": heading,
+                "airspeed": airspeed
+            }
+        )
+
+        result = response.json()
+
+        if "result" not in result:
+            raise SimulatorControlError()
+
+        if result["result"] != "ok":
+            return False
+
+        return True
+
+    def start_paused(self, paused):
+        """Set the pause state of the simulator after a reset
+
+        Arguments:
+        paused: if True the simulator will start paused after a reset.
+        """
+        if paused:
+            response = self._send_command("start_paused")
+        else:
+            response = self._send_command("start_running")
+
+        result = response.get("result")
+
+        if result is None:
+            raise SimulatorControlError()
+        elif result != "ok":
             return False
 
         return True

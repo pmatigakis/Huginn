@@ -37,3 +37,27 @@ class TestSimulatorControlClient(TestCase):
         self.assertTrue(result)
 
         simulator_control_client._send_command.assert_called_once_with("resume")
+
+    def test_start_paused(self):
+        simulator_control_client = SimulatorControlClient("127.0.0.1", 12345)
+
+        simulator_control_client._send_command = MagicMock(
+            return_value={"result": "ok"})
+
+        result = simulator_control_client.start_paused(True)
+
+        self.assertTrue(result)
+
+        simulator_control_client._send_command.assert_called_once_with("start_paused")
+
+    def test_start_running(self):
+        simulator_control_client = SimulatorControlClient("127.0.0.1", 12345)
+
+        simulator_control_client._send_command = MagicMock(
+            return_value={"result": "ok"})
+
+        result = simulator_control_client.start_paused(False)
+
+        self.assertTrue(result)
+
+        simulator_control_client._send_command.assert_called_once_with("start_running")

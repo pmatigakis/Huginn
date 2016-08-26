@@ -67,6 +67,14 @@ Start Huginn
     Simulator DT Should Be    0.003333
     Simulation Time Should Be    0.003333
 
+Start Huginn Running
+    ${huginn_process_id} =    Start Process    huginn_start  shell=true
+    Process Should Be Running    ${huginn_process_id}
+    Create Session    huginn_web_server    ${HUGINN_URL}
+    Wait Until Keyword Succeeds    1 min    1 sec    Get Request    huginn_web_server    /
+    Simulator Is Running
+    Simulator DT Should Be    0.003333
+
 Stop Huginn
     Terminate All Processes
 
@@ -792,3 +800,19 @@ Delete Waypoint
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Delete Request    huginn_web_server  /map/waypoint/${name}
     [Return]    ${resp}
+
+Start Paused After Reset
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${command_data} =    Create Dictionary  command=start_paused
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
+    JSON Response Should Contain item    ${resp}  result
+    Should Be Equal    ${resp.json()['result']}  ok
+
+Start Running After Reset
+    Create Session    huginn_web_server  ${HUGINN_URL}
+    ${command_data} =    Create Dictionary  command=start_running
+    ${headers}=  Create Dictionary  Content-Type=application/json
+    ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
+    JSON Response Should Contain item    ${resp}  result
+    Should Be Equal    ${resp.json()['result']}  ok

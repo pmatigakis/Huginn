@@ -340,6 +340,16 @@ class SimulatorControlResource(Resource):
 
                 response = {"result": "ok",
                             "command": "run_for"}
+        elif command == "start_paused":
+            self.simulator.start_paused = True
+
+            response = {"result": "ok",
+                        "command": "start_paused"}
+        elif command == "start_running":
+            self.simulator.start_paused = False
+
+            response = {"result": "ok",
+                        "command": "start_running"}
         else:
             response = {"error": "unknown command",
                         "command": command}
@@ -352,14 +362,19 @@ class SimulatorControlResource(Resource):
 
         parser.add_argument("command", type=str, required=True)
         parser.add_argument("time_to_run", type=float)
+        parser.add_argument("paused", type=bool)
 
         args = parser.parse_args()
 
         command = args.command
 
-        params = None
+        params = {}
+
         if args.time_to_run:
-            params = {"time_to_run": args.time_to_run}
+            params["time_to_run"] = args.time_to_run
+
+        if args.paused:
+            params["paused"] = args.paused
 
         return self.execute_command(command, params)
 
