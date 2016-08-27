@@ -1,3 +1,8 @@
+"""
+The huginn.constants module contains the constant values used by the simulator
+"""
+
+
 # speed of sound at sea level (knots)
 a0 = 661.4788
 

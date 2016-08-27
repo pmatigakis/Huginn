@@ -1,3 +1,8 @@
+"""
+The huginn.database module contains the database initialization functions
+"""
+
+
 from tinydb import TinyDB
 from tinydb.storages import MemoryStorage
 

@@ -399,6 +399,7 @@ class ControlsClient(DatagramProtocol):
 class SensorDataProtocol(Int32StringReceiver):
     """The SensorDataProtocol is used to transmit the aircraft's sensor data"""
     def fill_gps_data(self, sensor_data_response):
+        """Add the gps data to the response object"""
         sensor_data_response.type = fdm_pb2.GPS_REQUEST
 
         instruments = self.factory.aircraft.instruments
@@ -409,6 +410,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.gps.heading = instruments.gps.heading
 
     def fill_accelerometer_data(self, sensor_data_response):
+        """Add the accelerometer data to the response object"""
         sensor_data_response.type = fdm_pb2.ACCELEROMETER_REQUEST
 
         accelerometer = self.factory.aircraft.sensors.accelerometer
@@ -418,6 +420,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.accelerometer.z = accelerometer.z
 
     def fill_gyroscope_data(self, sensor_data_response):
+        """Add the gyroscope data to the response object"""
         sensor_data_response.type = fdm_pb2.GYROSCOPE_REQUEST
 
         gyroscope = self.factory.aircraft.sensors.gyroscope
@@ -427,6 +430,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.gyroscope.yaw_rate = gyroscope.yaw_rate
 
     def fill_thermometer_data(self, sensor_data_response):
+        """Add the thermometer data to the response object"""
         sensor_data_response.type = fdm_pb2.THERMOMETER_REQUEST
 
         thermometer = self.factory.aircraft.sensors.thermometer
@@ -434,6 +438,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.thermometer.temperature = thermometer.temperature
 
     def fill_pressure_sensor_data(self, sensor_data_response):
+        """Add the presure sensor data to the response object"""
         sensor_data_response.type = fdm_pb2.PRESSURE_SENSOR_REQUEST
 
         pressure = self.factory.aircraft.sensors.pressure_sensor.pressure
@@ -441,6 +446,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.pressure_sensor.pressure = pressure
 
     def fill_pitot_tube_data(self, sensor_data_response):
+        """Add the pitot tube data to the response object"""
         sensor_data_response.type = fdm_pb2.PITOT_TUBE_REQUEST
 
         pitot_tube = self.factory.aircraft.sensors.pitot_tube
@@ -448,6 +454,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.pitot_tube.pressure = pitot_tube.pressure
 
     def fill_engine_data(self, sensor_data_response):
+        """Add the engine data to the response object"""
         sensor_data_response.type = fdm_pb2.ENGINE_REQUEST
 
         engine = self.factory.aircraft.engine
@@ -456,6 +463,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.engine.throttle = engine.throttle
 
     def fill_controls_data(self, sensor_data_response):
+        """Add the flight controls data to the response object"""
         sensor_data_response.type = fdm_pb2.CONTROLS_REQUEST
 
         controls = self.factory.aircraft.controls
@@ -467,6 +475,7 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.controls.throttle = engine.throttle
 
     def fill_ins_data(self, sensor_data_response):
+        """Add the inertial navigation data to the response object"""
         sensor_data_response.type = fdm_pb2.INS_REQUEST
 
         ins = self.factory.aircraft.sensors.inertial_navigation_system
@@ -480,9 +489,11 @@ class SensorDataProtocol(Int32StringReceiver):
         sensor_data_response.ins.heading = ins.heading
 
     def fill_error_response(self, sensor_data_response):
+        """Set the error code in the response object"""
         sensor_data_response.type = fdm_pb2.INVALID_REQUEST
 
     def send_response_string(self, response_string):
+        """Transmit the response"""
         self.sendString(response_string)
 
         self.transport.loseConnection()

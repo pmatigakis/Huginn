@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class SimulatorControlError(Exception):
+    """Exception that is raised when a simulator control command fails to
+    execute"""
     pass
 
 
