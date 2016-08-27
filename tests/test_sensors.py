@@ -1,5 +1,6 @@
 import math
-from unittest import TestCase
+from unittest import TestCase, main
+from mock import MagicMock
 
 from huginn import configuration
 from huginn.unit_conversions import convert_jsbsim_temperature,\
@@ -8,7 +9,8 @@ from huginn.unit_conversions import convert_jsbsim_temperature,\
                                     convert_jsbsim_velocity
 from huginn.fdm import FDMBuilder
 from huginn.sensors import Sensors, Accelerometer, Gyroscope, Thermometer,\
-                           PressureSensor, PitotTube, InertialNavigationSystem
+                           PressureSensor, PitotTube, InertialNavigationSystem,\
+                           Sensor
 
 class AccelerometerTests(TestCase):
     def test_accelerometer(self):
@@ -353,3 +355,43 @@ class SensorTests(TestCase):
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_altitude, fdmexec.GetPropagate().GetAltitudeASLmeters(), 3)
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_airspeed, convert_jsbsim_velocity(fdmexec.GetAuxiliary().GetVtrueFPS()), 3)
         self.assertAlmostEqual(sensors.inertial_navigation_system.true_heading, math.degrees(fdmexec.GetPropagate().GetEuler(3)), 3)
+
+
+class MockSensor(Sensor):
+    def __init__(self, fdmexec, update_rate):
+        super(MockSensor, self).__init__(fdmexec, update_rate)
+
+    def _update_sensor(self):
+        pass
+
+    @Sensor.sensor_property
+    def value(self):
+        return 0.0
+
+class SensorTests(TestCase):
+    def test_schedule_update(self):
+        huginn_data_path = configuration.get_data_path()
+
+        fdm_builder = FDMBuilder(huginn_data_path)
+        fdm_builder.aircraft = "Rascal"
+        fdmexec = fdm_builder.create_fdm()
+
+        update_rate = 50
+
+        sensor = MockSensor(fdmexec, update_rate)
+
+        sensor._update_sensor = MagicMock()
+
+        data = sensor.value
+
+        sensor._update_sensor.assert_not_called()
+
+        while fdmexec.GetSimTime() < sensor._update_at + 0.1:
+            fdmexec.Run()
+
+        data = sensor.value
+
+        sensor._update_sensor.assert_called_once()
+
+if __name__ == "__main__":
+    main()

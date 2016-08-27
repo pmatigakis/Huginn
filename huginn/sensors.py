@@ -2,9 +2,9 @@
 The hugin.sensors module contains classes that simulate the aircraft's sensors
 """
 from random import normalvariate
+from abc import ABCMeta, abstractmethod
 
 from huginn.unit_conversions import convert_jsbsim_pressure
-
 from huginn.fdm import (Velocities, Orientation, Position, Accelerations,
                         Atmosphere)
 
@@ -12,6 +12,8 @@ from huginn.fdm import (Velocities, Orientation, Position, Accelerations,
 class Sensor(object):
     """The Sensor class must be implemented by any object that simulates an
     aircraft sensor"""
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, fdmexec, update_rate):
         """initialize the Sensor object
@@ -22,20 +24,25 @@ class Sensor(object):
         """
         self.fdmexec = fdmexec
         self.update_rate = update_rate
+        self._update_at = 0.0
 
         self._update_sensor()
         self._schedule_update()
 
     def _schedule_update(self):
+        """Set the time when the sensor data will be updated"""
         self._update_at = self.fdmexec.GetSimTime() + (1.0/self.update_rate)
 
     def _needs_update(self):
+        """Check if the sensor data needs to be updated because the time for
+        which they are valid has passed"""
         return self.fdmexec.GetSimTime() > self._update_at
 
+    @abstractmethod
     def _update_sensor(self):
         """This method must be implemented by any subclass of the Sensor
         object"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @staticmethod
     def sensor_property(f):
