@@ -306,6 +306,12 @@ class SimulatorControlResource(Resource):
         return simulator_state
 
     def execute_command(self, command, params=None):
+        """Execute the simulator command
+
+        Arguments:
+        command: the command to execute
+        params: the parameters of the command
+        """
         if command == "reset":
             self.simulator.reset()
 
@@ -394,6 +400,7 @@ class ObjectResource(Resource):
         self.schema = schema
 
     def get(self):
+        """return the object data when a GET request is executed"""
         result = self.schema.dump(self.obj)
 
         return result.data
@@ -506,6 +513,12 @@ class InitialConditionResource(ObjectResource):
         )
 
     def update_initial_conditions(self, initial_condition):
+        """Update the simulator initial conditions
+
+        Arguments:
+        initial_conditions: a dictionary with the initial conditions of the
+            simulator
+        """
         if "latitude" in initial_condition:
             self.initial_condition.latitude = initial_condition["latitude"]
 
@@ -522,6 +535,7 @@ class InitialConditionResource(ObjectResource):
             self.initial_condition.heading = initial_condition["heading"]
 
     def post(self):
+        """Update the simulator condition when a POST request is executed"""
         data = request.json
 
         ic_schema = InitialConditionSchema()
