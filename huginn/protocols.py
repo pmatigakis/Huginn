@@ -534,7 +534,15 @@ class SensorDataProtocol(Int32StringReceiver):
 
 
 class SensorDataFactory(Factory):
+    """Factory class for the SensorDataProtocol twisted protocol class"""
+
     def __init__(self, aircraft):
+        """Create a new SensorDataFactory object
+
+        Arguments:
+        aircraft: an Aircraft class instance with will be used to retrieve the
+            aircraft data
+        """
         self.protocol = SensorDataProtocol
         self.aircraft = aircraft
 
@@ -545,6 +553,9 @@ class SensorDataResponceListener(object):
 
 
 class SensorDataClientProtocol(Int32StringReceiver):
+    """Twisted protocol class that is used to receive the sensor data from the
+    simulator"""
+
     def connectionMade(self):
         sensor_data_request = fdm_pb2.SensorDataRequest()
         sensor_data_request.type = self.factory.request_type
@@ -552,6 +563,7 @@ class SensorDataClientProtocol(Int32StringReceiver):
         self.sendString(sensor_data_request.SerializeToString())
 
     def stringReceived(self, string):
+        """Handle the data that have been received from the simulator"""
         sensor_data_response = fdm_pb2.SensorDataResponse()
         sensor_data_response.ParseFromString(string)
 
@@ -559,12 +571,20 @@ class SensorDataClientProtocol(Int32StringReceiver):
 
 
 class SensorDataClientProtocolFactory(Factory):
+    """Protocol factory object for the SensorDataClientProtocol protocol
+    class"""
+
     def __init__(self, request_type, sensor_data_responce_listener):
         self.protocol = SensorDataClientProtocol
         self.request_type = request_type
         self.sensor_data_responce_listener = sensor_data_responce_listener
 
     def received_responce(self, sensor_data_responce):
+        """Notify the sensor data listeners
+
+        Arguments:
+        sensor_data_responce: the data that were received from the simulator
+        """
         self.sensor_data_responce_listener.received_responce(
             sensor_data_responce
         )
