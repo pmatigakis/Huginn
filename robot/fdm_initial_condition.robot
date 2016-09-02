@@ -22,11 +22,7 @@ Change The Simulator Initial Condition
     Change initial Condition    ${new_latitude}  ${new_longitude}  ${new_airspeed}  ${new_altitude}  ${new_heading}
     ${resp} =    Get FDM Initial Condition Data
     Is Valid FDM Initial Condition Data Response    ${resp}
-    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${new_latitude}  precision=1
-    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${new_longitude}  precision=1
-    Should Be Equal As Numbers    ${resp.json()['airspeed']}  ${new_airspeed}  precision=3
-    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${new_altitude}  precision=3
-    Should Be Equal As Numbers    ${resp.json()['heading']}  ${new_heading}  precision=3
+    Is FDM Initial Condition Data Response With Aircraft At Location    ${resp}  ${new_latitude}  ${new_longitude}  ${new_altitude}  ${new_heading}  ${new_airspeed}
 
 Change The initial Condition And Reset The Simulator    
     [Documentation]    This test checks if the simulator loads the new initial conditions after a reset
@@ -44,26 +40,12 @@ Change The initial Condition And Reset The Simulator
     Change initial Condition    ${new_latitude}  ${new_longitude}  ${new_airspeed}  ${new_altitude}  ${new_heading}
     ${resp} =    Get FDM Initial Condition Data
     Is Valid FDM Initial Condition Data Response    ${resp}
-    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${new_latitude}  precision=1
-    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${new_longitude}  precision=1
-    Should Be Equal As Numbers    ${resp.json()['airspeed']}  ${new_airspeed}  precision=3
-    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${new_altitude}  precision=3
-    Should Be Equal As Numbers    ${resp.json()['heading']}  ${new_heading}  precision=3
+    Is FDM Initial Condition Data Response With Aircraft At Location    ${resp}  ${new_latitude}  ${new_longitude}  ${new_altitude}  ${new_heading}  ${new_airspeed}
     Reset Simulator
     Create Session    huginn_web_server  ${HUGINN_URL}
     ${resp} =    Get Request    huginn_web_server  /fdm/position
-    Should be Equal As Strings    ${resp.status_code}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  latitude
-    JSON Response Should Contain item    ${resp}  longitude
-    JSON Response Should Contain item    ${resp}  altitude
-    JSON Response Should Contain item    ${resp}  heading
-    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${new_latitude}  precision=1
-    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${new_longitude}  precision=1
-    Value Close To    ${resp.json()['altitude']}  ${new_altitude}  10
-    Value Close To    ${resp.json()['heading']}  ${new_heading}  5
+    Is Valid FDM Position Data Response    ${resp}
+    Is FDM Position Data Response With Aircraft At Location    ${resp}  ${new_latitude}  ${new_longitude}  ${new_altitude}  ${new_heading}
     ${resp} =    Get Request    huginn_web_server  /fdm/velocities
-    Should be Equal As Strings    ${resp.status_code}  200
-    Response Content Type Should Be JSON    ${resp}
-    JSON Response Should Contain item    ${resp}  true_airspeed
-    Value Close To    ${resp.json()['true_airspeed']}  ${new_airspeed}  5
+    Is Valid FDM Velocity Data Response    ${resp}
+    True Airspeed From Velocities Response Is    ${resp}  ${new_airspeed}

@@ -816,3 +816,22 @@ Start Running After Reset
     ${resp} =    Post Request    huginn_web_server  /simulator  data=${command_data}  headers=${headers}
     JSON Response Should Contain item    ${resp}  result
     Should Be Equal    ${resp.json()['result']}  ok
+
+Is FDM Initial Condition Data Response With Aircraft At Location
+    [Arguments]    ${resp}  ${latitude}  ${longitude}  ${altitude}  ${heading}  ${airspeed}
+    Should Be Equal As Numbers    ${resp.json()['latitude']}  ${latitude}  precision=1
+    Should Be Equal As Numbers    ${resp.json()['longitude']}  ${longitude}  precision=1
+    Should Be Equal As Numbers    ${resp.json()['airspeed']}  ${airspeed}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['altitude']}  ${altitude}  precision=3
+    Should Be Equal As Numbers    ${resp.json()['heading']}  ${heading}  precision=3
+
+Is FDM Position Data Response With Aircraft At Location
+    [Arguments]    ${response}  ${latitude}  ${longitude}  ${altitude}  ${heading}
+    Should Be Equal As Numbers    ${response.json()['latitude']}  ${latitude}  precision=1
+    Should Be Equal As Numbers    ${response.json()['longitude']}  ${longitude}  precision=1
+    Value Close To    ${response.json()['altitude']}  ${altitude}  5.0
+    Value Close To    ${response.json()['heading']}  ${heading}  5.0
+
+True Airspeed From Velocities Response Is
+    [Arguments]    ${response}  ${airspeed}
+    Value Close To    ${response.json()['true_airspeed']}  ${airspeed}  5
