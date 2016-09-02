@@ -1,1 +1,1 @@
-pybot aircraft_api.txt simulator_control.txt fdm.txt frontend.txt fdm_initial_condition.txt waypoints.txt simulator_reset_condition.txt
+pybot aircraft_api.robot simulator_control.robot fdm.robot frontend.robot fdm_initial_condition.robot waypoints.robot simulator_reset_condition.robot
